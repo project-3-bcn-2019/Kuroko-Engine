@@ -14,6 +14,7 @@
 #include "ModuleTimeManager.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleScripting.h"
+#include "ModulePhysics3D.h"
 #include <Windows.h>
 #include <iostream>
 #include <fstream>
@@ -52,6 +53,7 @@ Application::Application()
 	time = new ModuleTimeManager(this);
 	resources = new ModuleResourcesManager(this);
 	scripting = new ModuleScripting(this);
+	physics = new ModulePhysics3D(this);
 
 
 	// The order of calls is very important!
