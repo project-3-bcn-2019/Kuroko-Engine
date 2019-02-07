@@ -3,7 +3,7 @@
 
 #include "Module.h"
 #include "GameObject.h"
-//#include "Primitive.h"
+#include "MathGeoLib/Math/float3.h"
 
 class btRigidBody;
 class Module;

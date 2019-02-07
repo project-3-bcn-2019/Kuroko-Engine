@@ -483,9 +483,6 @@
     <ClInclude Include="PhysBody.h">
       <Filter>Sources\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="Primitive.h">
-      <Filter>Sources\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentColliderCube.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
@@ -771,9 +768,6 @@
       <Filter>Sources\Modules</Filter>
     </ClCompile>
     <ClCompile Include="PhysBody.cpp">
-      <Filter>Sources\Containers</Filter>
-    </ClCompile>
-    <ClCompile Include="Primitive.cpp">
       <Filter>Sources\Containers</Filter>
     </ClCompile>
     <ClCompile Include="ComponentColliderCube.cpp">
