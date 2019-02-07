@@ -5,6 +5,7 @@
 #include "ComponentAABB.h"
 #include "ComponentCamera.h"
 #include "ComponentScript.h"
+#include "ComponentColliderCube.h"
 #include "Camera.h"
 #include "Application.h"
 #include "ModuleUI.h"
@@ -193,6 +194,10 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentScript(this);
 		components.push_back(new_component);
 		break;
+	case COLLIDER_CUBE:
+		//new_component = new ComponentColliderCube(this);
+		components.push_back(new_component);
+		break;
 	default:
 		break;
 	}
@@ -225,6 +230,10 @@ void GameObject::addComponent(Component* component)
 		break;
 	case SCRIPT:
 		components.push_back(component);
+		break;
+	case COLLIDER_CUBE:
+		if (!getComponent(CAMERA))
+			components.push_back(component);
 		break;
 	default:
 		break;

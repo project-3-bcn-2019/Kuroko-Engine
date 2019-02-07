@@ -81,6 +81,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentAABB.h" />
     <ClInclude Include="ComponentCamera.h" />
+    <ClInclude Include="ComponentColliderCube.h" />
     <ClInclude Include="ComponentScript.h" />
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="FileSystem.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="ComponentAABB.cpp" />
     <ClCompile Include="ComponentCamera.cpp" />
+    <ClCompile Include="ComponentColliderCube.cpp" />
     <ClCompile Include="ComponentScript.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
     <ClCompile Include="FileSystem.cpp" />
