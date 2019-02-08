@@ -4,7 +4,8 @@
 #include "Module.h"
 #include "Globals.h"
 #include "MathGeoLib/MathGeoLib.h"
-//#include "Primitive.h"
+#include "Primitive.h"
+#include "PhysBody.h"
 
 
 
@@ -77,8 +78,8 @@ public:
 	//-----------------------
 
 
-	//std::vector<PhysBody*> loading_list;
-	//std::vector<Primitive*> primitive_list;	
+	std::vector<PhysBody*> loading_list;
+	std::vector<Primitive*> primitive_list;	
 	
 private:
 
@@ -100,7 +101,7 @@ private:
 	
 
 	std::vector<btCollisionShape*>		shapes;
-	//std::vector<PhysBody*>				bodies;
+	std::vector<PhysBody*>				bodies;
 	std::vector<btDefaultMotionState*>	motions;
 	std::vector<btTypedConstraint*>		constraints;
 

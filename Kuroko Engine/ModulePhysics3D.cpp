@@ -1,16 +1,18 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModulePhysics3D.h"
+#include "ModuleTimeManager.h"
 #include "ComponentTransform.h"
-//#include "ComponentColliderCube.h"
+#include "ComponentColliderCube.h"
 //#include "ComponentColliderSphere.h"
 #include "Component.h"
-//#include "PhysBody.h"
+#include "PhysBody.h"
 #include "ModuleCamera3D.h"
 #include "Camera.h"
 //#include "PanelGame.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
+#include "Primitive.h"
 
 #include "Applog.h"
 
@@ -142,10 +144,10 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 
 	return UPDATE_CONTINUE;
 }
-/*
+
 void ModulePhysics3D::UpdatePhysics()
 {
-	world->stepSimulation(App->dt, App->time_manager->time_scale);
+	//world->stepSimulation(App->dt, App->time_manager->time_scale);
 	std::vector<float*> matrix_list;
 	float *matrix = new float[16];
 	int i = 0;
@@ -154,17 +156,17 @@ void ModulePhysics3D::UpdatePhysics()
 		if ((*item)->has_primitive_render == true)
 		{
 			(*item)->GetTransform(matrix);
-			if ((*item)->primitive_ptr != nullptr)
-			{				
-				(*item)->primitive_ptr->transform.Set(matrix);							
-			}	
-			if ((*item)->mesh_ptr != nullptr)
-			{
-				(*item)->mesh_ptr->position.Set(matrix[12], matrix[13], matrix[14]);
-			}
+			//if ((*item)->primitive_ptr != nullptr)
+			//{				
+			//	(*item)->primitive_ptr->transform.Set(matrix);							
+			//}	
+			//if ((*item)->mesh_ptr != nullptr)
+			//{
+			//	(*item)->mesh_ptr->position.Set(matrix[12], matrix[13], matrix[14]);
+			//}
 			i++;
 		}	
-		if (App->state == stopped)
+		if (App->time->getGameState() == STOPPED)
 		{
 			(*item)->initial_pos = nullptr;
 		}
@@ -178,12 +180,12 @@ void ModulePhysics3D::UpdatePhysics()
 		}
 	}
 	
-	if (App->state == stopped)
+	if (App->time->getGameState() == STOPPED)
 	{
 		updateoncecollider = false;
 	}
 
-	if (App->state == playing)
+	if (App->time->getGameState() == PLAYING)
 	{
 
 		for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
@@ -195,7 +197,7 @@ void ModulePhysics3D::UpdatePhysics()
 					//Get matrix from bullet physics
 					float4x4 final_matrix4x4;
 					(*item)->GetTransform(matrix);
-					(*item)->owner->comp_transform->GetGlobalMatrix();
+					//(*item)->owner->comp_transform->GetGlobalMatrix();
 
 					//Set Rotations
 					final_matrix4x4[0][0] = matrix[0];	final_matrix4x4[0][1] = matrix[1];	final_matrix4x4[0][2] = matrix[2];
@@ -203,7 +205,7 @@ void ModulePhysics3D::UpdatePhysics()
 					final_matrix4x4[2][0] = matrix[8];	final_matrix4x4[2][1] = matrix[9];	final_matrix4x4[2][2] = matrix[10];
 					final_matrix4x4.Transpose();
 
-					float3 pos = (*item)->owner->comp_transform->GetLocalMatrix().Col3(3);
+					float3 pos = float3(0, 0, 0);// (*item)->owner->comp_transform->GetLocalMatrix().Col3(3);
 					static float3 init_local_pos;
 					if ((*item)->initial_pos == nullptr)
 					{
@@ -220,24 +222,24 @@ void ModulePhysics3D::UpdatePhysics()
 					//Matrix Translation and size
 					float* final_pos = new float[3];
 
-					if ((*item)->owner->HasColliderCube())
-					{						
-						final_pos[0] = pos.x;//- (*item)->owner->GetColliderCube()->center_offset[0];
-						final_pos[1] = pos.y;//- (*item)->owner->GetColliderCube()->center_offset[1];
-						final_pos[2] = pos.z;//- (*item)->owner->GetColliderCube()->center_offset[2];
-					}
-					if ((*item)->owner->HasColliderSphere())
-					{						
-						final_pos[0] = pos.x - (*item)->owner->GetColliderSphere()->center_offset[0];
-						final_pos[1] = pos.y - (*item)->owner->GetColliderSphere()->center_offset[1];
-						final_pos[2] = pos.z - (*item)->owner->GetColliderSphere()->center_offset[2];
-					}
-					else
-					{
+					//if ((*item)->owner->HasColliderCube())
+					//{						
+					//	final_pos[0] = pos.x;//- (*item)->owner->GetColliderCube()->center_offset[0];
+					//	final_pos[1] = pos.y;//- (*item)->owner->GetColliderCube()->center_offset[1];
+					//	final_pos[2] = pos.z;//- (*item)->owner->GetColliderCube()->center_offset[2];
+					//}
+					//if ((*item)->owner->HasColliderSphere())
+					//{						
+					//	final_pos[0] = pos.x - (*item)->owner->GetColliderSphere()->center_offset[0];
+					//	final_pos[1] = pos.y - (*item)->owner->GetColliderSphere()->center_offset[1];
+					//	final_pos[2] = pos.z - (*item)->owner->GetColliderSphere()->center_offset[2];
+					//}
+					//else
+					//{
 						final_pos[0] = pos.x;
 						final_pos[1] = pos.y;
 						final_pos[2] = pos.z;
-					}
+					//}
 
 										
 					//Transform + size
@@ -247,10 +249,10 @@ void ModulePhysics3D::UpdatePhysics()
 					final_matrix4x4[3][0] = 1;				final_matrix4x4[3][1] = 1;	final_matrix4x4[3][2] = 1;	final_matrix4x4[3][3] = matrix[15];			
 					
 
-					(*item)->owner->comp_transform->SetLocalMatrix(final_matrix4x4);
+					//(*item)->owner->comp_transform->SetLocalMatrix(final_matrix4x4);
 
-					(*item)->owner->comp_transform->UpdateTransformValues();
-					(*item)->owner->comp_transform->updated_outside = false;
+					//(*item)->owner->comp_transform->UpdateTransformValues();
+					//(*item)->owner->comp_transform->updated_outside = false;
 				}
 			}
 
@@ -284,7 +286,7 @@ void ModulePhysics3D::UpdatePhysics()
 
 
 }
-*/
+
 
 
 bool ModulePhysics3D::CleanUp()
@@ -316,10 +318,10 @@ bool ModulePhysics3D::CleanUp()
 
 	shapes.clear();
 
-	//for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	//	delete (*item);
+	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
+		delete (*item);
 
-	//bodies.clear();
+	bodies.clear();
 
 	delete world;
 
@@ -360,10 +362,10 @@ void ModulePhysics3D::CleanUpWorld()
 
 	shapes.clear();
 
-	//for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	//	delete (*item);
+	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
+		delete (*item);
 
-	//bodies.clear();
+	bodies.clear();
 }
 
 /*
