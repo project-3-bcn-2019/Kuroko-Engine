@@ -7,7 +7,8 @@
 #include "Parson\parson.h"
 
 #include "MathGeoLib\Math\float3.h"
-class PhysBody;
+
+
 class GameObject
 {
 	friend class ComponentTransform;
@@ -66,7 +67,6 @@ private:
 
 	GameObject* parent = nullptr;
 
-
 	float3 centroid = float3::zero;		// includes all childs
 	float3 half_size = float3::zero;	// includes all childs
 
@@ -78,7 +78,7 @@ private:
 	uint uuid = 0; 
 
 public:
-	PhysBody * physbody = nullptr;
+
 	bool is_active = true;
 	bool is_static = false;
 
