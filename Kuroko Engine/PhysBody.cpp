@@ -120,9 +120,7 @@ uint PhysBody::GetMass() const
 void PhysBody::ActivateGravity(const bool active)
 {
 	use_gravity = active;
-	use_gravity ? body->setGravity({ 0,App->physics->GetGravity(),0 }) : body->setGravity({ 0,0,0 });
-
-	
+	use_gravity ? body->setGravity({ 0,App->physics->GetGravity(),0 }) : body->setGravity({ 0,0,0 });	
 }
 
 bool PhysBody::HasGravity()const

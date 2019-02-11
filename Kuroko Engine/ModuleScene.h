@@ -1,5 +1,5 @@
-#ifndef __MODULE_SCENE
-#define __MODULE_SCENE
+#ifndef __MODULE_SCENE__
+#define __MODULE_SCENE__
 #include "Module.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
@@ -8,12 +8,14 @@
 #include "Transform.h"
 #include <list>
 
+
 class GameObject; 
 class Material;
 class Mesh;
 class Texture;
 class Skybox;
 class Quadtree;
+
 
 struct RayHit
 {
@@ -122,6 +124,7 @@ public:
 	bool quadtree_reload		= false;
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
-
+	//PCube cube;
+	//PhysBody p_cube;
 };
 #endif

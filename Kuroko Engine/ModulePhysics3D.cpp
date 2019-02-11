@@ -468,74 +468,73 @@ btDiscreteDynamicsWorld * ModulePhysics3D::GetWorld()const
 	return world;
 }
 
-std::list<float2> ModulePhysics3D::GetCubeCollisions()
-{
-	int listener = 0;
-	int candidate = 0;
+//std::list<float2> ModulePhysics3D::GetCubeCollisions()
+//{
+//	int listener = 0;
+//	int candidate = 0;
+//
+//	std::list<float2> collisions_list;
+//
+//	for (listener; listener < pcube_list.size(); listener++)
+//	{
+//		bool collided = false;
+//		for (candidate; candidate < pcube_list.size(); candidate++)
+//		{
+//			if (listener == candidate)
+//				continue;
+//			collided = pcube_list[listener].Intersects(pcube_list[candidate]);
+//			if (collided)
+//			{
+//				collisions_list.push_back({ (float)listener,(float)candidate });
+//				//CONSOLE_LOG_INFO("Cube %d collides with Cube %d",listener, candidate);
+//			}
+//		}
+//		candidate = 0;
+//	}
+//	return collisions_list;
+//}
 
-	std::list<float2> collisions_list;
-
-	for (listener; listener < pcube_list.size(); listener++)
-	{
-		bool collided = false;
-		for (candidate; candidate < pcube_list.size(); candidate++)
-		{
-			if (listener == candidate)
-				continue;
-			collided = pcube_list[listener].Intersects(pcube_list[candidate]);
-			if (collided)
-			{
-				collisions_list.push_back({ (float)listener,(float)candidate });
-				//CONSOLE_LOG_INFO("Cube %d collides with Cube %d",listener, candidate);
-			}
-		}
-		candidate = 0;
-	}
-	return collisions_list;
-}
-/*
 PhysBody* ModulePhysics3D::AddBody(PCube& cube, float mass)
 {
+	float3 total_dimension = cube.dimensions;
+	total_dimension.x *= cube.scale.x;
+	total_dimension.y *= cube.scale.y;
+	total_dimension.z *= cube.scale.z;
+	total_dimension *= 0.25f;
+	PCube aux = cube;
+	btCollisionShape* colShape = new btBoxShape(btVector3(total_dimension.x, total_dimension.y, total_dimension.z));
+	shapes.push_back(colShape);
 
-float3 total_dimension = cube.dimensions;
-total_dimension.x *= cube.scale.x;
-total_dimension.y *= cube.scale.y;
-total_dimension.z *= cube.scale.z;
-total_dimension *= 0.25f;
-PCube aux = cube;
-btCollisionShape* colShape = new btBoxShape(btVector3(total_dimension.x, total_dimension.y, total_dimension.z));
-shapes.push_back(colShape);
+	btTransform startTransform;
+	startTransform.setFromOpenGLMatrix(cube.transform.ptr());
 
-btTransform startTransform;
-startTransform.setFromOpenGLMatrix(cube.transform.ptr());
+	btVector3 localInertia(0, 0, 0);
+	if (mass != 0.f)
+	colShape->calculateLocalInertia(mass, localInertia);
 
-btVector3 localInertia(0, 0, 0);
-if (mass != 0.f)
-colShape->calculateLocalInertia(mass, localInertia);
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	motions.push_back(myMotionState);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 
-btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-motions.push_back(myMotionState);
-btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+	btRigidBody* body = new btRigidBody(rbInfo);
+	PhysBody* pbody = new PhysBody(body);
 
-btRigidBody* body = new btRigidBody(rbInfo);
-PhysBody* pbody = new PhysBody(body);
+	pbody->use_gravity = true;
+	pbody->dimensions = cube.dimensions;
+	pbody->primitive_ptr = &cube;
 
-pbody->use_gravity = true;
-pbody->dimensions = cube.dimensions;
-pbody->primitive_ptr = &cube;
+	world->addRigidBody(body);
+	bodies.push_back(pbody);
 
-world->addRigidBody(body);
-bodies.push_back(pbody);
+	if (cube.has_primitive_render)
+	{
+		primitive_list.push_back((Primitive*)&cube);
+	}
 
-if (cube.has_primitive_render)
-{
-primitive_list.push_back((Primitive*)&cube);
+	return pbody;
 }
 
-
-return pbody;
-}
-
+/*
 PhysBody * ModulePhysics3D::AddBody(PSphere& sphere, float mass, bool isCollider, bool addForce, float force)
 {
 float total_radius = sphere.radius*sphere.scale.x;

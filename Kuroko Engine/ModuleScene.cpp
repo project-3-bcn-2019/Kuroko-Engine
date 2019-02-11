@@ -23,6 +23,7 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 
+
 #include "ModuleImporter.h" // TODO: remove this include and set skybox creation in another module (Importer?, delayed until user input?)
 #include "MathGeoLib\Geometry\LineSegment.h"
 #include "glew-2.1.0\include\GL\glew.h"
@@ -55,6 +56,11 @@ bool ModuleScene::Start()
 	skybox_texs[FRONT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_front.png");
 	skybox_texs[BACK]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
 	skybox->setAllTextures(skybox_texs);
+
+	//cube.dimensions = float3(1, 1, 1);
+	//cube.SetPos(0, 0, 0);
+
+
 
 	quadtree = new Quadtree(AABB(float3(-50, -10, -50), float3(50, 10, 50)));
 	return true;

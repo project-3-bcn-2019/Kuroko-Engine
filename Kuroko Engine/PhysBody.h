@@ -3,7 +3,7 @@
 
 #include "Module.h"
 #include "GameObject.h"
-//#include "Primitive.h"
+#include "Primitive.h"
 
 class btRigidBody;
 class Module;
@@ -59,7 +59,7 @@ public:
 	float3* initial_pos = nullptr;
 	bool dead = false;
 	GameObject* owner = nullptr;
-	//Primitive* primitive_ptr = nullptr;
+	Primitive* primitive_ptr = nullptr;
 	//Mesh* mesh_ptr = nullptr;
 
 	//--------------------------	
