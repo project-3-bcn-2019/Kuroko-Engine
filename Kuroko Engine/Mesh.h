@@ -11,7 +11,7 @@ class aiMesh;
 class aiScene;
 class Material;
 
-enum PrimitiveTypes
+enum PrimitiveTypesMesh
 {
 	Primitive_Point,
 	Primitive_Line,
@@ -32,7 +32,7 @@ class Mesh {
 	friend class Skybox;
 public:
 	Mesh(const aiMesh& mesh, const aiScene& scene, const char* file_name = "");
-	Mesh(PrimitiveTypes primitive);
+	Mesh(PrimitiveTypesMesh primitive);
 	// Maybe a "MeshDef" could be created?
 	Mesh(float3* vertices, Tri* tris, float3* normals, float3* colors, float2* tex_coords, uint num_vertices, uint num_tris, const float3& centroid = float3::zero); //Used to load own file
 	~Mesh();

@@ -67,7 +67,7 @@ Application::Application()
 	list_modules.push_back(input);
 	//list_modules.push_back(audio);
 	list_modules.push_back(importer);
-
+	list_modules.push_back(physics);
 	
 	
 	// Scenes

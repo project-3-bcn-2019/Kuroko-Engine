@@ -9,7 +9,7 @@
 #include <list>
 
 enum lib_dir;
-enum PrimitiveTypes;
+enum PrimitiveTypesMesh;
 class ModuleResourcesManager: public Module
 {
 public:
@@ -50,7 +50,7 @@ public:
 	void CompileAndGenerateScripts();
 
 	Resource* getResource(uint uuid); // Returns the resource with the corresponding UUID, if not found returns nullptr
-	Resource* getPrimitiveMeshResource(PrimitiveTypes primitive);
+	Resource* getPrimitiveMeshResource(PrimitiveTypesMesh primitive);
 	int assignResource(uint uuid); // It adds 1 to the "components used by" of a certain resource
 	int deasignResource(uint uuid); // It substracts 1 to the "components used by" of a certain resource
 	// Creates a resource from a .meta that contains uuid, type, extension, timeCreated...
@@ -89,7 +89,7 @@ public:
 
 private:
 	std::map<uint, Resource*> resources;	
-	std::map<PrimitiveTypes, Resource*> primitive_resources;
+	std::map<PrimitiveTypesMesh, Resource*> primitive_resources;
 
 
 

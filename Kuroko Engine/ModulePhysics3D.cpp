@@ -42,27 +42,29 @@ bool ModulePhysics3D::Init()
 	//CONSOLE_LOG_INFO("Creating 3D Physics simulation");
 	bool ret = true;
 	//InitializeWorld();
-	pdebug = true;
 
-	collision_conf = new btDefaultCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collision_conf);
-	broad_phase = new btDbvtBroadphase();
-	solver = new btSequentialImpulseConstraintSolver();
-	//pdebug_draw = new PDebugDrawer();
-
-	gravity = -10;
 	return ret;
 }
 
 bool ModulePhysics3D::Start()
 {
 	//CONSOLE_LOG_INFO("Creating Physics environment");
+	//World init
+	pdebug = true;
 
+	collision_conf = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collision_conf);
+	broad_phase = new btDbvtBroadphase();
+	solver = new btSequentialImpulseConstraintSolver();
+	pdebug_draw = new PDebugDrawer();
 
+	gravity = -10;
+
+	//Creating the world for our amusement
 	world = new btDiscreteDynamicsWorld(dispatcher, broad_phase, solver, collision_conf);
 
-	//pdebug_draw->setDebugMode(pdebug_draw->DBG_DrawWireframe);
-	//world->setDebugDrawer(pdebug_draw);
+	pdebug_draw->setDebugMode(pdebug_draw->DBG_DrawWireframe);
+	world->setDebugDrawer(pdebug_draw);
 
 	world->setGravity(GRAVITY);
 
@@ -130,10 +132,10 @@ update_status ModulePhysics3D::Update(float dt)
 	//	BulletTest();
 	//	bullet_test = false;
 	//}
-	//if (pdebug)
-	//{
-	//	world->debugDrawWorld();
-	//}
+	if (pdebug)
+	{
+		world->debugDrawWorld();
+	}
 
 
 	return UPDATE_CONTINUE;
@@ -597,6 +599,7 @@ void ModulePhysics3D::CreatePlane()
 	btRigidBody* body = new btRigidBody(rbInfo);
 	world->addRigidBody(body);
 }
+
 /*
 void ModulePhysics3D::ShootSphere(float force,float radius)
 {
@@ -634,7 +637,7 @@ float ModulePhysics3D::GetGravity() const
 }
 
 /*
-	void ModulePhysics3D::AddConstraintP2P(PhysBody& bodyA, PhysBody& bodyB, const float3& anchorA, const float3& anchorB)
+void ModulePhysics3D::AddConstraintP2P(PhysBody& bodyA, PhysBody& bodyB, const float3& anchorA, const float3& anchorB)
 {
 	btTypedConstraint* p2p = new btPoint2PointConstraint(
 		*(bodyA.body),
@@ -646,4 +649,43 @@ float ModulePhysics3D::GetGravity() const
 	p2p->setDbgDrawSize(2.0f);
 }
 */
+
+// =============================================
+
+void PDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+{
+	debug_line.origin.Set(from.getX(), from.getY(), from.getZ());
+	debug_line.destination.Set(to.getX(), to.getY(), to.getZ());
+	debug_line.color.Set(color.getX(), color.getY(), color.getZ());
+	debug_line.Render();
+}
+
+void PDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+{
+	point.SetPos(PointOnB.getX(), PointOnB.getY(), PointOnB.getZ());
+	point.color.Set(color.getX(), color.getY(), color.getZ());
+	point.Render();
+}
+
+void PDebugDrawer::reportErrorWarning(const char* warningString)
+{
+	//LOG("Bullet warning: %s", warningString);
+}
+
+void PDebugDrawer::draw3dText(const btVector3& location, const char* textString)
+{
+	//LOG("Bullet draw text: %s", textString);
+}
+
+void PDebugDrawer::setDebugMode(int debugMode)
+{
+	mode = (DebugDrawModes)debugMode;
+}
+
+int	 PDebugDrawer::getDebugMode() const
+{
+	return mode;
+}
+
+
 

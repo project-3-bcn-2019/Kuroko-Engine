@@ -6,12 +6,12 @@
 
 enum PrimitiveTypes
 {
-	Primitive_Point,
-	Primitive_Line,
-	Primitive_Plane,
-	Primitive_Cube,
-	Primitive_Sphere,
-	Primitive_Cylinder
+	P_POINT,
+	P_LINE,
+	P_PLANE,
+	P_CUBE,
+	P_SPHERE,
+	P_CYLINDER
 };
 class Primitive
 {

@@ -161,9 +161,9 @@ void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->Reload();
 
 }
-PrimitiveTypes ComponentMesh::primitiveString2PrimitiveType(std::string primitive_type_string) {
+PrimitiveTypesMesh ComponentMesh::primitiveString2PrimitiveType(std::string primitive_type_string) {
 
-	PrimitiveTypes ret = Primitive_None; // Just for security
+	PrimitiveTypesMesh ret = Primitive_None; // Just for security
 	if (primitive_type_string == "CUBE")
 		ret = Primitive_Cube;
 	else if (primitive_type_string == "PLANE")
@@ -176,7 +176,7 @@ PrimitiveTypes ComponentMesh::primitiveString2PrimitiveType(std::string primitiv
 	return ret;
 }
 
-std::string ComponentMesh::PrimitiveType2primitiveString(PrimitiveTypes type) {
+std::string ComponentMesh::PrimitiveType2primitiveString(PrimitiveTypesMesh type) {
 	std::string ret = "NONE";
 
 	switch (type) {

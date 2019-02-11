@@ -14,6 +14,7 @@
 #include "FileSystem.h"
 #include "ModuleDebug.h"
 #include "ModuleWindow.h"
+#include "ModulePhysics3D.h"
 #include "ComponentAABB.h"
 #include "ComponentTransform.h"
 #include "Transform.h"
@@ -136,6 +137,8 @@ update_status ModuleScene::Update(float dt)
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		(*it)->Update(dt);
+
+	App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;
 }

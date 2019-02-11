@@ -13,26 +13,26 @@
 
 // Recommended scale is 1.0f == 1 meter, no less than 0.2 objects
 #define GRAVITY btVector3(0.0f, -10.0f, 0.0f) 
-//class PDebugDrawer;
-//struct PhysBody;
+class PDebugDrawer;
+struct PhysBody;
 
-//class PDebugDrawer : public btIDebugDraw
-//{
-//public:
-//	//PDebugDrawer() : debug_line(0, 0, 0)
-//	//{}
-//
-//	void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
-//	void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
-//	void reportErrorWarning(const char* warningString);
-//	void draw3dText(const btVector3& location, const char* textString);
-//	void setDebugMode(int debugMode);
-//	int	 getDebugMode() const;
-//
-//	DebugDrawModes mode;
-//	//PLine debug_line;
-//	///Primitive point;
-//};
+class PDebugDrawer : public btIDebugDraw
+{
+public:
+	PDebugDrawer() : debug_line(0, 0, 0)
+	{}
+
+	void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
+	void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
+	void reportErrorWarning(const char* warningString);
+	void draw3dText(const btVector3& location, const char* textString);
+	void setDebugMode(int debugMode);
+	int	 getDebugMode() const;
+
+	DebugDrawModes mode;
+	PLine debug_line;
+	Primitive point;
+};
 
 
 class ModulePhysics3D : public Module
@@ -88,7 +88,7 @@ private:
 	bool updateoncecollider = false;
 	
 	std::vector<AABB> pcube_list;
-	////std::vector<PCube*> cube_list;
+	std::vector<PCube*> cube_list;
 
 	//physics
 	btDefaultCollisionConfiguration*	collision_conf;
@@ -96,7 +96,7 @@ private:
 	btBroadphaseInterface*				broad_phase;
 	btSequentialImpulseConstraintSolver*solver;
 	btDefaultVehicleRaycaster*			vehicle_raycaster;
-	//PDebugDrawer*						pdebug_draw;
+	PDebugDrawer*						pdebug_draw;
 	btDiscreteDynamicsWorld*			world;
 	
 

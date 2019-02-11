@@ -112,20 +112,20 @@ void ModuleResourcesManager::ManageUITextures() {
 
 void ModuleResourcesManager::GeneratePrimitiveResources() {
 	ResourceMesh* cube = new ResourceMesh(resource_deff());
-	cube->mesh = new Mesh(PrimitiveTypes::Primitive_Cube);
+	cube->mesh = new Mesh(PrimitiveTypesMesh::Primitive_Cube);
 	primitive_resources[Primitive_Cube] = cube;
 
 	ResourceMesh* plane = new ResourceMesh(resource_deff());
-	plane->mesh = new Mesh(PrimitiveTypes::Primitive_Plane);
+	plane->mesh = new Mesh(PrimitiveTypesMesh::Primitive_Plane);
 	primitive_resources[Primitive_Plane] = plane;
 
 
 	ResourceMesh* sphere = new ResourceMesh(resource_deff());
-	sphere->mesh = new Mesh(PrimitiveTypes::Primitive_Sphere);
+	sphere->mesh = new Mesh(PrimitiveTypesMesh::Primitive_Sphere);
 	primitive_resources[Primitive_Sphere] = sphere;
 
 	ResourceMesh* cylinder = new ResourceMesh(resource_deff());
-	cylinder->mesh = new Mesh(PrimitiveTypes::Primitive_Cylinder);
+	cylinder->mesh = new Mesh(PrimitiveTypesMesh::Primitive_Cylinder);
 	primitive_resources[Primitive_Cylinder] = cylinder;
 }
 
@@ -376,7 +376,7 @@ Resource * ModuleResourcesManager::getResource(uint uuid) {
 	return ret;
 }
 
-Resource * ModuleResourcesManager::getPrimitiveMeshResource(PrimitiveTypes type) {
+Resource * ModuleResourcesManager::getPrimitiveMeshResource(PrimitiveTypesMesh type) {
 	return primitive_resources[type];
 }
 

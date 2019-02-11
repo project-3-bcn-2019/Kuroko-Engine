@@ -8,7 +8,7 @@
 #pragma comment (lib, "glut/glut32.lib")
 
 
-Primitive::Primitive() :transform(float4x4::identity), color(White), wire(false), axis(false), type(PrimitiveTypes::Primitive_Point)
+Primitive::Primitive() :transform(float4x4::identity), color(White), wire(false), axis(false), type(PrimitiveTypes::P_POINT)
 {
 
 }
@@ -114,13 +114,13 @@ PrimitiveTypes Primitive::GetType() const
 //CUBE=====================================================
 PCube::PCube() :Primitive()
 {
-	type = PrimitiveTypes::Primitive_Cube;
+	type = PrimitiveTypes::P_CUBE;
 
 }
 
 PCube::PCube(float x, float y, float z) :Primitive(), dimensions(x, y, z)
 {
-	type = PrimitiveTypes::Primitive_Cube;
+	type = PrimitiveTypes::P_CUBE;
 }
 
 
@@ -178,12 +178,12 @@ void PCube::InnerRender() const
 // PLANE ==================================================
 PPlane::PPlane() : Primitive(), normal(0, 1, 0), constant(1)
 {
-	type = PrimitiveTypes::Primitive_Plane;
+	type = PrimitiveTypes::P_PLANE;
 }
 
 PPlane::PPlane(float x, float y, float z, float d) : Primitive(), normal(x, y, z), constant(d)
 {
-	type = PrimitiveTypes::Primitive_Plane;
+	type = PrimitiveTypes::P_PLANE;
 }
 
 
@@ -210,12 +210,12 @@ void PPlane::InnerRender() const
 
 PSphere::PSphere() : Primitive(), radius(1.0f)
 {
-	type = PrimitiveTypes::Primitive_Sphere;
+	type = PrimitiveTypes::P_SPHERE;
 }
 
 PSphere::PSphere(float radius) : Primitive(), radius(radius)
 {
-	type = PrimitiveTypes::Primitive_Sphere;
+	type = PrimitiveTypes::P_SPHERE;
 }
 
 void PSphere::InnerRender() const
@@ -227,12 +227,12 @@ void PSphere::InnerRender() const
 // LINE ==================================================
 PLine::PLine() : Primitive(), origin(0, 0, 0), destination(1, 1, 1)
 {
-	type = PrimitiveTypes::Primitive_Line;
+	type = PrimitiveTypes::P_LINE;
 }
 
 PLine::PLine(float x, float y, float z) : Primitive(), origin(0, 0, 0), destination(x, y, z)
 {
-	type = PrimitiveTypes::Primitive_Line;
+	type = PrimitiveTypes::P_LINE;
 }
 
 void PLine::InnerRender() const
@@ -250,41 +250,4 @@ void PLine::InnerRender() const
 }
 
 
-// =============================================
-/*
-void PDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-{
-	debug_line.origin.Set(from.getX(), from.getY(), from.getZ());
-	debug_line.destination.Set(to.getX(), to.getY(), to.getZ());
-	debug_line.color.Set(color.getX(), color.getY(), color.getZ());
-	debug_line.Render();
-}
-
-void PDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
-{
-	point.SetPos(PointOnB.getX(), PointOnB.getY(), PointOnB.getZ());
-	point.color.Set(color.getX(), color.getY(), color.getZ());
-	point.Render();
-}
-
-void PDebugDrawer::reportErrorWarning(const char* warningString)
-{
-	LOG("Bullet warning: %s", warningString);
-}
-
-void PDebugDrawer::draw3dText(const btVector3& location, const char* textString)
-{
-	LOG("Bullet draw text: %s", textString);
-}
-
-void PDebugDrawer::setDebugMode(int debugMode)
-{
-	mode = (DebugDrawModes)debugMode;
-}
-
-int	 PDebugDrawer::getDebugMode() const
-{
-	return mode;
-}
-*/
 

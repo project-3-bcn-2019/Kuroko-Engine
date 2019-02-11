@@ -66,7 +66,7 @@ Mesh::Mesh(float3* _vertices, Tri* _tris, float3* _normals, float3* _colors, flo
 	LoadDataToVRAM();
 }
 
-Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
+Mesh::Mesh(PrimitiveTypesMesh primitive) : id(App->scene->last_mesh_id++)
 {
 	switch (primitive)
 	{
