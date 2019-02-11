@@ -1,13 +1,15 @@
 #ifndef __MODULE_SCENE__
 #define __MODULE_SCENE__
+
 #include "Module.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Math\float3.h"
 #include "ImGui\ImGuizmo.h"
 #include "Transform.h"
+#include "Primitive.h"
+#include "PhysBody.h"
 #include <list>
-
 
 class GameObject; 
 class Material;
@@ -124,7 +126,8 @@ public:
 	bool quadtree_reload		= false;
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
-	//PCube cube;
+
+	PCube cube;
 	//PhysBody p_cube;
 };
 #endif
