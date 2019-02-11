@@ -6,13 +6,12 @@
 #include "ComponentColliderCube.h"
 //#include "ComponentColliderSphere.h"
 #include "Component.h"
-#include "PhysBody.h"
 #include "ModuleCamera3D.h"
 #include "Camera.h"
 //#include "PanelGame.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
-#include "Primitive.h"
+#include "PhysBody.h"
 
 #include "Applog.h"
 

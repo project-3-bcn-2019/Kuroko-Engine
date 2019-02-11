@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __COLOR_H_
+#define __COLOR_H_
 struct Color
 {
 	float r, g, b, a;
@@ -31,3 +31,5 @@ extern Color Green;
 extern Color Blue;
 extern Color Black;
 extern Color White;
+
+#endif

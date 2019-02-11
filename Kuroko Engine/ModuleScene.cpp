@@ -31,6 +31,8 @@
 
 #include "ImGui\imgui.h"
 
+#include "PhysBody.h"
+
 #include <array>
 #include <map>
 

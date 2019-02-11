@@ -7,8 +7,8 @@
 #include "MathGeoLib\Math\float3.h"
 #include "ImGui\ImGuizmo.h"
 #include "Transform.h"
-#include "Primitive.h"
-#include "PhysBody.h"
+
+//#include "Primitive.h"
 #include <list>
 
 class GameObject; 
@@ -17,6 +17,7 @@ class Mesh;
 class Texture;
 class Skybox;
 class Quadtree;
+class PCube;
 
 
 struct RayHit
@@ -127,7 +128,7 @@ public:
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
 
-	PCube cube;
+	PCube* cube;
 	//PhysBody p_cube;
 };
 #endif
