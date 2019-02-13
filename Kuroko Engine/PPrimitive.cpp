@@ -1,4 +1,4 @@
-#include "Primitive.h"
+#include "PPrimitive.h"
 #include "Application.h"
 #include "ModuleRenderer3D.h"
 #include "Module.h"
@@ -8,12 +8,12 @@
 #pragma comment (lib, "glut/glut32.lib")
 
 
-Primitive::Primitive() :transform(float4x4::identity), color(White), wire(false), axis(false), type(PrimitiveTypes::P_POINT)
+PPrimitive::PPrimitive() :transform(float4x4::identity), color(White), wire(false), axis(false), type(PrimitiveTypes::P_POINT)
 {
 
 }
 
-void Primitive::Render() const
+void PPrimitive::Render() const
 {
 	if (has_primitive_render)
 	{
@@ -67,7 +67,7 @@ void Primitive::Render() const
 	}
 }
 
-void Primitive::InnerRender() const
+void PPrimitive::InnerRender() const
 {
 	glPointSize(5.0f);
 
@@ -82,43 +82,43 @@ void Primitive::InnerRender() const
 
 
 
-void Primitive::SetPos(float x, float y, float z)
+void PPrimitive::SetPos(float x, float y, float z)
 {
 	transform[3][0] = x;
 	transform[3][1] = y;
 	transform[3][2] = z;	
 }
 
-void Primitive::SetRotation(float angle, const float3 & u)
+void PPrimitive::SetRotation(float angle, const float3 & u)
 {
 	transform.RotateAxisAngle(u,angle);
 	
 }
 
-void Primitive::Scale(float x, float y, float z)
+void PPrimitive::Scale(float x, float y, float z)
 {
 	transform.Scale(x, y, z);
 }
 
-float3 Primitive::GetScale()
+float3 PPrimitive::GetScale()
 {
 	return transform.GetScale();
 }
 
-PrimitiveTypes Primitive::GetType() const
+PrimitiveTypes PPrimitive::GetType() const
 {
 	return type;
 }
 
 
 //CUBE=====================================================
-PCube::PCube() :Primitive()
+PCube::PCube() :PPrimitive()
 {
 	type = PrimitiveTypes::P_CUBE;
 
 }
 
-PCube::PCube(float x, float y, float z) :Primitive(), dimensions(x, y, z)
+PCube::PCube(float x, float y, float z) :PPrimitive(), dimensions(x, y, z)
 {
 	type = PrimitiveTypes::P_CUBE;
 }
@@ -176,12 +176,12 @@ void PCube::InnerRender() const
 
 
 // PLANE ==================================================
-PPlane::PPlane() : Primitive(), normal(0, 1, 0), constant(1)
+PPlane::PPlane() : PPrimitive(), normal(0, 1, 0), constant(1)
 {
 	type = PrimitiveTypes::P_PLANE;
 }
 
-PPlane::PPlane(float x, float y, float z, float d) : Primitive(), normal(x, y, z), constant(d)
+PPlane::PPlane(float x, float y, float z, float d) : PPrimitive(), normal(x, y, z), constant(d)
 {
 	type = PrimitiveTypes::P_PLANE;
 }
@@ -208,12 +208,12 @@ void PPlane::InnerRender() const
 
 
 
-PSphere::PSphere() : Primitive(), radius(1.0f)
+PSphere::PSphere() : PPrimitive(), radius(1.0f)
 {
 	type = PrimitiveTypes::P_SPHERE;
 }
 
-PSphere::PSphere(float radius) : Primitive(), radius(radius)
+PSphere::PSphere(float radius) : PPrimitive(), radius(radius)
 {
 	type = PrimitiveTypes::P_SPHERE;
 }
@@ -225,12 +225,12 @@ void PSphere::InnerRender() const
 }
 
 // LINE ==================================================
-PLine::PLine() : Primitive(), origin(0, 0, 0), destination(1, 1, 1)
+PLine::PLine() : PPrimitive(), origin(0, 0, 0), destination(1, 1, 1)
 {
 	type = PrimitiveTypes::P_LINE;
 }
 
-PLine::PLine(float x, float y, float z) : Primitive(), origin(0, 0, 0), destination(x, y, z)
+PLine::PLine(float x, float y, float z) : PPrimitive(), origin(0, 0, 0), destination(x, y, z)
 {
 	type = PrimitiveTypes::P_LINE;
 }

@@ -264,7 +264,7 @@ void ModulePhysics3D::UpdatePhysics()
 	if (matrix_list.size() > 0)
 	{
 		int i2 = 0;
-		for (std::vector<Primitive*>::iterator item2 = primitive_list.begin(); item2 != primitive_list.end(); item2++)
+		for (std::vector<PPrimitive*>::iterator item2 = primitive_list.begin(); item2 != primitive_list.end(); item2++)
 		{
 			if ((*item2)->has_primitive_render == false)
 			{				
@@ -407,7 +407,7 @@ void ModulePhysics3D::SwitchPhysBody(PhysBody * body_to_switch)
 	{
 		case 0://Cube
 		{			
-			//Store Primitive
+			//Store PPrimitive
 			PCube* cube = new PCube();
 			cube = (PCube*)body_to_switch->primitive_ptr;							
 
@@ -435,7 +435,7 @@ void ModulePhysics3D::SwitchPhysBody(PhysBody * body_to_switch)
 		}
 		case 8://Sphere
 		{
-			//Store Primitive
+			//Store PPrimitive
 			PSphere* sphere = new PSphere();
 			sphere = (PSphere*)body_to_switch->primitive_ptr;
 			
@@ -459,8 +459,6 @@ void ModulePhysics3D::SwitchPhysBody(PhysBody * body_to_switch)
 
 }
 */
-
-
 
 btDiscreteDynamicsWorld * ModulePhysics3D::GetWorld()const
 {
@@ -527,7 +525,7 @@ PhysBody* ModulePhysics3D::AddBody(PCube& cube, float mass)
 
 	if (cube.has_primitive_render)
 	{
-		primitive_list.push_back((Primitive*)&cube);
+		primitive_list.push_back((PPrimitive*)&cube);
 	}
 
 	return pbody;
@@ -579,7 +577,7 @@ bodies.push_back(pbody);
 
 if (sphere.has_primitive_render)
 {
-primitive_list.push_back((Primitive*)&sphere);
+primitive_list.push_back((PPrimitive*)&sphere);
 }
 
 return pbody;

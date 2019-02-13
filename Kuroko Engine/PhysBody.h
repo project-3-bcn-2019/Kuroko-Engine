@@ -2,7 +2,7 @@
 #define __PhysBody_H__
 
 #include "GameObject.h"
-#include "Primitive.h"
+#include "PPrimitive.h"
 
 
 class btRigidBody;
@@ -59,7 +59,7 @@ public:
 	float3* initial_pos = nullptr;
 	bool dead = false;
 	GameObject* owner = nullptr;
-	Primitive* primitive_ptr = nullptr;
+	PPrimitive* primitive_ptr = nullptr;
 	//Mesh* mesh_ptr = nullptr;
 
 	//--------------------------	

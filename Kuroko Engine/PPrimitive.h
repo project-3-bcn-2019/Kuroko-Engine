@@ -12,12 +12,12 @@ enum PrimitiveTypes
 	P_CUBE,
 	P_SPHERE,
 	P_CYLINDER
-};
-class Primitive
+}; 
+class PPrimitive
 {
 public:
 
-	Primitive();
+	PPrimitive();
 
 	virtual void	Render() const;
 	virtual void	InnerRender() const;
@@ -40,7 +40,7 @@ protected:
 	PrimitiveTypes type;
 };
 
-class PLine : public Primitive
+class PLine : public PPrimitive
 {
 public:
 	PLine();
@@ -51,7 +51,7 @@ public:
 	float3 destination;
 };
 
-class PCube : public Primitive {
+class PCube : public PPrimitive {
 public:
 	PCube();
 	PCube(float x, float y, float z);
@@ -60,7 +60,7 @@ public:
 	float3 dimensions = { 5,5,5 };
 };
 
-class PPlane : public Primitive
+class PPlane : public PPrimitive
 {
 public:
 	PPlane();
@@ -71,7 +71,7 @@ public:
 	float constant;
 };
 
-class PSphere : public Primitive
+class PSphere : public PPrimitive
 {
 public:
 	PSphere();

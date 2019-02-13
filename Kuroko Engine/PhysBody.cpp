@@ -69,14 +69,14 @@ PhysBody::PhysBody(GameObject* owner,ComponentType type)
 
 	owner->physbody->owner = owner;
 }
-
+*/
 PhysBody::PhysBody()
 {
-	PSphere* psphere = new PSphere();
-	psphere->radius = 5;
-	App->physics->AddBody(*psphere, 0);
+	//PSphere* psphere = new PSphere();
+	//psphere->radius = 5;
+	//App->physics->AddBody(*psphere, 0);
 }
-*/
+
 
 
 

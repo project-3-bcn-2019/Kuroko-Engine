@@ -183,7 +183,7 @@
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
     <ClInclude Include="PhysBody.h" />
-    <ClInclude Include="Primitive.h" />
+    <ClInclude Include="PPrimitive.h" />
     <ClInclude Include="Quadtree.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
@@ -286,7 +286,7 @@
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="PCG Random\pcg_basic.c" />
     <ClCompile Include="PhysBody.cpp" />
-    <ClCompile Include="Primitive.cpp" />
+    <ClCompile Include="PPrimitive.cpp" />
     <ClCompile Include="Quadtree.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />

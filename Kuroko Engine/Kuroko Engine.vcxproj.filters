@@ -483,11 +483,11 @@
     <ClInclude Include="PhysBody.h">
       <Filter>Sources\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="Primitive.h">
-      <Filter>Sources\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentColliderCube.h">
       <Filter>Sources\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PPrimitive.h">
+      <Filter>Sources\Containers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -773,11 +773,11 @@
     <ClCompile Include="PhysBody.cpp">
       <Filter>Sources\Containers</Filter>
     </ClCompile>
-    <ClCompile Include="Primitive.cpp">
-      <Filter>Sources\Containers</Filter>
-    </ClCompile>
     <ClCompile Include="ComponentColliderCube.cpp">
       <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PPrimitive.cpp">
+      <Filter>Sources\Containers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

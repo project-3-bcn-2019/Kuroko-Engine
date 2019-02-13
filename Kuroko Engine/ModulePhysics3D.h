@@ -4,7 +4,7 @@
 #include "Module.h"
 #include "Globals.h"
 #include "MathGeoLib/MathGeoLib.h"
-#include "Primitive.h"
+#include "PPrimitive.h"
 
 
 
@@ -30,7 +30,7 @@ public:
 
 	DebugDrawModes mode;
 	PLine debug_line;
-	Primitive point;
+	PPrimitive point;
 };
 class ModulePhysics3D : public Module
 {
@@ -76,7 +76,7 @@ public:
 
 
 	std::vector<PhysBody*> loading_list;
-	std::vector<Primitive*> primitive_list;	
+	std::vector<PPrimitive*> primitive_list;	
 	
 private:
 

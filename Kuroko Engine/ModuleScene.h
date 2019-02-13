@@ -8,7 +8,8 @@
 #include "ImGui\ImGuizmo.h"
 #include "Transform.h"
 
-//#include "Primitive.h"
+#include "PPrimitive.h"
+#include "PhysBody.h"
 #include <list>
 
 class GameObject; 
@@ -17,7 +18,6 @@ class Mesh;
 class Texture;
 class Skybox;
 class Quadtree;
-class PCube;
 
 
 struct RayHit
@@ -129,6 +129,6 @@ public:
 	int quadtree_checks			= 0;
 
 	PCube* cube;
-	//PhysBody p_cube;
+	PhysBody p_cube;
 };
 #endif
