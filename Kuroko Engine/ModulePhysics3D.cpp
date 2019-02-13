@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModulePhysics3D.h"
+#include "ModuleInput.h"
 #include "ModuleTimeManager.h"
 #include "ComponentTransform.h"
 #include "ComponentColliderCube.h"
@@ -40,7 +41,6 @@ bool ModulePhysics3D::Init()
 {
 	//CONSOLE_LOG_INFO("Creating 3D Physics simulation");
 	bool ret = true;
-	//InitializeWorld();
 
 	return ret;
 }
@@ -59,7 +59,7 @@ bool ModulePhysics3D::Start()
 
 	gravity = -10;
 
-	//Creating the world for our amusement
+	//Creating a world for our amusement
 	world = new btDiscreteDynamicsWorld(dispatcher, broad_phase, solver, collision_conf);
 
 	pdebug_draw->setDebugMode(pdebug_draw->DBG_DrawWireframe);
@@ -123,8 +123,9 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 
 update_status ModulePhysics3D::Update(float dt)
 {
-	//if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
-	//	pdebug = !pdebug;
+	
+	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
+		pdebug = !pdebug;
 
 	//if (bullet_test == true)
 	//{
@@ -148,7 +149,8 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 
 void ModulePhysics3D::UpdatePhysics()
 {
-	//world->stepSimulation(App->dt, App->time_manager->time_scale);
+	
+	world->stepSimulation(App->dt, 1/*Time_scale*/);
 	std::vector<float*> matrix_list;
 	float *matrix = new float[16];
 	int i = 0;
@@ -166,7 +168,7 @@ void ModulePhysics3D::UpdatePhysics()
 			//	(*item)->mesh_ptr->position.Set(matrix[12], matrix[13], matrix[14]);
 			//}
 			i++;
-		}	
+		}
 		if (App->time->getGameState() == STOPPED)
 		{
 			(*item)->initial_pos = nullptr;
@@ -177,7 +179,7 @@ void ModulePhysics3D::UpdatePhysics()
 	{
 		for (int i = 0; i < primitive_list.size(); i++)
 		{
-			primitive_list[i]->Render();
+			//primitive_list[i]->Render();
 		}
 	}
 	
@@ -186,18 +188,20 @@ void ModulePhysics3D::UpdatePhysics()
 		updateoncecollider = false;
 	}
 
-	if (App->time->getGameState() == PLAYING)
+	//if (App->time->getGameState() == PLAYING)
 	{
 
 		for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
 		{
 			if ((*item)->dead == false)
 			{
-				if ((*item)->owner != nullptr)
+				//if ((*item)->owner != nullptr)
 				{
 					//Get matrix from bullet physics
 					float4x4 final_matrix4x4;
-					(*item)->GetTransform(matrix);
+					float* bullet_matrix = new float[16];
+					(*item)->GetTransform(bullet_matrix);
+					
 					//(*item)->owner->comp_transform->GetGlobalMatrix();
 
 					//Set Rotations
@@ -206,7 +210,7 @@ void ModulePhysics3D::UpdatePhysics()
 					final_matrix4x4[2][0] = matrix[8];	final_matrix4x4[2][1] = matrix[9];	final_matrix4x4[2][2] = matrix[10];
 					final_matrix4x4.Transpose();
 
-					float3 pos = float3(0, 0, 0);// (*item)->owner->comp_transform->GetLocalMatrix().Col3(3);
+					float3 pos = { matrix[12], matrix[13], matrix[14] }; //float3(0, 0, 0);// (*item)->owner->comp_transform->GetLocalMatrix().Col3(3);
 					static float3 init_local_pos;
 					if ((*item)->initial_pos == nullptr)
 					{
@@ -248,8 +252,7 @@ void ModulePhysics3D::UpdatePhysics()
 					final_matrix4x4[1][3] = final_pos[1];
 					final_matrix4x4[2][3] = final_pos[2];
 					final_matrix4x4[3][0] = 1;				final_matrix4x4[3][1] = 1;	final_matrix4x4[3][2] = 1;	final_matrix4x4[3][3] = matrix[15];			
-					
-
+					(*item)->SetPos(final_pos[0], final_pos[1], final_pos[2]);
 					//(*item)->owner->comp_transform->SetLocalMatrix(final_matrix4x4);
 
 					//(*item)->owner->comp_transform->UpdateTransformValues();

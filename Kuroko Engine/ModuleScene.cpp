@@ -59,8 +59,9 @@ bool ModuleScene::Start()
 	skybox_texs[BACK]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
 	skybox->setAllTextures(skybox_texs);
 
-	//cube.dimensions = float3(1, 1, 1);
-	//cube.SetPos(0, 0, 0);
+	cube.dimensions = float3(5, 5, 5);
+	cube.SetPos(0, 20, 0);
+	App->physics->AddBody(cube, 1);
 
 
 

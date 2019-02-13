@@ -43,7 +43,7 @@ public:
 private:
 
 	Timer	ms_timer;
-	float	dt;
+
 	std::list<Module*> list_modules;
 
 public:
@@ -64,6 +64,7 @@ public:
 	std::vector<float> ms_log;
 	int vector_limit; 
 	std::string config_file_name, custom_config_file_name;
+	float	dt; //TODO Josep: This stays public since App->time->getDeltaTime() does not work on physics. 
 
 
 private:
