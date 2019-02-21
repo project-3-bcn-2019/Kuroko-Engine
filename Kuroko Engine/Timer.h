@@ -71,8 +71,9 @@ public:
 	void Stop();
 	void Resume();
 
-	Uint32 MilliS();
-	Uint32 MicroS();
+	Uint32 Read(); // Millisecond Precision
+	Uint32 ReadMicroS(); // Microsecond Precision
+	Uint64 ReadNanoS(); // Nanosecond Precision (not quite as windows actually has .5 Microsecond precision as far as I know, but for idiots that want nanoseconds)
 
 	bool IsStopped() const;
 

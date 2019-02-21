@@ -117,16 +117,25 @@ void PerfTimer::Resume()
 	}
 }
 
-Uint32 PerfTimer::MilliS()
+Uint32 PerfTimer::Read()
 {
-	if(stopped)
-		return (Uint32)((stopped_at - started_at)/(T1000*T1000));
-	return (Uint32)((timer.elapsed().wall - started_at)/(T1000*T1000));
+	
+	if (!stopped)
+		return SDL_GetTicks() - (started_at / T1000 / T1000);
+	else
+		return stopped_at;
 }
 
-Uint32 PerfTimer::MicroS()
+Uint32 PerfTimer::ReadMicroS()
 {
 	if(stopped)
 		return (Uint32)((stopped_at - started_at)/T1000);
 	return (Uint32)((timer.elapsed().wall - started_at)/T1000);
+}
+
+Uint64 PerfTimer::ReadNanoS()
+{
+	if (stopped)
+		return (Uint32)(stopped_at - started_at);
+	return (Uint32)(timer.elapsed().wall - started_at);
 }
