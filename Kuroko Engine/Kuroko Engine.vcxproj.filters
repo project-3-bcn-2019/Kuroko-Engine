@@ -73,6 +73,9 @@
     <Filter Include="Sources\Wren">
       <UniqueIdentifier>{c8910b2e-3ed2-4c21-9d95-9612a86c5349}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\Tools\Profiling">
+      <UniqueIdentifier>{86fc1898-ff76-4a00-a5c5-2cf30c0ac6e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Module.h">
@@ -477,6 +480,9 @@
     <ClInclude Include="ResourceScene.h">
       <Filter>Sources\Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Sources\Tools\Profiling</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -754,6 +760,9 @@
     </ClCompile>
     <ClCompile Include="ResourceScene.cpp">
       <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Sources\Tools\Profiling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
