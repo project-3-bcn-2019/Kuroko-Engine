@@ -5,9 +5,12 @@
 #include "SDL\include\SDL.h"
 #include <ctime>
 #include <chrono>
-
+//#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
+//#include <boost/chrono.hpp>
 #define MILISEC (CLOCKS_PER_SEC / (clock_t)1000)
 #define MICROSEC (CLOCKS_PER_SEC / (clock_t)1000000)
+#define T1000 (int_least64_t) 1000
 class Timer
 {
 public:
@@ -31,12 +34,15 @@ private:
 	Uint32 time_paused;
 };
 
-class PerfTimer
+//==============================================================
+//==============================================================
+
+class STDLTimer
 {
 public:
 
-	PerfTimer();
-	virtual ~PerfTimer() {};
+	STDLTimer();
+	virtual ~STDLTimer() {};
 
 	void Start();
 	/*void Stop();
@@ -52,4 +58,28 @@ private:
 	//bool is_stopped;
 };
 
+//==============================================================
+//==============================================================
+
+class PerfTimer
+{
+public:
+	PerfTimer();
+	virtual ~PerfTimer();
+
+	void Start();
+	void Stop();
+	void Resume();
+
+	Uint32 MilliS();
+	Uint32 MicroS();
+
+	bool IsStopped() const;
+
+private:
+	boost::timer::cpu_timer timer;
+	int_least64_t started_at;
+	int_least64_t stopped_at;
+	bool stopped;
+};
 #endif //__TIMER_H__
