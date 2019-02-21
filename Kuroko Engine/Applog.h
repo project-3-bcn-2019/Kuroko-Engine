@@ -61,4 +61,11 @@ struct AppLog {
 	}
 };
 
+// Current Application Log System is unreadable
+// We can't expecte designers to know what the heck
+// is happening in the engine and there is no proper categorization form
+// As for the way they are stored, I am ashamed, a single buffer
+// should not be contemplated when using different inputs received from
+// various sources and obviously with very different intents
+
 extern AppLog* app_log;
