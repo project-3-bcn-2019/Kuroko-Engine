@@ -14,9 +14,7 @@ struct PhysBody
 	friend class ModulePhysics3D;
 public:
 	PhysBody(btRigidBody* body);
-	//PhysBody(GameObject* owner, PSphere* primitive);
-	//PhysBody(GameObject* owner, PCube* primitive);
-	//PhysBody(GameObject* owner, ComponentType type);
+
 	PhysBody();
 	~PhysBody();
 
@@ -28,12 +26,8 @@ public:
 	bool IsSensor() const;
 	btRigidBody* GetRigidBody();
 
-	void SetMass(const uint new_mass);
-	uint GetMass()const;
-	void ActivateGravity(const bool active);
-	bool HasGravity()const;
-	bool GetRender()const;
-	
+	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+
 private:
 	btRigidBody * body = nullptr;
 	bool is_sensor = false;
@@ -42,8 +36,6 @@ private:
 	//Mass
 	uint mass = 0;
 	//Affected by gravity?
-	bool use_gravity = false;
-	bool has_primitive_render = true;
 	//Collision Detection
 public:
 	//Constraints
@@ -57,9 +49,6 @@ public:
 
 	float3 dimensions = { 1,1,1 };
 	float3* initial_pos = nullptr;
-	bool dead = false;
-	GameObject* owner = nullptr;
-	PPrimitive* primitive_ptr = nullptr;
 	//Mesh* mesh_ptr = nullptr;
 
 	//--------------------------	

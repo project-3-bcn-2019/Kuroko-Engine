@@ -50,49 +50,18 @@ public:
 
 	bool CleanUp();
 	void CleanUpWorld();
-	//Prev Assignment3
-	void CreateSphere(float3 position, int radius);
-	void CreateCube(float3 minPoint, float3 maxPoint);
-	void LoadPhysBodies();
-	//void SwitchPhysBody(PhysBody* body_to_switch);
-	btDiscreteDynamicsWorld* GetWorld()const;	
-	//std::list<float2> GetSphereCollisions();
-	//std::list<float2> GetCubeCollisions();
-	//PhysBody* AddBody(PSphere& sphere, float mass, bool isCollider = true, bool addForce = false,float force = 40);
-	PhysBody* AddBody(PCube& sphere, float mass);
-	//-------------------------
-	//Assignment 3--------------
-	void CreatePlane();
-	void ShootSphere(float force, float radius);
-	void BulletTest();
-	void SetGravity(float new_gravity);
-	void ToggleDebugDraw();
-	float GetGravity()const;
-	//void AddConstraintP2P(PhysBody& bodyA, PhysBody& bodyB, const float3& anchorA, const float3& anchorB);
 
-	bool bullet_test = false;
-	bool tick = false;
-	//-----------------------
+	PhysBody* AddBody();
+	void DeleteBody(PhysBody* body_to_delete);
 
-
-	std::vector<PhysBody*> loading_list;
-	std::vector<PPrimitive*> primitive_list;	
-	
 private:
 
-	bool pdebug;
-	float gravity;
-	bool updateoncecollider = false;
-	
-	std::vector<AABB> pcube_list;
-	std::vector<PCube*> cube_list;
-
+	bool physics_debug;
 	//physics
 	btDefaultCollisionConfiguration*	collision_conf;
 	btCollisionDispatcher*				dispatcher;
 	btBroadphaseInterface*				broad_phase;
 	btSequentialImpulseConstraintSolver*solver;
-	btDefaultVehicleRaycaster*			vehicle_raycaster;
 	PDebugDrawer*						pdebug_draw;
 	btDiscreteDynamicsWorld*			world;
 	

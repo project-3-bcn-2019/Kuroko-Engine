@@ -11,74 +11,12 @@ PhysBody::PhysBody(btRigidBody* body) : body(body)
 	body->setUserPointer(this);
 }
 
-/*
-PhysBody::PhysBody(GameObject * owner, PSphere * primitive)
-{
-	if (owner->HasChilds()||owner->HasCam()||owner->HasController())
-	{
-		primitive->has_primitive_render = false;
-	}
-	if (primitive->isCollider)
-	{
-		owner->physbody = App->physics->AddBody(*primitive, 0, true);
-	}
-	else
-	{
-		owner->physbody = App->physics->AddBody(*primitive, 0, false);
-	}
-	
-	owner->physbody->owner = owner;
-}
-
-PhysBody::PhysBody(GameObject * owner, PCube * primitive)
-{
-	if (owner->HasChilds() || owner->HasCam() || owner->HasController())
-	{
-		primitive->has_primitive_render = false;
-	}
-	owner->physbody = App->physics->AddBody(*primitive, 0);
-	owner->physbody->owner = owner;
-
-}
-
-PhysBody::PhysBody(GameObject* owner,ComponentType type)
-{
-	switch (type)
-	{
-	case COLLIDERSPHERE:
-	{
-		PSphere* psphere = new PSphere();
-		psphere->radius = 5;
-		psphere->has_primitive_render = false;
-		psphere->mass = 1;
-		owner->physbody = App->physics->AddBody(*psphere, 0);
-		break;
-	}
-	case COLLIDERCUBE:
-	{
-		PCube* pcube = new PCube();
-		pcube->dimensions = { 5,5,5 };
-		pcube->has_primitive_render = false;
-		pcube->mass = 1;
-		owner->physbody = App->physics->AddBody(*pcube, 0);		
-		break;
-	}
-	default:
-		break;
-	}
-
-	owner->physbody->owner = owner;
-}
-*/
 PhysBody::PhysBody()
 {
 	//PSphere* psphere = new PSphere();
 	//psphere->radius = 5;
 	//App->physics->AddBody(*psphere, 0);
 }
-
-
-
 
 
 // ---------------------------------------------------------
@@ -107,33 +45,10 @@ btRigidBody * PhysBody::GetRigidBody()
 	return body;
 }
 
-void PhysBody::SetMass(const uint new_mass)
+void PhysBody::OnCollision(PhysBody * bodyA, PhysBody * bodyB)
 {
-	mass = new_mass;
+
 }
-
-uint PhysBody::GetMass() const
-{
-	return mass;
-}
-
-void PhysBody::ActivateGravity(const bool active)
-{
-	use_gravity = active;
-	use_gravity ? body->setGravity({ 0,App->physics->GetGravity(),0 }) : body->setGravity({ 0,0,0 });	
-}
-
-bool PhysBody::HasGravity()const
-{
-	return use_gravity;
-}
-
-bool PhysBody::GetRender() const
-{
-	return has_primitive_render;
-}
-
-
 
 // ---------------------------------------------------------
 void PhysBody::SetTransform(float* matrix) 
