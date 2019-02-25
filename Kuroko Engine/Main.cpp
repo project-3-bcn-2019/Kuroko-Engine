@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "Applog.h"
+#include "Profiler.h"
 
 #include "SDL/include/SDL.h"
 #pragma comment( lib, "SDL/lib/SDL2.lib" )
@@ -21,24 +22,33 @@ enum main_states
 
 Application* App;
 AppLog* app_log;
+Profiler* prof;
 
 int main(int argc, char ** argv)
 {
 	app_log = new AppLog();
 	app_log->AddLog("Starting engine '%s'...", TITLE);
+	prof = new Profiler();
 
 	int main_return = EXIT_FAILURE;
 	main_states state = MAIN_CREATION;
 
 	while (state != MAIN_EXIT)
 	{
+		APP_CYCLE_START;
+
 		switch (state)
 		{
 		case MAIN_CREATION:
 
+			PROFILE_SCOPE_START("START");
+
 			app_log->AddLog("-------------- Application Creation --------------");
 			App = new Application();
 			state = MAIN_START;
+
+			PROFILE_SCOPE_END;
+
 			break;
 
 		case MAIN_START:
@@ -87,6 +97,8 @@ int main(int argc, char ** argv)
 			break;
 
 		}
+
+		APP_CYCLE_END;
 	}
 
 	delete App;
