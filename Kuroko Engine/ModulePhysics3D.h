@@ -13,6 +13,7 @@
 // Recommended scale is 1.0f == 1 meter, no less than 0.2 objects
 #define GRAVITY btVector3(0.0f, -10.0f, 0.0f) 
 
+class GameObject;
 struct PhysBody;
 
 class PDebugDrawer : public btIDebugDraw
@@ -51,7 +52,7 @@ public:
 	bool CleanUp();
 	void CleanUpWorld();
 
-	PhysBody* AddBody();
+	PhysBody* AddBody(GameObject* parent);
 	void DeleteBody(PhysBody* body_to_delete);
 
 private:

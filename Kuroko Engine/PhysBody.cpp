@@ -45,10 +45,10 @@ btRigidBody * PhysBody::GetRigidBody()
 	return body;
 }
 
-void PhysBody::OnCollision(PhysBody * bodyA, PhysBody * bodyB)
-{
-
-}
+//void PhysBody::OnCollision(PhysBody * bodyA, PhysBody * bodyB)
+//{
+//
+//}
 
 // ---------------------------------------------------------
 void PhysBody::SetTransform(float* matrix) 

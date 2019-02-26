@@ -128,7 +128,5 @@ public:
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
 
-	PCube cube;
-	PhysBody p_cube;
 };
 #endif

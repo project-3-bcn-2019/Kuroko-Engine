@@ -26,7 +26,12 @@ public:
 	bool IsSensor() const;
 	btRigidBody* GetRigidBody();
 
-	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+	void OnCollision(PhysBody* bodyA, PhysBody* bodyB)
+	{
+		bool a;
+		a = 1;
+		return;
+	};
 
 private:
 	btRigidBody * body = nullptr;
@@ -52,7 +57,6 @@ public:
 	//Mesh* mesh_ptr = nullptr;
 
 	//--------------------------	
-	std::list<Module*> collision_listeners;
 };
 
 #endif // __PhysBody3D_H__
