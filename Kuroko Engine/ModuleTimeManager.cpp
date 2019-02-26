@@ -25,10 +25,6 @@ bool ModuleTimeManager::Init(const JSON_Object * config)
 	game_time.setScale(1);
 	real_time.Reset();
 
-	if (App->is_game)
-		game_state = PLAYING;
-
-
 	return true;
 }
 

@@ -1,8 +1,7 @@
 
 import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
-InputComunicator,
-Math
+InputComunicator
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -29,15 +28,6 @@ construct new(){}
  Update() {
   if(EngineComunicator.getTime() - starting_time > time_to_destroy){
     kill()
-	// Testing
-	System.print(Math.C_sqrt(192))
-	System.print(getPos("global").magnitude)
-	System.print(Math.pow(3,2))
-	System.print(Math.pow(100,0))
-	System.print(Math.pow(4,5))
-  }
-  if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_DOWN)){
-   EngineComunicator.BreakPoint("Testing Break Point", starting_time, "starting_time")
   }
  }
 }

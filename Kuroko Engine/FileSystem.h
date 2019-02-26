@@ -19,7 +19,7 @@
 
 
 #define PREFABS_FOLDER "Library\\Prefabs\\"
-#define SCENES_FOLDER "Library\\Scenes\\"
+#define SCENES_FOLDER "Library\\Scenes"
 
 #define SETTINGS_FOLDER "Settings\\"
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"

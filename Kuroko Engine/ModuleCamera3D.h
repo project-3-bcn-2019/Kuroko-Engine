@@ -36,9 +36,6 @@ public:
 	Camera* override_editor_cam_culling = nullptr;
 	std::list<Camera*> game_cameras;
 	std::array<Camera*, 6> viewports;
-
-	float camera_speed;
-	float camera_rotation_speed;
 };
 
 #endif

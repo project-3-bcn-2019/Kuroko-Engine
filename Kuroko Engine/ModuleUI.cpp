@@ -79,9 +79,6 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 	InitializeScriptEditor();
 
-	// If it is a game build, we hide UI
-	enabled = !App->is_game;
-
 
 	return true;
 }
@@ -141,8 +138,6 @@ update_status ModuleUI::PreUpdate(float dt) {
 	ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
 	ImGui::NewFrame();
 
-	
-
 	//ImGui::ShowDemoWindow();
 	return UPDATE_CONTINUE;
 }
@@ -167,8 +162,6 @@ update_status ModuleUI::Update(float dt) {
 			DrawHardwareLeaf();
 		if (ImGui::CollapsingHeader("Application"))
 			DrawApplicationLeaf();
-		if (ImGui::CollapsingHeader("Editor preferences"))
-			DrawEditorPreferencesLeaf();
 
 		if (ImGui::Button("Reset Camera"))
 			App->camera->editor_camera->Reset();
@@ -367,6 +360,10 @@ update_status ModuleUI::Update(float dt) {
 		ImGui::End();
 	}
 
+
+	//if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN) 
+	//	open_tabs[CONFIGURATION] = !open_tabs[CONFIGURATION];
+
 	if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
 		open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
 		for (int i = 0; i < 6; i++)
@@ -564,17 +561,7 @@ void ModuleUI::DrawObjectInspectorTab()
 		ImGui::SameLine();
 		if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
 			App->scene->quadtree_reload = true;
-
-		DrawTagSelection(selected_obj);
-		// Add a new tag
-		static char new_tag[64];
-		ImGui::InputText("New Tag", new_tag, 64);
-		if (ImGui::Button("Add Tag")) {
-			App->scripting->tags.push_back(new_tag);
-			for (int i = 0; i < 64; i++)
-				new_tag[i] = '\0';
-			
-		}
+		
 
 		if (ImGui::CollapsingHeader("Add component"))
 		{
@@ -1574,7 +1561,7 @@ void ModuleUI::DrawAssetsWindow()
 				{
 					ResourceScript* res = (ResourceScript*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
 
-					if (res && res->IsInvalid())
+					if (res->IsInvalid())
 					{
 						draw_warning = true;
 						error_message += "Compile error in imported script";
@@ -2323,18 +2310,6 @@ void ModuleUI::DrawApplicationLeaf() const
 	ImGui::PopFont();
 }
 
-void ModuleUI::DrawEditorPreferencesLeaf() const {
-
-	static float camera_speed = 2.5f;
-	if (ImGui::InputFloat("Camera speed", &camera_speed))
-		App->camera->camera_speed = camera_speed;
-
-
-	static float camera_rotation_speed = 0.25f;
-	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;
-}
-
 void ModuleUI::DrawTimeControlWindow()
 {
 	ImGui::Begin("Time control", &open_tabs[TIME_CONTROL]);
@@ -2548,41 +2523,6 @@ void ModuleUI::DrawGuizmo()
 			transform->GlobalToLocal();
 		}
 	}
-}
-
-void ModuleUI::DrawTagSelection(GameObject* object) {
-
-	std::string object_tag = object->tag; // Current tag
-	int inx = 0;						  // Index of the current tag
-
-
-	std::string posible_tags; // All the tags in the same string
-	bool inx_found = false; // Stop when tag is found
-
-	for (auto it = App->scripting->tags.begin(); it != App->scripting->tags.end(); it++){
-		// Store every tag in the same string
-		posible_tags += (*it);
-		posible_tags += '\0';
-
-		// Figure out which inx is the tag of the gameobject
-		if (object_tag == (*it))
-			inx_found = true;
-		if (!inx_found) {
-			inx++;
-		}
-	}
-	if (ImGui::Combo("Tag selector", &inx, posible_tags.c_str())) {
-		// Out of the selected index, extract the "tag" of the gameobject and return it
-		int inx_it = 0;
-		for (auto it = App->scripting->tags.begin(); it != App->scripting->tags.end(); it++) {
-			if (inx_it == inx){
-				object->tag = (*it);
-				break;
-			}
-			inx_it++;
-		}
-	}
-	
 }
 
 void ModuleUI::SaveConfig(JSON_Object* config) const

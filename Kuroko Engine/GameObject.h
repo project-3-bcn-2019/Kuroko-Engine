@@ -65,7 +65,6 @@ private:
 	std::list<GameObject*> children;
 	std::string name;
 
-
 	GameObject* parent = nullptr;
 
 	float3 centroid = float3::zero;		// includes all childs
@@ -82,7 +81,6 @@ public:
 
 	bool is_active = true;
 	bool is_static = false;
-	std::string tag = "undefined";
 
 };
 #endif

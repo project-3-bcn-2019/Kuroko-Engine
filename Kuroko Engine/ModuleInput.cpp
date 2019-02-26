@@ -15,33 +15,6 @@
 
 #define MAX_KEYS 300
 
-
-Controller::Controller(SDL_GameController * controller, SDL_Haptic * controller_haptic) : controller(controller), controller_haptic(controller_haptic) {
-	memset(axes, 0.f, sizeof(float) * SDL_CONTROLLER_AXIS_MAX);
-	memset(buttons, KEY_IDLE, sizeof(KEY_STATE) * BUTTON_MAX);
-
-	id = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
-
-	if (SDL_HapticRumbleSupported(controller_haptic))
-		SDL_HapticRumbleInit(controller_haptic);
-}
-
-Controller::~Controller()
-{
-}
-
-bool Controller::isPressed(CONTROLLER_BUTTON button, KEY_STATE state) const
-{
-	return buttons[button] == state;;
-}
-
-void Controller::addInput(CONTROLLER_BUTTON input) {
-	if (buttons[input] != KEY_REPEAT || buttons[input] != KEY_DOWN) {
-		buttons[input] = KEY_DOWN;
-	}
-}
-
-
 ModuleInput::ModuleInput(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
 	keyboard = new KEY_STATE[MAX_KEYS];
@@ -66,15 +39,6 @@ bool ModuleInput::Init(const JSON_Object* config)
 	if(SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
 	{
 		app_log->AddLog("SDL_EVENTS could not initialize! SDL_Error: %s\n", SDL_GetError());
-		ret = false;
-	}
-	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0) {
-		app_log->AddLog("mdInput : SDL Controller could not initialize! SDL_Error: %s\n", SDL_GetError());
-		ret = false;
-	}
-
-	if (SDL_InitSubSystem(SDL_INIT_HAPTIC) != 0) {
-		app_log->AddLog("mdInput : SDL Haptic could not initialize! SDL_Error: %s\n", SDL_GetError());
 		ret = false;
 	}
 
@@ -132,28 +96,19 @@ update_status ModuleInput::PreUpdate(float dt)
 
 	mouse_x_motion = mouse_y_motion = 0;
 
-
-	for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-		for (int i = 0; i < BUTTON_MAX; ++i) {
-			if ((*it)->buttons[i] == KEY_UP)
-				(*it)->buttons[i] = KEY_IDLE;
-			else if ((*it)->buttons[i] == KEY_DOWN)
-				(*it)->buttons[i] = KEY_REPEAT;
-		}
-	}
-
 	bool quit = false;
 	SDL_Event e;
-	while (SDL_PollEvent(&e))
+	while(SDL_PollEvent(&e))
 	{
 		ImGui_ImplSDL2_ProcessEvent(&e);
-		switch (e.type)
+
+		switch(e.type)
 		{
-		case SDL_MOUSEWHEEL:
+			case SDL_MOUSEWHEEL:
 			mouse_z = e.wheel.y;
 			break;
 
-		case SDL_MOUSEMOTION:
+			case SDL_MOUSEMOTION:
 			mouse_x = e.motion.x / SCREEN_SIZE;
 			mouse_y = e.motion.y / SCREEN_SIZE;
 
@@ -161,63 +116,27 @@ update_status ModuleInput::PreUpdate(float dt)
 			mouse_y_motion = e.motion.yrel / SCREEN_SIZE;
 			break;
 
-		case SDL_QUIT:
+			case SDL_QUIT:
 			quit = true;
 			break;
 
-		case SDL_WINDOWEVENT:
-			if (e.window.event == SDL_WINDOWEVENT_RESIZED)
-				App->renderer3D->OnResize(e.window.data1, e.window.data2);
+			case SDL_WINDOWEVENT:
+				if(e.window.event == SDL_WINDOWEVENT_RESIZED)
+					App->renderer3D->OnResize(e.window.data1, e.window.data2);
 
 			break;
 
-		case SDL_DROPFILE:
-		{
-			std::string extension = e.drop.file;
-			App->fs.getExtension(extension);
-			App->fs.copyFileTo(e.drop.file, ASSETS, extension.c_str());
-			app_log->AddLog("%s copied to Assets folder", e.drop.file);
-			break;
-		}
-
-		case SDL_CONTROLLERDEVICEADDED:
-			if (SDL_IsGameController(e.cdevice.which)) {
-				int index = e.cdevice.which;
-				Controller* ctrl = new Controller(SDL_GameControllerOpen(index), SDL_HapticOpen(index));
-				if (ctrl != nullptr)
-					controllers.push_back(ctrl);
+			case SDL_DROPFILE:
+			{
+				std::string extension = e.drop.file;
+				App->fs.getExtension(extension);
+				App->fs.copyFileTo(e.drop.file, ASSETS, extension.c_str());
+				app_log->AddLog("%s copied to Assets folder", e.drop.file);
 			}
-			break;
-		case SDL_CONTROLLERDEVICEREMOVED:
-			for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-				if ((*it)->getControllerID() == e.cdevice.which) {
-					delete (*it);
-					it = controllers.erase(it);
-					break;
-				}
-			}
-		case SDL_CONTROLLERBUTTONDOWN:
-			for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-				if ((*it)->getControllerID() == e.cbutton.which) {
-					(*it)->addInput((CONTROLLER_BUTTON)e.cbutton.button);
-						break;
-				}
-			}
-			break;
+	
+				break;
 
-		case SDL_CONTROLLERBUTTONUP:
-			for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-				if ((*it)->getControllerID() == e.cbutton.which) {
-					(*it)->buttons[e.cbutton.button] = KEY_UP;
-					break;
-				}
-			}
-			break;
-
-		case SDL_CONTROLLERAXISMOTION:
-			handleAxes(e);
-			break;
-		default: break;
+			default: break;
 		}
 	}
 
@@ -234,55 +153,3 @@ bool ModuleInput::CleanUp()
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
 }
-
-void ModuleInput::handleAxes(SDL_Event event) {
-	uint device_index = event.caxis.which;
-	for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-		if ((*it)->getControllerID() == device_index) {
-			float axis_value = event.caxis.value / 16000; //32767 is the max value for an SDL axis
-			float prior_value = (*it)->axes[event.caxis.axis];
-			(*it)->axes[event.caxis.axis] = axis_value;
-			switch (event.caxis.axis) {
-			case SDL_CONTROLLER_AXIS_LEFTX:
-				if (axis_value < prior_value) {
-					if (prior_value >= axis_tolerance && axis_value < axis_tolerance)
-						(*it)->buttons[AXIS_LEFTX_POSITIVE] = KEY_UP;
-					if (prior_value > -axis_tolerance && axis_value <= -axis_tolerance)
-						(*it)->addInput(AXIS_LEFTX_NEGATIVE);
-				}
-				else {
-					if (prior_value <= -axis_tolerance && axis_value > -axis_tolerance)
-						(*it)->buttons[AXIS_LEFTX_NEGATIVE] = KEY_UP;
-					if (prior_value < axis_tolerance && axis_value >= axis_tolerance)
-						(*it)->addInput(AXIS_LEFTX_POSITIVE);
-				}
-				break;
-			case SDL_CONTROLLER_AXIS_LEFTY:
-				if (axis_value < prior_value) {
-					if (prior_value >= axis_tolerance && axis_value < axis_tolerance)
-						(*it)->buttons[AXIS_LEFTY_NEGATIVE] = KEY_UP;
-					if (prior_value > -axis_tolerance && axis_value <= -axis_tolerance)
-						(*it)->addInput(AXIS_LEFTY_POSITIVE);
-				}
-				else {
-					if (prior_value <= -axis_tolerance && axis_value > -axis_tolerance)
-						(*it)->buttons[AXIS_LEFTY_POSITIVE] = KEY_UP;
-					if (prior_value < axis_tolerance && axis_value >= axis_tolerance)
-						(*it)->addInput(AXIS_LEFTY_NEGATIVE);
-				}
-				break;
-			}
-		}
-	}
-}
-
-Controller* ModuleInput::getController(uint id) {
-	for (auto it = controllers.begin(); it != controllers.end(); it++) {
-		if ((*it)->getControllerID() == id)
-			return (*it);
-	}
-
-	return nullptr;
-
-}
-

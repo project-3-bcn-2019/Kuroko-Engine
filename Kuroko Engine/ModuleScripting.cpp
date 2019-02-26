@@ -6,7 +6,6 @@
 #include "ModuleScene.h"
 #include "ModuleInput.h"
 #include "ModuleResourcesManager.h"
-#include "ModuleTimeManager.h"
 
 // May be better to manage in scene
 #include "GameObject.h"
@@ -17,10 +16,6 @@
 void ConsoleLog(WrenVM* vm); 
 void InstantiatePrefab(WrenVM* vm);
 void getTime(WrenVM* vm);
-void BreakPoint(WrenVM* vm);
-
-// Math
-void sqrt(WrenVM* vm);
 
 // Object comunicator
 void SetGameObjectPos(WrenVM* vm);
@@ -37,14 +32,8 @@ void getGameObjectRoll(WrenVM* vm);
 void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 
-//Time
-void GetDeltaTime(WrenVM* vm);
-void GetTimeScale(WrenVM* vm);
-void SetTimeScale(WrenVM* vm);
-
 // Input comunicator
-void getKey(WrenVM* vm);
-void getButton(WrenVM* vm);
+void GetKey(WrenVM* vm);
 void getMouseRaycastX(WrenVM* vm);
 void getMouseRaycastY(WrenVM* vm);
 void getMouseRaycastZ(WrenVM* vm);
@@ -75,11 +64,6 @@ bool ModuleScripting::Init(const JSON_Object* config)
 	wconfig.loadModuleFn = loadModule;
 	wconfig.writeFn = write;
 	wconfig.errorFn = error;
-
-	LoadConfig(config);
-
-	tags.push_back("undefined");
-
 	//wconfig.reallocateFn = reallocate;
 
 	if (vm = wrenNewVM(&wconfig))
@@ -186,32 +170,9 @@ update_status ModuleScripting::Update(float dt)
 }
 
 
-void ModuleScripting::StartInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_STARTING); }
-void ModuleScripting::PauseInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_PAUSED); }
-void ModuleScripting::StopInstances() { for (auto it : loaded_instances)  (*it).setState(SCRIPT_STOPPED); }
-
-
-void ModuleScripting::SaveConfig(JSON_Object * config) const {
-	JSON_Array* tags_arr = json_array(json_value_init_array());
-
-	for (auto it = tags.begin(); it != tags.end(); it++) {
-		if ((*it) == "undefined") // Hardcoded value, omit saving to avoid repetition
-			continue;
-		json_array_append_string(tags_arr, (*it).c_str());
-	}
-
-	json_object_set_value(config, "tags", json_array_get_wrapping_value(tags_arr));
-
-}
-void ModuleScripting::LoadConfig(const JSON_Object * config) {
-	tags.clear();
-
-	JSON_Array* tags_arr = json_object_get_array(config, "tags");
-
-	for (int i = 0; i != json_array_get_count(tags_arr); i++)
-		tags.push_back(json_array_get_string(tags_arr, i));
-}
-
+void ModuleScripting::StartInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_STARTING); };
+void ModuleScripting::PauseInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_PAUSED); };
+void ModuleScripting::StopInstances() { for (auto it : loaded_instances)  (*it).setState(SCRIPT_STOPPED); };
 
 bool ModuleScripting::CleanUp() 
 {
@@ -435,21 +396,6 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return MoveGameObjectForward; // C function for ObjectComunicator.C_MoveForward
 			}
 		}
-		if (strcmp(className, "Math") == 0) {
-			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
-				return sqrt; // C function for Math.C_sqrt(_)
-		}
-		if (strcmp(className, "Time") == 0) {
-			if (isStatic && strcmp(signature, "C_GetDeltaTime()") == 0) {
-				return GetDeltaTime;
-			}
-			if (isStatic && strcmp(signature, "C_GetTimeScale()") == 0) {
-				return GetTimeScale;
-			}
-			if(isStatic && strcmp(signature,"C_SetTimeScale(_)") == 0){
-				return SetTimeScale;
-			}
-		}
 		if (strcmp(className, "EngineComunicator") == 0) {
 			if (isStatic && strcmp(signature, "consoleOutput(_)") == 0)
 				return ConsoleLog; // C function for EngineComunicator.consoleOutput
@@ -457,20 +403,16 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return InstantiatePrefab; // C function for EngineComunicator.Instantiate
 			if (isStatic && strcmp(signature, "getTime()") == 0)
 				return getTime;
-			if (isStatic && strcmp(signature, "BreakPoint(_,_,_)") == 0)
-				return BreakPoint;
 		}
 		if (strcmp(className, "InputComunicator") == 0) {
 			if (isStatic && strcmp(signature, "getKey(_,_)") == 0)
-				return getKey; // C function for InputComunicator.getKey
+				return GetKey; // C function for InputComunicator.getKey
 			if (isStatic && strcmp(signature, "getMouseRaycastX()") == 0)
 				return getMouseRaycastX; // C function for InputComunicator.getMouseRaycastX
 			if (isStatic && strcmp(signature, "getMouseRaycastY()") == 0)
 				return getMouseRaycastY; // C function for InputComunicator.getMouseRaycastY
 			if (isStatic && strcmp(signature, "getMouseRaycastZ()") == 0)
 				return getMouseRaycastZ; // C function for InputComunicator.getMouseRaycastZ
-			if (isStatic && strcmp(signature, "getButton(_,_,_)") == 0)
-				return getButton;
 		}
 	}
 
@@ -542,7 +484,7 @@ void lookAt(WrenVM* vm) {
 	c_trans->local->LookAt(float3(c_trans->global->getPosition().x, target.y, c_trans->global->getPosition().z), target);
 }
 
-void getKey(WrenVM* vm) {
+void GetKey(WrenVM* vm) {
 	int pressed_key = wrenGetSlotDouble(vm, 1);
 	int mode = wrenGetSlotDouble(vm, 2);
 
@@ -569,7 +511,7 @@ void getMouseRaycastZ(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, hit.z);
 }
 
-void InstantiatePrefab(WrenVM* vm) {  
+void InstantiatePrefab(WrenVM* vm) {  // TODO: Instanciate should accept a transform as well (at least)
 
 	std::string prefab_name = wrenGetSlotString(vm, 1);
 
@@ -676,21 +618,6 @@ void MoveGameObjectForward(WrenVM* vm) {
 
 }
 
-void GetDeltaTime(WrenVM * vm)
-{
-	wrenSetSlotDouble(vm, 0, App->time->getDeltaTime());
-}
-
-void GetTimeScale(WrenVM * vm)
-{
-	wrenSetSlotDouble(vm, 0, App->time->getTimeScale());
-}
-
-void SetTimeScale(WrenVM * vm)
-{
-	App->time->setTimeScale(wrenGetSlotDouble(vm,1));
-}
-
 void getGameObjectPitch(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 
@@ -733,54 +660,4 @@ void getGameObjectRoll(WrenVM* vm) {
 
 void getTime(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, SDL_GetTicks());
-}
-
-void sqrt(WrenVM* vm) {
-	int number = wrenGetSlotDouble(vm, 1);
-	wrenSetSlotDouble(vm, 0, sqrt(number));
-}
-
-void BreakPoint(WrenVM* vm) {
-	std::string message = wrenGetSlotString(vm, 1);
-	WrenType type = wrenGetSlotType(vm, 2);
-	std::string var_name = wrenGetSlotString(vm, 3);
-	int number = 0;
- 	std::string str;
-	bool boolean = false;
-
-	switch (type) {
-	case WREN_TYPE_NUM:
-		number = wrenGetSlotDouble(vm, 2);
-		break;
-	case WREN_TYPE_BOOL:
-		boolean = wrenGetSlotBool(vm, 2);
-		break;
-	case WREN_TYPE_STRING:
-		str = wrenGetSlotString(vm, 2);
-		break;
-	case WREN_TYPE_UNKNOWN:
-		app_log->AddLog("Variable in the break point is not a C native type");
-		return;
-	}
-
-	return; // PUT A BREAK POINT HERE TO SEE THE VALUE AND NAME OF THE VARIABLE
-
-}
-
-void getButton(WrenVM* vm) {
-	uint controller_id = wrenGetSlotDouble(vm, 1);
-	CONTROLLER_BUTTON input = (CONTROLLER_BUTTON)(uint)wrenGetSlotDouble(vm, 2);
-	KEY_STATE mode = (KEY_STATE)(uint)wrenGetSlotDouble(vm, 3);
-
-
-	Controller* controller = App->input->getController(controller_id);
-
-	if (!controller) {
-		wrenSetSlotBool(vm, 0, false);
-		app_log->AddLog("Asking for non-plugged controller %i", controller_id);
-		return;
-	}
-	
-	wrenSetSlotBool(vm, 0, controller->isPressed(input, mode));
-
 }

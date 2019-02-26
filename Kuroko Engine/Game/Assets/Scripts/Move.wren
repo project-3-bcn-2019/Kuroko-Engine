@@ -26,24 +26,6 @@ class Move is ObjectLinker{
 		if(InputComunicator.getKey(InputComunicator.RIGHT, InputComunicator.KEY_REPEAT)){
 			modPos(-speed,0,0)
 		}
-
-
-
-		if(InputComunicator.getButton(1, InputComunicator.L_AXIS_UP, InputComunicator.KEY_REPEAT)){
-			modPos(0,0,speed)
-		}
-		
-		if(InputComunicator.getButton(1, InputComunicator.L_AXIS_DOWN, InputComunicator.KEY_REPEAT)){
-			modPos(0,0,-speed)
-		}
-
-		if(InputComunicator.getButton(1, InputComunicator.L_AXIS_LEFT, InputComunicator.KEY_REPEAT)){
-			modPos(speed,0,0)
-		}
-		
-		if(InputComunicator.getButton(1, InputComunicator.L_AXIS_RIGHT, InputComunicator.KEY_REPEAT)){
-			modPos(-speed,0,0)
-		}
 	}
 }
 

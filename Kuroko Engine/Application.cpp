@@ -111,8 +111,6 @@ bool Application::Init()
 
 	config = json_value_get_object(config_value);
 
-	is_game = json_object_get_boolean(config, "is_game");
-
 	app_log->AddLog("Application Init --------------\n");
 	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret; it++)
 		ret = (*it)->Init(json_object_get_object(config, (*it)->name.c_str()));
@@ -164,20 +162,14 @@ update_status Application::Update()
 	update_status ret = UPDATE_CONTINUE;
 	PrepareUpdate();
 	
-	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++){
-		if((*it)->enabled)
-			ret = (*it)->PreUpdate(dt);
-	}
+	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++)
+		ret = (*it)->PreUpdate(dt);
 
-	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++){
-		if ((*it)->enabled)
-			ret = (*it)->Update(dt);
-	}
+	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++)
+		ret = (*it)->Update(dt);
 
-	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++){
-		if ((*it)->enabled)
-			ret = (*it)->PostUpdate(dt);
-	}
+	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret == UPDATE_CONTINUE; it++)
+		ret = (*it)->PostUpdate(dt);
 
 	FinishUpdate();
 	if (close_app) {

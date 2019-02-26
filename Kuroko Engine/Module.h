@@ -9,6 +9,8 @@ struct PhysBody3D;
 
 class Module
 {
+private :
+	bool enabled;
 
 public:
 
@@ -52,6 +54,5 @@ public:
 	virtual void LoadConfig(const JSON_Object* config) {}
 
 	std::string name;
-	bool enabled = true;
 };
 #endif
