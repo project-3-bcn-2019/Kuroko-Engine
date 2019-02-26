@@ -137,12 +137,14 @@ update_status ModuleScene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
 	{
 		GameObject* obj = new GameObject("TEST");
-		obj->addComponent(COLLIDER_CUBE);
 		
 		AABB* aabb = ((ComponentAABB*)obj->getComponent(C_AABB))->getAABB();
 
 		aabb->minPoint = float3(-0.5, -0.5, -0.5);
 		aabb->maxPoint = float3(0.5, 0.5, 0.5);
+
+		obj->addComponent(COLLIDER_CUBE);
+
 	}
 
 

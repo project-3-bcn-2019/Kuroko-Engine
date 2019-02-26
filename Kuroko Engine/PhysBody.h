@@ -7,6 +7,7 @@
 
 class btRigidBody;
 class Module;
+class Transform;
 
 // =================================================
 struct PhysBody
@@ -24,6 +25,9 @@ public:
 	void SetPos(float x, float y, float z);
 	void SetAsSensor(bool is_sensor);
 	bool IsSensor() const;
+
+	void SetUser(void* new_user);
+
 	btRigidBody* GetRigidBody();
 
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB)
@@ -35,7 +39,7 @@ public:
 
 private:
 	btRigidBody * body = nullptr;
-	bool is_sensor = false;
+	bool is_sensor = true;
 
 	//Unity Elements------------
 	//Mass

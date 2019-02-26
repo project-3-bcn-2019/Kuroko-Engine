@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Component.h"
 #include "ComponentTransform.h"
+#include "Transform.h"
 #include "Bullet/include/btBulletDynamicsCommon.h"
 
 // =================================================
@@ -87,6 +88,11 @@ void PhysBody::SetAsSensor(bool is_sensor)
 bool PhysBody::IsSensor() const
 {
 	return is_sensor;
+}
+
+void PhysBody::SetUser(void * new_user)
+{
+	body->setUserPointer(new_user);
 }
 
 

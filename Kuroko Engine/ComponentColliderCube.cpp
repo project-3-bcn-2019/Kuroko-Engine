@@ -19,6 +19,12 @@ ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _bo
 {
 	parent = _parent;
 	body = _body;
+	body->SetUser(this);
+}
+
+void ComponentColliderCube::OnCollision(GameObject * A, GameObject * B)
+{
+
 }
 
 bool ComponentColliderCube::Update(float dt)

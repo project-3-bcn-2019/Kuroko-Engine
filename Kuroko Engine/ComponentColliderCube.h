@@ -16,6 +16,8 @@ public:
 //	ComponentColliderCube(GameObject* owner);
 //	ComponentColliderCube(GameObject* owner,PCube* pcube);
 
+	void OnCollision(GameObject* A, GameObject* B);
+
 	bool Update(float dt);
 	void Draw() const;
 
