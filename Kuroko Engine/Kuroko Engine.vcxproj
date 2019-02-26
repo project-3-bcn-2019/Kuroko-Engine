@@ -89,8 +89,6 @@
     <ClInclude Include="ComponentAABB.h" />
     <ClInclude Include="ComponentAudioListener.h" />
     <ClInclude Include="ComponentAudioSource.h" />
-    <ClInclude Include="ComponentAnimation.h" />
-    <ClInclude Include="ComponentBone.h" />
     <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="ComponentScript.h" />
     <ClInclude Include="ComponentTransform.h" />
@@ -182,7 +180,6 @@
     <ClInclude Include="ModuleImporter.h" />
     <ClInclude Include="ModuleResourcesManager.h" />
     <ClInclude Include="ModuleScripting.h" />
-    <ClInclude Include="ModuleShaders.h" />
     <ClInclude Include="ModuleTimeManager.h" />
     <ClInclude Include="ModuleUI.h" />
     <ClInclude Include="ModuleRenderer3D.h" />
@@ -196,8 +193,6 @@
     <ClInclude Include="Quadtree.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ResourceAnimation.h" />
-    <ClInclude Include="ResourceBone.h" />
     <ClInclude Include="ResourceMesh.h" />
     <ClInclude Include="Resource3dObject.h" />
     <ClInclude Include="ResourcePrefab.h" />
@@ -232,8 +227,6 @@
     <ClCompile Include="ComponentAABB.cpp" />
     <ClCompile Include="ComponentAudioListener.cpp" />
     <ClCompile Include="ComponentAudioSource.cpp" />
-    <ClCompile Include="ComponentAnimation.cpp" />
-    <ClCompile Include="ComponentBone.cpp" />
     <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="ComponentScript.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
@@ -292,7 +285,6 @@
     <ClCompile Include="ModuleImporter.cpp" />
     <ClCompile Include="ModuleResourcesManager.cpp" />
     <ClCompile Include="ModuleScripting.cpp" />
-    <ClCompile Include="ModuleShaders.cpp" />
     <ClCompile Include="ModuleTimeManager.cpp" />
     <ClCompile Include="ModuleUI.cpp" />
     <ClCompile Include="ModuleInput.cpp" />
@@ -304,8 +296,6 @@
     <ClCompile Include="Quadtree.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="ResourceAnimation.cpp" />
-    <ClCompile Include="ResourceBone.cpp" />
     <ClCompile Include="ResourceMesh.cpp" />
     <ClCompile Include="Resource3dObject.cpp" />
     <ClCompile Include="ResourcePrefab.cpp" />

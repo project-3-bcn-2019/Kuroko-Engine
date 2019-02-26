@@ -110,15 +110,6 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 	case LIBRARY_SCENES:
 		path = SCENES_FOLDER;
 		break;
-	case LIBRARY_ANIMATIONS:
-		path = ANIMATIONS_FOLDER;
-		break;
-	case LIBRARY_BONES:
-		path = BONES_FOLDER;
-		break;
-	case LIBRARY_MATERIALS:
-		path = MATERIALS_FOLDER;
-		break;
 	case SETTINGS:
 		path = SETTINGS_FOLDER;
 		break;

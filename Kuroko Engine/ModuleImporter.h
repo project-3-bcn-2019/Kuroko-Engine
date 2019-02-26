@@ -3,17 +3,13 @@
 #include "Module.h"
 #include "Material.h"
 #include <vector>
-#include <map>
 
 class GameObject;
 class ComponentMesh;
 class aiNode;
 class aiScene;
-class aiAnimation;
-class aiBone;
 class AudioFile;
 class Mesh;
-class ResourceAnimation;
 
 //enum ImportType { I_NONE, I_GOBJ, I_TEXTURE, I_FX, I_MUSIC};
 
@@ -43,8 +39,6 @@ public:
 
 	//Own file format
 	void ImportMeshToKR(const char* file, Mesh* mesh);
-	void ImportAnimationToKR(const char* file, aiAnimation* animation);
-	void ImportBoneToKR(const char* file, aiBone* bone);
 	void ImportTextureToDDS(const char* file);
 	Mesh* ExportMeshFromKR(const char* file); 
 	Texture* LoadTextureFromLibrary(const char* file);
@@ -52,9 +46,8 @@ public:
 	void ImportSounds();
 
 private:
-	void ImportNodeToSceneRecursive(const aiNode& node, const aiScene& scene, JSON_Value* json_scene, const std::vector<material_resource_deff>& in_mat_id, const std::map<std::string, uint>& in_bone_id, uint parent = 0);  // TODO: Add a parameter for mat id, a vector of JSON_Objects*
+	void ImportNodeToSceneRecursive(const aiNode& node, const aiScene& scene, JSON_Value* json_scene, const std::vector<material_resource_deff>& in_mat_id, uint parent = 0);  // TODO: Add a parameter for mat id, a vector of JSON_Objects*
 	void ImportMaterialsFromNode(const aiScene& scene, std::vector<material_resource_deff>& out_mat_id);
-	void ImportBonesRecursive(const aiNode& node, const aiScene& scene, std::map<std::string, uint>& out_bones_id);
 
 };
 void logAssimp(const char* message, char* user);

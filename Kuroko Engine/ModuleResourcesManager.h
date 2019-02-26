@@ -67,8 +67,6 @@ public:
 	void Load3dObjectToScene(const char* file);
 	uint getResourceUuid(const char* file); // Will not assign the resource 
 	uint getMeshResourceUuid(const char* Parent3dObject, const char* name);
-	uint getAnimationResourceUuid(const char* Parent3dObject, const char* name);
-	uint getBoneResourceUuid(const char* Parent3dObject, const char* name);
 
 	void CleanResources() { cleanResources = true; }
 
@@ -78,7 +76,6 @@ public:
 	// Get
 	void getMeshResourceList(std::list<resource_deff>& meshes);
 	void getScriptResourceList(std::list<resource_deff>& scripts);
-	void getAnimationResourceList(std::list<resource_deff>& animations);
 	std::string getPrefabPath(const char* prefab_name); // Retruns the binary file for the given prefab so it can be loaded
 	// get texture list
 	// get scene list

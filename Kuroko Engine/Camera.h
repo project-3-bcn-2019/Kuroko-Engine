@@ -49,9 +49,6 @@ public:
 	FrameBuffer* getFrameBuffer() const { return frame_buffer; };
 	ComponentCamera* getParent() const { return attached_to; }; // can be null
 
-	float* GetProjectionMatrix()const;
-	float* GetViewMatrix()const;
-
 	void setFrameBuffer(FrameBuffer* fb) { frame_buffer = fb; };
 	void setFrustum(Frustum* f) { frustum = f; };
 	void setFov(float hor_fov, float ver_fov);

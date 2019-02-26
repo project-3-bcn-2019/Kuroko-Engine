@@ -10,8 +10,6 @@
 #include "ResourceScript.h"
 #include "ResourceScene.h"
 #include "ResourcePrefab.h"
-#include "ResourceAnimation.h"
-#include "ResourceBone.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -90,12 +88,6 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 	case R_SCRIPT: ret = (Resource*) new ResourceScript(deff); break;
 	case R_SCENE: ret = (Resource*) new ResourceScene(deff); break;
 	case R_PREFAB: ret = (Resource*) new ResourcePrefab(deff); break;
-	case R_ANIMATION:
-		ret = (Resource*) new ResourceAnimation(deff);
-		break;
-	case R_BONE: 
-		ret = (Resource*) new ResourceBone(deff);
-		break;
 	} 
 
 	if (ret)
@@ -467,32 +459,6 @@ uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, co
 	return 0;
 }
 
-uint ModuleResourcesManager::getAnimationResourceUuid(const char * Parent3dObject, const char * name)
-{
-	for (auto it = resources.begin(); it != resources.end(); it++) {
-		if ((*it).second->type == R_ANIMATION) {
-			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
-			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
-				return res_anim->uuid;
-			}
-		}
-	}
-	return 0;
-}
-
-uint ModuleResourcesManager::getBoneResourceUuid(const char * Parent3dObject, const char * name)
-{
-	for (auto it = resources.begin(); it != resources.end(); it++) {
-		if ((*it).second->type == R_BONE) {
-			ResourceBone* res_bone = (ResourceBone*)(*it).second;
-			if (res_bone->Parent3dObject == Parent3dObject && res_bone->asset == name) {
-				return res_bone->uuid;
-			}
-		}
-	}
-	return 0;
-}
-
 void ModuleResourcesManager::CleanMeta() {
 	using std::experimental::filesystem::recursive_directory_iterator;
 	for (auto& it : recursive_directory_iterator(ASSETS_FOLDER)) {
@@ -566,17 +532,6 @@ void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scr
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			scripts.push_back(deff);
-		}
-	}
-}
-
-void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& animations)
-{
-	for (auto it = resources.begin(); it != resources.end(); it++) {
-		if ((*it).second->type == R_ANIMATION) {
-			Resource* curr = (*it).second;
-			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
-			animations.push_back(deff);
 		}
 	}
 }

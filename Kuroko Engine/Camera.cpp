@@ -176,22 +176,6 @@ void Camera::updateFrustum()
 	frustum->up = Y;
 }
 
-float * Camera::GetProjectionMatrix()const
-{
-	static float4x4 matrix;
-	matrix = getFrustum()->ProjectionMatrix();
-	matrix.Transpose();
-	return (float*)matrix.v;
-}
-
-float * Camera::GetViewMatrix()const
-{
-	static float4x4 matrix;
-	matrix = getFrustum()->ViewMatrix();
-	matrix.Transpose();
-	return  (float*)matrix.v;
-}
-
 void  Camera::setFov(float hor_fov, float ver_fov)
 {
 	frustum->horizontalFov = hor_fov; frustum->verticalFov = ver_fov;

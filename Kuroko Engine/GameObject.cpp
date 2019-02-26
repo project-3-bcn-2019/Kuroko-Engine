@@ -7,8 +7,6 @@
 #include "ComponentScript.h"
 #include "ComponentAudioListener.h"
 #include "ComponentAudioSource.h"
-#include "ComponentBone.h"
-#include "ComponentAnimation.h"
 #include "Camera.h"
 #include "Application.h"
 #include "ModuleUI.h"
@@ -60,11 +58,6 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		}
 		else if (type == "audioSource") {
 			component = new ComponentAudioSource(component_deff, this);
-		else if (type == "bone") {
-			component = new ComponentBone(component_deff, this);
-		}
-		else if (type == "animation") {
-			component = new ComponentAnimation(component_deff, this);
 		}
 
 		// Set component's parent-child
@@ -152,24 +145,13 @@ bool GameObject::getComponents(Component_type type, std::list<Component*>& list_
 
 GameObject* GameObject::getChild(const char* name) const
 {
-	GameObject* child = nullptr;
-
-	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
+	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); it++)
 	{
 		if ((*it)->getName() == name)
-		{
-			child = (*it);
-			break;
-		}
-		else
-		{
-			child = (*it)->getChild(name);
-			if (child != nullptr)
-				break;
-		}
+			return *it;
 	}
 
-	return child;
+	return nullptr;
 }
 
 void GameObject::getAllDescendants(std::list<GameObject*>& list_to_fill) const
@@ -231,17 +213,6 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentAudioSource(this);
 		components.push_back(new_component);
 		break;
-	case BONE:
-		new_component = new ComponentBone(this);
-		components.push_back(new_component);
-		break;
-	case ANIMATION:
-		if (!getComponent(ANIMATION))
-		{
-			new_component = new ComponentAnimation(this);
-			components.push_back(new_component);
-		}
-		break;
 	default:
 		break;
 	}
@@ -281,13 +252,6 @@ void GameObject::addComponent(Component* component)
 		break;
 	case AUDIOSOURCE:
 		components.push_back(component);
-		break;
-	case BONE:
-		components.push_back(component);
-		break;
-	case ANIMATION:
-		if (!getComponent(ANIMATION))
-			components.push_back(component);
 		break;
 	default:
 		break;

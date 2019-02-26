@@ -9,27 +9,6 @@
 
 void log(const char file[], int line, const char* format, ...);
 
-// Deletes a buffer
-#define RELEASE( x ) \
-    {                        \
-    if( x != NULL )        \
-	    {                      \
-      delete x;            \
-	  x = NULL;              \
-	    }                      \
-    }
-
-// Deletes an array of buffers
-#define RELEASE_ARRAY( x ) \
-    {                              \
-    if( x != NULL )              \
-	    {                            \
-      delete[] x;                \
-	  x = NULL;                    \
-	    }                            \
-                              \
-}
-
 #define CAP(n) ((n <= 0.0f) ? n=0.0f : (n >= 1.0f) ? n=1.0f : n=n)
 
 #define DEGTORAD 0.0174532925199432957f

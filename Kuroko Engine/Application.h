@@ -20,7 +20,6 @@ class ModuleDebug;
 class ModuleTimeManager;
 class ModuleResourcesManager;
 class ModuleScripting;
-class ModuleShaders;
 
 class Application
 {
@@ -37,7 +36,6 @@ public:
 	ModuleTimeManager* time;
 	ModuleResourcesManager* resources;
 	ModuleScripting* scripting;
-	ModuleShaders* shaders;
 
 	FileSystem fs;
 private:

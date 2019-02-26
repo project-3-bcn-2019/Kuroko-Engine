@@ -4,14 +4,12 @@
 #include "Color.h"
 #include <string>
 
-#include "MathGeoLib\Math\float4.h"
 #include "MathGeoLib\Math\float3.h"
 #include "MathGeoLib\Math\float2.h"
 
 class aiMesh;
 class aiScene;
 class Material;
-class ComponentAnimation;
 
 enum PrimitiveTypes
 {
@@ -29,22 +27,6 @@ struct Tri{
 	void set(uint v1, uint v2, uint v3) { this->v1 = v1; this->v2 = v2; this->v3 = v3; }
 };
 
-struct Vertex
-{
-public:
-	Vertex()
-	{}
-	void Assign(float3 position, float4 color)
-	{
-		this->position = position;
-		this->color = color;
-	}
-	float3 position = { 0,0,0 };
-	float4 color = { 0,0,0,0 };
-	float2 tex_coords = { 0,0 };
-	float3 normal = { 0,0,0 };
-};
-
 class Mesh {
 	
 	friend class Skybox;
@@ -56,8 +38,6 @@ public:
 	~Mesh();
 
 	void Draw(Material* mat, bool draw_as_selected = false) const;
-	void FillMeshGPU();
-	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform, bool draw_as_selected = false) const;
 	void DrawNormals() const;
 
 	void getData(uint& vert_num, uint& poly_count, bool& has_normals, bool& has_colors, bool& has_texcoords) const;
@@ -78,7 +58,6 @@ public:
 private:
 
 	void LoadDataToVRAM();
-	void LoadDataToVRAMShaders();
 	void BuildCube(float3& size = (float3)float3::one);
 	void BuildPlane(float sx = 1.0f, float sy = 1.0f);
 	void BuildSphere(float radius = 1.0f, float sectorCount = 12.0f, float stackCount = 24.0f);
@@ -92,7 +71,6 @@ private:
 	const uint id = 0;
 	uint iboId = 0;
 	uint vboId = 0;
-	uint vaoId = 0;
 	std::string mesh_name; //"CUBE", "PLANE", "SHPERE" and "CYLINDER" are primitives, don't use models with this name
 
 	uint num_vertices = 0;
@@ -109,9 +87,6 @@ private:
 
 	float3 half_size = float3::zero;
 	float3 centroid = float3::zero;
-
-	Vertex* MeshGPU = nullptr;
-	int meshgpucounter = 0;
 
 public:
 	Color tint_color = White;
