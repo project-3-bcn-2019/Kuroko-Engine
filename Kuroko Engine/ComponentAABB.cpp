@@ -87,7 +87,7 @@ bool ComponentAABB::Update(float dt)
 		getParent()->centroid = obb->pos;
 		getParent()->half_size = obb->r.Abs();
 
-		*aabb = obb->MinimalEnclosingAABB();
+		//*aabb = obb->MinimalEnclosingAABB(); DEBUG COMMENT DELET
 	}
 	return true;
 }

@@ -57,7 +57,7 @@ public:
 
 private:
 
-	bool physics_debug;
+	bool physics_debug = true;
 	//physics
 	btDefaultCollisionConfiguration*	collision_conf;
 	btCollisionDispatcher*				dispatcher;

@@ -10,6 +10,7 @@ class Component
 {
 public:
 
+	Component() {};
 	Component(GameObject* gameobject, Component_type type) : parent(gameobject), type(type) {};
 	virtual ~Component() {};
 

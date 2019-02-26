@@ -1,18 +1,88 @@
-//#include "ComponentColliderCube.h"
-//#include "ComponentMesh.h"
-//#include "GameObject.h"
+#include "ComponentColliderCube.h"
+#include "GameObject.h"
 //#include "ComponentCamera.h"
 ////#include "ModuleSceneImGui.h"
 //#include "Globals.h"
 //#include "Camera.h"
 //#include "Application.h"
-//#include "PhysBody.h"
-//#include "Transform.h"
-//#include "ComponentTransform.h"
-//
-//
-//
-//ComponentColliderCube::ComponentColliderCube(GameObject * owner)
+#include "PhysBody.h"
+#include "Transform.h"
+#include "ComponentTransform.h"
+#include "ComponentAABB.h"
+
+#include "SDL/include/SDL_opengl.h"
+#include "glut/glut.h"
+
+#pragma comment (lib, "glut/glut32.lib")
+
+ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _body)
+{
+	parent = _parent;
+	body = _body;
+}
+
+bool ComponentColliderCube::Update(float dt)
+{
+	//TODO
+	//Gather the pointer with the transform matrix
+	float* transform_matrix = new float[16];
+	transform_matrix = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr();
+
+	body->SetTransform(transform_matrix);
+	return true;
+}
+
+void ComponentColliderCube::Draw() const
+{
+	//ComponentAABB* aabb = ((ComponentAABB*)parent->getComponent(C_AABB));
+
+	//float sx = aabb-> * scale.x * 0.25f;
+	//float sy = dimensions.y * scale.y * 0.25f;
+	//float sz = dimensions.z * scale.z * 0.25f;
+
+	//glLineWidth(5.0f);
+	//glBegin(GL_QUADS);
+
+	//glNormal3f(0.0f, 0.0f, 1.0f);
+	//glVertex3f(-sx, -sy, sz);
+	//glVertex3f(sx, -sy, sz);
+	//glVertex3f(sx, sy, sz);
+	//glVertex3f(-sx, sy, sz);
+
+	//glNormal3f(0.0f, 0.0f, -1.0f);
+	//glVertex3f(sx, -sy, -sz);
+	//glVertex3f(-sx, -sy, -sz);
+	//glVertex3f(-sx, sy, -sz);
+	//glVertex3f(sx, sy, -sz);
+
+	//glNormal3f(1.0f, 0.0f, 0.0f);
+	//glVertex3f(sx, -sy, sz);
+	//glVertex3f(sx, -sy, -sz);
+	//glVertex3f(sx, sy, -sz);
+	//glVertex3f(sx, sy, sz);
+
+	//glNormal3f(-1.0f, 0.0f, 0.0f);
+	//glVertex3f(-sx, -sy, -sz);
+	//glVertex3f(-sx, -sy, sz);
+	//glVertex3f(-sx, sy, sz);
+	//glVertex3f(-sx, sy, -sz);
+
+	//glNormal3f(0.0f, 1.0f, 0.0f);
+	//glVertex3f(-sx, sy, sz);
+	//glVertex3f(sx, sy, sz);
+	//glVertex3f(sx, sy, -sz);
+	//glVertex3f(-sx, sy, -sz);
+
+	//glNormal3f(0.0f, -1.0f, 0.0f);
+	//glVertex3f(-sx, -sy, -sz);
+	//glVertex3f(sx, -sy, -sz);
+	//glVertex3f(sx, -sy, sz);
+	//glVertex3f(-sx, -sy, sz);
+
+	//glEnd();
+
+}
+
 //{
 //	this->SetOwner(owner);
 //	this->SetActive(true);

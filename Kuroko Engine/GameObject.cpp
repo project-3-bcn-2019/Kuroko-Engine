@@ -13,6 +13,7 @@
 #include "ModuleCamera3D.h"
 #include "Applog.h"
 #include "ModuleRenderer3D.h"
+#include "ModulePhysics3D.h"
 
 
 GameObject::GameObject(const char* name, GameObject* parent) : name(name), parent(parent), id(App->scene->last_gobj_id++), uuid(random32bits()) 
@@ -195,8 +196,11 @@ Component* GameObject::addComponent(Component_type type)
 		components.push_back(new_component);
 		break;
 	case COLLIDER_CUBE:
-		//new_component = new ComponentColliderCube(this);
-		components.push_back(new_component);
+		{
+			PhysBody* bod = App->physics->AddBody(this);
+			new_component = new ComponentColliderCube(this, bod);
+			components.push_back(new_component);
+		}
 		break;
 	default:
 		break;

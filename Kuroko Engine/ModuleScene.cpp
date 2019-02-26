@@ -132,6 +132,20 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
+	//DEBUG PLS DELET
+	
+	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
+	{
+		GameObject* obj = new GameObject("TEST");
+		obj->addComponent(COLLIDER_CUBE);
+		
+		AABB* aabb = ((ComponentAABB*)obj->getComponent(C_AABB))->getAABB();
+
+		aabb->minPoint = float3(-0.5, -0.5, -0.5);
+		aabb->maxPoint = float3(0.5, 0.5, 0.5);
+	}
+
+
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
 		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);

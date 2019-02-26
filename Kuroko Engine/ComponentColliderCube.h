@@ -11,10 +11,16 @@ class ComponentColliderCube : public Component
 {
 //public:
 public:
-	ComponentColliderCube();
+
+	ComponentColliderCube(GameObject* parent, PhysBody* body);
 //	ComponentColliderCube(GameObject* owner);
 //	ComponentColliderCube(GameObject* owner,PCube* pcube);
-	virtual ~ComponentColliderCube();
+
+	bool Update(float dt);
+	void Draw() const;
+
+	virtual ~ComponentColliderCube() {};
+	PhysBody* body;
 //	
 //	bool Update(float dt)override;
 //
