@@ -48,7 +48,8 @@ struct ProfileScope {
 	std::string name;
 	std::vector<KLog*> logs_in_scope;
 	Timer timer;
-	std::vector<Uint32> results;
+	std::vector<uint>	frames;		// Frames the results correspond to
+	std::vector<float>	results;	// Results of timing
 	Uint32 peak;
 
 	ProfileScope* parent = nullptr;
@@ -84,6 +85,7 @@ struct Profiler {
 	void	CloseLastScope();
 	void	DrawScope(const char* title, bool* p_open = NULL);
 
+	void	StartFrame();
 	void	CloseFrame();
 };
 
@@ -92,5 +94,5 @@ extern Profiler* prof;
 #define PROFILE_SCOPE_START(name) prof->AskScope(name); // On Error you are lacking a PROFILE_SCOPE_END
 #define PROFILE_SCOPE_END prof->CloseLastScope(); // Ends the last profiling scope you started
 
-#define APP_CYCLE_START prof->base.timer.Start();
+#define APP_CYCLE_START prof->StartFrame();
 #define APP_CYCLE_END prof->CloseFrame();

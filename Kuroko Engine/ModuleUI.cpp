@@ -12,6 +12,7 @@
 #include "ModuleResourcesManager.h"
 #include "ModuleScripting.h"
 #include "Applog.h"
+#include "Profiler.h"
 #include "ScriptData.h"
 
 #include "ImGui/imgui_impl_sdl.h"
@@ -187,7 +188,10 @@ update_status ModuleUI::Update(float dt) {
 		DrawAboutLeaf();
 	
 	if (open_tabs[LOG])
-		app_log->Draw("App log",&open_tabs[LOG]);
+		prof->LogDraw("App log",&open_tabs[LOG]);
+
+	if (open_tabs[PROFILER])
+		prof->DrawScope("Profiler", &open_tabs[PROFILER]);
 
 	if (open_tabs[TIME_CONTROL])
 		DrawTimeControlWindow();
@@ -273,6 +277,7 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::MenuItem("Primitive", NULL, &open_tabs[PRIMITIVE]);
 			ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
 			ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
+			ImGui::MenuItem("Profiler", NULL, &open_tabs[PROFILER]);
 			ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
 			ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
 			ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
@@ -2466,6 +2471,7 @@ void ModuleUI::SaveConfig(JSON_Object* config) const
 	json_object_set_boolean(config, "about", open_tabs[ABOUT]);
 	json_object_set_boolean(config, "configuration", open_tabs[CONFIGURATION]);
 	json_object_set_boolean(config, "log", open_tabs[LOG]);
+	json_object_set_boolean(config, "profiler", open_tabs[PROFILER]);
 	json_object_set_boolean(config, "time_control", open_tabs[TIME_CONTROL]);
 	json_object_set_boolean(config, "quadtree_config", open_tabs[QUADTREE_CONFIG]);
 	json_object_set_boolean(config, "camera_menu", open_tabs[CAMERA_MENU]);
@@ -2482,6 +2488,7 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[PRIMITIVE]		= json_object_get_boolean(config, "primitive");
 	open_tabs[ABOUT]			= json_object_get_boolean(config, "about");
 	open_tabs[LOG]				= json_object_get_boolean(config, "log");
+	open_tabs[PROFILER]			= json_object_get_boolean(config, "profiler");
 	open_tabs[TIME_CONTROL]		= json_object_get_boolean(config, "time_control");
 	open_tabs[QUADTREE_CONFIG]	= json_object_get_boolean(config, "quadtree_config");
 	open_tabs[CAMERA_MENU]		= json_object_get_boolean(config, "camera_menu");

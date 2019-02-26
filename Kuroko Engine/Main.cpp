@@ -53,6 +53,8 @@ int main(int argc, char ** argv)
 
 		case MAIN_START:
 
+			PROFILE_SCOPE_START("INIT");
+
 			app_log->AddLog("-------------- Application Init --------------\n");
 			if (App->Init() == false)
 			{
@@ -65,10 +67,14 @@ int main(int argc, char ** argv)
 				app_log->AddLog("\n -------------- Application Update --------------\n");
 			}
 
+			PROFILE_SCOPE_END;
+
 			break;
 
 		case MAIN_UPDATE:
 		{
+			PROFILE_SCOPE_START("INIT");
+
 			int update_return = App->Update();
 
 			if (update_return == UPDATE_ERROR)
@@ -79,10 +85,13 @@ int main(int argc, char ** argv)
 
 			if (update_return == UPDATE_STOP)
 				state = MAIN_FINISH;
+
+			PROFILE_SCOPE_END;
 		}
 			break;
 
 		case MAIN_FINISH:
+			PROFILE_SCOPE_START("FINISH");
 
 			app_log->AddLog("-------------- Application CleanUp --------------\n");
 			if (App->CleanUp() == false)
@@ -93,6 +102,8 @@ int main(int argc, char ** argv)
 				main_return = EXIT_SUCCESS;
 
 			state = MAIN_EXIT;
+
+			PROFILE_SCOPE_END;
 
 			break;
 

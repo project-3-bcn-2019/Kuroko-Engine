@@ -26,6 +26,7 @@
     "about": false,
     "configuration": true,
     "log": false,
+    "profiler": false,
     "time_control": true,
     "quadtree_config": false,
     "camera_menu": false,

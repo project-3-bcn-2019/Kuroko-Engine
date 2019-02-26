@@ -25,7 +25,7 @@ ProfileScope* ProfileScope::Find(const char* name)
 
 void ProfileScope::Close()
 {
-	results.push_back(timer.ReadMicroS());
+	results.push_back((float)timer.ReadMicroS());
 }
 
 //===============================
@@ -86,7 +86,8 @@ void Profiler::LogDraw(const char* title, bool* p_open)
 	ImGui::End();
 }
 
-// Profiling
+// Profiling----------------------------------------------------------------------------------------------
+
 void Profiler::AskScope(const char* name)
 {
 	ProfileScope* get = last_open_scope->Find(name);
@@ -113,8 +114,46 @@ void Profiler::CloseLastScope()
 		//Report Frame
 }
 
+void Profiler::StartFrame()
+{
+	base.timer.Start();
+}
+
 void Profiler::CloseFrame()
 {
 	base.Close();
 	++frames;
+}
+
+
+void Profiler::DrawScope(const char* title, bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+	ImGui::Begin(title, p_open);
+
+	ImGui::PlotLines("Time Cost", &draw_curr->results[0], draw_curr->results.size());
+
+	/*if (ImGui::Button("Clear")) Clear();
+	ImGui::SameLine();
+	//if (ImGui::Button("Copy")) ImGui::LogToClipboard();
+	//ImGui::SameLine();
+	Filter.Draw("Filter", -100.0f);
+	ImGui::Separator();
+	ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+	if (Filter.IsActive()) {
+		for (int i = 0; i < logs.size(); ++i)
+			if (Filter.PassFilter(logs[i].buf))
+				ImGui::TextUnformatted(logs[i].buf);
+	}
+	else
+	{
+		for (int i = 0; i < logs.size(); ++i)
+			ImGui::TextUnformatted(logs[i].buf);
+	}
+
+	if (ScrollToBottom)
+		ImGui::SetScrollHere(1.0f);
+	ScrollToBottom = false;
+	ImGui::EndChild();*/
+	ImGui::End();
 }
