@@ -25,14 +25,14 @@ ProfileScope* ProfileScope::Find(const char* name)
 
 void ProfileScope::Close()
 {
-	results.push_back((float)timer.ReadMicroS());
+	results.push_back(((float)timer.ReadMicroS()) / 1000.f);
 }
 
 //===============================
 //PROFILER SYSTEM
 //===============================
 
-Profiler::Profiler() : base(ProfileScope("Engine", nullptr)), last_open_scope(&base), draw_curr(&base), frames(0) {}
+Profiler::Profiler() : base(ProfileScope("Engine", nullptr)), last_open_scope(&base), draw_curr(&base), frames(0), paused(false), starting_frame(0) {}
 
 void Profiler::Clear()
 {
@@ -133,8 +133,45 @@ void Profiler::DrawScope(const char* title, bool* p_open)
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
 	ImGui::Begin(title, p_open);
 
-	ImGui::PlotLines("Time Cost", &draw_curr->results[0], draw_curr->results.size());
-
+	if (!paused)
+	{
+		if (draw_curr->results.size() > 240)
+			ImGui::PlotLines("##TimeCost", &draw_curr->results[draw_curr->results.size() - 241], 240);
+		else
+			ImGui::PlotLines("##TimeCost", &draw_curr->results[0], draw_curr->results.size());
+	}
+	else
+	{
+		if (draw_curr->results.size() > 240)
+			ImGui::PlotLines("##TimeCost", &draw_curr->results[starting_frame], ending_frame - starting_frame);
+		else
+			ImGui::PlotLines("##TimeCost", &draw_curr->results[starting_frame], ending_frame - starting_frame);
+	}
+	ImGui::SameLine();
+	ImGui::Text("%.fsec", SDL_GetTicks() / 1000.f);
+	ImGui::SameLine();
+	// Controls
+	// Pause Histogram
+	if (ImGui::Button("||")) {
+		if (paused)
+			paused = false;
+		else
+		{
+			paused = true;
+			ending_frame = draw_curr->results.size() - 1;
+			starting_frame = 0;
+			if (draw_curr->results.size() > 240)
+				starting_frame = ending_frame - 240;
+		}
+	}
+	// Select Seconds to look at
+	if (paused)
+	{
+		ImGui::DragInt("Start", &starting_frame, 0, draw_curr->results.size() - 1);
+		ImGui::SameLine();
+		ImGui::DragInt("End", &ending_frame, starting_frame, draw_curr->results.size() - 1);
+	}
+	// Selecte partition to look at
 	/*if (ImGui::Button("Clear")) Clear();
 	ImGui::SameLine();
 	//if (ImGui::Button("Copy")) ImGui::LogToClipboard();

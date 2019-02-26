@@ -78,7 +78,6 @@ struct Profiler {
 	ProfileScope	base;
 	ProfileScope*	last_open_scope;
 	ProfileScope*	draw_curr;
-
 	uint	frames;
 
 	void	AskScope(const char* name);
@@ -87,6 +86,11 @@ struct Profiler {
 
 	void	StartFrame();
 	void	CloseFrame();
+
+	// Profiling Controls
+	bool paused;
+	int starting_frame, ending_frame;
+
 };
 
 extern Profiler* prof;

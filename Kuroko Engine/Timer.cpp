@@ -24,7 +24,7 @@ bool Timer::IsStopped() const
 // ----------------------------------------------------
 void Timer::Start()
 {
-	timer.start();
+	started_at = timer.elapsed().wall;
 	ticks_started_at = SDL_GetTicks();
 }
 // ----------------------------------------------------
