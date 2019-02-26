@@ -102,6 +102,8 @@ void Profiler::AskScope(const char* name)
 	}
 
 	last_open_scope = get;
+
+	bool caca;
 }
 
 void Profiler::CloseLastScope()

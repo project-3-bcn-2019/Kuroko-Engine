@@ -25,6 +25,7 @@ bool Timer::IsStopped() const
 void Timer::Start()
 {
 	timer.start();
+	ticks_started_at = SDL_GetTicks();
 }
 // ----------------------------------------------------
 void Timer::Pause()
@@ -52,8 +53,10 @@ Uint32 Timer::Read()
 	if (reset)
 		return 0;
 
+	Uint32 val = SDL_GetTicks();
+
 	if (!stopped)
-		return SDL_GetTicks() - (started_at / T1000 / T1000);
+		return SDL_GetTicks() - ticks_started_at;
 	else
 		return stopped_at;
 }

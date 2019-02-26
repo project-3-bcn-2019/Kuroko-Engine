@@ -127,7 +127,8 @@ bool Application::Init()
 // ---------------------------------------------
 void Application::PrepareUpdate()
 {
-	dt = (float)ms_timer.Read() / 1000.0f;
+	float getread = ms_timer.Read();
+	dt = getread / 1000.0f;
 	ms_log.push_back(ms_timer.Read());
 	fps_log.push_back(1.0f / dt);
 	if (ms_log.size() > vector_limit) { // ms and fps fill at the same time, so only need top check one

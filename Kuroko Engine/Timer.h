@@ -29,6 +29,7 @@ private:
 	int_least64_t stopped_at;
 	bool stopped;
 	bool reset;
+	Uint32 ticks_started_at;
 };
 
 
