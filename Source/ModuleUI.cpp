@@ -57,12 +57,18 @@
 #include <experimental/filesystem>
 #include <fstream>
 
+// Include Panels
+#include "Panel.h"
+#include "PanelAnimation.h"
+
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
 
 
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
 	name = "gui";
+
+	p_anim = new PanelAnimation("AnimEditor");
 }
 
 
@@ -1615,6 +1621,10 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			ImGui::PushID("Speed");
 			ImGui::InputFloat("", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::PopID();
+			if (ImGui::Button("AnimEditor"))
+				p_anim->toggleActive();
+			if (p_anim->isActive())
+				p_anim->Draw();
 		}
 		break;
 	case BONE:

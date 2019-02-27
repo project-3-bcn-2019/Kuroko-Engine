@@ -78,12 +78,15 @@
     </Filter>
     <Filter Include="Sources\Helpers\Wwise">
       <UniqueIdentifier>{c5af1ade-1df7-43f7-aece-b87d70efaf91}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="Sources\Game\UI">
       <UniqueIdentifier>{92f608b4-fb76-43c6-a8b1-74b23f0ca142}</UniqueIdentifier>
     </Filter>
     <Filter Include="Sources\Helpers\FreeType">
       <UniqueIdentifier>{650bdbf5-ccab-4d4a-88e1-0960de54c0bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\UI Panels">
+      <UniqueIdentifier>{da35ff1e-5346-48dd-8727-ca492d23bb9a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -530,7 +533,7 @@
     </ClInclude>
     <ClInclude Include="FreeType\include\freetype\freetype.h">
       <Filter>Sources\Helpers\FreeType</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="ComponentBone.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
@@ -545,6 +548,12 @@
     </ClInclude>
     <ClInclude Include="ModuleShaders.h">
       <Filter>Sources\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelAnimation.h">
+      <Filter>Sources\UI Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -856,7 +865,7 @@
     </ClCompile>
     <ClCompile Include="ComponentAudioSource.cpp">
       <Filter>Sources\Game</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="ComponentCanvas.cpp">
       <Filter>Sources\Game</Filter>
     </ClCompile>
@@ -877,7 +886,7 @@
     </ClCompile>
     <ClCompile Include="FontManager.cpp">
       <Filter>Sources\Game\UI</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="ComponentAnimation.cpp">
       <Filter>Sources\Game</Filter>
     </ClCompile>
@@ -892,6 +901,9 @@
     </ClCompile>
     <ClCompile Include="ModuleShaders.cpp">
       <Filter>Sources\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelAnimation.cpp">
+      <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

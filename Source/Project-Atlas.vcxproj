@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Applog.h" />
     <ClInclude Include="Camera.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="ModuleInput.h" />
     <ClInclude Include="ModuleScene.h" />
     <ClInclude Include="ModuleWindow.h" />
+    <ClInclude Include="Panel.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
     <ClInclude Include="Quadtree.h" />
@@ -236,6 +238,7 @@
     <ClInclude Include="Wwise.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Color.cpp" />

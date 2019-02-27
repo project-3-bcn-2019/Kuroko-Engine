@@ -7,8 +7,16 @@
 #include "Parson\parson.h"
 #include "Globals.h"
 #include "Random.h"
+#include <vector>
 
 class GameObject;
+
+struct ComponentKey
+{
+	double	time;
+	int		ComponentEvent;	// what does that keyframe trigger
+	void*	Value;			// If the event trigger requires a value, the event should extract the value
+};
 
 enum Component_type { NONE, MESH, TRANSFORM, C_AABB, CAMERA, SCRIPT, BONE, ANIMATION, CANVAS, RECTTRANSFORM, UI_IMAGE, UI_CHECKBOX, UI_BUTTON, UI_TEXT, AUDIOLISTENER, AUDIOSOURCE
 };
@@ -32,6 +40,9 @@ public:
 	uint getUUID() const { return uuid; }
 
 	virtual void Save(JSON_Object* config) {}
+
+	// Component Animation
+	std::vector<ComponentKey> keys;
 
 protected:
 
