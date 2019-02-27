@@ -64,30 +64,63 @@ bool ComponentAABB::Update(float dt)
 {
 	if (isActive())
 	{
-		obb->pos = transform->global->getPosition();
-		obb->r = { getParent()->own_half_size.x * transform->global->getScale().x, getParent()->own_half_size.y * transform->global->getScale().y, getParent()->own_half_size.z * transform->global->getScale().z };
-
-		obb->axis[0] = transform->global->Right();
-		obb->axis[1] = transform->global->Up();
-		obb->axis[2] = transform->global->Forward();
-		
-		std::list<GameObject*> children;
-		getParent()->getChildren(children);
-
-		for (auto it = children.begin(); it != children.end(); it++)
+		if (parent->getComponent(MESH) != nullptr)
 		{
-			OBB* child_obb = ((ComponentAABB*)(*it)->getComponent(C_AABB))->obb;
-			for (int i = 0; i < 8; i++)
+			obb->pos = transform->global->getPosition();
+			obb->r = { getParent()->own_half_size.x * transform->global->getScale().x, getParent()->own_half_size.y * transform->global->getScale().y, getParent()->own_half_size.z * transform->global->getScale().z };
+
+			obb->axis[0] = transform->global->Right();
+			obb->axis[1] = transform->global->Up();
+			obb->axis[2] = transform->global->Forward();
+		
+			std::list<GameObject*> children;
+			getParent()->getChildren(children);
+
+			for (auto it = children.begin(); it != children.end(); it++)
 			{
-				float3 test = child_obb->CornerPoint(i);
-				obb->Enclose(child_obb->CornerPoint(i));
+				OBB* child_obb = ((ComponentAABB*)(*it)->getComponent(C_AABB))->obb;
+				for (int i = 0; i < 8; i++)
+				{
+					float3 test = child_obb->CornerPoint(i);
+					obb->Enclose(child_obb->CornerPoint(i));
+				}
 			}
+
+			getParent()->centroid = obb->pos;
+			getParent()->half_size = obb->r.Abs();
+
+			*aabb = obb->MinimalEnclosingAABB();
+		}
+		else
+		{
+			
+			//float4x4 transform_m = float4x4::identity;
+
+			//transform_m = float4x4::FromTRS(transform->global->getPosition(), transform->global->getRotation(), transform->global->getScale());
+
+			//aabb->TransformAsAABB(transform->global->CalculateMatrix());
+			
+			//float3 min = aabb->minPoint;
+			//float3 max = aabb->maxPoint;
+
+			//aabb->minPoint = transform->global->getPosition();
+			//aabb->minPoint.x -= (max.x - min.x) / 2;
+			//aabb->minPoint.y -= (max.y - min.y) / 2;
+			//aabb->minPoint.z -= (max.z - min.z) / 2;
+
+
+			//aabb->maxPoint = transform->global->getPosition();
+			//aabb->maxPoint.x += (max.x - min.x) / 2;
+			//aabb->maxPoint.y += (max.y - min.y) / 2;
+			//aabb->maxPoint.z += (max.z - min.z) / 2;
+
+			//aabb-> = transform->global->getScale();
+
+			//aabb->maxPoint = transform->global->getPosition() + ((aabb->maxPoint - aabb->minPoint) / 2);
+
+			
 		}
 
-		getParent()->centroid = obb->pos;
-		getParent()->half_size = obb->r.Abs();
-
-		//*aabb = obb->MinimalEnclosingAABB(); DEBUG COMMENT DELET
 	}
 	return true;
 }

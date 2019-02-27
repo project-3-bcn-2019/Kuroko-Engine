@@ -129,58 +129,12 @@ void ModulePhysics3D::UpdatePhysics()
 
 		ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
 
-		matrix = transform->global->getMatrix().ptr();
+		//matrix = transform->global->getMatrix().ptr();
 
-		btTransform* t = new btTransform();
-	
-		t->setFromOpenGLMatrix(matrix);
-
-		t->setRotation(btQuaternion(btVector3(0,1,0),90));
+		btTransform t = (*item)->body->getWorldTransform();
+		t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+		(*item)->body->setWorldTransform(t);
 		
-		(*item)->body->setWorldTransform(*t);
-		
-		delete t;
-
-		////if ((*item)->owner != nullptr)
-		//{
-		//	//Get matrix from bullet physics
-		//	float4x4 final_matrix4x4;
-		//	float* matrix = new float[16];
-		//	(*item)->GetTransform(matrix);
-		//	//(*item)->owner->comp_transform->GetGlobalMatrix();
-		//	//Set Rotations
-		//	final_matrix4x4[0][0] = matrix[0];	final_matrix4x4[0][1] = matrix[1];	final_matrix4x4[0][2] = matrix[2];
-		//	final_matrix4x4[1][0] = matrix[4];	final_matrix4x4[1][1] = matrix[5];	final_matrix4x4[1][2] = matrix[6];
-		//	final_matrix4x4[2][0] = matrix[8];	final_matrix4x4[2][1] = matrix[9];	final_matrix4x4[2][2] = matrix[10];
-		//	final_matrix4x4.Transpose();
-		//	float3 pos = { matrix[12], matrix[13], matrix[14] }; //float3(0, 0, 0);// (*item)->owner->comp_transform->GetLocalMatrix().Col3(3);
-		//	static float3 init_local_pos;
-		//	if ((*item)->initial_pos == nullptr)
-		//	{
-		//		(*item)->initial_pos = new float3(matrix[12], matrix[13], matrix[14]);
-		//		init_local_pos = pos;
-		//	}
-		//	else
-		//	{
-		//		float3 local_pos = { matrix[12], matrix[13], matrix[14] };
-		//		pos = init_local_pos + local_pos - *(*item)->initial_pos;
-		//	}
-		//	//Matrix Translation and size
-		//	float* final_pos = new float[3];
-		//	final_pos[0] = pos.x;
-		//	final_pos[1] = pos.y;
-		//	final_pos[2] = pos.z;
-		//	//}
-		//	//Transform + size
-		//	final_matrix4x4[0][3] = final_pos[0];
-		//	final_matrix4x4[1][3] = final_pos[1];
-		//	final_matrix4x4[2][3] = final_pos[2];
-		//	final_matrix4x4[3][0] = 1;				
-		//	final_matrix4x4[3][1] = 1;	
-		//	final_matrix4x4[3][2] = 1;	
-		//	final_matrix4x4[3][3] = matrix[15];
-		//	(*item)->SetPos(final_pos[0], final_pos[1], final_pos[2]);
-		//}
 	}
 }
 
