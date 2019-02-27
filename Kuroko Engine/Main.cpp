@@ -73,7 +73,7 @@ int main(int argc, char ** argv)
 
 		case MAIN_UPDATE:
 		{
-			PROFILE_SCOPE_START("INIT");
+			PROFILE_SCOPE_START("UPDATE");
 
 			int update_return = App->Update();
 

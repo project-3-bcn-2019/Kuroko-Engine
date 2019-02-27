@@ -90,6 +90,7 @@ struct Profiler {
 	// Profiling Controls
 	bool paused;
 	int starting_frame, ending_frame;
+	int stopped_sec;
 
 };
 

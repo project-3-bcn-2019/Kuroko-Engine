@@ -159,6 +159,7 @@ void Profiler::DrawScope(const char* title, bool* p_open)
 		{
 			paused = true;
 			ending_frame = draw_curr->results.size() - 1;
+			stopped_sec = SDL_GetTicks() / 1000.f;
 			starting_frame = 0;
 			if (draw_curr->results.size() > 240)
 				starting_frame = ending_frame - 240;
@@ -167,9 +168,22 @@ void Profiler::DrawScope(const char* title, bool* p_open)
 	// Select Seconds to look at
 	if (paused)
 	{
-		ImGui::DragInt("Start", &starting_frame, 0, draw_curr->results.size() - 1);
 		ImGui::SameLine();
-		ImGui::DragInt("End", &ending_frame, starting_frame, draw_curr->results.size() - 1);
+		ImGui::Text("Stopped at frame:%d (%dsec)", ending_frame, stopped_sec);
+
+		ImGui::SliderInt("Start", &starting_frame, 0, ending_frame);
+		/*ImGui::SameLine();
+		ImGui::DragInt("End", &ending_frame, starting_frame, draw_curr->results.size() - 1);*/
+	}
+	
+	if (draw_curr->parent != nullptr && ImGui::Button("<- Back"))
+		draw_curr = draw_curr->parent;
+
+	for (int i = 0; i < draw_curr->scopes.size(); ++i)
+	{
+		std::string ButtonName(draw_curr->scopes[i]->name + "##" + std::to_string(i));
+		if (ImGui::Button(ButtonName.c_str()))
+			draw_curr = draw_curr->scopes[i];
 	}
 	// Selecte partition to look at
 	/*if (ImGui::Button("Clear")) Clear();
