@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Panel.h"
+#include <list>
 
 class Component;
 class ComponentAnimation;
@@ -24,6 +25,8 @@ public:
 	ComponentAnimation* compAnimation = nullptr;
 	ResourceAnimation* animation = nullptr;
 	Component* selected_component = nullptr;
+
+	std::list<Component*> par_components;
 
 	float numFrames = 1;
 

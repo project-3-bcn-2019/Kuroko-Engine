@@ -5,10 +5,11 @@
 #include "ComponentAnimation.h"
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimation.h"
+#include "Component.h"
 
-PanelAnimation::PanelAnimation(const char* name) :Panel(name)
+PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 {
-	active = true;
+	active = false;
 
 	zoom = 25;
 	numFrames = 100;
@@ -28,10 +29,13 @@ bool PanelAnimation::fillInfo()
 
 		if (compAnimation != nullptr)
 		{
+			uint get_uid = compAnimation->getAnimationResource();
 			animation = (ResourceAnimation*)App->resources->getResource(compAnimation->getAnimationResource());
 
 			if (animation != nullptr)
 			{
+				// Create a new Animation Resource that will control the animation of this node
+				//App->resources->newResource(ResourceAnimation();
 				ret = true;
 				numFrames = animation->ticks;
 			}
@@ -50,8 +54,17 @@ void PanelAnimation::Draw()
 
 	ImGui::Begin(name.c_str(), &active, ImGuiWindowFlags_HorizontalScrollbar);
 	
+	
+
 	if (fillInfo())
 	{
+		ImGui::BeginCombo("Components", "Skeleton");
+		compAnimation->getParent()->getComponents(par_components);
+
+		for (std::list<Component*>::iterator it = par_components.begin(); it != par_components.end(); ++it)
+			ImGui::Selectable(std::to_string(it._Ptr->_Myval->getType()).c_str(), &it._Ptr->_Myval->AnimSel);
+		ImGui::EndCombo();
+
 		//Animation bar Progress
 		/*ImGui::SetCursorPosX(85);
 		//ImGui::ProgressBar((compAnimation->animTime / animation->getDuration()), { winSize,0 });
@@ -106,7 +119,7 @@ void PanelAnimation::Draw()
 
 				if (animation != nullptr && selected_component != nullptr)
 				{
-					if(selected_component->keys[i].time == i)
+					if(animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
 						ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(1.0f, 1.0f, 1.0f, 0.5f));
 				}
 
