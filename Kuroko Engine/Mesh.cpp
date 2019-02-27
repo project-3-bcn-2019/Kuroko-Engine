@@ -247,6 +247,26 @@ void Mesh::FillMeshGPU()
 	}
 }
 
+void Mesh::FillBoneVertexInfo(ComponentAnimation* animation)
+{
+	//This functions should be something like:
+	/*if (animation == nullptr)
+		return;
+
+	for (int i = 0; i < Componentbones; ++i)
+	{
+		ResourceBone* rBone = (ResourceBone*)App->resources->GetResource(Componentbones->RUID);
+
+		for (int j = 0; j < rBone.numWeights; ++j)
+		{
+			MeshGPU[j].bonesID[MeshGPU->boneCounter] = i;
+			MeshGPU[j].wights[MeshGPU->boneCounter] = rBone.weights[j].weight;
+			MeshGPU->boneCounter++;
+		}
+
+	}*/
+}
+
 void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float* global_transform, bool draw_as_selected) const
 {
 	float3 lightPosition = { 0.0f,10.0f,10.0f };

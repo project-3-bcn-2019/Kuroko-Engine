@@ -43,6 +43,9 @@ public:
 	float4 color = { 0,0,0,0 };
 	float2 tex_coords = { 0,0 };
 	float3 normal = { 0,0,0 };
+	/*int bonesID[4] = { 0,0,0,0 };
+	float4 wights = { 0,0,0,0 };
+	int boneCounter = 0;*/
 };
 
 class Mesh {
@@ -57,6 +60,7 @@ public:
 
 	void Draw(Material* mat, bool draw_as_selected = false) const;
 	void FillMeshGPU();
+	void FillBoneVertexInfo(ComponentAnimation* animation);
 	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform, bool draw_as_selected = false) const;
 	void DrawNormals() const;
 
