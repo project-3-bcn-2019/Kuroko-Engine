@@ -861,3 +861,23 @@ void ModuleImporter::ImportSounds()
 		FindClose(search_handle);
 	}
 }
+
+void ModuleImporter::AssetsToLibraryJSON()
+{
+	App->fs.CreateEmptyFile("AssetsToLibrary", ASSETS_SCENES, SCENE_EXTENSION);
+
+	JSON_Value* json = json_value_init_object();
+	JSON_Value* objects_array = json_value_init_array();
+	json_object_set_value(json_object(json), "Assets", objects_array);
+
+	//for (auto it = game_objects.begin(); it != game_objects.end(); it++) {
+	//	JSON_Value* object = json_value_init_object();	// Object in the array
+	//	(*it)->Save(json_object(object));				// Fill content
+	//	json_array_append_value(json_array(objects_array), object); // Add object to array
+	//}
+
+	std::string outpath;
+	json_serialize_to_file_pretty(json, outpath.c_str());
+
+	json_value_free(json);
+}
