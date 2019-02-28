@@ -59,6 +59,11 @@ public:
 
 	void Save(JSON_Object* config);
 
+
+	//TODO, CAN THIS BE DONE?
+	float3 own_centroid = float3::zero;		// does not include childs
+	float3 own_half_size = float3::zero;	// does not include childs
+
 private:
 
 	std::list<Component*> components;
@@ -70,8 +75,7 @@ private:
 	float3 centroid = float3::zero;		// includes all childs
 	float3 half_size = float3::zero;	// includes all childs
 
-	float3 own_centroid = float3::zero;		// does not include childs
-	float3 own_half_size = float3::zero;	// does not include childs
+
 
 	const uint id = 0;
 	// UUID can't be 0! Parents which UUID is 0, means that object has no parent.

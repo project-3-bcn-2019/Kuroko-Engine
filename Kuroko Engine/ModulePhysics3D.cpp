@@ -103,8 +103,6 @@ update_status ModulePhysics3D::Update(float dt)
 		physics_debug = !physics_debug;
 
 
-
-
 	return UPDATE_CONTINUE;
 }
 
@@ -117,7 +115,7 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 	return UPDATE_CONTINUE;
 }
 
-void ModulePhysics3D::UpdatePhysics()
+void ModulePhysics3D::UpdatePhysics()//TODO THIS IS SO BAD I'M SAD
 {
 	//float *matrix = new float[16];
 	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
@@ -132,7 +130,34 @@ void ModulePhysics3D::UpdatePhysics()
 		//matrix = transform->global->getMatrix().ptr();
 
 		btTransform t = (*item)->body->getWorldTransform();
+		//t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+		//t.setRotation(t.getRotation().inverse());
+		//btScalar* m = new btScalar[16];
+		//t.getOpenGLMatrix(m);
+
+		float4x4 fina;
+
+		//fina[0][0] = m[0];		fina[1][0] = m[4];		fina[2][0] = m[8];		fina[3][0] = m[12];
+		//fina[0][1] = m[1];		fina[1][1] = m[5];		fina[2][1] = m[9];		fina[3][1] = m[13];
+		//fina[0][2] = m[2];		fina[1][2] = m[6];		fina[2][2] = m[10];		fina[3][2] = m[14];
+		//fina[0][3] = m[3];		fina[1][3] = m[7];		fina[2][3] = m[11];		fina[3][3] = m[15];
+
+		fina = float4x4::FromTRS(float3(0,0,0), Quat::identity, transform->global->getScale());
+
+		Quat newquat = transform->global->getRotation();
+		newquat.Inverse();
+		float4x4 rot_mat = newquat.ToFloat4x4();
+
+		fina = fina * rot_mat;
+
+		//fina = fina * float4x4::FromQuat(transform->global->getRotation());
+		//fina.Translate(transform->global->getPosition());
+
+		t.setFromOpenGLMatrix(fina.ptr());
+		
 		t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+
+
 		(*item)->body->setWorldTransform(t);
 		
 	}
@@ -216,14 +241,14 @@ bool ModulePhysics3D::CleanUp()
 PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
 {
 	ComponentAABB* box = (ComponentAABB*)parent->getComponent(C_AABB);
-	if (box == nullptr)
-	{
-		box = (ComponentAABB*)parent->addComponent(C_AABB);
-		box->getAABB()->maxPoint = float3(0.5, 0.5, 0.5);
-		box->getAABB()->minPoint = float3(-0.5, -0.5, -0.5);
-	}
+	//if (box == nullptr)
+	//{
+	//	box = (ComponentAABB*)parent->addComponent(C_AABB);
+	//	box->getAABB()->maxPoint = float3(0.5, 0.5, 0.5);
+	//	box->getAABB()->minPoint = float3(-0.5, -0.5, -0.5);
+	//}
 	
-	btCollisionShape* colShape = new btBoxShape(btVector3(box->getAABB()->Size().x*0.5, box->getAABB()->Size().y*0.5, box->getAABB()->Size().z*0.5));
+	btCollisionShape* colShape = new btBoxShape(btVector3(box->getOBB()->Size().x*0.5, box->getOBB()->Size().y*0.5, box->getOBB()->Size().z*0.5));
 	shapes.push_back(colShape);
 
 	btTransform startTransform;
@@ -238,7 +263,7 @@ PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
 	btRigidBody* body = new btRigidBody(rbInfo);
 	PhysBody* pbody = new PhysBody(body);
 
-	pbody->dimensions = box->getAABB()->Size();
+	pbody->dimensions = box->getOBB()->Size();
 
 	world->addRigidBody(body);
 	bodies.push_back(pbody);
