@@ -9,7 +9,7 @@
 //abomination
 typedef std::map<int, void*> KeyframeVals;
 typedef std::map<double, KeyframeVals> KeyMap;
-typedef std::multimap<uint, std::map<double, std::map<int, void*>>> CompAnimMultiMap;
+typedef std::map<uint, std::map<double, std::map<int, void*>>> CompAnimMultiMap;
 // Explanation
 // std::multimap<uint,...> uint is the UUID of the component
 // ...<...,std::map<...>> is the keyframes for the component
