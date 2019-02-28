@@ -12,6 +12,8 @@ class aiMesh;
 class aiScene;
 class Material;
 class ComponentAnimation;
+class ComponentBone;
+class GameObject;
 
 enum PrimitiveTypes
 {
@@ -57,6 +59,7 @@ public:
 
 	void Draw(Material* mat, bool draw_as_selected = false) const;
 	void FillMeshGPU();
+	void FillboneVertexInfo(GameObject* parent, std::vector<uint> bones);
 	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform, bool draw_as_selected = false) const;
 	void DrawNormals() const;
 

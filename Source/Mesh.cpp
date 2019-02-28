@@ -12,6 +12,9 @@
 #include "ModuleCamera3D.h"
 #include "Camera.h"
 #include "ComponentAnimation.h"
+#include "ComponentBone.h"
+#include "GameObject.h"
+#include "ResourceBone.h"
 
 #include "Assimp\include\scene.h"
 
@@ -258,6 +261,25 @@ void Mesh::FillMeshGPU()
 		MeshGPU[i].normal = normals[i];
 		
 	}
+}
+
+void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
+{
+	/*for (int i = 0; bones.size(); ++i)
+	{
+		ComponentBone* cBone = (ComponentBone*)parent->getChildComponent(bones[i]);
+		if (cBone != nullptr)
+		{
+			ResourceBone* rBone = (ResourceBone*)App->resources->getResource(cBone->getBoneResource());
+			if (rBone != nullptr)
+			{
+				for (int j = 0; j < rBone->numWeights; ++j)
+				{
+					
+				}
+			}
+		}
+	}*/
 }
 
 void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float* global_transform, bool draw_as_selected) const

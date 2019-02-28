@@ -72,6 +72,8 @@ ComponentMesh::~ComponentMesh() {
 	if(primitive_type == Primitive_None)
 		App->resources->deasignResource(mesh_resource_uuid);
 	delete mat;
+
+	RELEASE(boneTransforms);
 }
 
 void ComponentMesh::Draw() const
@@ -102,7 +104,7 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			//Skining();
+			Skining();
 			mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
@@ -162,6 +164,7 @@ bool ComponentMesh::Update(float dt)
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
 	{
 		setMeshResourceId(mesh_resource_uuid);
+		boneTransforms = new float4x4[components_bones.size()];
 	}
 
 	return true;
@@ -258,6 +261,8 @@ void ComponentMesh::Skining() const
 					hasBones = true;
 					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 
+					boneTransforms[i] = boneTransform; //copy of the final bone trasformations for the shader use					
+
 					for (int j = 0; j < rBone->numWeights; j++)
 					{
 						uint VertexIndex = rBone->weights[j].VertexID;
@@ -267,10 +272,10 @@ void ComponentMesh::Skining() const
 							continue;
 						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
 
-						/*vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
+						vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
 						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;
-						vertices[VertexIndex].z += movementWeight.z*rBone->weights[j].weight;*/
-						vertices[VertexIndex] += movementWeight * rBone->weights[j].weight;
+						vertices[VertexIndex].z += movementWeight.z*rBone->weights[j].weight;
+						//vertices[VertexIndex] += movementWeight * rBone->weights[j].weight;
 					}
 				}
 			}
