@@ -115,7 +115,7 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 	return UPDATE_CONTINUE;
 }
 
-void ModulePhysics3D::UpdatePhysics()//TODO THIS IS SO BAD I'M SAD
+void ModulePhysics3D::UpdatePhysics()
 {
 	//float *matrix = new float[16];
 	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
@@ -130,6 +130,7 @@ void ModulePhysics3D::UpdatePhysics()//TODO THIS IS SO BAD I'M SAD
 		//matrix = transform->global->getMatrix().ptr();
 
 		btTransform t = (*item)->body->getWorldTransform();
+
 		//t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
 		//t.setRotation(t.getRotation().inverse());
 		//btScalar* m = new btScalar[16];
@@ -144,11 +145,13 @@ void ModulePhysics3D::UpdatePhysics()//TODO THIS IS SO BAD I'M SAD
 
 		fina = float4x4::FromTRS(float3(0,0,0), Quat::identity, transform->global->getScale());
 
+		fina.Transpose();
+
 		Quat newquat = transform->global->getRotation();
 		newquat.Inverse();
 		float4x4 rot_mat = newquat.ToFloat4x4();
 
-		fina = fina * rot_mat;
+		fina = /*fina * */rot_mat;
 
 		//fina = fina * float4x4::FromQuat(transform->global->getRotation());
 		//fina.Translate(transform->global->getPosition());
@@ -157,6 +160,7 @@ void ModulePhysics3D::UpdatePhysics()//TODO THIS IS SO BAD I'M SAD
 		
 		t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
 
+		(*item)->body->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
 
 		(*item)->body->setWorldTransform(t);
 		
