@@ -14,6 +14,8 @@
 #include "ComponentCheckBoxUI.h"
 #include "ComponentTextUI.h"
 #include "ComponentBone.h"
+#include "ComponentBillboard.h"
+#include "ComponentParticleEmitter.h"
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
 
@@ -87,6 +89,12 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		}
 		else if (type == "camera") {
 			component = new ComponentCamera(component_deff, this);
+		}
+		else if (type == "billboard") {
+			component = new ComponentBillboard(component_deff, this);
+		}
+		else if (type == "particle_emitter") {
+			component = new ComponentParticleEmitter(component_deff, this);
 		}
 
 		// Set component's parent-child
@@ -353,6 +361,14 @@ Component* GameObject::addComponent(Component_type type)
 
 		}
 		break;
+	case BILLBOARD:
+		new_component = new ComponentBillboard(this);
+		components.push_back(new_component);
+		break;
+	case PARTICLE_EMITTER:
+		new_component = new ComponentParticleEmitter(this);
+		components.push_back(new_component);
+		break;
 	default:
 		break;
 	}
@@ -367,7 +383,7 @@ void GameObject::addComponent(Component* component)
 
 	switch (component->getType())
 	{
-	case MESH:	
+	case MESH:
 		components.push_back(component);
 		((ComponentAABB*)getComponent(C_AABB))->Reload();
 		break;
@@ -399,6 +415,12 @@ void GameObject::addComponent(Component* component)
 	case ANIMATION:
 		if (!getComponent(ANIMATION))
 			components.push_back(component);
+		break;
+	case BILLBOARD:
+		components.push_back(component);
+		break;
+	case PARTICLE_EMITTER:
+		components.push_back(component);
 		break;
 	default:
 		break;

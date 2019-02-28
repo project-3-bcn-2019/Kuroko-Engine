@@ -52,23 +52,17 @@ float4x4 Transform::CalculateMatrix()
 
 float3 Transform::Right() const
 {
-	float3 right = float3::unitX;
-	right = rotation * right;
-	return right;
+	return rotation * float3::unitX;;
 }
 
 float3 Transform::Forward() const
 {
-	float3 forward = float3::unitZ;
-	forward = rotation * forward;
-	return forward;
+	return rotation * float3::unitZ;
 }
 
 float3 Transform::Up() const
 {
-	float3 up = float3::unitY;
-	up = rotation * up;
-	return up;
+	return rotation * float3::unitY;
 }
 
 void Transform::Save(JSON_Object* config) {
