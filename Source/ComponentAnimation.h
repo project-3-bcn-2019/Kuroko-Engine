@@ -51,6 +51,7 @@ private:
 	// Component Animation
 public:
 	CompAnimMultiMap ComponentAnimations;
+	int own_ticks = 0;
 };
 
 #endif // !_COMPONENT_ANIMATION

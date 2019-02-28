@@ -19,6 +19,7 @@ public:
 	~PanelAnimation();
 
 	void Draw();
+	void ComponentAnimationDraw();
 
 public:
 
@@ -49,9 +50,15 @@ private:
 	float progress = 0.0f;
 	float winSize = 0.0f;
 
+	// Component Animation
 	bool new_keyframe_win = false;
 	int ev_t = -1;
 	int new_key_frame = 0;
-
-
+public:
+	void ResetNewKeyValues()
+	{
+		new_keyframe_win = false;
+		ev_t = -1;
+		new_key_frame = 0;
+	}
 };
