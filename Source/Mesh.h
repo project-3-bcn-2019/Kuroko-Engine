@@ -45,6 +45,10 @@ public:
 	float4 color = { 0,0,0,0 };
 	float2 tex_coords = { 0,0 };
 	float3 normal = { 0,0,0 };
+	int index[4] = { 0,0,0,0 };
+	float4 weights = { 0,0,0,0 };
+
+	int boneCouinter = 0;
 };
 
 class Mesh {

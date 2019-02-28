@@ -70,9 +70,9 @@ Mesh::Mesh(float3* _vertices, Tri* _tris, float3* _normals, float3* _colors, flo
 
 	calculateCentroidandHalfsize();
 	this->centroid = centroid;
-	LoadDataToVRAM();
+	//LoadDataToVRAM();
 	//Descoment to use shader render
-	//LoadDataToVRAMShaders();
+	LoadDataToVRAMShaders();
 }
 
 Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
@@ -88,9 +88,9 @@ Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
 	}
 
 	calculateCentroidandHalfsize();
-	LoadDataToVRAM();
+	//LoadDataToVRAM();
 	//Descoment to use shader render
-	//LoadDataToVRAMShaders();
+	LoadDataToVRAMShaders();
 }
 
 
@@ -156,22 +156,32 @@ void Mesh::LoadDataToVRAMShaders()
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(vaoId);
 	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, (sizeof(Vertex::position) + sizeof(Vertex::tex_coords) + sizeof(Vertex::color) + sizeof(Vertex::normal))*num_vertices, MeshGPU, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (sizeof(Vertex::position) + sizeof(Vertex::tex_coords) + sizeof(Vertex::color) + sizeof(Vertex::normal) + sizeof(Vertex::index)+sizeof(Vertex::weights)+ sizeof(Vertex::boneCouinter))*num_vertices, MeshGPU, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) *num_tris*3, tris, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (GLvoid*)(7 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(7 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (GLvoid*)(9 * sizeof(float)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(9 * sizeof(float)));
 	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(12 * sizeof(float)));
+	glEnableVertexAttribArray(4);
+
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(12 * sizeof(float) + 4 * sizeof(int)));
+	glEnableVertexAttribArray(5);
+
+	glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(16 * sizeof(float) + 4 * sizeof(int)));
+	glEnableVertexAttribArray(6);
+
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -265,7 +275,14 @@ void Mesh::FillMeshGPU()
 
 void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 {
-	/*for (int i = 0; bones.size(); ++i)
+	if (iboId != 0)
+		glDeleteBuffers(1, &iboId);
+	if (vboId != 0)
+		glDeleteBuffers(1, &vboId);
+	if (vaoId != 0)
+		glDeleteVertexArrays(1, &vaoId);
+
+	for (int i = 0; i<bones.size(); ++i)
 	{
 		ComponentBone* cBone = (ComponentBone*)parent->getChildComponent(bones[i]);
 		if (cBone != nullptr)
@@ -275,11 +292,20 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 			{
 				for (int j = 0; j < rBone->numWeights; ++j)
 				{
-					
+					if (j >= 4)
+						break;
+
+					int Vindex = rBone->weights[j].VertexID;											//taking the index of the vertex that affect the bone.
+					MeshGPU[Vindex].index[MeshGPU[Vindex].boneCouinter]=i;								//setting the index of the bone inside the bone array.
+					MeshGPU[Vindex].weights[MeshGPU[Vindex].boneCouinter] = rBone->weights[j].weight;	//setting the weight that the bone acts to the verrtext
+
+					MeshGPU[Vindex].boneCouinter++;
 				}
 			}
 		}
-	}*/
+	}
+
+	LoadDataToVRAMShaders();
 }
 
 void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float* global_transform, bool draw_as_selected) const

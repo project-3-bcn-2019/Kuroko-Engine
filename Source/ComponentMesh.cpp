@@ -104,12 +104,12 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			Skining();
-			mesh_from_resource->Draw(mat);
+			//Skining();
+			//mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
-			/*ComponentAnimation* animation = nullptr;
+			ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);*/
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
 
 
 			if (transform)
@@ -145,11 +145,11 @@ void ComponentMesh::DrawSelected() const
 			Mesh* mesh_from_resource = getMeshFromResource();
 
 
-			mesh_from_resource->Draw(nullptr, true);
+			//mesh_from_resource->Draw(nullptr, true);
 			//Descoment to use shader render
-			/*ComponentAnimation* animation = nullptr;
+			ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);*/
+			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -165,6 +165,14 @@ bool ComponentMesh::Update(float dt)
 	{
 		setMeshResourceId(mesh_resource_uuid);
 		boneTransforms = new float4x4[components_bones.size()];
+
+		ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
+
+		if (mesh != nullptr)
+		{
+			mesh->mesh->FillboneVertexInfo(parent->getParent(), components_bones);
+		}
+
 	}
 
 	return true;
