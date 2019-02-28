@@ -67,9 +67,9 @@ Mesh::Mesh(float3* _vertices, Tri* _tris, float3* _normals, float3* _colors, flo
 
 	calculateCentroidandHalfsize();
 	this->centroid = centroid;
-	//LoadDataToVRAM();
+	LoadDataToVRAM();
 	//Descoment to use shader render
-	LoadDataToVRAMShaders();
+	//LoadDataToVRAMShaders();
 }
 
 Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
@@ -85,9 +85,9 @@ Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
 	}
 
 	calculateCentroidandHalfsize();
-	//LoadDataToVRAM();
+	LoadDataToVRAM();
 	//Descoment to use shader render
-	LoadDataToVRAMShaders();
+	//LoadDataToVRAMShaders();
 }
 
 

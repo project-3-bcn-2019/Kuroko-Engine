@@ -905,6 +905,9 @@
     <ClCompile Include="PanelAnimation.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Sources\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MathGeoLib\Math\Matrix.inl">

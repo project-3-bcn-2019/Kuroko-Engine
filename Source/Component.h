@@ -8,7 +8,7 @@
 #include "Globals.h"
 #include "Random.h"
 #include <vector>
-
+#include <string>
 class GameObject;
 
 enum Component_type { NONE, MESH, TRANSFORM, C_AABB, CAMERA, SCRIPT, BONE, ANIMATION, CANVAS, RECTTRANSFORM, UI_IMAGE, UI_CHECKBOX, UI_BUTTON, UI_TEXT, AUDIOLISTENER, AUDIOSOURCE
@@ -43,5 +43,9 @@ protected:
 	const Component_type type = NONE;
 	GameObject* parent = nullptr;
 	uint uuid = 0;
+
+public:
+	// Helper Functions
+	std::string TypeToString();
 };
 #endif

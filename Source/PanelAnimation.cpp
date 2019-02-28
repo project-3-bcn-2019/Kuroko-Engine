@@ -6,6 +6,7 @@
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimation.h"
 #include "Component.h"
+#include "FileSystem.h"
 
 PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 {
@@ -29,15 +30,22 @@ bool PanelAnimation::fillInfo()
 
 		if (compAnimation != nullptr)
 		{
+			if(selected_component == nullptr)
+				selected_component = compAnimation;
 			uint get_uid = compAnimation->getAnimationResource();
 			animation = (ResourceAnimation*)App->resources->getResource(compAnimation->getAnimationResource());
-
+			
 			if (animation != nullptr)
 			{
 				// Create a new Animation Resource that will control the animation of this node
 				//App->resources->newResource(ResourceAnimation();
 				ret = true;
 				numFrames = animation->ticks;
+			}
+			else
+			{
+				// Create empty resource/file to edit
+				//App->fs.
 			}
 		}
 	}
@@ -58,12 +66,17 @@ void PanelAnimation::Draw()
 
 	if (fillInfo())
 	{
-		ImGui::BeginCombo("Components", "Skeleton");
-		compAnimation->getParent()->getComponents(par_components);
+		if (ImGui::BeginCombo("Components", selected_component->TypeToString().c_str()))
+		{
+			compAnimation->getParent()->getComponents(par_components);
 
-		for (std::list<Component*>::iterator it = par_components.begin(); it != par_components.end(); ++it)
-			ImGui::Selectable(std::to_string(it._Ptr->_Myval->getType()).c_str(), &it._Ptr->_Myval->AnimSel);
-		ImGui::EndCombo();
+			for (std::list<Component*>::iterator it = par_components.begin(); it != par_components.end(); ++it)
+				if (ImGui::Selectable(it._Ptr->_Myval->TypeToString().c_str(), &it._Ptr->_Myval->AnimSel)) {
+					selected_component->AnimSel = false;
+					selected_component = it._Ptr->_Myval;
+				}
+				ImGui::EndCombo();
+		}
 
 		//Animation bar Progress
 		/*ImGui::SetCursorPosX(85);
@@ -105,7 +118,7 @@ void PanelAnimation::Draw()
 			ImVec2 redbar = ImGui::GetCursorScreenPos();
 			ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,140 });
 			ImGui::SetCursorScreenPos(p);
-
+			
 			for (int i = 0; i < numFrames; i++)
 			{
 				ImGui::BeginGroup();
@@ -119,7 +132,7 @@ void PanelAnimation::Draw()
 
 				if (animation != nullptr && selected_component != nullptr)
 				{
-					if(animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
+					if(animation->ComponentAnimations.size() > 0 && animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
 						ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(1.0f, 1.0f, 1.0f, 0.5f));
 				}
 
@@ -127,9 +140,11 @@ void PanelAnimation::Draw()
 
 				ImGui::EndGroup();
 
-				ImGui::SameLine();
+				//ImGui::SameLine();
 
 			}
+
+			ImGui::EndChild();
 		}
 		/*ImGui::BeginGroup();
 
