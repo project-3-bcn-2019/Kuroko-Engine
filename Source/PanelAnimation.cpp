@@ -122,11 +122,11 @@ void PanelAnimation::Draw()
 
 				if(ImGui::Button("Create"))
 				{
-					if (new_key_frame < animation->ticks && new_key_frame > 0)
+					if (new_key_frame < animation->ticks && new_key_frame >= 0)
 					{
 						new_keyframe_win = false;
 
-						auto get_comp = compAnimation->ComponentAnimations.find(selected_component->getUUID());
+						/*auto get_comp = compAnimation->ComponentAnimations.find(selected_component->getUUID());
 						if (get_comp != compAnimation->ComponentAnimations.end())
 						{
 							auto get_key_map = get_comp->second.find(new_key_frame);
@@ -142,14 +142,26 @@ void PanelAnimation::Draw()
 							}
 						}
 						else
-						{
+						{*/
 							KeyframeVals mpush;
 							mpush.insert(std::pair<int, void*>(ev_t, nullptr));
 							KeyMap m2push;
 							m2push.insert(std::pair<double, KeyframeVals>(new_key_frame, mpush));
-
-							compAnimation->ComponentAnimations.insert(std::pair<uint, KeyMap>(selected_component->getUUID(), m2push));
-						}
+							int prev_size = compAnimation->ComponentAnimations.size();
+							auto ret_ins = compAnimation->ComponentAnimations.insert(std::pair<uint, KeyMap>(selected_component->getUUID(), m2push));
+							if(!ret_ins.second)
+							{
+								auto ret_comp = ret_ins.first;
+								auto ret_ins_comp = ret_comp->second.insert(std::pair<double, KeyframeVals>(new_key_frame, mpush));
+								if (!ret_ins_comp.second)
+								{
+									auto ret_keymap = ret_ins_comp.first;
+									auto ret_ins_keymap = ret_keymap->second.insert(std::pair<int, void*>(ev_t, nullptr));
+									if (!ret_ins_keymap.second)
+										ret_ins_keymap.first->second = nullptr; //here the value should be updated
+								}
+							}
+						/*}*/
 					}
 					else
 					{
