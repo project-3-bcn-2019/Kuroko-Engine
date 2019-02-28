@@ -293,7 +293,7 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		App->importer->ImportTexture(full_asset_path.c_str(), uuid_str);
 		break;
 	case R_3DOBJECT:
-		App->importer->ImportMesh(full_asset_path.c_str(), uuid_str);
+		App->importer->ImportScene(full_asset_path.c_str(), uuid_str);
 		break;
 	case R_SCRIPT:
 		App->importer->ImportScript(full_asset_path.c_str(), uuid_str);
@@ -302,7 +302,7 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_PREFABS, PREFAB_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
 	case R_SCENE:
-		App->importer->ImportScene(full_asset_path.c_str(), uuid_str);
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_SCENES, SCENE_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
 	}
 	// Meta generated and file imported, create resource in code

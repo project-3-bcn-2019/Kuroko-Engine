@@ -362,7 +362,7 @@ void ModuleImporter::ImportBonesRecursive(const aiNode& node, const aiScene & sc
 	}
 }
 
-bool ModuleImporter::ImportMesh(const char * file_original_name, std::string file_binary_name) {
+bool ModuleImporter::ImportScene(const char * file_original_name, std::string file_binary_name) {
 
 	const aiScene* imported_scene = aiImportFile(file_original_name, aiProcessPreset_TargetRealtime_MaxQuality);
 	std::string file_name = file_original_name;
@@ -435,23 +435,6 @@ bool ModuleImporter::ImportTexture(const char * file_original_name, std::string 
 	delete tex;
 
 	app_log->AddLog("Success importing texture: %s", file_original_name);
-	return true;
-}
-
-bool ModuleImporter::ImportScene(const char* file_original_name, std::string file_binary_name)
-{
-	std::string path, name, extension;
-	path = name = extension = file_original_name;
-	App->fs.getExtension(extension);
-	App->fs.getPath(path);
-	App->fs.getFileNameFromPath(name);
-
-	// Check type of flie
-	if (extension == "scene")
-	{
-		
-	}
-
 	return true;
 }
 

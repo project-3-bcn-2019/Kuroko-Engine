@@ -37,8 +37,7 @@ public:
 
 
 	bool ImportTexture(const char* file_original_name, std::string file_binary_name); // Retruns true on successful import and false if it wasn't
-	bool ImportMesh(const char* file_original_name, std::string file_binary_name);	  
-	bool ImportScene(const char* file_original_name, std::string file_binary_name);
+	bool ImportScene(const char* file_original_name, std::string file_binary_name);	  
 	// A script binary is a JSON, containinf the script code in a string, and the name of the class, which will be the same that the script's name
 	bool ImportScript(const char* file_original_name, std::string file_binary_name);
 
