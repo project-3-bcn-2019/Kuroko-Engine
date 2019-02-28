@@ -102,6 +102,7 @@ void PanelAnimation::Draw()
 			compAnimation->TestPause = false;
 		}*/
 
+		// Space for another line of tools or whatever needed
 
 		//Animation typeos of Keys
 
@@ -116,14 +117,14 @@ void PanelAnimation::Draw()
 			ImGui::BeginChild("TimeLine", ImVec2(winSize, 180), true, ImGuiWindowFlags_HorizontalScrollbar);
 			ImVec2 p = ImGui::GetCursorScreenPos();
 			ImVec2 redbar = ImGui::GetCursorScreenPos();
-			ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,140 });
+			ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,ImGui::GetWindowSize().y});
 			ImGui::SetCursorScreenPos(p);
 			
 			for (int i = 0; i < numFrames; i++)
 			{
 				ImGui::BeginGroup();
 
-				ImGui::GetWindowDrawList()->AddLine({ p.x,p.y }, ImVec2(p.x, p.y + 135), IM_COL32(100, 100, 100, 255), 1.0f);
+				ImGui::GetWindowDrawList()->AddLine({ p.x,p.y }, ImVec2(p.x, p.y +ImGui::GetWindowSize().y), IM_COL32(100, 100, 100, 255), 1.0f);
 
 				char frame[8];
 				sprintf(frame, "%01d", i);
@@ -132,8 +133,10 @@ void PanelAnimation::Draw()
 
 				if (animation != nullptr && selected_component != nullptr)
 				{
-					if(animation->ComponentAnimations.size() > 0 && animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
+					if (animation->ComponentAnimations.size() > 0 && animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
+					{
 						ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(1.0f, 1.0f, 1.0f, 0.5f));
+					}
 				}
 
 				p = { p.x + zoom,p.y };
