@@ -104,6 +104,64 @@ void PanelAnimation::Draw()
 
 		// Space for another line of tools or whatever needed
 
+		if (ImGui::Button("Add Keyframe")) new_keyframe_win = true;
+		if(new_keyframe_win)
+		{
+			ImGui::Begin("New Keyframe");
+			{
+				if (ImGui::BeginCombo("Event Types", selected_component->EvTypetoString(ev_t).c_str()))
+				{
+					for (int i = -1; i < selected_component->getEvAmount(); ++i)
+						if (ImGui::Selectable(selected_component->EvTypetoString(i).c_str())) {
+							ev_t = i;
+						}
+					ImGui::EndCombo();
+				}
+				ImGui::DragInt("Frame",&new_key_frame,1,0,animation->ticks);
+				// Add a method that allows to input value depending on the event and component i guess, every component will have it
+
+				if(ImGui::Button("Create"))
+				{
+					if (new_key_frame < animation->ticks && new_key_frame > 0)
+					{
+						new_keyframe_win = false;
+
+						auto get_comp = compAnimation->ComponentAnimations.find(selected_component->getUUID());
+						if (get_comp != compAnimation->ComponentAnimations.end())
+						{
+							auto get_key_map = get_comp->second.find(new_key_frame);
+							if (get_key_map != get_comp->second.end())
+							{
+								get_key_map->second.insert(std::pair<int, void*>(ev_t, nullptr));
+							}
+							else
+							{
+								std::map<int, void*> mpush;
+								mpush.insert(std::pair<int, void*>(ev_t, nullptr));
+								get_comp->second.insert(std::pair<double, std::map<int, void*>>(new_key_frame, mpush));
+							}
+						}
+						else
+						{
+							KeyframeVals mpush;
+							mpush.insert(std::pair<int, void*>(ev_t, nullptr));
+							KeyMap m2push;
+							m2push.insert(std::pair<double, KeyframeVals>(new_key_frame, mpush));
+
+							compAnimation->ComponentAnimations.insert(std::pair<uint, KeyMap>(selected_component->getUUID(), m2push));
+						}
+					}
+					else
+					{
+						// send error message you fucked up the ticks
+					}
+				}
+
+				if (ImGui::Button("Cancel")) new_keyframe_win = false;
+			}
+			ImGui::End();
+		}
+
 		//Animation typeos of Keys
 
 		ImGui::BeginGroup();
@@ -131,11 +189,16 @@ void PanelAnimation::Draw()
 				ImVec2 aux = { p.x + 3,p.y };
 				ImGui::GetWindowDrawList()->AddText(aux, ImColor(1.0f, 1.0f, 1.0f, 1.0f), frame);
 
-				if (animation != nullptr && selected_component != nullptr)
+				if (compAnimation != nullptr && selected_component != nullptr)
 				{
-					if (animation->ComponentAnimations.size() > 0 && animation->ComponentAnimations.find(selected_component->getUUID())->second[i].time == i)
+					if (compAnimation->ComponentAnimations.size() > 0)
 					{
-						ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(1.0f, 1.0f, 1.0f, 0.5f));
+						auto get = compAnimation->ComponentAnimations.find(selected_component->getUUID());
+						if (get != compAnimation->ComponentAnimations.end() && get->second.size() > 0)
+						{
+							if(get->second.find(i) != get->second.end())
+								ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(1.0f, 1.0f, 1.0f, 0.5f));
+						}
 					}
 				}
 

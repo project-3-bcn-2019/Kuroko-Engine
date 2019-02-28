@@ -44,8 +44,14 @@ protected:
 	GameObject* parent = nullptr;
 	uint uuid = 0;
 
+	uint ev_amount = 0;
+
 public:
 	// Helper Functions
 	std::string TypeToString();
+	virtual std::string EvTypetoString(int evt) { return "Change Active"; };
+	int getEvAmount() {	return ev_amount; };
+
+	virtual void ProcessAnimationEvents(int evt) { if (evt == -1) is_active = false; };
 };
 #endif

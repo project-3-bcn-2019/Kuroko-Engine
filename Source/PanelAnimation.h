@@ -49,5 +49,9 @@ private:
 	float progress = 0.0f;
 	float winSize = 0.0f;
 
+	bool new_keyframe_win = false;
+	int ev_t = -1;
+	int new_key_frame = 0;
+
 
 };

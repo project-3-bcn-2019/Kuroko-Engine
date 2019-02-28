@@ -6,14 +6,6 @@
 #include "MathGeoLib/MathGeoLib.h"
 #include <map>
 
-struct ComponentKey
-{
-	double	time;
-	std::multimap<int, void*>	ComponentEvents;
-		// The first, int is the Event it triggers, depends on every component
-		// the second, void* is the value used to perform the "animation", the component should act accordingly and recast it to what you want
-};
-
 struct BoneTransform
 {
 	~BoneTransform();
@@ -71,11 +63,7 @@ public:
 	int numBones = 0;
 
 	BoneTransform* boneTransformations = nullptr;
-
-	std::multimap <uint, std::vector<ComponentKey>> ComponentAnimations;
-		// First is the uuid of the component
-		// second is the keyframes of said component
-
 };
+
 
 #endif // !__RESOURCEANIMATION_H__
