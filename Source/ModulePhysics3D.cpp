@@ -301,6 +301,20 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 {
 }
 
+void ModulePhysics3D::GetCollisionsFromObject(std::list<Collision>& list_to_fill, GameObject * to_get)
+{
+
+	for (std::list<Collision>::iterator item = collisions.begin(); item != collisions.end(); ++item)
+	{
+		if ((*item).A == to_get)
+		{
+			list_to_fill.push_back(*item);
+		}
+	}
+
+
+}
+
 
 
 

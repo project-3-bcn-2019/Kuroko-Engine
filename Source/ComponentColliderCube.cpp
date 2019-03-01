@@ -10,6 +10,7 @@
 #include "ComponentTransform.h"
 #include "ComponentAABB.h"
 #include "Application.h"
+#include "ModulePhysics3D.h"
 
 #include "SDL/include/SDL_opengl.h"
 
@@ -36,7 +37,14 @@ bool ComponentColliderCube::Update(float dt)
 
 	//body->SetTransform(transform_matrix);
 
-	
+	colliding.clear();
+	std::list<Collision> col_list;
+	App->physics->GetCollisionsFromObject(col_list, getParent());
+
+	for (std::list<Collision>::iterator item = col_list.begin(); item != col_list.end(); ++item)
+	{
+		colliding.push_back((*item).B);
+	}
 
 	return true;
 }

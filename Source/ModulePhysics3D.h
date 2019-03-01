@@ -59,8 +59,9 @@ public:
 	void DeleteBody(PhysBody* body_to_delete);
 
 	std::list<Collision> collisions;
-	
+	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
 
+	
 private:
 
 	bool physics_debug = true;
