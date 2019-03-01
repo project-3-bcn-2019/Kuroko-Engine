@@ -576,6 +576,12 @@
     <ClInclude Include="ComponentParticleEmitter.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentAnimationEvent.h">
+      <Filter>Sources\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelAnimationEvent.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -949,6 +955,12 @@
     </ClCompile>
     <ClCompile Include="ComponentParticleEmitter.cpp">
       <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentAnimationEvent.cpp">
+      <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelAnimationEvent.cpp">
+      <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
