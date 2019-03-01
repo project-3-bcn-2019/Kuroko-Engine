@@ -101,9 +101,51 @@ public:
 	
 	// Helper Functions
 	std::string TypeToString();
-	virtual std::string EvTypetoString(int evt) { return "Change Active"; };
-	virtual int getEvAmount() {	return 0; };
 
-	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) {};
+	// When Creating animations for components all of these functions
+	// are required in order to process the events for the panel and 
+	// for the actual play of animations for components
+	// Each Animation event should have its own function, similar to a
+	// callback system but by type
+
+	// Currently no values can be used in animations, only call function
+	// certain keyframe, if really needed for vertical slice I will
+	// implement it, but will take time and for each type of value used
+	// a cast system should be added to every component so that it gets the
+	// value wanted (similar to a union usage) maybe will create new union
+	// based struct but for now should not be needed
+
+	virtual std::string EvTypetoString(int evt) { 
+		//	Template for virtual EvTypetoString
+		//	switch (evt)
+		//	{
+		//		case ComponentTypeAnimEVT::ANIMEVT1:
+		//			return "ANIMEVT1";
+		//		.
+		//		.
+		//		.
+		//	}
+		return "Change Active"; 
+	};
+
+	virtual int getEvAmount() {	
+		return 0 /*ComponentTypeAnimEVT::ANIMEVTMAX*/; 
+	};
+
+	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) 
+	{
+		// Template for virtual AnimationEvent processing
+		//	for(auto it_evt = evts.begin(); it_evt != evts.end(); ++it_evt)
+		//	{
+		//		switch(it->first)
+		//		{
+		//		case ComponentTypeAnimEVT::ANIMEVT1:
+		//			CallFunctionDoEVT1();
+		//		.
+		//		.
+		//		.
+		//		}
+		//	}
+	};
 };
 #endif
