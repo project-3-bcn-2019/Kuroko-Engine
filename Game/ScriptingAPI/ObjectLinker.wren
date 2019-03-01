@@ -248,7 +248,15 @@ class ObjectLinker{
 	}
 
 	getCollisions(){
-		return ObjectComunicator.C_GetCollisions(gameObject)
+		var uuids = EngineComunicator.C_GetCollisions(gameObject)
+		var gameObjects = []
+		for(i in 0...uuids.count){
+			var add_obj = ObjectLinker.new()
+			add_obj.gameObject = uuids[i]
+			gameObjects.insert(i, add_obj)
+		}
+
+		return gameObjects
 	}
 
 	// Returns a class depending on the component
