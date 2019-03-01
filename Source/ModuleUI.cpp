@@ -3005,6 +3005,7 @@ void ModuleUI::DrawBuildMenu()
 	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
 	{
 		App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		open_tabs[BUILD_MENU] = false;
 	}
 
 	ImGui::End();

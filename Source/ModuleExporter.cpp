@@ -26,7 +26,14 @@ bool ModuleExporter::CleanUp()
 void ModuleExporter::CreateBuild(const char* path, const char* name)
 {
 	AssetsToLibraryJSON();
-
+	std::string fullPath = path;
+	fullPath += "\\";
+	fullPath += name;
+	fullPath += "\\";
+	CreateDirectory(fullPath.c_str(), NULL);
+	fullPath += "Library\\";
+	CreateDirectory(fullPath.c_str(), NULL);
+	App->fs.CopyFolderRecursively("Library\\*", fullPath.c_str());
 }
 
 void ModuleExporter::AssetsToLibraryJSON()

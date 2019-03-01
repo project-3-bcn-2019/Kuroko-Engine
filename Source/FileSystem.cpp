@@ -278,3 +278,43 @@ bool FileSystem::getPath(std::string& str) {
 void FileSystem::getExtension(std::string & str) {
 	str = PathFindExtensionA(str.c_str());
 }
+
+void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
+{
+	WIN32_FIND_DATA file;
+	HANDLE search_handle = FindFirstFile(src, &file);
+	if (search_handle)
+	{
+		do
+		{
+			std::string name = file.cFileName, extension = file.cFileName, fullPath = src;
+
+			if (name == "" || name == "." || name == "..")
+				continue;
+
+			fullPath.pop_back();
+			fullPath += file.cFileName;
+			getExtension(extension);
+
+			if (file.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
+			{
+				fullPath += "\\*";
+				std::string destiny = dst;
+				destiny += name + "\\";
+				CreateDirectory(destiny.c_str(), NULL);
+				CopyFolderRecursively(fullPath.c_str(), destiny.c_str());// Recursive function to get all subfloders
+			}
+			else
+			{
+				std::string destiny = dst;
+				destiny += name;
+
+				std::ifstream  src_path(fullPath, std::ios::binary);
+				std::ofstream  dst_path(destiny, std::ios::binary);
+				dst_path << src_path.rdbuf();
+			}
+
+		} while (FindNextFile(search_handle, &file));
+		FindClose(search_handle);
+	}
+}

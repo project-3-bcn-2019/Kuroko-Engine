@@ -81,7 +81,7 @@ public:
 
 
 	void makeBuild(const char* buildPath);
-
+	void CopyFolderRecursively(const char* src, const char* dst);
 
 };
 
