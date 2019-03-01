@@ -104,6 +104,7 @@ private:
 
 	std::list<Particle*> particles;
 
+	TransformMode transform_mode = LOCAL;
 	float emitterLifetime = 0;
 	float time = 0;
 	ComponentTransform* transform = nullptr;

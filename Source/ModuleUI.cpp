@@ -1916,6 +1916,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			{
 
 				//Direction
+				static bool local_direction = true;
+				local_direction = c_emitter->transform_mode == LOCAL;
+
+				if (ImGui::Checkbox("local## PE local", &local_direction))
+					c_emitter->transform_mode = local_direction ? LOCAL : GLOBAL;
+
 				ImGui::DragFloat3("Direction", (float*)&c_emitter->direction, 0.1f);
 				ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
 				ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
