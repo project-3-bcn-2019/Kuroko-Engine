@@ -15,6 +15,12 @@
 class GameObject;
 struct PhysBody;
 
+struct Collision
+{
+	GameObject* A;
+	GameObject* B;
+};
+
 class PDebugDrawer : public btIDebugDraw
 {
 public:
@@ -51,6 +57,9 @@ public:
 
 	PhysBody* AddBody(GameObject* parent);
 	void DeleteBody(PhysBody* body_to_delete);
+
+	std::list<Collision> collisions;
+	
 
 private:
 

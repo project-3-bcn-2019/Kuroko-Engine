@@ -1,5 +1,5 @@
 import "Audio" for ComponentAudioSource
-
+import "Animation" for ComponentAnimation
 
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
@@ -18,6 +18,8 @@ class ObjectComunicator{
 	foreign static C_MoveForward(gameObject, speed)
 
 	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+
 }
 
 class Math{
@@ -185,6 +187,7 @@ class InputComunicator{
 
 class ComponentType{
 	static AUDIO_SOURCE {15}
+	static ANIMATION {7}
 }
 
 class ObjectLinker{
@@ -244,6 +247,10 @@ class ObjectLinker{
 		ObjectComunicator.C_MoveForward(gameObject, speed)
 	}
 
+	getCollisions(){
+		return ObjectComunicator.C_GetCollisions(gameObject)
+	}
+
 	// Returns a class depending on the component
 	getComponent(type){
 		var component_uuid = ObjectComunicator.C_GetComponentUUID(gameObject, type)
@@ -251,5 +258,9 @@ class ObjectLinker{
 		if(type == ComponentType.AUDIO_SOURCE){
 			return ComponentAudioSource.new(gameObject, component_uuid)
 		}
+		if(type == ComponentType.ANIMATION){
+			return ComponentAnimation.new(gameObject, component_uuid)
+		}
+
 	}
 }

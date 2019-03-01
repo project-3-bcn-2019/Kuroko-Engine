@@ -8,11 +8,11 @@
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
 #include "Include_Wwise.h"
-
 // May be better to manage in scene
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ComponentAudioSource.h"
+#include "ComponentAnimation.h"
 #include "Transform.h"
 
 // Engine comunicator
@@ -40,6 +40,7 @@ void getGameObjectRoll(WrenVM* vm);
 void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
+void GetCollisions(WrenVM* vm);
 
 
 //Time
@@ -57,10 +58,15 @@ void getMouseRaycastZ(WrenVM* vm);
 
 // Audio
 void SetSound(WrenVM* vm);
-void Play(WrenVM* vm);
-void Pause(WrenVM* vm);
-void Resume(WrenVM* vm);
-void Stop(WrenVM* vm);
+void PlayAudio(WrenVM* vm);
+void PauseAudio(WrenVM* vm);
+void ResumeAudio(WrenVM* vm);
+void StopAudio(WrenVM* vm);
+
+// Animation
+void SetAnimation(WrenVM* vm);
+void PlayAnimation(WrenVM* vm);
+void PauseAnimation(WrenVM* vm);
 
 
 
@@ -105,8 +111,9 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		base_signatures.insert(std::make_pair(std::string("gameObject=(_)"), wrenMakeCallHandle(vm, "gameObject=(_)")));
 
 		
-		object_linker_code = App->fs.GetFileString(OBJECT_LINKER);
-		audio_code = App->fs.GetFileString(AUDIO);
+		object_linker_code = App->fs.GetFileString(OBJECT_LINKER_PATH);
+		audio_code = App->fs.GetFileString(AUDIO_PATH);
+		animation_code = App->fs.GetFileString(ANIMATION_PATH);
 		return true;
 	}
 	else
@@ -381,6 +388,13 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->audio_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "Animation") == 0) {
+		int string_size = strlen(App->scripting->animation_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->animation_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
 }
 
@@ -457,7 +471,10 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return MoveGameObjectForward; // C function for ObjectComunicator.C_MoveForward
 			}
 			if (strcmp(signature, "C_GetComponentUUID(_,_)") == 0) {
-				return GetComponentUUID; // C function for ObjectComunicator.C_MoveForward
+				return GetComponentUUID; // C function for ObjectComunicator.C_GetComponentUUID
+			}
+			if (strcmp(signature, "C_GetCollisions(_)") == 0) {
+				return GetCollisions; // C function for ObjectComunicator.C_GetCollisions
 			}
 		}
 		if (strcmp(className, "Math") == 0) {
@@ -508,16 +525,26 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (isStatic && strcmp(signature, "C_SetSound(_,_,_)") == 0)
 				return SetSound;
 			if (isStatic && strcmp(signature, "C_Play(_,_)") == 0)
-				return Play;
+				return PlayAudio;
 			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
-				return Pause;
+				return PauseAudio;
 			if (isStatic && strcmp(signature, "C_Resume(_,_)") == 0)
-				return Resume;
+				return ResumeAudio;
 			if (isStatic && strcmp(signature, "C_Stop(_,_)") == 0)
-				return Stop;
+				return StopAudio;
 		}
 	}
-
+	// AUDIO
+	if (strcmp(module, "Animation") == 0) {
+		if (strcmp(className, "AnimationComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetAnimation(_,_,_)") == 0)
+				return SetAnimation;
+			if (isStatic && strcmp(signature, "C_Play(_,_)") == 0)
+				return PlayAnimation;
+			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
+				return PauseAnimation;
+		}
+	}
 
 }
 
@@ -904,7 +931,7 @@ void SetSound(WrenVM * vm) {
 	component->sound_ID = AK::SoundEngine::GetIDFromString(sound_string.c_str());
 }
 
-void Play(WrenVM* vm) {
+void PlayAudio(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	uint componentUUID = wrenGetSlotDouble(vm, 2);
 
@@ -926,7 +953,7 @@ void Play(WrenVM* vm) {
 	component->sound_go->PlayEvent(component->sound_ID);
 }
 
-void Pause(WrenVM* vm) {
+void PauseAudio(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	uint componentUUID = wrenGetSlotDouble(vm, 2);
 
@@ -947,7 +974,7 @@ void Pause(WrenVM* vm) {
 
 	component->sound_go->PauseEvent(component->sound_ID);
 }
-void Resume(WrenVM* vm) {
+void ResumeAudio(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	uint componentUUID = wrenGetSlotDouble(vm, 2);
 	uint sound_ID = wrenGetSlotDouble(vm, 3);
@@ -968,7 +995,7 @@ void Resume(WrenVM* vm) {
 
 	component->sound_go->ResumeEvent(component->sound_ID);
 }
-void Stop(WrenVM* vm) {
+void StopAudio(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	uint componentUUID = wrenGetSlotDouble(vm, 2);
 	uint sound_ID = wrenGetSlotDouble(vm, 3);
@@ -988,4 +1015,74 @@ void Stop(WrenVM* vm) {
 	}
 
 	component->sound_go->StopEvent(component->sound_ID);
+}
+
+void SetAnimation(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string animation_string = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimation* component = (ComponentAnimation*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	uint animation_uuid = App->resources->getAnimationResourceUuid(animation_string.c_str());
+	component->setAnimationResource(animation_uuid);
+}
+
+void PlayAnimation(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimation* component = (ComponentAnimation*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->Play();
+}
+
+void PauseAnimation(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimation* component = (ComponentAnimation*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->Pause();
+}
+
+void GetCollisions(WrenVM* vm) {
+	
 }

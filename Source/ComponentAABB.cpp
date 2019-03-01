@@ -1,14 +1,15 @@
 #include "ComponentAABB.h"
 #include "ComponentMesh.h"
+#include "ComponentTransform.h"
+#include "ComponentBillboard.h"
 #include "GameObject.h"
 #include "Application.h"
 #include "ModuleRenderer3D.h"
-#include "Transform.h"
 #include "ModuleCamera3D.h"
+#include "Transform.h"
 #include "Camera.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "ComponentTransform.h"
 
 
 ComponentAABB::ComponentAABB(GameObject* parent) : Component(parent, C_AABB)
@@ -35,7 +36,11 @@ void ComponentAABB::Reload()
 
 	for (auto it = meshes.begin(); it != meshes.end(); it++)
 	{
-		Mesh* mesh = ((ComponentMesh*)(*it))->getMesh();
+		Mesh* mesh = nullptr;
+
+		if ((*it)->getType() == MESH)	mesh = ((ComponentMesh*)(*it))->getMesh();
+		else							mesh = ((ComponentBillboard*)(*it))->getMesh();
+
 		if (!mesh)
 			continue;
 

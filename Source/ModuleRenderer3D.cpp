@@ -104,7 +104,8 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		glClearColor(0.8f, 0.8f, 0.8f, 1.f);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE); 
+		glEnable(GL_BLEND);
 		lights[0].Active(true);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);

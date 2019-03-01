@@ -9,6 +9,7 @@
 #include "Transform.h"
 #include "ComponentTransform.h"
 #include "ComponentAABB.h"
+#include "Application.h"
 
 #include "SDL/include/SDL_opengl.h"
 
@@ -22,17 +23,21 @@ ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _bo
 
 void ComponentColliderCube::OnCollision(GameObject * A, GameObject * B)
 {
-
+	
 }
 
 bool ComponentColliderCube::Update(float dt)
 {
 	//TODO
 	//Gather the pointer with the transform matrix
-	float* transform_matrix = new float[16];
-	transform_matrix = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr();
+	
+	//float* transform_matrix = new float[16];
+	//transform_matrix = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr();
 
-	body->SetTransform(transform_matrix);
+	//body->SetTransform(transform_matrix);
+
+	
+
 	return true;
 }
 

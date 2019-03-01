@@ -7,6 +7,7 @@
 #include "ComponentCamera.h"
 #include "FileSystem.h"
 #include <array>
+#include <list>
 #include "ImGui/TextEditor.h"
 
 struct ImGuiIO;
@@ -98,6 +99,9 @@ private:
 
 	std::string asset_window_path = ASSETS_FOLDER;
 	std::string selected_asset;
+
+	std::list<std::string> build_scenes;
+	std::vector<bool> main_scene;
 };
 #endif
 

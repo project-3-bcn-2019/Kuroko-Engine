@@ -143,7 +143,7 @@ void ComponentMesh::DrawSelected() const
 			Mesh* mesh_from_resource = getMeshFromResource();
 
 
-			mesh_from_resource->Draw(nullptr, true);
+			mesh_from_resource->Draw(mat, true);
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);

@@ -24,6 +24,7 @@
 #include "ComponentAudioSource.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleTimeManager.h"
 
 #include "ModulePhysics3D.h"
 
@@ -168,7 +169,7 @@ update_status ModuleScene::Update(float dt)
 	}
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
-		(*it)->Update(dt);
+		(*it)->Update(App->time->getGameDeltaTime()/1000);
 
 	if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
 	{
@@ -187,6 +188,11 @@ update_status ModuleScene::Update(float dt)
 		component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
 		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
 		component->SetSoundName("Footsteps");
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		App->importer->AssetsToLibraryJSON();
 	}
 
 	//App->physics->UpdatePhysics();

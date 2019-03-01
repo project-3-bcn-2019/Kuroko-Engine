@@ -12,6 +12,7 @@ class aiMesh;
 class aiScene;
 class Material;
 class ComponentAnimation;
+class Texture;
 
 enum PrimitiveTypes
 {
@@ -56,6 +57,7 @@ public:
 	~Mesh();
 
 	void Draw(Material* mat, bool draw_as_selected = false) const;
+	void Draw(Texture* tex, bool draw_as_selected = false) const;
 	void FillMeshGPU();
 	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform, bool draw_as_selected = false) const;
 	void DrawNormals() const;

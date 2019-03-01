@@ -40,7 +40,7 @@ bool ComponentAnimation::Update(float dt)
 		}
 
 		//if (!TestPause)
-		if (dt < 0.1)
+		if (!paused)
 			animTime += dt * speed;
 
 		if (animTime > anim->getDuration() && loop)
@@ -75,7 +75,9 @@ bool ComponentAnimation::Update(float dt)
 
 void ComponentAnimation::setAnimationResource(uint uuid)
 {
+	App->resources->deasignResource(animation_resource_uuid);
 	animation_resource_uuid = uuid;
+	App->resources->assignResource(animation_resource_uuid);
 	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(uuid);
 	if (anim != nullptr)
 	{
