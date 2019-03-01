@@ -18,6 +18,8 @@ class ObjectComunicator{
 	foreign static C_MoveForward(gameObject, speed)
 
 	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+
 }
 
 class Math{
@@ -243,6 +245,10 @@ class ObjectLinker{
 
 	moveForward(speed){
 		ObjectComunicator.C_MoveForward(gameObject, speed)
+	}
+
+	getCollisions(){
+		return ObjectComunicator.C_GetCollisions(gameObject)
 	}
 
 	// Returns a class depending on the component

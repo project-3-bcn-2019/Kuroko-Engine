@@ -40,6 +40,7 @@ void getGameObjectRoll(WrenVM* vm);
 void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
+void GetCollisions(WrenVM* vm);
 
 
 //Time
@@ -470,7 +471,10 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return MoveGameObjectForward; // C function for ObjectComunicator.C_MoveForward
 			}
 			if (strcmp(signature, "C_GetComponentUUID(_,_)") == 0) {
-				return GetComponentUUID; // C function for ObjectComunicator.C_MoveForward
+				return GetComponentUUID; // C function for ObjectComunicator.C_GetComponentUUID
+			}
+			if (strcmp(signature, "C_GetCollisions(_)") == 0) {
+				return GetCollisions; // C function for ObjectComunicator.C_GetCollisions
 			}
 		}
 		if (strcmp(className, "Math") == 0) {
@@ -1077,4 +1081,8 @@ void PauseAnimation(WrenVM* vm) {
 	}
 
 	component->Pause();
+}
+
+void GetCollisions(WrenVM* vm) {
+	
 }
