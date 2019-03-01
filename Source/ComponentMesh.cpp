@@ -104,12 +104,12 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			//Skining();
+			Skining();
 			//mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
 			ComponentAnimation* animation = nullptr;
-			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
+			animation = (ComponentAnimation*)parent->getParent()->getComponent(ANIMATION);
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v,boneTransforms,(uint)components_bones.size());
 
 
 			if (transform)
@@ -148,8 +148,8 @@ void ComponentMesh::DrawSelected() const
 			//mesh_from_resource->Draw(nullptr, true);
 			//Descoment to use shader render
 			ComponentAnimation* animation = nullptr;
-			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);
+			animation = (ComponentAnimation*)parent->getParent()->getComponent(ANIMATION);
+			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, boneTransforms, (uint)components_bones.size(), true);
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -164,7 +164,7 @@ bool ComponentMesh::Update(float dt)
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
 	{
 		setMeshResourceId(mesh_resource_uuid);
-		boneTransforms = new float4x4[components_bones.size()];
+		boneTransforms = new float[components_bones.size()*16];
 
 		ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
 
@@ -268,8 +268,8 @@ void ComponentMesh::Skining() const
 				{
 					hasBones = true;
 					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
-
-					boneTransforms[i] = boneTransform; //copy of the final bone trasformations for the shader use					
+			
+					memcpy(&boneTransforms[i * 16], boneTransform.v, 16 * sizeof(float)); //copy of the final bone trasformations for the shader use
 
 					for (int j = 0; j < rBone->numWeights; j++)
 					{

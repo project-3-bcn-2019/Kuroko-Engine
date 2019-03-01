@@ -15,6 +15,7 @@
 #include "ComponentBone.h"
 #include "GameObject.h"
 #include "ResourceBone.h"
+#include "ModuleTimeManager.h"
 
 #include "Assimp\include\scene.h"
 
@@ -308,7 +309,7 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 	LoadDataToVRAMShaders();
 }
 
-void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float* global_transform, bool draw_as_selected) const
+void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, float* global_transform, float* boneTrans, uint numBones, bool draw_as_selected) const
 {
 	float3 lightPosition = { 0.0f,10.0f,10.0f };
 	float3 lightColors = { 1.0f,1.0f,1.0f };
@@ -344,7 +345,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float
 			glBindTexture(GL_TEXTURE_2D, diffuse_tex->getGLid());
 		}
 		
-		if (animation == nullptr)
+		if (animation == nullptr || App->time->getGameState() == STOPPED)
 		{
 			glUseProgram(App->shaders->GetDefaultShaderProgram()->programID);
 
@@ -374,10 +375,28 @@ void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float
 		{
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
-			/*
-			TODO
-			Introduce uniform variables
-			*/
+			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones[0]");
+			glUniformMatrix4fv(boneMeshes, numBones, GL_FALSE, boneTrans);
+			GLint proj_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "projection");
+			glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
+			GLint view_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "view");
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, App->camera->current_camera->GetViewMatrix());
+			GLint lightPos = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "lightPos");
+			glUniform3f(lightPos, lightPosition.x, lightPosition.y, lightPosition.z);
+			GLint lightColor = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "lightColor");
+			glUniform3f(lightColor, lightColors.x, lightColors.y, lightColors.z);
+
+			/*if (diffuse_tex)
+			{
+				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
+				glUniform1i(texture, 1);
+			}
+			else
+			{
+				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
+				glUniform1i(texture, 0);
+			}*/
+
 		}
 	}
 	else
@@ -386,6 +405,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float
 
 		GLint model_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "model_matrix");
 		glUniformMatrix4fv(model_loc, 1, GL_FALSE, global_transform);
+
 		GLint proj_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "projection");
 		glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
 		GLint view_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "view");

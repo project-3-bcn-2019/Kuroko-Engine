@@ -7,6 +7,7 @@
 #include "MathGeoLib\Math\float4.h"
 #include "MathGeoLib\Math\float3.h"
 #include "MathGeoLib\Math\float2.h"
+#include "MathGeoLib\Math\float4x4.h"
 
 class aiMesh;
 class aiScene;
@@ -64,7 +65,7 @@ public:
 	void Draw(Material* mat, bool draw_as_selected = false) const;
 	void FillMeshGPU();
 	void FillboneVertexInfo(GameObject* parent, std::vector<uint> bones);
-	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform, bool draw_as_selected = false) const;
+	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform,float* boneTrans,uint numBones, bool draw_as_selected = false) const;
 	void DrawNormals() const;
 
 	void updateVRAM();

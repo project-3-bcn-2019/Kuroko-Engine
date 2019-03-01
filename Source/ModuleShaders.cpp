@@ -77,6 +77,9 @@ bool ModuleShaders::InitializeDefaulShaders()
 	//Animation Shaders
 	CompileShader(animationShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
+	animationShaderProgram->shaders.push_back(defFragmentShader->shaderId);
+	
+	CompileProgram(animationShaderProgram);
 
 	return true;
 }
@@ -112,15 +115,17 @@ void ModuleShaders::CreateDefVertexShader()
 	animationShader->script =
 	"#version 330\n"
 
-	"layout(location = 0) in vec3 Position;\n"
-	"layout(location = 1) in vec2 TexCoord;\n"
-	"layout(location = 2) in vec3 Normal;\n"
-	"layout(location = 3) in ivec4 BoneIDs;\n"
-	"layout(location = 4) in vec4 Weights;\n"
+	"layout(location = 0) in vec3 position;\n"
+	"layout(location = 1) in vec4 color;\n"
+	"layout(location = 2) in vec2 texCoord;\n"
+	"layout(location = 3) in vec3 normal;\n"
+	"layout(location = 4) in ivec4 BoneIDs;\n"
+	"layout(location = 5) in vec4 Weights;\n"
 
-	"out vec2 TexCoord0;\n"
-	"out vec3 Normal0;\n"
-	"out vec3 WorldPos0;\n"
+	"out vec2 TexCoord;\n"
+	"out vec3 ret_normal;\n"
+	"out vec3 FragPos;\n"
+	"out vec4 ourColor;\n"
 
 	"const int MAX_BONES = 100;\n"
 
@@ -135,12 +140,13 @@ void ModuleShaders::CreateDefVertexShader()
 	"	BoneTransform += gBones[BoneIDs[2]] * Weights[2];\n"
 	"	BoneTransform += gBones[BoneIDs[3]] * Weights[3];\n"
 
-	"	vec4 PosL = BoneTransform * vec4(Position, 1.0);\n"
+	"	vec4 PosL = BoneTransform * vec4(position, 1.0);\n"
 	"	gl_Position = projection * PosL;\n"
-	"	TexCoord0 = TexCoord;\n"
-	"	vec4 NormalL = BoneTransform * vec4(Normal, 0.0);\n"
-	"	Normal0 = (view * NormalL).xyz;\n"
-	"	WorldPos0 = (view * PosL).xyz;\n"
+	"	TexCoord = texCoord;\n"
+	"	vec4 NormalL = BoneTransform * vec4(normal, 0.0);\n"
+	"	ret_normal = (view * NormalL).xyz;\n"
+	"	FragPos = (view * PosL).xyz;\n"
+	"	ourColor = color;\n"
 	"}\n";
 }
 

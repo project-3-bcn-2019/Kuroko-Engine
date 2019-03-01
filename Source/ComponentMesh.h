@@ -40,7 +40,7 @@ public:
 
 	std::vector<std::string> bones_names;
 	std::vector<uint> components_bones;
-	float4x4* boneTransforms=nullptr;
+	float* boneTransforms=nullptr;
 
 private:
 
