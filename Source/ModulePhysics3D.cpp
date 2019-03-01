@@ -73,6 +73,8 @@ bool ModulePhysics3D::Start()
 
 update_status ModulePhysics3D::PreUpdate(float dt)
 {	
+	collisions.clear();
+
 	world->stepSimulation(17, 1);
 
 	int numManifolds = world->getDispatcher()->getNumManifolds();
@@ -94,6 +96,17 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 				pbodyA->OnCollision(pbodyA->getParent(), pbodyB->getParent());
 				pbodyB->OnCollision(pbodyB->getParent(), pbodyA->getParent());
 			}
+
+			Collision cA;
+			cA.A = pbodyA->getParent();
+			cA.B = pbodyB->getParent();
+
+			Collision cB;
+			cB.A = pbodyB->getParent();
+			cB.B = pbodyA->getParent();
+
+			collisions.push_back(cA);
+			collisions.push_back(cB);
 		}
 	}
 	return UPDATE_CONTINUE;

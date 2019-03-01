@@ -2,6 +2,7 @@
 #define __COMPONENT_COLLIDER_CUBE__
 #include "Component.h"
 #include "MathGeoLib/MathGeoLib.h"
+#include <list>
 
 class GameObject;
 class PhysBody;
@@ -21,7 +22,10 @@ public:
 
 	virtual ~ComponentColliderCube() {};
 	PhysBody* body;
-//	
+
+	std::list<GameObject*> colliding;
+
+
 //	bool Update(float dt)override;
 //
 //	void DrawInspectorInfo();
