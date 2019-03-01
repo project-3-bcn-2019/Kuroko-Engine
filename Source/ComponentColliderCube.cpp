@@ -15,9 +15,8 @@
 #include "SDL/include/SDL_opengl.h"
 
 
-ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _body)
+ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _body) :Component(parent, COLLIDER_CUBE)
 {
-	parent = _parent;
 	body = _body;
 	body->SetUser(this);
 }
