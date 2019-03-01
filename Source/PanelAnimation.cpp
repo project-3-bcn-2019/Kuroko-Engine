@@ -352,7 +352,7 @@ void PanelAnimation::ComponentAnimationDraw()
 		int check_size = compAnimation->own_ticks;
 		if (animation != nullptr)
 			check_size = animation->ticks;
-		for (int i = 0; i < compAnimation->own_ticks; i++)
+		for (int i = 0; i < check_size; i++)
 		{
 			ImGui::BeginGroup();
 
