@@ -772,6 +772,9 @@ void GetCollisions(WrenVM* vm) {
 	// Get all the colliding GameObjects
 	std::list<GameObject*> colliding_go = component->colliding;
 
+	// Initialized list
+	wrenSetSlotNewList(vm, 0);
+
 	// Fill wren list
 	wrenEnsureSlots(vm, 3);
 	for (auto it = colliding_go.begin(); it != colliding_go.end(); it++) {

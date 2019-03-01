@@ -75,7 +75,6 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 {	
 	collisions.clear();
 
-	world->stepSimulation(17, 1);
 
 	int numManifolds = world->getDispatcher()->getNumManifolds();
 	
@@ -118,8 +117,8 @@ update_status ModulePhysics3D::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		physics_debug = !physics_debug;
 
-
-	UpdatePhysics();
+	if (App->time->getGameState() == GameState::PLAYING)
+		UpdatePhysics();
 
 
 	return UPDATE_CONTINUE;
@@ -138,6 +137,9 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 
 void ModulePhysics3D::UpdatePhysics()
 {
+
+	world->stepSimulation(17, 1);
+
 	//float *matrix = new float[16];
 	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
 	{
@@ -145,47 +147,54 @@ void ModulePhysics3D::UpdatePhysics()
 		//(*item)->GetTransform(matrix);
 
 		GameObject* obj = ((ComponentColliderCube*)(*item)->body->getUserPointer())->getParent();
+		if (obj != nullptr)
+		{
 
-		ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
 
-		//matrix = transform->global->getMatrix().ptr();
+			ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
+			if (transform != nullptr)
+			{
 
-		btTransform t = (*item)->body->getWorldTransform();
 
-		////t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-		//t.setRotation(t.getRotation().inverse());
+			//matrix = transform->global->getMatrix().ptr();
 
-		////btScalar* m = new btScalar[16];
-		////t.getOpenGLMatrix(m);
+			btTransform t = (*item)->body->getWorldTransform();
 
-		float4x4 fina;
+			////t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+			//t.setRotation(t.getRotation().inverse());
 
-		////fina[0][0] = m[0];		fina[1][0] = m[4];		fina[2][0] = m[8];		fina[3][0] = m[12];
-		////fina[0][1] = m[1];		fina[1][1] = m[5];		fina[2][1] = m[9];		fina[3][1] = m[13];
-		////fina[0][2] = m[2];		fina[1][2] = m[6];		fina[2][2] = m[10];		fina[3][2] = m[14];
-		////fina[0][3] = m[3];		fina[1][3] = m[7];		fina[2][3] = m[11];		fina[3][3] = m[15];
+			////btScalar* m = new btScalar[16];
+			////t.getOpenGLMatrix(m);
 
-		fina = float4x4::FromTRS(float3(0,0,0), Quat::identity, transform->global->getScale());
+			float4x4 fina;
 
-		fina.Transpose();
+			////fina[0][0] = m[0];		fina[1][0] = m[4];		fina[2][0] = m[8];		fina[3][0] = m[12];
+			////fina[0][1] = m[1];		fina[1][1] = m[5];		fina[2][1] = m[9];		fina[3][1] = m[13];
+			////fina[0][2] = m[2];		fina[1][2] = m[6];		fina[2][2] = m[10];		fina[3][2] = m[14];
+			////fina[0][3] = m[3];		fina[1][3] = m[7];		fina[2][3] = m[11];		fina[3][3] = m[15];
 
-		Quat newquat = transform->global->getRotation();
-		newquat.Inverse();
-		float4x4 rot_mat = newquat.ToFloat4x4();
+			fina = float4x4::FromTRS(float3(0, 0, 0), Quat::identity, transform->global->getScale());
 
-		fina = /*fina * */rot_mat;
+			fina.Transpose();
 
-		//fina = fina * float4x4::FromQuat(transform->global->getRotation());
-		//fina.Translate(transform->global->getPosition());
+			Quat newquat = transform->global->getRotation();
+			newquat.Inverse();
+			float4x4 rot_mat = newquat.ToFloat4x4();
 
-		t.setFromOpenGLMatrix(fina.ptr());
-		
-		t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+			fina = /*fina * */rot_mat;
 
-		(*item)->body->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
+			//fina = fina * float4x4::FromQuat(transform->global->getRotation());
+			//fina.Translate(transform->global->getPosition());
 
-		(*item)->body->setWorldTransform(t);
-		
+			t.setFromOpenGLMatrix(fina.ptr());
+
+			t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
+
+			(*item)->body->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
+
+			(*item)->body->setWorldTransform(t);
+			}
+		}
 	}
 }
 
