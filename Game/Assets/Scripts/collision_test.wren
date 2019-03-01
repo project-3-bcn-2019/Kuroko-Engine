@@ -17,8 +17,7 @@ construct new(){}
 
 
  Update() {
- var collisions_go = getCollisions()
-
- EngineComunicator.consoleOutput("%(collisions_go.count)")
+  var collisions_go = getCollisions()
+  EngineComunicator.consoleOutput("%(collisions_go.count)")
 }
 }
