@@ -6,6 +6,7 @@
 class Component;
 class ComponentAnimation;
 class ResourceAnimation;
+class GameObject;
 
 class PanelAnimation :
 	public Panel
@@ -22,6 +23,8 @@ public:
 	void ComponentAnimationDraw();
 
 public:
+
+	GameObject* selected_obj = nullptr;
 
 	ComponentAnimation* compAnimation = nullptr;
 	ResourceAnimation* animation = nullptr;
@@ -54,6 +57,7 @@ private:
 	bool new_keyframe_win = false;
 	int ev_t = -1;
 	int new_key_frame = 0;
+
 public:
 	void ResetNewKeyValues()
 	{

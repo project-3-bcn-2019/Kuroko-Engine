@@ -7,6 +7,7 @@
 #include "ResourceAnimation.h"
 #include "Component.h"
 #include "FileSystem.h"
+#include "GameObject.h"
 
 PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 {
@@ -23,10 +24,13 @@ PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 bool PanelAnimation::fillInfo()
 {
 	bool ret = false;
+	
+	if (App->scene->selected_obj.size() == 1)
+		selected_obj = App->scene->selected_obj.begin()._Ptr->_Myval;
 
-	if (App->scene->selected_obj != nullptr)
+	if (selected_obj != nullptr)
 	{
-		compAnimation = (ComponentAnimation*)App->scene->selected_obj->getComponent(Component_type::ANIMATION);
+		compAnimation = (ComponentAnimation*)selected_obj->getComponent(Component_type::ANIMATION);
 
 		if (compAnimation != nullptr)
 		{
