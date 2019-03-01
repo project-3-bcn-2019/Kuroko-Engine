@@ -864,7 +864,7 @@ void ModuleImporter::ImportSounds()
 
 void ModuleImporter::AssetsToLibraryJSON()
 {
-	App->fs.CreateEmptyFile("AssetsToLibrary", ASSETS_SCENES, SCENE_EXTENSION);
+	//App->fs.CreateEmptyFile("AssetsToLibrary", ASSETS_SCENES, SCENE_EXTENSION);
 
 	JSON_Value* json = json_value_init_object();
 	JSON_Value* objects_array = json_value_init_array();
@@ -876,8 +876,54 @@ void ModuleImporter::AssetsToLibraryJSON()
 	//	json_array_append_value(json_array(objects_array), object); // Add object to array
 	//}
 
+	json_array_append_value(json_array(objects_array), Aaa("Assets\\Meshes\\*"));
+
 	std::string outpath;
 	json_serialize_to_file_pretty(json, outpath.c_str());
 
 	json_value_free(json);
+}
+
+JSON_Value* ModuleImporter::Aaa(const char* path)
+{
+	JSON_Value* object = json_value_init_object();
+
+	char folderPath[256];
+	GetCurrentDirectory(256, folderPath);
+
+	std::string fullPath = folderPath;
+	fullPath += path;
+
+	WIN32_FIND_DATA file;
+	HANDLE search_handle = FindFirstFile(fullPath.c_str(), &file);
+	if (search_handle)
+	{
+		do
+		{
+			if (file.dwFileAttributes && FILE_ATTRIBUTE_DIRECTORY)
+			{
+				// Check type of flie
+				std::string filePath, name, extension = file.cFileName;
+				App->fs.getFileNameFromPath(name);
+				App->fs.getExtension(extension);
+				
+				if (extension == "meta")
+				{
+					JSON_Value* json = json_parse_file(filePath.c_str());
+					if (json)
+					{
+						JSON_Object* json_obj = json_value_get_object(json);
+						uint resourceUUID = json_object_get_number(json_obj, "rsource_uuid");
+					}
+					else
+						app_log->AddLog("Couldn't load %s, no value", filePath);
+
+					json_value_free(json);
+				}
+			}
+		} while (FindNextFile(search_handle, &file)); 
+		FindClose(search_handle);
+	}
+
+	return object;
 }
