@@ -576,6 +576,9 @@
     <ClInclude Include="ComponentParticleEmitter.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ModuleExporter.h">
+      <Filter>Sources\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -949,6 +952,9 @@
     </ClCompile>
     <ClCompile Include="ComponentParticleEmitter.cpp">
       <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleExporter.cpp">
+      <Filter>Sources\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

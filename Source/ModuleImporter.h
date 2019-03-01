@@ -50,13 +50,11 @@ public:
 	Texture* LoadTextureFromLibrary(const char* file);
 
 	void ImportSounds();
-	void AssetsToLibraryJSON();
 
 private:
 	void ImportNodeToSceneRecursive(const aiNode& node, const aiScene& scene, const char* file_name, JSON_Value* json_scene, const std::vector<material_resource_deff>& in_mat_id, const std::map<std::string, uint>& in_bone_id, uint parent = 0);  // TODO: Add a parameter for mat id, a vector of JSON_Objects*
 	void ImportMaterialsFromNode(const aiScene& scene, std::vector<material_resource_deff>& out_mat_id);
 	void ImportBonesRecursive(const aiNode& node, const aiScene& scene, std::map<std::string, uint>& out_bones_id);
-	JSON_Value* GetAssetFolderUUIDs(const char* path);
 
 };
 void logAssimp(const char* message, char* user);

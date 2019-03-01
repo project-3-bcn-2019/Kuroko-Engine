@@ -190,11 +190,6 @@ update_status ModuleScene::Update(float dt)
 		component->SetSoundName("Footsteps");
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
-	{
-		App->importer->AssetsToLibraryJSON();
-	}
-
 	//App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;

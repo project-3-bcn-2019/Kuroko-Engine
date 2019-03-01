@@ -7,6 +7,7 @@
 #include "ModuleInput.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
+#include "ModuleExporter.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
 #include "ModuleResourcesManager.h"
@@ -2909,23 +2910,23 @@ void ModuleUI::DrawBuildMenu()
 
 	ImGui::Text("Select a path to make the build:");
 	ImGui::PushID("setPath");
-	static std::string path;
-	char* buffer = new char[path.size()];
-	memcpy(buffer, path.c_str(), sizeof(char)*path.size());
-	ImGui::InputTextEx("", buffer, path.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+	static std::string buildPath;
+	char* buffer = new char[buildPath.size()];
+	memcpy(buffer, buildPath.c_str(), sizeof(char)*buildPath.size());
+	ImGui::InputTextEx("", buffer, buildPath.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
 	RELEASE_ARRAY(buffer);
 	ImGui::PopID();
 	ImGui::SameLine();
 	if (ImGui::RadioButton("Click to choose path", false))
 	{
-		path = openFileWID(true);
+		buildPath = openFileWID(true);
 	}
 	ImGui::NewLine();
 
 	ImGui::Text("Write Build Name:");
 	ImGui::PushID("name");
-	static char name[15];
-	ImGui::InputTextEx("", name, 15, {125, 23}, ImGuiInputTextFlags_None);
+	static char buildName[15];
+	ImGui::InputTextEx("", buildName, 15, {125, 23}, ImGuiInputTextFlags_None);
 	ImGui::PopID();
 	ImGui::NewLine();
 
@@ -3001,7 +3002,10 @@ void ModuleUI::DrawBuildMenu()
 
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
-	ImGui::Button("Create Build");
+	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
+	{
+		App->exporter->CreateBuild(buildPath.c_str(), buildName);
+	}
 
 	ImGui::End();
 }
