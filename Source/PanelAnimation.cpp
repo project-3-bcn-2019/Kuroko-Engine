@@ -291,12 +291,15 @@ void PanelAnimation::ComponentAnimationDraw()
 					}
 				ImGui::EndCombo();
 			}
-			ImGui::DragInt("Frame", &new_key_frame, 1, 0, animation->ticks);
+			int anim_ticks = compAnimation->own_ticks;
+			if (animation != nullptr)
+				anim_ticks = animation->ticks;
+			ImGui::DragInt("Frame", &new_key_frame, 1, 0, anim_ticks);
 			// Add a method that allows to input value depending on the event and component i guess, every component will have it
 
 			if (ImGui::Button("Create"))
 			{
-				if (new_key_frame < animation->ticks && new_key_frame >= 0)
+				if (new_key_frame < anim_ticks && new_key_frame >= 0)
 				{
 					new_keyframe_win = false;
 
@@ -343,10 +346,13 @@ void PanelAnimation::ComponentAnimationDraw()
 		ImGui::BeginChild("TimeLine", ImVec2(winSize, 180), true, ImGuiWindowFlags_HorizontalScrollbar);
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImVec2 redbar = ImGui::GetCursorScreenPos();
-		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,ImGui::GetWindowSize().y });
+		//ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,ImGui::GetWindowSize().y });
 		ImGui::SetCursorScreenPos(p);
 
-		for (int i = 0; i < numFrames; i++)
+		int check_size = compAnimation->own_ticks;
+		if (animation != nullptr)
+			check_size = animation->ticks;
+		for (int i = 0; i < compAnimation->own_ticks; i++)
 		{
 			ImGui::BeginGroup();
 
