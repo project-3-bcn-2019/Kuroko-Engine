@@ -19,6 +19,10 @@ class Camera;
 struct Color;
 class TextEditor;
 
+// Panel Classes
+class Panel;
+class PanelAnimation;
+
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
@@ -80,6 +84,9 @@ public:
 	void LoadConfig(const JSON_Object* config);
 
 	bool disable_keyboard_control = false;
+
+	// Panels
+	PanelAnimation* p_anim;
 
 private:
 	

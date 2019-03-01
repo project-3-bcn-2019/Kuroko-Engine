@@ -7,6 +7,9 @@
 #include "Parson\parson.h"
 #include "Globals.h"
 #include "Random.h"
+#include <vector>
+#include <string>
+#include <map>
 #include "MathGeoLib\Math\float3.h"
 #include "Color.h"
 
@@ -91,5 +94,18 @@ protected:
 	const Component_type type = NONE;
 	GameObject* parent = nullptr;
 	uint uuid = 0;
+
+	uint ev_amount = 0;
+
+public:
+	// For animation curr
+	bool AnimSel = false;
+	
+	// Helper Functions
+	std::string TypeToString();
+	virtual std::string EvTypetoString(int evt) { return "Change Active"; };
+	virtual int getEvAmount() {	return ev_amount; };
+
+	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) {};
 };
 #endif

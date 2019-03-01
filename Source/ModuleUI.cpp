@@ -61,12 +61,18 @@
 #include <experimental/filesystem>
 #include <fstream>
 
+// Include Panels
+#include "Panel.h"
+#include "PanelAnimation.h"
+
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
 
 
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
 	name = "gui";
+
+	p_anim = new PanelAnimation("AnimEditor");
 }
 
 
@@ -1727,6 +1733,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ImGui::Text(" Duration: %.1f ms", R_anim->getDuration()*1000);
 				ImGui::Text(" Animation Bones: %d", R_anim->numBones);
 			}
+
+			if (ImGui::Button("AnimEditor"))
+				p_anim->toggleActive();
+			if (p_anim->isActive())
+				p_anim->Draw();
 
 			if (ImGui::Button("Remove Component##Remove animation"))
 				ret = false;
