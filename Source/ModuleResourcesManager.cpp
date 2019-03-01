@@ -562,7 +562,7 @@ void ModuleResourcesManager::ReleaseResourcesScriptHandles()
 }
 
 void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshes) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_MESH) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -572,7 +572,7 @@ void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshe
 }
 
 void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scripts) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_SCRIPT) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -583,11 +583,32 @@ void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scr
 
 void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& animations)
 {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_ANIMATION) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			animations.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it)
+	{
+		bool exist = false;
+		for (auto it_s = ignore.begin(); it_s != ignore.end(); ++it_s)
+		{
+			if ((*it).second->asset == (*it_s))
+			{
+				exist = true;
+				break;
+			}
+		}
+		if (!exist && (*it).second->type == R_SCENE) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			scenes.push_back(deff);
 		}
 	}
 }

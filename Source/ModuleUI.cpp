@@ -2896,6 +2896,102 @@ void ModuleUI::DrawBuildMenu()
 {
 	ImGui::Begin("Make Build", &open_tabs[BUILD_MENU]);
 
+	ImGui::Text("Select a path to make the build:");
+	ImGui::PushID("setPath");
+	static std::string path;
+	char* buffer = new char[path.size()];
+	memcpy(buffer, path.c_str(), sizeof(char)*path.size());
+	ImGui::InputTextEx("", buffer, path.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+	RELEASE_ARRAY(buffer);
+	ImGui::PopID();
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Click to choose path", false))
+	{
+		path = openFileWID(true);
+	}
+	ImGui::NewLine();
+
+	ImGui::Text("Write Build Name:");
+	ImGui::PushID("name");
+	static char name[15];
+	ImGui::InputTextEx("", name, 15, {125, 23}, ImGuiInputTextFlags_None);
+	ImGui::PopID();
+	ImGui::NewLine();
+
+	ImGui::Text("Select Scenes:");
+	ImGui::BeginChild("scenes", { 0,100 }, true);
+	ImGui::Text("Main  |  Scenes");
+	int i = 0;
+	bool remove = false;
+	int removeIndex = 0;
+	for (std::list<std::string>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
+		bool tick = main_scene[i];
+		ImGui::PushID(i);
+		if (ImGui::Checkbox("", &tick))
+		{
+			for (int j = 0; j < main_scene.size(); ++j)
+			{
+				main_scene[j] = false;
+			}
+			main_scene[i] = true;
+		}
+		ImGui::PopID();
+		main_scene[i] = (main_scene[i] && !tick) ? true : tick;
+		ImGui::SameLine(57);
+
+		ImGui::Text((*it_s).c_str());
+
+		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
+		ImGui::PushID("Remove" + i);
+		if (ImGui::Button("Remove"))
+		{
+			remove = true;
+			removeIndex = i;
+		}
+		ImGui::PopID();
+
+		i++;
+	}
+	if (remove)
+	{
+		build_scenes.erase(std::next(build_scenes.begin(), removeIndex));
+		bool wasMain = main_scene[removeIndex];
+		main_scene.erase(std::next(main_scene.begin(), removeIndex));
+		if (wasMain && main_scene.size() > 0)
+			main_scene[0] = true;
+		remove = false;
+	}
+	static bool pickScene = false;
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
+	if (ImGui::Button("+", { 23,23 }))
+	{
+		pickScene = true;
+	}
+	if (pickScene)
+	{
+		std::list<resource_deff> scene_res;
+		App->resources->getSceneResourceList(scene_res, build_scenes);
+
+		ImGui::Begin("Scene selector", &pickScene);
+		for (auto it = scene_res.begin(); it != scene_res.end(); it++) {
+			resource_deff scene_deff = (*it);
+			if (ImGui::MenuItem(scene_deff.asset.c_str())) {
+				build_scenes.push_back((*it).asset);
+				main_scene.push_back(build_scenes.size() == 1);
+				pickScene = false;
+				break;
+			}
+		}
+		ImGui::End();
+	}
+	ImGui::EndChild();
+
+	ImGui::NewLine();
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
+	ImGui::Button("Create Build");
+
 	ImGui::End();
 }
 
