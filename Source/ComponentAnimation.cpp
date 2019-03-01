@@ -71,6 +71,8 @@ bool ComponentAnimation::Update(float dt)
 	if (App->time->getGameState() != GameState::PLAYING)
 		return true;
 
+	ProcessComponentAnimations(dt);
+
 	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(animation_resource_uuid);
 	if (anim != nullptr)
 	{
@@ -197,4 +199,25 @@ void ComponentAnimation::Save(JSON_Object * config)
 	}
 	json_object_set_value(config, "comp_arr", comp_arr_val);
 
+}
+
+void ComponentAnimation::ProcessComponentAnimations(float dt)
+{
+	std::list<Component*> components;
+	parent->getComponents(components);
+	for (auto it = ComponentAnimations.begin(); it != ComponentAnimations.end(); ++it)
+	{
+		for (auto it_components = components.begin(); it_components != components.end(); ++it_components)
+		{
+			if (it_components._Ptr->_Myval->getUUID() == it->first)
+			{
+				// Get the keyframe of animation currently and if so then
+				double expected_keyframe = 0;
+				auto find_key = it->second.find(expected_keyframe);
+				if (find_key != it->second.end())
+					it_components._Ptr->_Myval->ProcessAnimationEvents(find_key->second);
+				break;
+			}
+		}
+	}
 }

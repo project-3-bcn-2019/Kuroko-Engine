@@ -9,6 +9,8 @@
 #include "Random.h"
 #include <vector>
 #include <string>
+#include <map>
+
 class GameObject;
 
 enum Component_type { NONE, MESH, TRANSFORM, C_AABB, CAMERA, SCRIPT, BONE, ANIMATION, CANVAS, RECTTRANSFORM, UI_IMAGE, UI_CHECKBOX, UI_BUTTON, UI_TEXT, AUDIOLISTENER, AUDIOSOURCE
@@ -50,8 +52,8 @@ public:
 	// Helper Functions
 	std::string TypeToString();
 	virtual std::string EvTypetoString(int evt) { return "Change Active"; };
-	int getEvAmount() {	return ev_amount; };
+	virtual int getEvAmount() {	return ev_amount; };
 
-	virtual void ProcessAnimationEvents(int evt) { if (evt == -1) is_active = false; };
+	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) {};
 };
 #endif

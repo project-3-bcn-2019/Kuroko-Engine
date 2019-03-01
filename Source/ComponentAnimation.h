@@ -28,6 +28,8 @@ public:
 
 	bool Update(float dt);
 
+	void ProcessComponentAnimations(float dt);
+
 	uint getAnimationResource() const { return animation_resource_uuid; }
 	void setAnimationResource(uint uuid);
 
