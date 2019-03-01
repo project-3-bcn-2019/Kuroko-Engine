@@ -5,6 +5,7 @@
 #include "ModuleScene.h"
 #include "Application.h"
 #include "ComponentAABB.h"
+#include "ComponentBone.h"
 #include "Material.h"
 #include "ModuleImporter.h"
 #include "FileSystem.h"
@@ -15,6 +16,7 @@
 #include "ModuleResourcesManager.h"
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
+#include "ResourceBone.h"
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
 	std::string path;
@@ -22,12 +24,9 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	// Load mesh from own file format
 	
 	//std::string mesh_name = json_object_get_string(deff, "mesh_name"); // Mesh name not used for now
-
-	uuid = json_object_get_number(deff, "UUID");
 	primitive_type = primitiveString2PrimitiveType(json_object_get_string(deff, "primitive_type"));
 
-
-															 
+													 
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
@@ -39,6 +38,15 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 		App->resources->assignResource(mesh_resource_uuid);
 	}
 
+	JSON_Array* bones = json_object_get_array(deff, "bones");
+	if (bones != nullptr) //There are stored bones
+	{
+		for (int i = 0; i < json_array_get_count(bones); ++i)
+		{
+			JSON_Object* bone = json_array_get_object(bones, i);
+			bones_names.push_back(json_object_get_string(bone, "bone_name"));
+		}
+	}
 
 	mat = new Material();
 	// ASSIGNING RESOURCE
@@ -94,12 +102,13 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+			//Skining();
 			mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
-			//ComponentAnimation* animation = nullptr;
-			//animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			//mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
-			//
+			/*ComponentAnimation* animation = nullptr;
+			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);*/
+
 
 			if (transform)
 				glLoadMatrixf((GLfloat*)view_mat.v);
@@ -134,11 +143,11 @@ void ComponentMesh::DrawSelected() const
 			Mesh* mesh_from_resource = getMeshFromResource();
 
 
-			mesh_from_resource->Draw(nullptr, true);
+			mesh_from_resource->Draw(mat, true);
 			//Descoment to use shader render
-			//ComponentAnimation* animation = nullptr;
-			//animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			//mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);
+			/*ComponentAnimation* animation = nullptr;
+			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
+			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);*/
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -146,6 +155,16 @@ void ComponentMesh::DrawSelected() const
 				glLoadMatrixf((GLfloat*)view_mat.v);
 		}
 	}
+}
+
+bool ComponentMesh::Update(float dt)
+{
+	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
+	{
+		setMeshResourceId(mesh_resource_uuid);
+	}
+
+	return true;
 }
 
 Mesh* ComponentMesh::getMesh() const {
@@ -168,6 +187,19 @@ void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 	mesh_resource_uuid = _mesh_resource_uuid;
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->Reload();
 
+	components_bones.clear();
+	for (int i = 0; i < bones_names.size(); ++i)
+	{
+		GameObject* GO = parent->getParent()->getChild(bones_names[i].c_str());
+		if (GO != nullptr)
+		{
+			Component* bone = GO->getComponent(BONE);
+			if (bone != nullptr)
+			{
+				components_bones.push_back(bone->getUUID());
+			}
+		}
+	}
 }
 PrimitiveTypes ComponentMesh::primitiveString2PrimitiveType(std::string primitive_type_string) {
 
@@ -205,8 +237,55 @@ std::string ComponentMesh::PrimitiveType2primitiveString(PrimitiveTypes type) {
 	return ret;
 }
 
+void ComponentMesh::Skining() const
+{
+	ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
+	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION) != nullptr)
+	{		
+		float3* vertices = new float3[mesh->mesh->getNumVertices()];
+		memset(vertices, 0, sizeof(float)*mesh->mesh->getNumVertices() * 3);
+
+		bool hasBones = false;
+		for (int i = 0; i < components_bones.size(); i++)
+		{
+			GameObject* pare = parent->getParent();
+			ComponentBone* bone = (ComponentBone*)pare->getChildComponent(components_bones[i]);
+			if (bone != nullptr)
+			{
+				ResourceBone* rBone = (ResourceBone*)App->resources->getResource(bone->getBoneResource());
+				if (rBone != nullptr)
+				{
+					hasBones = true;
+					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
+
+					for (int j = 0; j < rBone->numWeights; j++)
+					{
+						uint VertexIndex = rBone->weights[j].VertexID;
+
+
+						if (VertexIndex >= mesh->mesh->getNumVertices())
+							continue;
+						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+
+						/*vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
+						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;
+						vertices[VertexIndex].z += movementWeight.z*rBone->weights[j].weight;*/
+						vertices[VertexIndex] += movementWeight * rBone->weights[j].weight;
+					}
+				}
+			}
+		}
+
+		if (hasBones)
+			mesh->mesh->setMorphedVertices(vertices);
+		else
+			mesh->mesh->setMorphedVertices(nullptr);
+
+		mesh->mesh->updateVRAM();
+	}
+}
+
 void ComponentMesh::Save(JSON_Object* config) {
-	json_object_set_number(config, "UUID", uuid);
 	// Determine the type of the mesh
  	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "mesh");
@@ -230,6 +309,17 @@ void ComponentMesh::Save(JSON_Object* config) {
 			json_object_dotset_string(config, "material.diffuse",res_diff->asset.c_str());
 		else
 			json_object_dotset_string(config, "material.diffuse", "missing_reference");
+	}
+	if (components_bones.size() > 0) //If it has any bone
+	{
+		JSON_Value* bones = json_value_init_array();
+		for (int i = 0; i < components_bones.size(); ++i)
+		{
+			JSON_Value* bone = json_value_init_object();
+			json_object_set_string(json_object(bone), "bone_name", bones_names[i].c_str());
+			json_array_append_value(json_array(bones), bone);
+		}
+		json_object_set_value(config, "bones", bones);
 	}
 }
 

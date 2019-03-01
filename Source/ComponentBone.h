@@ -15,6 +15,7 @@ public:
 	~ComponentBone();
 
 	void Save(JSON_Object* config);
+	uint getBoneResource() { return bone_resource_uuid; }
 
 	bool Update(float dt);
 

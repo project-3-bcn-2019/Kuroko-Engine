@@ -12,6 +12,7 @@ ResourceBone::~ResourceBone()
 
 void ResourceBone::LoadToMemory()
 {
+	LoadBone();
 }
 
 bool ResourceBone::LoadBone()

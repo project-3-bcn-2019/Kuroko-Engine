@@ -2,7 +2,6 @@
 #define _MODULE_AUDIO_H_
 
 #include "Module.h"
-//#include "Include_Wwise.h"
 #include "Wwise.h"
 
 
@@ -10,7 +9,6 @@
 #define AUDIO_EXTENSION ".bnk"
 #define DEFAULT_VOLUME 75
 
-//class SoundBank;
 
 class ModuleAudio : public Module {
 
@@ -33,10 +31,14 @@ public:
 	void SetVolume(float value = DEFAULT_VOLUME, AkGameObjectID id = AK_INVALID_GAME_OBJECT);
 	void SetPitch(float value = DEFAULT_VOLUME, AkGameObjectID id = AK_INVALID_GAME_OBJECT);
 
+	void GetBanksAndEvents();
+
 public:
 	int volume = DEFAULT_VOLUME;
 	bool muted = false;
-	
+
+	std::vector<std::string> soundBanks;
+	std::vector<std::string> events;
 };
 
 

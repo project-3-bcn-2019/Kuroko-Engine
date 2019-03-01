@@ -173,9 +173,9 @@ int FileSystem::getFileLastTimeMod(const char * file_name, lib_dir lib, const ch
 	if (stat(path.c_str(), &result) == 0) {
 		ret = result.st_mtime;
 	}
-	else
-		app_log->AddLog("There has been an error getting last modification of %s", path.c_str());
-
+	//else
+	//	app_log->AddLog("There has been an error getting last modification of %s", path.c_str());
+	//TODO delete the audio missing files
 	return ret;
 }
 
@@ -253,6 +253,11 @@ bool FileSystem::removePath(std::string& str) {
 	}
 	str = str.erase(0, last_slash_idx + 1);
 	return true;
+}
+
+void FileSystem::makeBuild(const char * buildPath)
+{
+	
 }
 
 void FileSystem::getFileNameFromPath(std::string & str) {

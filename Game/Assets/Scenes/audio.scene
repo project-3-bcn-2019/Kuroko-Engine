@@ -1,0 +1,118 @@
+{
+    "Game Objects": [
+        {
+            "name": "Audio Source",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1898564484,
+            "Components": [
+                {
+                    "UUID": 641683970,
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "UUID": 691087829,
+                    "type": "AABB"
+                },
+                {
+                    "UUID": 3468843145,
+                    "type": "audioSource",
+                    "active": true,
+                    "soundID": 645565787,
+                    "soundName": "Punch",
+                    "volume": 100,
+                    "pitch": 0
+                },
+                {
+                    "UUID": 2114517465,
+                    "type": "audioSource",
+                    "active": true,
+                    "soundID": 2385628198,
+                    "soundName": "Footsteps",
+                    "volume": 100,
+                    "pitch": 0
+                },
+                {
+                    "UUID": 783856897,
+                    "type": "audioSource",
+                    "active": true,
+                    "soundID": 0,
+                    "soundName": "Sound",
+                    "volume": 100,
+                    "pitch": 0
+                }
+            ]
+        },
+        {
+            "name": "Default Audio Listener",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3335042289,
+            "Components": [
+                {
+                    "UUID": 1272682791,
+                    "type": "transform",
+                    "local": {
+                        "px": 1,
+                        "py": 50,
+                        "pz": -100,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 1,
+                        "py": 50,
+                        "pz": -100,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "UUID": 760445780,
+                    "type": "AABB"
+                },
+                {
+                    "UUID": 2396684144,
+                    "type": "audioListener",
+                    "active": true,
+                    "muted": false,
+                    "volume": 75
+                }
+            ]
+        }
+    ]
+}

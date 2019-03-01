@@ -83,7 +83,8 @@ bool ComponentAnimation::Update(float dt)
 		}
 
 		//if (!TestPause)
-		animTime += dt * speed;
+		if (!paused)
+			animTime += dt * speed;
 
 		if (animTime > anim->getDuration() && loop)
 		{
@@ -101,7 +102,7 @@ bool ComponentAnimation::Update(float dt)
 				ComponentTransform* transform = (ComponentTransform*)GO->getComponent(TRANSFORM);
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
-					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, true);
+					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, false);
 					float4x4 local = anim->boneTransformations[i].lastTransform;
 					float3 pos, scale;
 					Quat rot;
@@ -117,7 +118,9 @@ bool ComponentAnimation::Update(float dt)
 
 void ComponentAnimation::setAnimationResource(uint uuid)
 {
+	App->resources->deasignResource(animation_resource_uuid);
 	animation_resource_uuid = uuid;
+	App->resources->assignResource(animation_resource_uuid);
 	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(uuid);
 	if (anim != nullptr)
 	{

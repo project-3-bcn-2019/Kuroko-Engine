@@ -11,10 +11,13 @@ class ComponentCamera : public Component
 {
 public:
 	ComponentCamera(GameObject* parent, Camera* camera);
+	ComponentCamera(JSON_Object* deff, GameObject* parent);
 	~ComponentCamera();
 
 	bool Update(float dt);
 	Camera* getCamera() const { return camera; };
+
+	void Save(JSON_Object* config);
 
 public:
 

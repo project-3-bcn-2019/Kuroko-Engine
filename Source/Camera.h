@@ -6,6 +6,7 @@
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Geometry\OBB.h"
 
+#include "Parson\parson.h"
 #include "Globals.h"
 
 class ComponentCamera;
@@ -64,6 +65,8 @@ public:
 
 	void updateFrustum();
 	void initFrameBuffer();
+
+	void Save(JSON_Object* deff);
 
 public:
 

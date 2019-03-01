@@ -14,6 +14,24 @@ ComponentCamera::ComponentCamera(GameObject* parent, Camera* camera) : Component
 	camera->attached_to = this;
 }
 
+ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Component(parent, CAMERA){
+
+	// Load camera
+	float3 pos(json_object_dotget_number(deff, "camera.pos_x"), json_object_dotget_number(deff, "camera.pos_y"), json_object_dotget_number(deff, "camera.pos_z"));
+	float3 reference(json_object_dotget_number(deff, "camera.ref_x"), json_object_dotget_number(deff, "camera.ref_y"), json_object_dotget_number(deff, "camera.ref_z"));
+	math::FrustumType type = (math::FrustumType)(uint)json_object_dotget_number(deff, "camera.frustum_type");
+	camera = new Camera(pos, reference, type);
+
+	// Load bools
+	camera->active = json_object_dotget_boolean(deff, "camera.active");
+	camera->draw_depth = json_object_dotget_boolean(deff, "camera.draw_depth");
+	camera->draw_frustum = json_object_dotget_boolean(deff, "camera.draw_frustum");
+	camera->draw_in_UI = json_object_dotget_boolean(deff, "camera.draw_in_UI");
+
+	transform = (ComponentTransform*)parent->getComponent(TRANSFORM);
+	camera->attached_to = this;
+}
+
 ComponentCamera::~ComponentCamera()
 {
 	if (camera != App->camera->editor_camera && !camera->IsViewport())
@@ -43,4 +61,13 @@ bool ComponentCamera::Update(float dt)
 	getCamera()->active = getCamera()->draw_in_UI;
 
 	return true;
+}
+
+void ComponentCamera::Save(JSON_Object* config) {
+
+	json_object_set_string(config, "type", "camera");
+
+	JSON_Value* camera_value = json_value_init_object();
+	camera->Save(json_object(camera_value));
+	json_object_set_value(config, "camera", camera_value);
 }

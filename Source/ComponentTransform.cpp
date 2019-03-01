@@ -40,10 +40,8 @@ ComponentTransform::ComponentTransform(GameObject* parent, const ComponentTransf
 }
 
 ComponentTransform::ComponentTransform(JSON_Object* deff, GameObject* parent): Component(parent, TRANSFORM){
-	uuid = json_object_get_number(deff, "UUID");
 	local = new Transform(json_object_get_object(deff, "local"));
 	global = new Transform(json_object_get_object(deff, "global"));
-	
 }
 
 ComponentTransform::ComponentTransform(GameObject* parent) : Component(parent, TRANSFORM)
@@ -118,8 +116,6 @@ void ComponentTransform::Draw() const
 }
 
 void ComponentTransform::Save(JSON_Object* config) {
-	json_object_set_number(config, "UUID", uuid);
-
 	// Component has an object called transform, which has the two transforms as attributes
 	JSON_Value* local_trans = json_value_init_object();
 	JSON_Value* global_trans = json_value_init_object();

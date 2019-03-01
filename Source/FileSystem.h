@@ -80,7 +80,7 @@ public:
 	bool removePath(std::string& str);
 
 
-
+	void makeBuild(const char* buildPath);
 
 
 };

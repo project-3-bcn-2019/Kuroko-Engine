@@ -239,7 +239,7 @@ void ModuleInput::handleAxes(SDL_Event event) {
 	uint device_index = event.caxis.which;
 	for (std::list<Controller*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
 		if ((*it)->getControllerID() == device_index) {
-			float axis_value = event.caxis.value / 16000; //32767 is the max value for an SDL axis
+			float axis_value = event.caxis.value; //32767 is the max value for an SDL axis
 			float prior_value = (*it)->axes[event.caxis.axis];
 			(*it)->axes[event.caxis.axis] = axis_value;
 			switch (event.caxis.axis) {
@@ -276,13 +276,43 @@ void ModuleInput::handleAxes(SDL_Event event) {
 	}
 }
 
-Controller* ModuleInput::getController(uint id) {
+bool ModuleInput::getControllerButton(int id, CONTROLLER_BUTTON button, KEY_STATE state) {
 	for (auto it = controllers.begin(); it != controllers.end(); it++) {
 		if ((*it)->getControllerID() == id)
-			return (*it);
+			return (*it)->isPressed(button, state);
 	}
 
-	return nullptr;
-
+	app_log->AddLog("Asking for non-plugged controller %i", id);
+	return false;
 }
 
+bool ModuleInput::getFirstControllerButton(CONTROLLER_BUTTON button, KEY_STATE state) {
+
+	bool ret = false;
+	for (auto it = controllers.begin(); it != controllers.end(); it++) {
+			ret = (*it)->isPressed(button, state);
+			if (ret)
+				break;
+	}
+	return ret;
+}
+float ModuleInput::getControllerAxis(int id, SDL_GameControllerAxis axis) {
+	for (auto it = controllers.begin(); it != controllers.end(); it++) {
+		if ((*it)->getControllerID() == id)
+			return (*it)->axes[axis];
+	}
+
+	app_log->AddLog("Asking for non-plugged controller %i", id);
+	return false;
+}
+
+float ModuleInput::getFirstControllerAxis(SDL_GameControllerAxis axis) {
+
+	float ret = 0;
+	for (auto it = controllers.begin(); it != controllers.end(); it++) {
+		ret = (*it)->axes[axis];
+		if (ret != 0)
+			break;
+	}
+	return ret;
+}

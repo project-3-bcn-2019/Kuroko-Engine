@@ -4,7 +4,7 @@
 #include <shobjidl.h> 
 #include <string>
 
-std::string openFileWID()
+std::string openFileWID(bool pickFolders = false)
 {
 	std::string ret;
     HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -19,6 +19,9 @@ std::string openFileWID()
 
         if (SUCCEEDED(hr))
         {
+			if (pickFolders)
+				pFileOpen->SetOptions(FOS_PICKFOLDERS);
+
             // Show the Open dialog box.
             hr = pFileOpen->Show(NULL);
 

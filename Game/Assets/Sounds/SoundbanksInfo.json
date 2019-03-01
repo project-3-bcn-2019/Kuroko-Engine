@@ -1,0 +1,114 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "11",
+  "SoundbankVersion": "125",
+  "RootPaths": {
+   "ProjectRoot": "F:\\Baixades\\Wwise_Project\\Project3\\",
+   "SourceFilesRoot": "F:\\Baixades\\Wwise_Project\\Project3\\.cache\\Windows\\",
+   "SoundBanksRoot": "F:\\Baixades\\Wwise_Project\\Project3\\GeneratedSoundBanks\\Windows\\",
+   "ExternalSourcesInputFile": "",
+   "ExternalSourcesOutputRoot": "F:\\Baixades\\Wwise_Project\\Project3\\GeneratedSoundBanks\\Windows\\"
+  },
+  "DialogueEvents": [],
+  "StreamedFiles": [],
+  "MediaFilesNotInAnyBank": [],
+  "SoundBanks": [
+   {
+    "Id": "436743010",
+    "Language": "SFX",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Character",
+    "ShortName": "Character",
+    "Path": "Character.bnk",
+    "IncludedEvents": [
+     {
+      "Id": "2385628198",
+      "Name": "Footsteps",
+      "ObjectPath": "\\Events\\Default Work Unit\\Footsteps"
+     },
+     {
+      "Id": "645565787",
+      "Name": "Punch",
+      "ObjectPath": "\\Events\\Default Work Unit\\Punch"
+     }
+    ],
+    "IncludedMemoryFiles": [
+     {
+      "Id": "154814369",
+      "Language": "SFX",
+      "ShortName": "Footsteps-03.wav",
+      "Path": "SFX\\Footsteps-03_1C9C67B2.wem"
+     },
+     {
+      "Id": "248678784",
+      "Language": "SFX",
+      "ShortName": "Footsteps-06.wav",
+      "Path": "SFX\\Footsteps-06_1C9C67B2.wem"
+     },
+     {
+      "Id": "355593492",
+      "Language": "SFX",
+      "ShortName": "SFX\\Punch2.wav",
+      "Path": "SFX\\SFX\\Punch2_1C9C67B2.wem"
+     },
+     {
+      "Id": "490378955",
+      "Language": "SFX",
+      "ShortName": "Footsteps-01.wav",
+      "Path": "SFX\\Footsteps-01_1C9C67B2.wem"
+     },
+     {
+      "Id": "585665266",
+      "Language": "SFX",
+      "ShortName": "Footsteps-07.wav",
+      "Path": "SFX\\Footsteps-07_1C9C67B2.wem"
+     },
+     {
+      "Id": "608945972",
+      "Language": "SFX",
+      "ShortName": "Footsteps-09.wav",
+      "Path": "SFX\\Footsteps-09_1C9C67B2.wem"
+     },
+     {
+      "Id": "653108866",
+      "Language": "SFX",
+      "ShortName": "Footsteps-05.wav",
+      "Path": "SFX\\Footsteps-05_1C9C67B2.wem"
+     },
+     {
+      "Id": "675138151",
+      "Language": "SFX",
+      "ShortName": "SFX\\Punch1.wav",
+      "Path": "SFX\\SFX\\Punch1_1C9C67B2.wem"
+     },
+     {
+      "Id": "697569287",
+      "Language": "SFX",
+      "ShortName": "Footsteps-04.wav",
+      "Path": "SFX\\Footsteps-04_1C9C67B2.wem"
+     },
+     {
+      "Id": "1032959351",
+      "Language": "SFX",
+      "ShortName": "Footsteps-08.wav",
+      "Path": "SFX\\Footsteps-08_1C9C67B2.wem"
+     },
+     {
+      "Id": "1034589832",
+      "Language": "SFX",
+      "ShortName": "Footsteps-02.wav",
+      "Path": "SFX\\Footsteps-02_1C9C67B2.wem"
+     }
+    ]
+   },
+   {
+    "Id": "1355168291",
+    "Language": "SFX",
+    "ObjectPath": "Init",
+    "ShortName": "Init",
+    "Path": "Init.bnk"
+   }
+  ]
+ }
+}

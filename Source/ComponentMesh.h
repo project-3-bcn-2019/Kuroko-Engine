@@ -23,6 +23,7 @@ public:
 	void setWireframe(bool state)		{ wireframe = state; };
 	void setDrawNormals(bool state)		{ draw_normals = state; };
 
+	bool Update(float dt);
 
 	Mesh* getMesh()	const;
 	uint getMeshResource() { return mesh_resource_uuid; }
@@ -31,7 +32,14 @@ public:
 	PrimitiveTypes primitiveString2PrimitiveType(std::string primitive_type_string);
 	std::string PrimitiveType2primitiveString(PrimitiveTypes type);
 
+	void Skining() const;
+
 	void Save(JSON_Object* config);
+
+public:
+
+	std::vector<std::string> bones_names;
+	std::vector<uint> components_bones;
 
 private:
 

@@ -21,7 +21,6 @@ ComponentAudioListener::ComponentAudioListener(JSON_Object* deff, GameObject* pa
 	float3 pos = ((ComponentTransform*)parent->getComponent(Component_type::TRANSFORM))->local->getPosition();
 	sound_go = Wwise::CreateSoundObj(random32bits(), parent->getName().c_str(), pos.x, pos.y, pos.z, true);
 
-	uuid = json_object_get_number(deff, "UUID");
 	is_active = json_object_get_boolean(deff, "active");
 	App->audio->muted = json_object_get_boolean(deff, "muted");
 	App->audio->volume = json_object_get_number(deff, "volume");
@@ -70,7 +69,6 @@ void ComponentAudioListener::CleanUp()
 
 void ComponentAudioListener::Save(JSON_Object* config)
 {
-	json_object_set_number(config, "UUID", uuid);
 	json_object_set_string(config, "type", "audioListener");
 	json_object_set_boolean(config, "active", is_active);
 	json_object_set_boolean(config, "muted", App->audio->muted);

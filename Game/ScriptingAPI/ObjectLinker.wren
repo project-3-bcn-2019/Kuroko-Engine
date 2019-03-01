@@ -1,3 +1,5 @@
+import "Audio" for ComponentAudioSource
+import "Animation" for ComponentAnimation
 
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
@@ -14,6 +16,10 @@ class ObjectComunicator{
 
 	foreign static C_Kill(gameObject)
 	foreign static C_MoveForward(gameObject, speed)
+
+	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+
 }
 
 class Math{
@@ -26,6 +32,23 @@ class Math{
 		}
 		return ret
 	}
+
+	static lerp(a, b, f){
+		return a + (f * (b - a))
+	}
+
+	static clamp(value, min, max){
+		if (value < min){
+			value = min
+		}
+		if (value > max){
+			value = max
+		}
+
+		return value
+	}
+
+
 }
 
 class Time{
@@ -60,6 +83,15 @@ class Vec3{
 
 	magnitude {Math.C_sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))}
 	
+	normalized { Vec3.new(x/magnitude, y/magnitude, z/magnitude)}
+
+	normalize(){
+		var static_magnitude = magnitude
+		x = x/static_magnitude
+		y = y/static_magnitude
+		z = z/static_magnitude
+	}
+
 	static add(vec1, vec2){
 		return ret = Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
 	}
@@ -73,14 +105,31 @@ class Vec3{
 }
 
 class EngineComunicator{
+	// Foreigners User usable
 	foreign static consoleOutput(message)
-	foreign static Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
+	foreign static C_Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
 	foreign static getTime()
 	foreign static BreakPoint(message, variable, variable_name)
-	foreign static FindGameObjectsByTag(tag)
 
+	// Foreigners Intermediate
+	foreign static C_FindGameObjectsByTag(tag)
+
+
+	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
 		EngineComunicator.Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+	}
+
+	static FindGameObjectsByTag(tag){
+		var uuids = EngineComunicator.C_FindGameObjectsByTag(tag)
+		var gameObjects = []
+		for(i in 0...uuids.count){
+			var add_obj = ObjectLinker.new()
+			add_obj.gameObject = uuids[i]
+			gameObjects.insert(i, add_obj)
+		}
+
+		return gameObjects
 	}
 }
 
@@ -102,6 +151,10 @@ class InputComunicator{
 	static L_AXIS_LEFT {15}
 	static L_AXIS_RIGHT {16}
 
+	static L_AXIS_X {0}
+	
+	static L_AXIS_Y {1}
+
 	static C_A {0}
 	static C_B {1}
 	static C_X {2}
@@ -111,10 +164,12 @@ class InputComunicator{
 
 	static KEY_DOWN {1}
 	static KEY_REPEAT {2}
+	static KEY_UP {3}
 
 	foreign static getKey(key, mode)
 
 	foreign static getButton(controller_id, button, mode)
+	foreign static getAxis(controller_id, axis)
 
 	foreign static getMouseRaycastX()
 	foreign static getMouseRaycastY()
@@ -123,11 +178,23 @@ class InputComunicator{
 	static getMouseRaycast(){
 		return Vec3.new(InputComunicator.getMouseRaycastX(), InputComunicator.getMouseRaycastY(), InputComunicator.getMouseRaycastZ())
 	}
+	
+	static getAxisNormalized(controller_id, axis){
+		return getAxis(controller_id, axis)/32767
+	}
+}
+
+
+class ComponentType{
+	static AUDIO_SOURCE {15}
+	static ANIMATION {7}
 }
 
 class ObjectLinker{
 	gameObject { _gameObject}		// UUID of the linked GO
 	gameObject=(v){ _gameObject = v}
+
+	construct new(){}
 
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
@@ -178,5 +245,30 @@ class ObjectLinker{
 
 	moveForward(speed){
 		ObjectComunicator.C_MoveForward(gameObject, speed)
+	}
+
+	getCollisions(){
+		var uuids = ObjectComunicator.C_GetCollisions(gameObject)
+		var gameObjects = []
+		for(i in 0...uuids.count){
+			var add_obj = ObjectLinker.new()
+			add_obj.gameObject = uuids[i]
+			gameObjects.insert(i, add_obj)
+		}
+
+		return gameObjects
+	}
+
+	// Returns a class depending on the component
+	getComponent(type){
+		var component_uuid = ObjectComunicator.C_GetComponentUUID(gameObject, type)
+
+		if(type == ComponentType.AUDIO_SOURCE){
+			return ComponentAudioSource.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.ANIMATION){
+			return ComponentAnimation.new(gameObject, component_uuid)
+		}
+
 	}
 }

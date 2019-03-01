@@ -24,6 +24,9 @@
 #include "ComponentAudioSource.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleTimeManager.h"
+
+#include "ModulePhysics3D.h"
 
 #include "ModuleImporter.h" // TODO: remove this include and set skybox creation in another module (Importer?, delayed until user input?)
 #include "MathGeoLib\Geometry\LineSegment.h"
@@ -79,8 +82,8 @@ bool ModuleScene::CleanUp()
 	if (local_scene_save) {
 		json_value_free(local_scene_save);
 	}
-
-	selected_obj = nullptr;
+	
+	selected_obj.clear();
 	return true;
 }
 
@@ -106,7 +109,8 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (current == selected_obj) selected_obj = nullptr;
+		if (current == *selected_obj.begin()) 
+			selected_obj.clear();
 		game_objects.remove(current);
 
 		// Remove child from parent
@@ -131,16 +135,41 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
+
+	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
+	{
+		GameObject* obj = new GameObject("TEST");
+
+		obj->own_half_size = float3(0.5, 0.5, 0.5);
+
+		OBB* obb = ((ComponentAABB*)obj->getComponent(C_AABB))->getOBB();
+
+		obb->SetFrom(AABB(float3(-0.5, -0.5, -0.5), float3(0.5, 0.5, 0.5)));
+
+		obj->addComponent(COLLIDER_CUBE);
+
+	}
+
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
 		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
 		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
 
-		selected_obj = MousePicking();
+		
+		GameObject* picked = MousePicking();
+		if (picked != nullptr) {
+			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
+				App->scene->selected_obj.clear();
+			}
+			selected_obj.push_back(picked);
+		}
+		else {
+			App->scene->selected_obj.clear();
+		}
 	}
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
-		(*it)->Update(dt);
+		(*it)->Update(App->time->getGameDeltaTime()/1000);
 
 	if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
 	{
@@ -160,6 +189,13 @@ update_status ModuleScene::Update(float dt)
 		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
 		component->SetSoundName("Footsteps");
 	}
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		App->importer->AssetsToLibraryJSON();
+	}
+
+	//App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;
 }
@@ -386,7 +422,7 @@ void ModuleScene::ClearScene()
 
 	game_objects.clear();
 
-	selected_obj = nullptr;
+	selected_obj.clear();
 }
 
 void ModuleScene::getRootObjs(std::list<GameObject*>& list_to_fill)
@@ -526,7 +562,7 @@ void ModuleScene::SaveScene(std::string name) {
 
 	std::string path;
 	App->fs.FormFullPath(path, name.c_str(), ASSETS_SCENES, SCENE_EXTENSION);
-	json_serialize_to_file(scene, path.c_str());
+	json_serialize_to_file_pretty(scene, path.c_str());
 
 	// Free everything
 	json_value_free(scene);
@@ -544,7 +580,7 @@ void ModuleScene::SavePrefab(GameObject* root, const char* name)
 
 	std::string path;
 	App->fs.FormFullPath(path, name, ASSETS_PREFABS, PREFAB_EXTENSION);
-	json_serialize_to_file(prefab, path.c_str());
+	json_serialize_to_file_pretty(prefab, path.c_str());
 
 	// Free everything
 	json_value_free(prefab);

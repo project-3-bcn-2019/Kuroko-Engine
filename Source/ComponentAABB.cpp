@@ -1,14 +1,15 @@
 #include "ComponentAABB.h"
 #include "ComponentMesh.h"
+#include "ComponentTransform.h"
+#include "ComponentBillboard.h"
 #include "GameObject.h"
 #include "Application.h"
 #include "ModuleRenderer3D.h"
-#include "Transform.h"
 #include "ModuleCamera3D.h"
+#include "Transform.h"
 #include "Camera.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "ComponentTransform.h"
 
 
 ComponentAABB::ComponentAABB(GameObject* parent) : Component(parent, C_AABB)
@@ -35,7 +36,11 @@ void ComponentAABB::Reload()
 
 	for (auto it = meshes.begin(); it != meshes.end(); it++)
 	{
-		Mesh* mesh = ((ComponentMesh*)(*it))->getMesh();
+		Mesh* mesh = nullptr;
+
+		if ((*it)->getType() == MESH)	mesh = ((ComponentMesh*)(*it))->getMesh();
+		else							mesh = ((ComponentBillboard*)(*it))->getMesh();
+
 		if (!mesh)
 			continue;
 
@@ -64,35 +69,45 @@ bool ComponentAABB::Update(float dt)
 {
 	if (isActive())
 	{
-		obb->pos = transform->global->getPosition();
-		obb->r = { getParent()->own_half_size.x * transform->global->getScale().x, getParent()->own_half_size.y * transform->global->getScale().y, getParent()->own_half_size.z * transform->global->getScale().z };
-
-		obb->axis[0] = transform->global->Right();
-		obb->axis[1] = transform->global->Up();
-		obb->axis[2] = transform->global->Forward();
-		
-		std::list<GameObject*> children;
-		getParent()->getChildren(children);
-
-		for (auto it = children.begin(); it != children.end(); it++)
+		if (parent->getComponent(MESH) != nullptr)
 		{
-			ComponentAABB* aabbComp = (ComponentAABB*)(*it)->getComponent(C_AABB);
-			
-			if (aabbComp != nullptr) {
-				OBB* child_obb = aabbComp->obb;
+			obb->pos = transform->global->getPosition();
+			obb->r = { getParent()->own_half_size.x * transform->global->getScale().x, getParent()->own_half_size.y * transform->global->getScale().y, getParent()->own_half_size.z * transform->global->getScale().z };
 
+			obb->axis[0] = transform->global->Right();
+			obb->axis[1] = transform->global->Up();
+			obb->axis[2] = transform->global->Forward();
+		
+			std::list<GameObject*> children;
+			getParent()->getChildren(children);
+
+			for (auto it = children.begin(); it != children.end(); it++)
+			{
+				OBB* child_obb = ((ComponentAABB*)(*it)->getComponent(C_AABB))->obb;
 				for (int i = 0; i < 8; i++)
 				{
 					float3 test = child_obb->CornerPoint(i);
 					obb->Enclose(child_obb->CornerPoint(i));
 				}
 			}
+
+			getParent()->centroid = obb->pos;
+			getParent()->half_size = obb->r.Abs();
+
+		}
+		else
+		{
+			obb->pos = transform->global->getPosition();
+			obb->r = { getParent()->own_half_size.x* transform->global->getScale().x,  getParent()->own_half_size.y * transform->global->getScale().y,  getParent()->own_half_size.z * transform->global->getScale().z };/*forgive me pls*/
+
+			obb->axis[0] = transform->global->Right();
+			obb->axis[1] = transform->global->Up();
+			obb->axis[2] = transform->global->Forward();
+			
 		}
 
-		getParent()->centroid = obb->pos;
-		getParent()->half_size = obb->r.Abs();
-
 		*aabb = obb->MinimalEnclosingAABB();
+
 	}
 	return true;
 }
@@ -143,7 +158,6 @@ void ComponentAABB::DrawOBB() const
 
 void ComponentAABB::Save(JSON_Object* config) {
 
-	json_object_set_number(config, "UUID", uuid);
 	json_object_set_string(config, "type", "AABB");
 
 }

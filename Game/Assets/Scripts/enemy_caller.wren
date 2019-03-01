@@ -18,8 +18,10 @@ construct new(){}
  Start() {
 	
 	var game_objects = EngineComunicator.FindGameObjectsByTag("enemy")
-	
-	EngineComunicator.consoleOutput("Enemies found: %(game_objects.count)")
+
+	for(i in 0...game_objects.count){
+		EngineComunicator.consoleOutput("Enemy %(i) spotted at: %(game_objects[i].getPos("global").x), %(game_objects[i].getPos("global").y), %(game_objects[i].getPos("global").z)")
+	}
 
  }
 }

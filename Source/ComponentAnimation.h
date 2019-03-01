@@ -33,9 +33,13 @@ public:
 	uint getAnimationResource() const { return animation_resource_uuid; }
 	void setAnimationResource(uint uuid);
 
+	void Play() { paused = false; }
+	void Pause() { paused = true; }
+
 	void Save(JSON_Object* config);
 
 	bool Finished() const { return false; }
+	bool isPaused() const { return paused; }
 
 public:
 
@@ -47,6 +51,7 @@ private:
 	uint animation_resource_uuid = 0;
 
 	float animTime = 0.0f;
+	bool paused = false;
 
 	std::map<uint, uint> bones;
 

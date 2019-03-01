@@ -17,6 +17,8 @@
 #include "FontManager.h"
 #include "ModuleShaders.h"
 
+#include "ModulePhysics3D.h"
+
 #include <Windows.h>
 #include <iostream>
 #include <fstream>
@@ -62,6 +64,7 @@ Application::Application()
 	fontManager = new FontManager;
 	shaders = new ModuleShaders(this);
 	
+	physics = new ModulePhysics3D(this);
 
 
 	// The order of calls is very important!
@@ -78,7 +81,10 @@ Application::Application()
 	
 	
 	// Scenes
-	list_modules.push_back(scene);
+	list_modules.push_back(scene);	
+	
+	list_modules.push_back(physics);
+
 	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
@@ -231,7 +237,7 @@ void Application::SaveConfig_Real() {
 		json_object_set_value(json_object(config), (*it)->name.c_str(), module_config);
 	}
 	// Fill file with info
-	json_serialize_to_file(config, custom_config_file_name.c_str());
+	json_serialize_to_file_pretty(config, custom_config_file_name.c_str());
 	json_value_free(config);
 }
 

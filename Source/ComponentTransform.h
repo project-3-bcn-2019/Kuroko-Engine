@@ -36,7 +36,6 @@ public:
 
 	void Save(JSON_Object* config);
 
-private:
 
 	void LocalToGlobal();
 	void GlobalToLocal();

@@ -1,6 +1,7 @@
 #include "ResourceAnimation.h"
 #include "Application.h"
 #include "Globals.h"
+#include "ModuleTimeManager.h"
 
 ResourceAnimation::ResourceAnimation(resource_deff deff):Resource(deff)
 {
@@ -138,7 +139,7 @@ bool BoneTransform::calcCurrentIndex(float time, bool test)
 {
 	bool ret = false;
 
-	if ((/*!App->inGameMode() &&*/ !test) || currentPosIndex == -1 || currentRotIndex == -1 || currentScaleIndex == -1 ||
+	if ((App->time->getGameState() != GameState::PLAYING && !test) || currentPosIndex == -1 || currentRotIndex == -1 || currentScaleIndex == -1 ||
 		nextPosIndex == -1 || nextRotIndex == -1 || nextScaleIndex == -1)
 	{
 		currentPosIndex = currentRotIndex = currentScaleIndex = 0;

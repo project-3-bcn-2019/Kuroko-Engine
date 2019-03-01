@@ -23,6 +23,8 @@ class ModuleScripting;
 class FontManager;
 class ModuleShaders;
 
+class ModulePhysics3D;
+
 class Application
 {
 public:
@@ -40,6 +42,8 @@ public:
 	ModuleScripting* scripting;
 	FontManager* fontManager;
 	ModuleShaders* shaders;
+
+	ModulePhysics3D* physics;
 
 	FileSystem fs;
 private:

@@ -1,6 +1,0 @@
-Event	ID	Name			Wwise Object Path	Notes
-	645565787	Punch			\Default Work Unit\Punch	
-
-In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	675138151	Punch1	F:\GitHub Desktop\Kuroko-Engine\Kuroko Engine\Game\Assets\Sounds\Wwise_Project\Project3\.cache\Windows\SFX\SFX\Punch1_1C9C67B2.wem		\Actor-Mixer Hierarchy\Default Work Unit\SFX\Punch1		35112
-

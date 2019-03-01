@@ -285,7 +285,7 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 
 	// If meta didn't exist, or existed but the asset was changed, 
 	json_object_set_number(json_object(meta), "timeCreated", file_last_mod);	// Brand new / Updated time modification
-	json_serialize_to_file(meta, full_meta_path.c_str());
+	json_serialize_to_file_pretty(meta, full_meta_path.c_str());
 	json_value_free(meta);
 
 	switch (enum_type) {
@@ -466,13 +466,24 @@ uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, co
 	}
 	return 0;
 }
-
 uint ModuleResourcesManager::getAnimationResourceUuid(const char * Parent3dObject, const char * name)
 {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
 		if ((*it).second->type == R_ANIMATION) {
 			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
 			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
+				return res_anim->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getAnimationResourceUuid(const char * name) {
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_ANIMATION) {
+			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
+			if (res_anim->asset == name) {
 				return res_anim->uuid;
 			}
 		}
@@ -551,7 +562,7 @@ void ModuleResourcesManager::ReleaseResourcesScriptHandles()
 }
 
 void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshes) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_MESH) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -561,7 +572,7 @@ void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshe
 }
 
 void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scripts) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_SCRIPT) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -572,11 +583,32 @@ void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scr
 
 void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& animations)
 {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_ANIMATION) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			animations.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it)
+	{
+		bool exist = false;
+		for (auto it_s = ignore.begin(); it_s != ignore.end(); ++it_s)
+		{
+			if ((*it).second->asset == (*it_s))
+			{
+				exist = true;
+				break;
+			}
+		}
+		if (!exist && (*it).second->type == R_SCENE) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			scenes.push_back(deff);
 		}
 	}
 }
@@ -604,7 +636,7 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 
 	std::string extension = _extension;
 
-	if (extension == ".FBX" || extension == ".fbx" || extension == ".dae" || extension == ".blend" || extension == ".3ds" || extension == ".obj"
+	if (extension == ".FBX" || extension == ".fbx" || extension == ".DAE" || extension == ".dae" || extension == ".blend" || extension == ".3ds" || extension == ".obj"
 		|| extension == ".gltf" || extension == ".glb" || extension == ".dxf" || extension == ".x")
 		ret = "3dobject";
 	else if (extension == ".bmp" || extension == ".dds" || extension == ".jpg" || extension == ".pcx" || extension == ".png"
