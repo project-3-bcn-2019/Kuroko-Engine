@@ -864,33 +864,27 @@ void ModuleImporter::ImportSounds()
 
 void ModuleImporter::AssetsToLibraryJSON()
 {
-	//App->fs.CreateEmptyFile("AssetsToLibrary", ASSETS_SCENES, SCENE_EXTENSION);
-
 	JSON_Value* json = json_value_init_object();
-	JSON_Value* objects_array = json_value_init_array();
-	json_object_set_value(json_object(json), "Assets", objects_array);
 
-	//for (auto it = game_objects.begin(); it != game_objects.end(); it++) {
-	//	JSON_Value* object = json_value_init_object();	// Object in the array
-	//	(*it)->Save(json_object(object));				// Fill content
-	//	json_array_append_value(json_array(objects_array), object); // Add object to array
-	//}
-
-	json_array_append_value(json_array(objects_array), Aaa("Assets\\Meshes\\*"));
-
-	std::string outpath;
+	json_object_set_value(json_object(json), "Meshes", GetAssetFolderUUIDs("\\Assets\\Meshes/*"));
+	json_object_set_value(json_object(json), "Prefabs", GetAssetFolderUUIDs("\\Assets\\Prefabs/*"));
+	json_object_set_value(json_object(json), "Scenes", GetAssetFolderUUIDs("\\Assets\\Scenes/*"));
+	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts/*"));
+	json_object_set_value(json_object(json), "Sounds", GetAssetFolderUUIDs("\\Assets\\Sounds/*"));
+	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures/*"));
+	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI/*"));
+	
+	std::string outpath = "Library\\assetsUUIDs.json";
 	json_serialize_to_file_pretty(json, outpath.c_str());
-
 	json_value_free(json);
 }
 
-JSON_Value* ModuleImporter::Aaa(const char* path)
+JSON_Value* ModuleImporter::GetAssetFolderUUIDs(const char* path)
 {
 	JSON_Value* object = json_value_init_object();
 
 	char folderPath[256];
 	GetCurrentDirectory(256, folderPath);
-
 	std::string fullPath = folderPath;
 	fullPath += path;
 
@@ -903,17 +897,22 @@ JSON_Value* ModuleImporter::Aaa(const char* path)
 			if (file.dwFileAttributes && FILE_ATTRIBUTE_DIRECTORY)
 			{
 				// Check type of flie
-				std::string filePath, name, extension = file.cFileName;
-				App->fs.getFileNameFromPath(name);
+				std::string fileName = file.cFileName, extension = file.cFileName, filePath = fullPath;
 				App->fs.getExtension(extension);
 				
-				if (extension == "meta")
+				if (extension == ".meta")
 				{
+					filePath.pop_back();
+					filePath += fileName;
+					App->fs.getFileNameFromPath(fileName);
+					App->fs.getFileNameFromPath(fileName);
+
 					JSON_Value* json = json_parse_file(filePath.c_str());
 					if (json)
 					{
 						JSON_Object* json_obj = json_value_get_object(json);
-						uint resourceUUID = json_object_get_number(json_obj, "rsource_uuid");
+						uint resourceUUID = json_object_get_number(json_obj, "resource_uuid");
+						json_object_set_number(json_object(object), fileName.c_str(), resourceUUID);
 					}
 					else
 						app_log->AddLog("Couldn't load %s, no value", filePath);
