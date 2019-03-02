@@ -157,10 +157,10 @@ void Mesh::LoadDataToVRAMShaders()
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(vaoId);
 	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, (sizeof(Vertex::position) + sizeof(Vertex::tex_coords) + sizeof(Vertex::color) + sizeof(Vertex::normal) + sizeof(Vertex::index)+sizeof(Vertex::weights)+ sizeof(Vertex::boneCouinter))*num_vertices, MeshGPU, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (sizeof(Vertex::position) + sizeof(Vertex::tex_coords) + sizeof(Vertex::color) + sizeof(Vertex::normal) + sizeof(Vertex::index)+sizeof(Vertex::weights)+ sizeof(Vertex::boneCouinter))*num_vertices, MeshGPU, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) *num_tris*3, tris, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) *num_tris*3, tris, GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -293,10 +293,12 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 			{
 				for (int j = 0; j < rBone->numWeights; ++j)
 				{
-					if (j >= 4)
-						break;
 
 					int Vindex = rBone->weights[j].VertexID;											//taking the index of the vertex that affect the bone.
+
+					if (MeshGPU[Vindex].boneCouinter > 3)												//if a bone is affected by more than 4 bones continue
+						continue;
+
 					MeshGPU[Vindex].index[MeshGPU[Vindex].boneCouinter]=i;								//setting the index of the bone inside the bone array.
 					MeshGPU[Vindex].weights[MeshGPU[Vindex].boneCouinter] = rBone->weights[j].weight;	//setting the weight that the bone acts to the verrtext
 
@@ -377,6 +379,8 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 
 			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones[0]");
 			glUniformMatrix4fv(boneMeshes, numBones, GL_FALSE, boneTrans);
+			GLint model_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "model_matrix");
+			glUniformMatrix4fv(model_loc, 1, GL_FALSE, global_transform);
 			GLint proj_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "projection");
 			glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
 			GLint view_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "view");
@@ -385,6 +389,8 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 			glUniform3f(lightPos, lightPosition.x, lightPosition.y, lightPosition.z);
 			GLint lightColor = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "lightColor");
 			glUniform3f(lightColor, lightColors.x, lightColors.y, lightColors.z);
+
+
 
 			/*if (diffuse_tex)
 			{

@@ -37,6 +37,7 @@ bool ModuleShaders::Init(const JSON_Object * config)
 	defShaderProgram = new ShaderProgram();
 
 	animationShader = new Shader(VERTEX);
+	animationFragmentShader = new Shader(FRAGMENT);
 	animationShaderProgram = new ShaderProgram();
 
 
@@ -76,6 +77,7 @@ bool ModuleShaders::InitializeDefaulShaders()
 
 	//Animation Shaders
 	CompileShader(animationShader);
+	CompileShader(animationFragmentShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
 	animationShaderProgram->shaders.push_back(defFragmentShader->shaderId);
 	
@@ -128,7 +130,8 @@ void ModuleShaders::CreateDefVertexShader()
 	"out vec4 ourColor;\n"
 
 	"const int MAX_BONES = 100;\n"
-
+	
+	"uniform mat4 model_matrix;\n"
 	"uniform mat4 view;\n"
 	"uniform mat4 projection;\n"
 	"uniform mat4 gBones[MAX_BONES];\n"
@@ -141,7 +144,7 @@ void ModuleShaders::CreateDefVertexShader()
 	"	BoneTransform += gBones[BoneIDs[3]] * Weights[3];\n"
 
 	"	vec4 PosL = BoneTransform * vec4(position, 1.0);\n"
-	"	gl_Position = projection * PosL;\n"
+	"	gl_Position = projection * view * model_matrix * PosL;\n"
 	"	TexCoord = texCoord;\n"
 	"	vec4 NormalL = BoneTransform * vec4(normal, 0.0);\n"
 	"	ret_normal = (view * NormalL).xyz;\n"
@@ -189,6 +192,18 @@ void ModuleShaders::CreateDefFragmentShader()
 			"vec3 result = (ambient + diffuse) * vec3(ourColor.x,ourColor.y,ourColor.z);\n"
 			"color=vec4(result, 1.0);\n"
 		"}\n"
+	"}\n";
+
+
+	animationFragmentShader->script =
+	"#version 330\n"
+
+	"in vec4 ourColor;\n"
+	"out vec4 color;\n"
+
+	"void main()\n"
+	"{\n"
+		"color = ourColor;\n"
 	"}\n";
 }
 

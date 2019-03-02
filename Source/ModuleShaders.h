@@ -53,6 +53,7 @@ private:
 	Shader* defVertexShader=nullptr;
 	Shader* defFragmentShader=nullptr;
 	Shader* animationShader = nullptr;
+	Shader* animationFragmentShader = nullptr;
 	
 	ShaderProgram* defShaderProgram=nullptr;
 	ShaderProgram* animationShaderProgram = nullptr;

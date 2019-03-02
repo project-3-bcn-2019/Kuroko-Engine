@@ -17,6 +17,7 @@
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
+#include "ModuleTimeManager.h"
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
 	std::string path;
@@ -267,30 +268,32 @@ void ComponentMesh::Skining() const
 				if (rBone != nullptr)
 				{
 					hasBones = true;
-					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
+					float4x4 boneTransform =((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 			
-					memcpy(&boneTransforms[i * 16], boneTransform.v, 16 * sizeof(float)); //copy of the final bone trasformations for the shader use
+					memcpy(&boneTransforms[i * 16], boneTransform.Transposed().v, 16 * sizeof(float)); //copy of the final bone trasformations for the shader use
 
-					for (int j = 0; j < rBone->numWeights; j++)
-					{
-						uint VertexIndex = rBone->weights[j].VertexID;
+					//for (int j = 0; j < rBone->numWeights; j++)
+					//{
+					//	uint VertexIndex = rBone->weights[j].VertexID;
 
 
-						if (VertexIndex >= mesh->mesh->getNumVertices())
-							continue;
-						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+					//	if (VertexIndex >= mesh->mesh->getNumVertices())
+					//		continue;
+					//	float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
 
-						vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
-						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;
-						vertices[VertexIndex].z += movementWeight.z*rBone->weights[j].weight;
-						//vertices[VertexIndex] += movementWeight * rBone->weights[j].weight;
-					}
+					//	vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
+					//	vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;
+					//	vertices[VertexIndex].z += movementWeight.z*rBone->weights[j].weight;
+					//	//vertices[VertexIndex] += movementWeight * rBone->weights[j].weight;
+					//}
 				}
 			}
 		}
 
 		if (hasBones)
-			mesh->mesh->setMorphedVertices(vertices);
+		{
+			mesh->mesh->setMorphedVertices(vertices);			
+		}
 		else
 			mesh->mesh->setMorphedVertices(nullptr);
 
