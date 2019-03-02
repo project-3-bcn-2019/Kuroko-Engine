@@ -3002,20 +3002,29 @@ void ModuleUI::DrawBuildMenu()
 	ImGui::EndChild();
 
 	static bool building = false;
+	static bool errorBuilding = false;
 	if (building)
 	{
-		App->exporter->CreateBuild(buildPath.c_str(), buildName);
-		open_tabs[BUILD_MENU] = building = false;
+		building = false;
+		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		if (!errorBuilding)
+			open_tabs[BUILD_MENU] = false;
 	}
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
 	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
 	{
-		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 25);
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 20);
 		ImGui::Text("Creating...");
 		building = true;
+		errorBuilding = false;
 	}
-
+	if (errorBuilding)
+	{
+		ImGui::NewLine();
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 60);
+		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
+	}
 	ImGui::End();
 }
 

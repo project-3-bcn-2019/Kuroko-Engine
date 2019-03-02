@@ -2,6 +2,7 @@
 #define _FILE_SYSTEM_
 
 #include "Resource.h"
+#include <list>
 
 
 #define OWN_MESH_EXTENSION ".kr"
@@ -81,7 +82,7 @@ public:
 
 
 	void makeBuild(const char* buildPath);
-	void CopyFolder(const char* src, const char* dst, bool recursive = false);
+	void CopyFolder(const char* src, const char* dst, bool recursive = false, std::list<const char*>* excludedFiles = nullptr);
 
 };
 
