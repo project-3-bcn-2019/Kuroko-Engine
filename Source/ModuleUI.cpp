@@ -1880,6 +1880,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 
 			ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
+			ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
 
 
 			//Area of spawn

@@ -1,5 +1,6 @@
 import "Audio" for ComponentAudioSource
 import "Animation" for ComponentAnimation
+import "Particles" for ComponentParticleEmitter
 
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
@@ -188,6 +189,7 @@ class InputComunicator{
 class ComponentType{
 	static AUDIO_SOURCE {15}
 	static ANIMATION {7}
+	static PARTICLES {18}
 }
 
 class ObjectLinker{
@@ -268,6 +270,9 @@ class ObjectLinker{
 		}
 		if(type == ComponentType.ANIMATION){
 			return ComponentAnimation.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PARTICLES){
+			return ComponentParticleEmitter.new(gameObject, component_uuid)
 		}
 
 	}

@@ -14,6 +14,7 @@
 #include "ComponentAudioSource.h"
 #include "ComponentAnimation.h"
 #include "ComponentColliderCube.h"
+#include "ComponentParticleEmitter.h"
 #include "Transform.h"
 
 
@@ -69,6 +70,9 @@ void SetAnimation(WrenVM* vm);
 void PlayAnimation(WrenVM* vm);
 void PauseAnimation(WrenVM* vm);
 
+// Particles
+void CreateParticles(WrenVM* vm);
+
 
 WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature); // Wren foraign methods
 WrenForeignClassMethods bindForeignClass(WrenVM* vm, const char* module, const char* className);
@@ -113,6 +117,7 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		object_linker_code = App->fs.GetFileString(OBJECT_LINKER_PATH);
 		audio_code = App->fs.GetFileString(AUDIO_PATH);
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
+		particles_code = App->fs.GetFileString(PARTICLES_PATH);
 		return true;
 	}
 	else
@@ -394,6 +399,13 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->animation_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "Particles") == 0) {
+		int string_size = strlen(App->scripting->particles_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->particles_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
 }
 
@@ -542,6 +554,14 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return PlayAnimation;
 			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
 				return PauseAnimation;
+		}
+	}
+
+	// Particles
+	if (strcmp(module, "Particles") == 0) {
+		if (strcmp(className, "ParticleComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_CreateParticles(_,_,_)") == 0)
+				return CreateParticles;
 		}
 	}
 
@@ -1098,4 +1118,30 @@ void PauseAnimation(WrenVM* vm) {
 
 	component->Pause();
 }
+
+// Particles
+void CreateParticles(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	uint particles = wrenGetSlotDouble(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentParticleEmitter* component = (ComponentParticleEmitter*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentParticles with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	for(int i = 0; i < particles; i++)
+		component->CreateParticle();
+}
+
 
