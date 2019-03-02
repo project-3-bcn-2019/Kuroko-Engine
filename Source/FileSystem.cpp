@@ -279,10 +279,11 @@ void FileSystem::getExtension(std::string & str) {
 	str = PathFindExtensionA(str.c_str());
 }
 
-void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive)
+void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive, std::list<const char*>* excludedFiles)
 {
 	WIN32_FIND_DATA file;
 	HANDLE search_handle = FindFirstFile(src, &file);
+	bool exclude = false;
 	if (search_handle)
 	{
 		do
@@ -292,19 +293,25 @@ void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive)
 			if (name == "" || name == "." || name == "..")
 				continue;
 
+			if (excludedFiles)
+			{
+				for (auto it = excludedFiles->begin(); it != excludedFiles->end(); ++it)
+				{
+					if ((*it) == name)
+						exclude = true;
+				}
+			}
+			if (exclude)
+			{
+				exclude = false;
+				continue;
+			}
+
 			fullPath.pop_back();
 			fullPath += file.cFileName;
 			getExtension(extension);
 
-			if (recursive && file.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
-			{
-				fullPath += "\\*";
-				std::string destiny = dst;
-				destiny += name + "\\";
-				CreateDirectory(destiny.c_str(), NULL);
-				CopyFolder(fullPath.c_str(), destiny.c_str(), recursive);// Recursive function to get all subfloders
-			}
-			else
+			if (file.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
 			{
 				std::string destiny = dst;
 				destiny += name;
@@ -312,6 +319,14 @@ void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive)
 				std::ifstream  src_path(fullPath, std::ios::binary);
 				std::ofstream  dst_path(destiny, std::ios::binary);
 				dst_path << src_path.rdbuf();
+			}
+			else if (recursive)
+			{
+				fullPath += "\\*";
+				std::string destiny = dst;
+				destiny += name + "\\";
+				CreateDirectory(destiny.c_str(), NULL);
+				CopyFolder(fullPath.c_str(), destiny.c_str(), recursive);// Recursive function to get all subfloders
 			}
 
 		} while (FindNextFile(search_handle, &file));
