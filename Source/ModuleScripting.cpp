@@ -22,6 +22,7 @@
 void SetGameObjectPos(WrenVM* vm);
 void ModGameObjectPos(WrenVM* vm);
 void lookAt(WrenVM* vm);
+void rotate(WrenVM* vm);
 
 void getGameObjectPosX(WrenVM* vm);
 void getGameObjectPosY(WrenVM* vm);
@@ -45,6 +46,7 @@ void LoadScene(WrenVM* vm);
 
 // Math
 void sqrt(WrenVM* vm);
+void angleBetween(WrenVM* vm);
 
 //Time
 void GetDeltaTime(WrenVM* vm);
@@ -455,6 +457,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_modPos(_,_,_,_)") == 0) {
 				return ModGameObjectPos; // C function for ObjectComunicator.C_modPos
 			}
+			if (strcmp(signature, "C_rotate(_,_,_,_") == 0) {
+				return rotate;//Rotates the game object x degrees in each axis
+			}
 			if (strcmp(signature, "C_lookAt(_,_,_,_)") == 0) {
 				return lookAt; // C function for ObjectComunicator.C_LookAt
 			}
@@ -492,6 +497,10 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 		if (strcmp(className, "Math") == 0) {
 			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
 				return sqrt; // C function for Math.C_sqrt(_)
+		}
+		if (strcmp(className, "Math") == 0) {
+			if (isStatic && strcmp(signature, "C_angleBetween(_,_,_,_,_,_)") == 0)
+				return angleBetween;
 		}
 		if (strcmp(className, "Time") == 0) {
 			if (isStatic && strcmp(signature, "C_GetDeltaTime()") == 0) {
@@ -548,7 +557,7 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return StopAudio;
 		}
 	}
-	// AUDIO
+	// ANIMATION
 	if (strcmp(module, "Animation") == 0) {
 		if (strcmp(className, "AnimationComunicator") == 0) {
 			if (isStatic && strcmp(signature, "C_SetAnimation(_,_,_)") == 0)
@@ -626,6 +635,24 @@ void lookAt(WrenVM* vm) {
 
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
 	c_trans->local->LookAt(float3(c_trans->global->getPosition().x, c_trans->global->getPosition().y, c_trans->global->getPosition().z), target);
+}
+
+void rotate(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	float3 rotation = { (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3), (float)wrenGetSlotDouble(vm, 4) };
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for not existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+	float3 final_rotation = c_trans->local->getRotationEuler() + rotation;
+	
+	c_trans->local->setRotationEuler(final_rotation);
 }
 
 void getGameObjectPosX(WrenVM* vm) {
@@ -888,6 +915,15 @@ void LoadScene(WrenVM* vm) {
 void sqrt(WrenVM* vm) {
 	int number = wrenGetSlotDouble(vm, 1);
 	wrenSetSlotDouble(vm, 0, sqrt(number));
+}
+
+void angleBetween(WrenVM * vm)
+{
+	float3 vector1 = { (float)wrenGetSlotDouble(vm, 1), (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3) };
+	float3 vector2 = { (float)wrenGetSlotDouble(vm, 4), (float)wrenGetSlotDouble(vm, 5), (float)wrenGetSlotDouble(vm, 6) };
+
+	float angle = vector1.AngleBetween(vector2);
+	wrenSetSlotDouble(vm, 0, angle);
 }
 
 // Time

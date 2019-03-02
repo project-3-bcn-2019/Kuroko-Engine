@@ -2,7 +2,11 @@ import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
 InputComunicator,
 Vec3,
-Time
+Time,
+ComponentType,
+Math
+
+import "Audio" for ComponentAudioSource
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -23,6 +27,10 @@ speed=(v){__speed = v}
 
 direction {__direction}
 direction=(v){__direction = v}
+
+
+old_direction {__old_direction}
+old_direction=(v){__old_direction = v}
 
 //Dash
 dash_speed {__dash_speed}
@@ -53,6 +61,13 @@ attack_current_time=(v) {__attack_current_time = v}
 
 attacking  {__attacking}
 attacking=(v) {__attacking = v}
+ 
+//audio
+audio_source {__audio_source}
+audio_source=(v) {__audio_source = v}
+
+punch_sound {__punch_sound}
+punch_sound=(v) {__punch_sound = v}
 
 setInput(){
 
@@ -77,22 +92,18 @@ var ret = true
 
   if(InputComunicator.getKey(InputComunicator.UP, InputComunicator.KEY_REPEAT)){
 	direction.z = 1
-    move = true
   }
 		
   if(InputComunicator.getKey(InputComunicator.DOWN, InputComunicator.KEY_REPEAT)){
     direction.z = -1
-    move = true
   }
 
   if(InputComunicator.getKey(InputComunicator.LEFT, InputComunicator.KEY_REPEAT)){
 	direction.x = 1
-    move = true
   }
 		
   if(InputComunicator.getKey(InputComunicator.RIGHT, InputComunicator.KEY_REPEAT)){
     direction.x = -1
-    move = true
   }
 
   if(direction.x == 0.0 && direction.z == 0.0){
@@ -104,7 +115,10 @@ return ret
 
 
  Start() {
+audio_source = getComponent(ComponentType.AUDIO_SOURCE)
+audio_source.setSound(punch_sound)
 direction = Vec3.zero()
+old_direction = Vec3.zero()
 dashing = false
 dash_current_time = 0.0
 attacking = false
@@ -112,6 +126,7 @@ attacking = false
 
  Update() {
 var move = false
+old_direction = direction
 
 //TODO: Update the player's direction with the input and then move him using the speed
 //TODO 2:If the player dashes, deactivate movement and make him dash
@@ -130,7 +145,16 @@ if(InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)
   move = false
 }
 
+
 if(InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN) && !attacking && !dashing){
+audio_source.Play()
+  attacking = true
+  attack_current_time = 0.0
+  move = false
+}
+
+if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_DOWN) && !attacking && !dashing){
+audio_source.Play()
   attacking = true
   attack_current_time = 0.0
   move = false
@@ -143,10 +167,14 @@ if(move){
   var movement = Vec3.new(direction.x*speed,0,direction.z*speed)
   modPos(movement.x,movement.y,movement.z)
 
-  var pos = getPos("global")
+  var angle = Math.C_angleBetween(old_direction.x,old_direction.y,old_direction.z,direction.x,direction.y,direction.z)
+  rotate(0,angle,0)
+
+  /*var pos = getPos("global")
   var look = Vec3.new(direction.x+pos.x,0,direction.z+pos.z)
 
-  lookAt(look.x,0,look.z)
+  lookAt(look.x,getPosY("global"),look.z)*/
+  old_direction = direction
   direction = Vec3.zero()
 }
 
@@ -169,6 +197,7 @@ if(dash_available == false){
 
 if(attacking){
 EngineComunicator.consoleOutput("Attacking")
+
  attack_current_time =  attack_current_time + Time.C_GetDeltaTime()
   if(attack_current_time >= attack_duration){
      attacking = false

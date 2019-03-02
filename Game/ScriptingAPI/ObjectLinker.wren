@@ -5,6 +5,7 @@ import "Particles" for ComponentParticleEmitter
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
+        foreign static C_rotate(gameObject, x, y, z)
 	foreign static C_lookAt(gameObject, x, y, z)
 
 	foreign static C_getPosX(gameObject, mode)
@@ -48,6 +49,8 @@ class Math{
 
 		return value
 	}
+
+      foreign static C_angleBetween(x_1,y_1,z_1,x_2,y_2,z_2)
 
 
 }
@@ -205,7 +208,9 @@ class ObjectLinker{
 	modPos(x,y,z){
 		ObjectComunicator.C_modPos(gameObject, x, y, z)
 	}
-
+        rotate(x,y,z){
+                ObjectComunicator.C_rotate(gameObject, x, y, z)
+        }
 	lookAt(x,y,z){
 		ObjectComunicator.C_lookAt(gameObject, x, y, z)
 	}
