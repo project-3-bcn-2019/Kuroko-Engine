@@ -3444,37 +3444,27 @@ void ModuleUI::DrawGuizmo()
 */
 		float3 guizmoPos = float3::zero;
 		float3 guizmoScale = float3::zero;
+		float3 guizmoRot = float3::zero;
 		
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo in average of their positions
 				ComponentTransform* transform = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
 				Transform* trans = transform->global;
 				guizmoPos += trans->getPosition();
 				guizmoScale += trans->getScale();
+				guizmoRot += trans->getRotationEuler();
 			}
 			guizmoPos /= App->scene->selected_obj.size();
 			guizmoScale /= App->scene->selected_obj.size();
+			guizmoRot /= App->scene->selected_obj.size();
 
 			Transform guizmoTrans = Transform();
-			
-			
+
+			guizmoTrans.setPosition(guizmoPos);
+			guizmoTrans.setScale(guizmoScale);
 			
 		
 		
-		switch (gizmo_operation)
-		{
-		case ImGuizmo::OPERATION::TRANSLATE:
-			guizmoTrans.setRotationEuler(float3(0, 0, 0));
-			guizmoTrans.setPosition(guizmoPos); break;
-		case ImGuizmo::OPERATION::ROTATE:
-			guizmoTrans.setPosition(guizmoPos);
-			guizmoTrans.setRotationEuler(float3(0, 0, 0)); break;
-		case ImGuizmo::OPERATION::SCALE:
-			guizmoTrans.setPosition(guizmoPos);
-			guizmoTrans.setRotationEuler(float3(0, 0, 0));
-			guizmoTrans.setScale(float3(1, 1, 1)); break;
-		default:
-			break;
-		}
+		
 		
 		guizmoTrans.CalculateMatrix();
 		float4x4 newGzmTrans = float4x4(guizmoTrans.getMatrix());
@@ -3482,6 +3472,7 @@ void ModuleUI::DrawGuizmo()
 		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)newGzmTrans.v);
 		if (ImGuizmo::IsUsing())
 		{
+			
 			float3 new_pos = float3::zero;
 			float3 new_rot = float3::zero;
 			float3 new_scale = float3::zero;
@@ -3503,14 +3494,15 @@ void ModuleUI::DrawGuizmo()
 					break;
 				case ImGuizmo::OPERATION::ROTATE:
 					new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : ( newGzmTrans.RotatePart().ToEulerXYZ().x);
-					new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);
-					new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
+					new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (-newGzmTrans.RotatePart().ToEulerXYZ().z);// changed z to y to set correct the modification 
+					new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().y);
+					new_rot += trans->getRotation().ToEulerXYZ();
 					trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
 					break;
 				case ImGuizmo::OPERATION::SCALE:
 					new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
-					new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y: newGzmTrans.GetScale().y;
-					new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+					new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y: newGzmTrans.GetScale().z; // changed z to y to set correct the modification
+					new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().y;
 					trans->setScale(new_scale);
 					break;
 				default:
