@@ -42,7 +42,9 @@ public:
 	// to that file.	
 	resource_deff ManageAsset(std::string path, std::string name, std::string extension);
 		
-
+	// To be executed on start if in game mode
+	void GenerateResources();
+	void GenerateFromMapFile(JSON_Value* file, ResourceType type);
 
 	// Regenerate resources if the file is modified (for the moment)
 	void ManageAssetModification();

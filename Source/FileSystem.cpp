@@ -237,6 +237,26 @@ std::string FileSystem::getPathFromLibDir(lib_dir lib_dir) {
 	return ret;
 }
 
+void FileSystem::createMainDirectories()
+{
+	CreateDirectory(LIBRARY_FOLDER, NULL);
+	CreateDirectory(MESHES_FOLDER, NULL);
+	CreateDirectory(ANIMATIONS_FOLDER, NULL);
+	CreateDirectory(BONES_FOLDER, NULL);
+	CreateDirectory(TEXTURES_FOLDER, NULL);
+	CreateDirectory(OBJECTS_FOLDER, NULL);
+	CreateDirectory(SCRIPTS_FOLDER, NULL);
+	CreateDirectory(SOUNDS_FOLDER, NULL);
+	CreateDirectory(MATERIALS_FOLDER, NULL);
+
+	CreateDirectory(PREFABS_FOLDER, NULL);
+	CreateDirectory(SCENES_FOLDER, NULL);
+
+	CreateDirectory(ASSETS_FOLDER, NULL);
+	CreateDirectory(USER_SCENES_FOLDER, NULL);
+	CreateDirectory(USER_SCRIPTS_FOLDER, NULL);
+}
+
 bool FileSystem::removeExtension(std::string& str) {
 	size_t lastdot = str.find_last_of(".");
 	if (lastdot == std::string::npos)
