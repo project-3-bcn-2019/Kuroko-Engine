@@ -1,6 +1,6 @@
 
 class AnimationComunicator{
-	foreign static C_SetAnimation(gameObject, component, sound)
+	foreign static C_SetAnimation(gameObject, component, animation)
 	foreign static C_Play(gameObject, component)
 	foreign static C_Pause(gameObject, component)
 }

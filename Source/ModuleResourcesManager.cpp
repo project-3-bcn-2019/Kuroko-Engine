@@ -626,6 +626,19 @@ std::string ModuleResourcesManager::getPrefabPath(const char * prefab_name) {
 	return std::string();
 }
 
+std::string ModuleResourcesManager::getScenePath(const char * scene_name) {
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SCENE) {
+			ResourceScene* curr = (ResourceScene*)(*it).second;
+			if (curr->scene_name == scene_name)
+				return curr->asset;
+		}
+	}
+
+	app_log->AddLog("%s scene could not be found", scene_name);
+	return std::string();
+}
+
 std::string ModuleResourcesManager::uuid2string(uint uuid) {
 	return std::to_string(uuid);
 }
