@@ -58,6 +58,8 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Sounds", GetAssetFolderUUIDs("\\Assets\\Sounds\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
+	//Missing: animations and bones
+	//Sounds and UI resources?
 
 	std::string outpath = "Library\\assetsUUIDs.json";
 	json_serialize_to_file_pretty(json, outpath.c_str());
@@ -66,7 +68,7 @@ void ModuleExporter::AssetsToLibraryJSON()
 
 JSON_Value* ModuleExporter::GetAssetFolderUUIDs(const char* path)
 {
-	JSON_Value* object = json_value_init_object();
+	JSON_Value* object = json_value_init_array();
 
 	char folderPath[256];
 	GetCurrentDirectory(256, folderPath);
@@ -96,8 +98,11 @@ JSON_Value* ModuleExporter::GetAssetFolderUUIDs(const char* path)
 					if (json)
 					{
 						JSON_Object* json_obj = json_value_get_object(json);
+						JSON_Value* res = json_value_init_object();
 						uint resourceUUID = json_object_get_number(json_obj, "resource_uuid");
-						json_object_set_number(json_object(object), fileName.c_str(), resourceUUID);
+						json_object_set_string(json_object(res), "name", fileName.c_str());
+						json_object_set_number(json_object(res), "uuid", resourceUUID);
+						json_array_append_value(json_array(object), res);
 					}
 					else
 						app_log->AddLog("Couldn't load %s, no value", filePath);

@@ -40,7 +40,12 @@ bool ModuleResourcesManager::Init(const JSON_Object * config)
 bool ModuleResourcesManager::Start()
 {
 	GeneratePrimitiveResources();
-	GenerateLibraryAndMeta();
+
+	if (!App->is_game)
+		GenerateLibraryAndMeta();
+	else
+		GenerateResources();
+
 	CompileAndGenerateScripts();
 	update_timer.Start();
 	return true;
@@ -48,17 +53,19 @@ bool ModuleResourcesManager::Start()
 
 update_status ModuleResourcesManager::Update(float dt)
 {
-	ManageUITextures();
-	if(update_timer.Read() > update_ratio){
-		ManageAssetModification();
+	if (!App->is_game)
+	{
+		ManageUITextures();
+		if (update_timer.Read() > update_ratio) {
+			ManageAssetModification();
 
-		if (reloadVM) {
-			ReloadVM();
-			reloadVM = false;
+			if (reloadVM) {
+				ReloadVM();
+				reloadVM = false;
+			}
+			update_timer.Start();
 		}
-		update_timer.Start();
 	}
-
 
 	return UPDATE_CONTINUE;
 }
@@ -309,6 +316,79 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 	deff.set(uuid_number, enum_type, binary_path, full_asset_path);
 
 	return deff;
+}
+
+void ModuleResourcesManager::GenerateResources()
+{
+	JSON_Value* assets = json_parse_file("Library/assetsUUIDs.json");
+
+	GenerateFromMapFile(assets, R_MESH);
+	GenerateFromMapFile(assets, R_TEXTURE);
+	GenerateFromMapFile(assets, R_SCENE);
+	GenerateFromMapFile(assets, R_PREFAB);
+	GenerateFromMapFile(assets, R_SCRIPT);
+	GenerateFromMapFile(assets, R_ANIMATION);
+	GenerateFromMapFile(assets, R_BONE);
+	//R_SOUND?
+	//R_UI?
+}
+
+void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType type)
+{
+	std::string name;
+	std::string path;
+	std::string extension;
+	switch (type)
+	{
+	case R_MESH:
+		name = "Meshes";
+		path = MESHES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_TEXTURE:
+		name = "Textures";
+		path = TEXTURES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_SCENE:
+		name = "Scenes";
+		path = SCENES_FOLDER;
+		extension = SCENE_EXTENSION;
+		break;
+	case R_PREFAB:
+		name = "Prefabs";
+		path = PREFABS_FOLDER;
+		extension = PREFAB_EXTENSION;
+		break;
+	case R_SCRIPT:
+		name = "Scripts";
+		path = SCRIPTS_FOLDER;
+		extension = JSON_EXTENSION;
+		break;
+	case R_ANIMATION:
+		name = "Animations";
+		path = ANIMATIONS_FOLDER;
+		extension = OWN_ANIMATION_EXTENSION;
+		break;
+	case R_BONE:
+		name = "Bones";
+		path = BONES_FOLDER;
+		extension = OWN_BONE_EXTENSION;
+		break;
+	}
+
+	//Generate resources
+	JSON_Array* meshes = json_object_get_array(json_object(file), name.c_str());
+	for (int i = 0; i < json_array_get_count(meshes); i++) {
+		JSON_Object* meshMap = json_array_get_object(meshes, i);
+		resource_deff deff;
+		deff.asset = json_object_get_string(meshMap, "name");
+		deff.uuid = json_object_get_number(meshMap, "uuid");
+		deff.type = type;
+		deff.binary = path + std::to_string(deff.uuid) + extension;
+
+		newResource(deff);
+	}
 }
 
 

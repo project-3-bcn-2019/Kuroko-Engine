@@ -23,6 +23,7 @@
 #define TEXTURES_FOLDER "Library\\Textures\\"
 #define OBJECTS_FOLDER "Library\\3dObjects\\"
 #define SCRIPTS_FOLDER "Library\\Scripts\\"
+#define SOUNDS_FOLDER "Library\\Sounds\\"
 #define MATERIALS_FOLDER "Library\\Materials\\"
 
 
@@ -33,6 +34,7 @@
 #define SETTINGS_FOLDER "Settings\\"
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
+#define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define ASSETS_FOLDER "Assets\\"
 
 enum lib_dir {
@@ -72,6 +74,7 @@ public:
 	bool FindInDirectory(const char* directory, const char* file_name, std::string& final_path); // File name with extension
 	std::string getPathFromLibDir(lib_dir r_type);
 
+	void createMainDirectories();
 
 	void getFileNameFromPath(std::string& str);
 	bool getPath(std::string & str);

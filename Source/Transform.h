@@ -24,6 +24,7 @@ public:
 	void setRotationEuler(const float3& euler);
 	void RotateAroundAxis(const float3& axis, float rot_in_degrees) { rotation.RotateAxisAngle(axis, DEGTORAD * (rot_in_degrees)); euler_angles = rotation.ToEulerXYZ() * RADTODEG; };
 	void LookAt(const float3& pos, const float3& target);
+	void setMatrix(const float4x4& matrix) { mat = matrix; }
 
 
 	void Save(JSON_Object* config);
