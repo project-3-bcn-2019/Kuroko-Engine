@@ -23,17 +23,36 @@ bool ModuleExporter::CleanUp()
 	return true;
 }
 
-void ModuleExporter::CreateBuild(const char* path, const char* name)
+bool ModuleExporter::CreateBuild(const char* path, const char* name)
 {
-	AssetsToLibraryJSON();
-	std::string fullPath = path;
-	fullPath += "\\";
-	fullPath += name;
-	fullPath += "\\";
-	CreateDirectory(fullPath.c_str(), NULL);
-	fullPath += "Library\\";
-	CreateDirectory(fullPath.c_str(), NULL);
-	App->fs.CopyFolderRecursively("Library\\*", fullPath.c_str());
+	bool ret = App->fs.ExistisFile("../Release/Project-Atlas.exe");
+
+	if (ret)
+	{
+		AssetsToLibraryJSON();
+		std::string fullPath = path;
+		fullPath += "\\";
+		fullPath += name;
+		fullPath += "\\";
+		CreateDirectory(fullPath.c_str(), NULL);
+		std::string library = fullPath + "Library\\";
+		CreateDirectory(library.c_str(), NULL);
+		App->fs.CopyFolder("Library\\*", library.c_str(), true);
+
+		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name);
+		//App->fs.CopyFolder("..\\Game\\", fullPath.c_str());
+		App->fs.copyFileTo("assimp.dll", NO_LIB, ".dll", fullPath+"assimp");
+		App->fs.copyFileTo("DevIL.dll", NO_LIB, ".dll", fullPath + "DevIL");
+		App->fs.copyFileTo("freetype.dll", NO_LIB, ".dll", fullPath + "freetype");
+		App->fs.copyFileTo("glew32.dll", NO_LIB, ".dll", fullPath + "glew32");
+		App->fs.copyFileTo("ILU.dll", NO_LIB, ".dll", fullPath + "ILU");
+		App->fs.copyFileTo("ILUT.dll", NO_LIB, ".dll", fullPath + "ILUT");
+		App->fs.copyFileTo("SDL2.dll", NO_LIB, ".dll", fullPath + "SDL2");
+		App->fs.copyFileTo("README.txt", NO_LIB, ".txt", fullPath + "README");
+		App->fs.copyFileTo("LICENSE", NO_LIB, nullptr, fullPath + "LICENSE");
+	}
+
+	return ret;
 }
 
 void ModuleExporter::AssetsToLibraryJSON()

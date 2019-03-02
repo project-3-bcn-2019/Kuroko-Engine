@@ -12,7 +12,7 @@ public:
 	bool Init(const JSON_Object* config);
 	bool CleanUp();
 
-	void CreateBuild(const char* path, const char* name);
+	bool CreateBuild(const char* path, const char* name);
 
 private:
 	void AssetsToLibraryJSON();

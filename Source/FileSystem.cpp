@@ -150,7 +150,7 @@ bool FileSystem::copyFileTo(const char * full_path_src, lib_dir dest_lib, const 
 	// Form destination path
 	std::string dest_path;
 
-	FormFullPath(dest_path, file_new_name.c_str(), dest_lib, nullptr);
+	FormFullPath(dest_path, file_new_name.c_str(), dest_lib, extension);
 
 	if (dest_path.compare(full_path_src) == 0) {
 		app_log->AddLog("Trying to copy/paste same file in same location, avoiding operation");
@@ -279,7 +279,7 @@ void FileSystem::getExtension(std::string & str) {
 	str = PathFindExtensionA(str.c_str());
 }
 
-void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
+void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive)
 {
 	WIN32_FIND_DATA file;
 	HANDLE search_handle = FindFirstFile(src, &file);
@@ -296,13 +296,13 @@ void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
 			fullPath += file.cFileName;
 			getExtension(extension);
 
-			if (file.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
+			if (recursive && file.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
 			{
 				fullPath += "\\*";
 				std::string destiny = dst;
 				destiny += name + "\\";
 				CreateDirectory(destiny.c_str(), NULL);
-				CopyFolderRecursively(fullPath.c_str(), destiny.c_str());// Recursive function to get all subfloders
+				CopyFolder(fullPath.c_str(), destiny.c_str(), recursive);// Recursive function to get all subfloders
 			}
 			else
 			{
