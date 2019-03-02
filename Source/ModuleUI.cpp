@@ -3000,12 +3000,19 @@ void ModuleUI::DrawBuildMenu()
 	}
 	ImGui::EndChild();
 
+	static bool building = false;
+	if (building)
+	{
+		App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		open_tabs[BUILD_MENU] = building = false;
+	}
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
 	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
 	{
-		App->exporter->CreateBuild(buildPath.c_str(), buildName);
-		open_tabs[BUILD_MENU] = false;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 25);
+		ImGui::Text("Creating...");
+		building = true;
 	}
 
 	ImGui::End();
