@@ -108,17 +108,18 @@ class Vec3{
 class EngineComunicator{
 	// Foreigners User usable
 	foreign static consoleOutput(message)
-	foreign static C_Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
 	foreign static getTime()
 	foreign static BreakPoint(message, variable, variable_name)
+	foreign static LoadScene(scene_name)
 
 	// Foreigners Intermediate
 	foreign static C_FindGameObjectsByTag(tag)
+	foreign static C_Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
 
 
 	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
-		EngineComunicator.Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
 	}
 
 	static FindGameObjectsByTag(tag){

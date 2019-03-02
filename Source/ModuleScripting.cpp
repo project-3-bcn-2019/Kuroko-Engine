@@ -41,6 +41,7 @@ void InstantiatePrefab(WrenVM* vm);
 void getTime(WrenVM* vm);
 void BreakPoint(WrenVM* vm);
 void FindGameObjectByTag(WrenVM* vm);
+void LoadScene(WrenVM* vm);
 
 // Math
 void sqrt(WrenVM* vm);
@@ -514,6 +515,8 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return BreakPoint;
 			if (isStatic && strcmp(signature, "C_FindGameObjectsByTag(_)") == 0)
 				return FindGameObjectByTag;
+			if (isStatic && strcmp(signature, "LoadScene(_)") == 0)
+				return LoadScene;
 		}
 		if (strcmp(className, "InputComunicator") == 0) {
 			if (isStatic && strcmp(signature, "getKey(_,_)") == 0)
@@ -872,6 +875,13 @@ void FindGameObjectByTag(WrenVM* vm) {
 
 
 	// retrun the list in slot 0
+}
+
+void LoadScene(WrenVM* vm) {
+	std::string scene_name = wrenGetSlotString(vm, 1);
+
+	std::string scene_path = App->resources->getScenePath(scene_name.c_str());
+	App->scene->AskSceneLoadFile((char*)scene_path.c_str());
 }
 
 // Math

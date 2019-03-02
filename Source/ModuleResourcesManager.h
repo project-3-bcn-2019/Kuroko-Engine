@@ -84,6 +84,7 @@ public:
 	void getAnimationResourceList(std::list<resource_deff>& animations);
 	void getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore);
 	std::string getPrefabPath(const char* prefab_name); // Retruns the binary file for the given prefab so it can be loaded
+	std::string getScenePath(const char* scene_name); // Retruns the binary file for the given scene so it can be loaded
 	// get texture list
 	// get scene list
 	// To put in UI remember
