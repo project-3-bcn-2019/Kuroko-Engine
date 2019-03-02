@@ -79,7 +79,7 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileShader(animationShader);
 	CompileShader(animationFragmentShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
-	animationShaderProgram->shaders.push_back(defFragmentShader->shaderId);
+	animationShaderProgram->shaders.push_back(animationFragmentShader->shaderId);
 	
 	CompileProgram(animationShaderProgram);
 
@@ -138,18 +138,23 @@ void ModuleShaders::CreateDefVertexShader()
 
 	"void main()\n"
 	"{\n"
-	"	mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];\n"
-	"	BoneTransform += gBones[BoneIDs[1]] * Weights[1];\n"
-	"	BoneTransform += gBones[BoneIDs[2]] * Weights[2];\n"
-	"	BoneTransform += gBones[BoneIDs[3]] * Weights[3];\n"
+		"vec4 totalLocalPos = vec4(0.0);\n"
+		"vec4 totalNormal = vec4(0.0);\n"
 
-	"	vec4 PosL = BoneTransform * vec4(position, 1.0);\n"
-	"	gl_Position = projection * view * model_matrix * PosL;\n"
-	"	TexCoord = texCoord;\n"
-	"	vec4 NormalL = BoneTransform * vec4(normal, 0.0);\n"
-	"	ret_normal = (view * NormalL).xyz;\n"
-	"	FragPos = (view * PosL).xyz;\n"
-	"	ourColor = color;\n"
+		"for(int i=0;i<4;i++)\n"
+		"{\n"
+			"mat4 boneTransform = gBones[BoneIDs[i]];\n"
+			"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
+			"totalLocalPos += posePosition * Weights[i];\n"
+
+			"vec4 worldNormal = boneTransform * vec4(normal,0.0);\n"
+			"totalNormal += worldNormal * Weights[i];\n"
+		"}\n"
+
+		"gl_Position = projection * view * totalLocalPos;\n"
+		"ret_normal = totalNormal.xyz;\n"
+		"TexCoord = texCoord;\n"
+		"ourColor = color;\n"
 	"}\n";
 }
 

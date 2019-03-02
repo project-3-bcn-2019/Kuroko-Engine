@@ -69,6 +69,8 @@ Mesh::Mesh(float3* _vertices, Tri* _tris, float3* _normals, float3* _colors, flo
 			tex_coords[i] = float2::zero;
 	}
 
+	MeshGPU = new Vertex[num_vertices];
+
 	calculateCentroidandHalfsize();
 	this->centroid = centroid;
 	//LoadDataToVRAM();
@@ -87,6 +89,8 @@ Mesh::Mesh(PrimitiveTypes primitive) : id(App->scene->last_mesh_id++)
 	default:
 		break;
 	}
+
+	MeshGPU = new Vertex[num_vertices];
 
 	calculateCentroidandHalfsize();
 	//LoadDataToVRAM();
@@ -110,7 +114,7 @@ Mesh::~Mesh()
 	if (colors)		delete colors;
 	if (tex_coords) delete tex_coords;
 	
-	RELEASE(MeshGPU);
+	RELEASE_ARRAY(MeshGPU);
 }
 
 void Mesh::setMorphedVertices(float3 * vertices)
@@ -261,7 +265,6 @@ void Mesh::Draw(Material* mat, bool draw_as_selected)  const
 
 void Mesh::FillMeshGPU()
 {
-	MeshGPU = new Vertex[num_vertices];
 	float4 color = { *colors, 1.0f };
 	for (int i = 0; i < num_vertices; i++)
 	{
@@ -293,7 +296,6 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 			{
 				for (int j = 0; j < rBone->numWeights; ++j)
 				{
-
 					int Vindex = rBone->weights[j].VertexID;											//taking the index of the vertex that affect the bone.
 
 					if (MeshGPU[Vindex].boneCouinter > 3)												//if a bone is affected by more than 4 bones continue
@@ -377,10 +379,8 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 		{
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
-			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones[0]");
+			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones");
 			glUniformMatrix4fv(boneMeshes, numBones, GL_FALSE, boneTrans);
-			GLint model_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "model_matrix");
-			glUniformMatrix4fv(model_loc, 1, GL_FALSE, global_transform);
 			GLint proj_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "projection");
 			glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
 			GLint view_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "view");

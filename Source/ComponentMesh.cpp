@@ -165,9 +165,13 @@ bool ComponentMesh::Update(float dt)
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
 	{
 		setMeshResourceId(mesh_resource_uuid);
+		
+		RELEASE_ARRAY(boneTransforms);
+
 		boneTransforms = new float[components_bones.size()*16];
 
 		ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
+
 
 		if (mesh != nullptr)
 		{
@@ -175,7 +179,7 @@ bool ComponentMesh::Update(float dt)
 		}
 
 	}
-
+	
 	return true;
 }
 
@@ -297,7 +301,7 @@ void ComponentMesh::Skining() const
 		else
 			mesh->mesh->setMorphedVertices(nullptr);
 
-		mesh->mesh->updateVRAM();
+		/*mesh->mesh->updateVRAM();*/
 	}
 }
 
