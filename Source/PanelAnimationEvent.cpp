@@ -82,17 +82,17 @@ void PanelAnimationEvent::Draw()
 			ImGui::SameLine();
 			if (ImGui::Button("Del Key")) del_keyframe_win = true;
 			ImGui::SameLine();
-			if (ImGui::Button("Delete All Keys")) 
+			if (ImGui::Button("Delete All Keys"))
 			{
 				auto get = c_AnimEvt->AnimEvts.find(selected_component->getUUID());
 				if (get != c_AnimEvt->AnimEvts.end())
 					get->second.clear();
 			}
 
-			if(new_keyframe_win)
+			if (new_keyframe_win)
 				AddKeyframe();
-			
-			if(del_keyframe_win)
+
+			if (del_keyframe_win)
 				DeleteKeyframe();
 
 			ImGui::BeginGroup();
@@ -147,6 +147,12 @@ void PanelAnimationEvent::Draw()
 			}
 
 		}
+		else if (selected_component->getType() == Component_type::ANIMATION)
+		{
+			if (ImGui::Button("Copy animation specs")) CopySpecs();
+			// Tooltip just in case any idiot asks why it should be
+		}
+
 	}
 
 	ImGui::End();
@@ -242,4 +248,38 @@ void PanelAnimationEvent::DeleteKeyframe()
 	}
 
 	ImGui::End();
+}
+
+void PanelAnimationEvent::CopySpecs()
+{
+	ComponentAnimation* c_cast = (ComponentAnimation*)selected_component;
+	c_AnimEvt->loop = c_cast->loop;
+	c_AnimEvt->speed = c_cast->speed;
+
+	if (c_cast->getAnimationResource() != 0)
+	{
+		ResourceAnimation* get = (ResourceAnimation*)App->resources->getResource(c_cast->getAnimationResource());
+		if (get != nullptr)
+		{
+			
+
+			if (get->ticks < c_AnimEvt->own_ticks)
+			{
+				for (auto it = c_AnimEvt->AnimEvts.begin(); it != c_AnimEvt->AnimEvts.end(); ++it)
+				{
+					for (int i = c_AnimEvt->own_ticks; i > get->ticks; i--)
+					{
+						auto get_key = it->second.find(i);
+						if (get_key != it->second.end())
+							it->second.erase(get_key);
+					}
+				}
+			}
+
+			c_AnimEvt->own_ticks = get->ticks;
+
+			c_AnimEvt->ticksXsecond = get->ticksXsecond;
+
+		}
+	}
 }

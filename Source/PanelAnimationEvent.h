@@ -23,6 +23,8 @@ public:
 
 	void AddKeyframe();
 	void DeleteKeyframe();
+
+	void CopySpecs();
 	
 public:
 
