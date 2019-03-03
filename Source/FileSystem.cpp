@@ -119,6 +119,9 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 	case LIBRARY_MATERIALS:
 		path = MATERIALS_FOLDER;
 		break;
+	case LIBRARY_AUDIO:
+		path = AUDIO_FOLDER;
+		break;
 	case SETTINGS:
 		path = SETTINGS_FOLDER;
 		break;
@@ -246,7 +249,7 @@ void FileSystem::createMainDirectories()
 	CreateDirectory(TEXTURES_FOLDER, NULL);
 	CreateDirectory(OBJECTS_FOLDER, NULL);
 	CreateDirectory(SCRIPTS_FOLDER, NULL);
-	CreateDirectory(SOUNDS_FOLDER, NULL);
+	CreateDirectory(AUDIO_FOLDER, NULL);
 	CreateDirectory(MATERIALS_FOLDER, NULL);
 
 	CreateDirectory(PREFABS_FOLDER, NULL);

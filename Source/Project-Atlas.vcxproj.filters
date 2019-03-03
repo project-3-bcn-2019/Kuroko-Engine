@@ -579,6 +579,9 @@
     <ClInclude Include="ModuleExporter.h">
       <Filter>Sources\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceAudio.h">
+      <Filter>Sources\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -955,6 +958,9 @@
     </ClCompile>
     <ClCompile Include="ModuleExporter.cpp">
       <Filter>Sources\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceAudio.cpp">
+      <Filter>Sources\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

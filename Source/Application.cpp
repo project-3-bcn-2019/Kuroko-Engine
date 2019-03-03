@@ -68,11 +68,11 @@ Application::Application()
 	
 	list_modules.push_back(physics);
 
+	list_modules.push_back(resources);
 	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
 	// Renderer last!
-	list_modules.push_back(resources);
 	list_modules.push_back(scripting);
 	list_modules.push_back(shaders);
 	list_modules.push_back(gui);

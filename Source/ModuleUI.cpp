@@ -680,6 +680,7 @@ void ModuleUI::DrawObjectInspectorTab()
 	ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool select_script = false;
+	static bool select_audio = false;
 	if (App->scene->selected_obj.size() == 1) {
 		GameObject* selected_obj = (*App->scene->selected_obj.begin());
 
@@ -709,7 +710,7 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
 				if (ImGui::Button("Add Script")) select_script = true;
 				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Audio Source")) selected_obj->addComponent(AUDIOSOURCE);
+				if (ImGui::Button("Add Audio Source")) select_audio = true;
 				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
 				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
@@ -744,6 +745,27 @@ void ModuleUI::DrawObjectInspectorTab()
 					}
 				}
 
+				ImGui::End();
+			}
+
+			if (select_audio)
+			{
+				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					selected_obj->addComponent(AUDIOSOURCE);
+					select_audio = false;
+				}
+				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+					if (ImGui::MenuItem((*it).c_str())) {
+						ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
+						c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+						c_source->SetSoundName((*it).c_str());
+						select_audio = false;
+						break;
+					}
+				}
 				ImGui::End();
 			}
 		}
@@ -1385,6 +1407,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (select_audio)
 			{
 				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					((ComponentAudioSource*)&component)->SetSoundID(0);
+					((ComponentAudioSource*)&component)->SetSoundName("Sound");
+					select_audio = false;
+				}
 				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 					
 					if (ImGui::MenuItem((*it).c_str())) {

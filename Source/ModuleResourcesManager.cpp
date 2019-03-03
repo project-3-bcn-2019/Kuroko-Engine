@@ -12,6 +12,7 @@
 #include "ResourcePrefab.h"
 #include "ResourceAnimation.h"
 #include "ResourceBone.h"
+#include "ResourceAudio.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -103,7 +104,8 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 	case R_BONE: 
 		ret = (Resource*) new ResourceBone(deff);
 		break;
-	} 
+	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
+	}
 
 	if (ret)
 		resources[deff.uuid] = ret;
@@ -311,6 +313,9 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 	case R_SCENE:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_SCENES, SCENE_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
+	case R_AUDIO:
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_AUDIO, AUDIO_EXTENSION, uuid_str.c_str()); // Copy the file to the library
+		break;
 	}
 	// Meta generated and file imported, create resource in code
 	deff.set(uuid_number, enum_type, binary_path, full_asset_path);
@@ -329,7 +334,7 @@ void ModuleResourcesManager::GenerateResources()
 	GenerateFromMapFile(assets, R_SCRIPT);
 	GenerateFromMapFile(assets, R_ANIMATION);
 	GenerateFromMapFile(assets, R_BONE);
-	//R_SOUND?
+	GenerateFromMapFile(assets, R_AUDIO);
 	//R_UI?
 }
 
@@ -374,6 +379,11 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 		name = "Bones";
 		path = BONES_FOLDER;
 		extension = OWN_BONE_EXTENSION;
+		break;
+	case R_AUDIO:
+		name = "Audio";
+		path = AUDIO_FOLDER;
+		extension = AUDIO_EXTENSION;
 		break;
 	}
 
@@ -584,6 +594,19 @@ uint ModuleResourcesManager::getBoneResourceUuid(const char * Parent3dObject, co
 	return 0;
 }
 
+uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_AUDIO) {
+			ResourceAudio* res_audio = (ResourceAudio*)(*it).second;
+			if (res_audio->asset == name) {
+				return res_audio->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 void ModuleResourcesManager::CleanMeta() {
 	using std::experimental::filesystem::recursive_directory_iterator;
 	for (auto& it : recursive_directory_iterator(ASSETS_FOLDER)) {
@@ -693,6 +716,17 @@ void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scen
 	}
 }
 
+void ModuleResourcesManager::getAudioResourceList(std::list<resource_deff>& audio)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_AUDIO) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			audio.push_back(deff);
+		}
+	}
+}
+
 std::string ModuleResourcesManager::getPrefabPath(const char * prefab_name) {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
 		if ((*it).second->type == R_PREFAB) {
@@ -745,6 +779,8 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "prefab";
 	else if (extension == ".scene")
 		ret = "scene";
+	else if (extension == ".bnk")
+		ret = "audio";
 
 
 	return ret;
@@ -764,6 +800,8 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_PREFAB;
 	if (str_type == "scene")
 		ret = R_SCENE;
+	if (str_type == "audio")
+		ret = R_AUDIO;
 
 	return ret;
 }
@@ -786,6 +824,9 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_3DOBJECT:
 		case R_SCRIPT:
 			ret = ".json";
+			break;
+		case R_AUDIO:
+			ret = ".bnk";
 			break;
 
 	}
@@ -813,6 +854,9 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 		break;
 	case R_SCENE:
 		ret = LIBRARY_SCENES;
+		break;
+	case R_AUDIO:
+		ret = LIBRARY_AUDIO;
 		break;
 	}
 	return ret;

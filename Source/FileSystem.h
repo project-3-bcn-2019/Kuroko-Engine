@@ -15,6 +15,7 @@
 #define PREFAB_EXTENSION ".prefab"
 #define VERTEXSHADER_EXTENSION ".vex"
 #define FRAGMENTSHADER_EXTENSION ".frag"
+#define AUDIO_EXTENSION ".bnk"
 
 #define LIBRARY_FOLDER "Library\\"
 #define MESHES_FOLDER "Library\\Meshes\\"
@@ -23,7 +24,7 @@
 #define TEXTURES_FOLDER "Library\\Textures\\"
 #define OBJECTS_FOLDER "Library\\3dObjects\\"
 #define SCRIPTS_FOLDER "Library\\Scripts\\"
-#define SOUNDS_FOLDER "Library\\Sounds\\"
+#define AUDIO_FOLDER "Library\\Audio\\"
 #define MATERIALS_FOLDER "Library\\Materials\\"
 
 
@@ -47,6 +48,7 @@ enum lib_dir {
 	LIBRARY_ANIMATIONS,
 	LIBRARY_BONES,
 	LIBRARY_MATERIALS,
+	LIBRARY_AUDIO,
 	SETTINGS,
 	ASSETS,
 	ASSETS_SCENES,

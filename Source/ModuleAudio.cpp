@@ -6,6 +6,7 @@
 #include "ModuleCamera3D.h"
 #include "ModuleUi.h"
 #include "ModuleImporter.h"
+#include "ModuleResourcesManager.h"
 #include "GameObject.h"
 #include "ComponentCamera.h"
 #include "ComponentTransform.h"
@@ -17,7 +18,7 @@
 #include <corecrt_wstring.h>
 
 #include "Wwise/IO/Win32/AkFilePackageLowLevelIOBlocking.h"
-#include "../Game/Assets/Sounds/Wwise_IDs.h"
+#include "../Game/Assets/Audio/Wwise_IDs.h"
 
 
 ModuleAudio::ModuleAudio(Application* app, bool start_enabled) : Module(app, start_enabled)
@@ -38,7 +39,7 @@ bool ModuleAudio::Init(const JSON_Object* config)
 	
 	bool ret = Wwise::InitWwise();
 	
-	LoadSoundBank("Character");
+	LoadSoundBank("Character"); // (std::to_string(App->resources->getAudioResourceUuid("Character")).c_str());
 
 	GetBanksAndEvents();
 	
@@ -132,7 +133,7 @@ void ModuleAudio::SetPitch(float value, AkGameObjectID id)
 
 void ModuleAudio::LoadSoundBank(const char* path)
 {
-	std::string bank_path = AUDIO_DIRECTORY;
+	std::string bank_path = AUDIO_FOLDER;
 	bank_path += path;
 	bank_path += AUDIO_EXTENSION;
 
@@ -143,7 +144,7 @@ void ModuleAudio::GetBanksAndEvents()
 {
 	std::vector<std::string> stringBanks;
 	std::vector<std::string> stringEvents;
-	std::string infoFile_path = "Assets/Sounds/SoundbanksInfo.json";
+	std::string infoFile_path = "Assets/Audio/SoundbanksInfo.json";
 	JSON_Value* infoFile = json_parse_file(infoFile_path.c_str());
 	if (!infoFile) {
 		app_log->AddLog("Couldn't load %s, no value", infoFile_path);

@@ -823,7 +823,7 @@ void ModuleImporter::ImportSounds()
 	GetCurrentDirectory(256, folderPath);
 	// Add the assets folder to the path
 	std::string path = folderPath;
-	path += "\\Assets\\Sounds/*";
+	path += "\\Assets\\Audio/*";
 
 	WIN32_FIND_DATA file;
 	HANDLE search_handle = FindFirstFile(path.c_str(), &file);
@@ -835,21 +835,17 @@ void ModuleImporter::ImportSounds()
 			{
 				// Check type of flie
 				std::string name = file.cFileName;
-				std::string extension = "";
-				for (int i = name.size() - 1; i >= 0; i--)
-					if (name[i] == '.' | name[i] == ' ')
-						break;
-					else
-						extension = name[i] + extension;
+				std::string extension = name;
+				App->fs.getExtension(extension);
 
-				if (extension == "bnk")
+				if (extension == AUDIO_EXTENSION)
 				{
 					std::string source = path;
 					source.pop_back();
 					source += name;
 
 					std::string destiny = folderPath;
-					destiny += "\\Library\\Sounds/" + name;
+					destiny += "\\Library\\Audio/" + name;
 
 					std::ifstream  src(source, std::ios::binary);
 					std::ofstream  dst(destiny, std::ios::binary);
