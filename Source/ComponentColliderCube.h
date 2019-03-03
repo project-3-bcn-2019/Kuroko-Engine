@@ -13,20 +13,17 @@ class ComponentColliderCube : public Component
 //public:
 public:
 
-	ComponentColliderCube(GameObject* parent);
-	ComponentColliderCube(JSON_Object* deff, GameObject* parent);
+	ComponentColliderCube(GameObject* parent, PhysBody* body);
 
 	void OnCollision(GameObject* A, GameObject* B);
 
 	bool Update(float dt);
 	void Draw() const;
 
-	virtual ~ComponentColliderCube();
+	virtual ~ComponentColliderCube() {};
 	PhysBody* body;
 
 	std::list<GameObject*> colliding;
-
-	void Save(JSON_Object* config);
 
 
 //	bool Update(float dt)override;

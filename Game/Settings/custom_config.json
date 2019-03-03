@@ -7,8 +7,8 @@
     "resizable": true,
     "fulldesktop": false,
     "adapt_screen": true,
-    "width": 1166,
-    "height": 568,
+    "width": 1720,
+    "height": 880,
     "adaptable_offsetx": 200,
     "adaptable_offsety": 200,
     "brightness": 1
@@ -19,6 +19,7 @@
   "scene": {},
   "debug": {},
   "resource manager": {},
+  "scripting": { "tags": [ "player", "enemy", "dog" ] },
   "gui": {
     "hierarchy": true,
     "obj_inspector": true,

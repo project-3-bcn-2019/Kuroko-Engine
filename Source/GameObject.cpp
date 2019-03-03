@@ -18,7 +18,7 @@
 #include "ComponentParticleEmitter.h"
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
-#include "ComponentAnimationEvent.h"
+
 #include "ComponentColliderCube.h"
 
 #include "Camera.h"
@@ -96,13 +96,7 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "particle_emitter") {
 			component = new ComponentParticleEmitter(component_deff, this);
 		}
-		else if (type == "animation_event") {
-			component = new ComponentAnimationEvent(component_deff, this);
-		}
 
-		else if (type == "collider_cube") {
-			component = new ComponentColliderCube(component_deff, this);
-		}
 		// Set component's parent-child
 		if (!component){
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
@@ -361,8 +355,10 @@ Component* GameObject::addComponent(Component_type type)
 	case COLLIDER_CUBE:
 		if (!getComponent(COLLIDER_CUBE))
 		{
-			new_component = new ComponentColliderCube(this);
+			PhysBody* bod = App->physics->AddBody(this);
+			new_component = new ComponentColliderCube(this,bod);
 			components.push_back(new_component);
+
 		}
 		break;
 	case BILLBOARD:
@@ -371,10 +367,6 @@ Component* GameObject::addComponent(Component_type type)
 		break;
 	case PARTICLE_EMITTER:
 		new_component = new ComponentParticleEmitter(this);
-		components.push_back(new_component);
-		break;
-	case ANIMATION_EVENT:
-		new_component = new ComponentAnimationEvent(this);
 		components.push_back(new_component);
 		break;
 	default:
@@ -428,12 +420,6 @@ void GameObject::addComponent(Component* component)
 		components.push_back(component);
 		break;
 	case PARTICLE_EMITTER:
-		components.push_back(component);
-		break;
-	case COLLIDER_CUBE:
-		components.push_back(component);
-		break;
-	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
 	default:

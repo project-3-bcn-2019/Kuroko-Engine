@@ -544,17 +544,6 @@ uint ModuleResourcesManager::getResourceUuid(const char * file) {
 	return ret;
 }
 
-uint ModuleResourcesManager::getResourceUuid(const char* name, ResourceType type)
-{
-	for (auto it = resources.begin(); it != resources.end(); it++)
-	{
-		if ((*it).second->type == type && (*it).second->asset == name)
-			return (*it).second->uuid;
-	}
-
-	return 0;
-}
-
 uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, const char * name) {
 
 	for (auto it = resources.begin(); it != resources.end(); it++) {
@@ -706,14 +695,14 @@ void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& 
 	}
 }
 
-void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<resource_deff> ignore)
+void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore)
 {
 	for (auto it = resources.begin(); it != resources.end(); ++it)
 	{
 		bool exist = false;
 		for (auto it_s = ignore.begin(); it_s != ignore.end(); ++it_s)
 		{
-			if ((*it).second->asset == (*it_s).asset)
+			if ((*it).second->asset == (*it_s))
 			{
 				exist = true;
 				break;

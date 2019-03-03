@@ -15,29 +15,10 @@
 #include "SDL/include/SDL_opengl.h"
 
 
-ComponentColliderCube::ComponentColliderCube(GameObject * _parent) :Component(_parent, COLLIDER_CUBE)
+ComponentColliderCube::ComponentColliderCube(GameObject * _parent, PhysBody* _body) :Component(_parent, COLLIDER_CUBE)
 {
-	body = App->physics->AddBody(_parent);
+	body = _body;
 	body->SetUser(this);
-
-}
-
-ComponentColliderCube::ComponentColliderCube(JSON_Object * deff, GameObject * parent) :Component(parent, COLLIDER_CUBE)
-{
-	JSON_Object* j = json_object_get_object(deff, "obb");
-
-	int i = json_object_get_number(j, "sizex");
-
-	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->SetFrom(AABB(
-		float3(-json_object_get_number(j, "sizex") / 2, -json_object_get_number(j, "sizey") / 2, -json_object_get_number(j, "sizez") / 2), 
-		float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2)));
-
-	getParent()->own_half_size = float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2);
-
-
-	body = App->physics->AddBody(parent);
-	body->SetUser(this);
-
 }
 
 void ComponentColliderCube::OnCollision(GameObject * A, GameObject * B)
@@ -54,41 +35,6 @@ bool ComponentColliderCube::Update(float dt)
 	//transform_matrix = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr();
 
 	//body->SetTransform(transform_matrix);
-
-/*
-	GameObject* obj = getParent();
-	if (obj != nullptr)
-	{
-
-
-		ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-		if (transform != nullptr)
-		{
-			btTransform t;
-			float4x4 fina;
-
-			fina = float4x4::FromTRS(float3(0, 0, 0), Quat::identity, transform->global->getScale());
-
-			fina.Transpose();
-
-			Quat newquat = transform->global->getRotation();
-			newquat.Inverse();
-			float4x4 rot_mat = newquat.ToFloat4x4();
-
-			fina = /*fina * *rot_mat;
-
-			//fina = fina * float4x4::FromQuat(transform->global->getRotation());
-			//fina.Translate(transform->global->getPosition());
-
-			t.setFromOpenGLMatrix(fina.ptr());
-
-			t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-
-			body->GetRigidBody()->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
-
-			body->GetRigidBody->setWorldTransform(t);
-		}
-	}*/
 
 	colliding.clear();
 	std::list<Collision> col_list;
@@ -304,24 +250,3 @@ void ComponentColliderCube::Draw() const
 //	return ret;
 //}
 //
-void ComponentColliderCube::Save(JSON_Object* config)
-{
-	json_object_set_string(config, "type", "collider_cube");
-	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size();
-
-	JSON_Value* obb = json_value_init_object();
-	json_object_set_number(json_object(obb), "sizex", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().x);
-	json_object_set_number(json_object(obb), "sizey", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().y);
-	json_object_set_number(json_object(obb), "sizez", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().z);
-
-	json_object_set_value(config, "obb", obb);
-
-
-}
-
-ComponentColliderCube::~ComponentColliderCube()
-{
-
-	App->physics->DeleteBody(body);
-
-};

@@ -46,11 +46,11 @@
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
-#include "ComponentAnimationEvent.h"
+
 
 #include "Random.h"
 #include "VRAM.h"
-#include "WinItemDialog.h"
+#include "WinItemDialog.h" 
 
 #include "Assimp/include/version.h"
 
@@ -65,7 +65,6 @@
 // Include Panels
 #include "Panel.h"
 #include "PanelAnimation.h"
-#include "PanelAnimationEvent.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -75,7 +74,6 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	name = "gui";
 
 	p_anim = new PanelAnimation("AnimEditor");
-	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
 }
 
 
@@ -83,7 +81,7 @@ ModuleUI::~ModuleUI() {
 }
 
 bool ModuleUI::Init(const JSON_Object* config) {
-
+	
 	SDL_GL_SetSwapInterval(1); // Enable vsync
 
 	// Setup Dear ImGui binding
@@ -111,48 +109,45 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 bool ModuleUI::Start()
 {
-	if (!App->is_game)
-	{
-		io = &ImGui::GetIO();
+	io = &ImGui::GetIO();
 
-		ui_textures[PLAY] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
-		ui_textures[PAUSE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
-		ui_textures[STOP] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
-		ui_textures[ADVANCE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
+	ui_textures[PLAY]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
+	ui_textures[PAUSE]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
+	ui_textures[STOP]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
+	ui_textures[ADVANCE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
 
-		ui_textures[GUIZMO_TRANSLATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
-		ui_textures[GUIZMO_ROTATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
-		ui_textures[GUIZMO_SCALE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
-		ui_textures[GUIZMO_LOCAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
-		ui_textures[GUIZMO_GLOBAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
-		ui_textures[GUIZMO_SELECT] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
+	ui_textures[GUIZMO_TRANSLATE]	= (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
+	ui_textures[GUIZMO_ROTATE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
+	ui_textures[GUIZMO_SCALE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
+	ui_textures[GUIZMO_LOCAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
+	ui_textures[GUIZMO_GLOBAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
+	ui_textures[GUIZMO_SELECT]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
 
-		ui_textures[NO_TEXTURE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
+	ui_textures[NO_TEXTURE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
 
-		ui_textures[FOLDER_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
-		ui_textures[OBJECT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
-		ui_textures[SCENE_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
-		ui_textures[RETURN_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
-		ui_textures[SCRIPT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
-		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+	ui_textures[FOLDER_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
+	ui_textures[OBJECT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
+	ui_textures[SCENE_ICON]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
+	ui_textures[RETURN_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
+	ui_textures[SCRIPT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
+	ui_textures[PREFAB_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
 
-		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
-		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
+	ui_textures[CAUTION_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
+	ui_textures[WARNING_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
 
-		ui_fonts[TITLES] = io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
-		ui_fonts[REGULAR] = io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
-		ui_fonts[IMGUI_DEFAULT] = io->Fonts->AddFontDefault();
-		//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
-		//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
-		//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
+	ui_fonts[TITLES]				= io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
+	ui_fonts[REGULAR]				= io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
+	ui_fonts[IMGUI_DEFAULT]			= io->Fonts->AddFontDefault();
+	//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
+	//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
+	//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
+	
+	open_tabs[BUILD_MENU] = false;
 
-		open_tabs[BUILD_MENU] = false;
-
-		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io->IniFilename = "Settings\\imgui.ini";
-		docking_background = true;
-	}
+	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io->IniFilename = "Settings\\imgui.ini";
+	docking_background = true;
 
 
 	// HARDCODE
@@ -163,15 +158,13 @@ bool ModuleUI::Start()
 
 update_status ModuleUI::PreUpdate(float dt) {
 
-	if (!App->is_game)
-	{
-		// Start the ImGui frame
-		ImGui_ImplOpenGL2_NewFrame();
+	// Start the ImGui frame
+	ImGui_ImplOpenGL2_NewFrame();
 
-		ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
-		ImGui::NewFrame();
-	}
+	ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
+	ImGui::NewFrame();
 
+	
 
 	//ImGui::ShowDemoWindow();
 	return UPDATE_CONTINUE;
@@ -179,183 +172,138 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 update_status ModuleUI::Update(float dt) {
 
-	if (!App->is_game)
+
+	InvisibleDockingBegin();
+	static bool file_save = false;
+	disable_keyboard_control = false;
+
+
+	if (open_tabs[CONFIGURATION]) 
 	{
-		InvisibleDockingBegin();
-		static bool file_save = false;
-		disable_keyboard_control = false;
+		ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
 
+		if (ImGui::CollapsingHeader("Graphics")) 
+			DrawGraphicsLeaf();
+		if (ImGui::CollapsingHeader("Window"))
+			DrawWindowConfigLeaf();
+		if (ImGui::CollapsingHeader("Hardware"))
+			DrawHardwareLeaf();
+		if (ImGui::CollapsingHeader("Application"))
+			DrawApplicationLeaf();
+		if (ImGui::CollapsingHeader("Editor preferences"))
+			DrawEditorPreferencesLeaf();
 
-		if (open_tabs[CONFIGURATION])
-		{
-			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
+		if (ImGui::Button("Reset Camera"))
+			App->camera->editor_camera->Reset();
 
-			if (ImGui::CollapsingHeader("Graphics"))
-				DrawGraphicsLeaf();
-			if (ImGui::CollapsingHeader("Window"))
-				DrawWindowConfigLeaf();
-			if (ImGui::CollapsingHeader("Hardware"))
-				DrawHardwareLeaf();
-			if (ImGui::CollapsingHeader("Application"))
-				DrawApplicationLeaf();
-			if (ImGui::CollapsingHeader("Editor preferences"))
-				DrawEditorPreferencesLeaf();
+		ImGui::End();
+	}
 
-			if (ImGui::Button("Reset Camera"))
-				App->camera->editor_camera->Reset();
+	if (open_tabs[HIERARCHY])
+		DrawHierarchyTab();
 
-			ImGui::End();
-		}
+	Camera* prev_selected = App->camera->background_camera;
+	App->camera->selected_camera = nullptr;
 
-		if (open_tabs[HIERARCHY])
-			DrawHierarchyTab();
+	if (open_tabs[OBJ_INSPECTOR])
+		DrawObjectInspectorTab();
 
-		Camera* prev_selected = App->camera->background_camera;
-		App->camera->selected_camera = nullptr;
+	if (!App->camera->selected_camera)
+		App->camera->selected_camera = prev_selected;
 
-		if (open_tabs[OBJ_INSPECTOR])
-			DrawObjectInspectorTab();
+	if (open_tabs[PRIMITIVE])
+		DrawPrimitivesTab();
 
-		if (!App->camera->selected_camera)
-			App->camera->selected_camera = prev_selected;
+	if (open_tabs[ABOUT])
+		DrawAboutLeaf();
+	
+	if (open_tabs[LOG])
+		app_log->Draw("App log",&open_tabs[LOG]);
 
-		if (open_tabs[PRIMITIVE])
-			DrawPrimitivesTab();
+	if (open_tabs[TIME_CONTROL])
+		DrawTimeControlWindow();
 
-		if (open_tabs[ABOUT])
-			DrawAboutLeaf();
+	if (open_tabs[QUADTREE_CONFIG])
+		DrawQuadtreeConfigWindow();
 
-		if (open_tabs[LOG])
-			app_log->Draw("App log", &open_tabs[LOG]);
+	if (open_tabs[CAMERA_MENU])
+		DrawCameraMenuWindow();
 
-		if (open_tabs[TIME_CONTROL])
-			DrawTimeControlWindow();
+	if (open_tabs[VIEWPORT_MENU])
+		DrawViewportsWindow();
 
-		if (open_tabs[QUADTREE_CONFIG])
-			DrawQuadtreeConfigWindow();
+	if (open_tabs[ASSET_WINDOW])
+		DrawAssetsWindow();
 
-		if (open_tabs[CAMERA_MENU])
-			DrawCameraMenuWindow();
-
-		if (open_tabs[VIEWPORT_MENU])
-			DrawViewportsWindow();
-
-		if (open_tabs[ASSET_WINDOW])
-			DrawAssetsWindow();
-
-		if (open_tabs[RESOURCES_TAB])
-			DrawResourcesWindow();
-
+	if (open_tabs[RESOURCES_TAB]) 
+		DrawResourcesWindow();
+	
+	if (open_tabs[SKYBOX_MENU])
+		DrawSkyboxWindow();
 
 	if (open_tabs[SCRIPT_EDITOR])
 		DrawScriptEditor();
-
+	
 	if (open_tabs[SHADER_EDITOR])
 		DrawShaderEditor();
 
+	if (open_tabs[BUILD_MENU])
+		DrawBuildMenu();
 
-		if (open_tabs[SCRIPT_EDITOR])
-			DrawScriptEditor();
+	if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
+		App->gui->DrawGuizmo();
 
-		if (open_tabs[BUILD_MENU])
-			DrawBuildMenu();
+	for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
+	{
+		if ((*it)->draw_in_UI)
+			DrawCameraViewWindow(*(*it));
+	}
 
-		if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
-			App->gui->DrawGuizmo();
-
-		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
-		{
-			if ((*it)->draw_in_UI)
-				DrawCameraViewWindow(*(*it));
-		}
-
-		if (ImGui::BeginMainMenuBar()) {
-			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("Quit"))
-					App->CLOSE_APP();
-				if (ImGui::MenuItem("Import file"))
-				{
-					std::string file_path = openFileWID();
-					std::string extension = file_path;
-					App->fs.getExtension(extension);
-					App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
-					app_log->AddLog("%s copied to Assets folder", file_path.c_str());
-				}
-				if (ImGui::MenuItem("Save scene")) {
-					if (App->scene->existingScene())
-						App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
-					else {
-						file_save = true;
-					}
-
-				}
-				if (ImGui::MenuItem("Save scene as...")) {
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Quit"))
+				App->CLOSE_APP();
+			if (ImGui::MenuItem("Import file"))
+			{
+				std::string file_path = openFileWID();
+				std::string extension = file_path;
+				App->fs.getExtension(extension);
+				App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
+				app_log->AddLog("%s copied to Assets folder", file_path.c_str());
+			}
+			if (ImGui::MenuItem("Save scene")) {
+				if (App->scene->existingScene())
+					App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
+				else{
 					file_save = true;
 				}
-				if (ImGui::MenuItem("Load scene")) {
-					std::string file_path = openFileWID();
-					App->scene->AskSceneLoadFile((char*)file_path.c_str());
-				}
-				if (ImGui::BeginMenu("Configuration")) {
-					if (ImGui::MenuItem("Save Configuration"))
-						App->SaveConfig();
-					if (ImGui::MenuItem("Delete Configuration"))
-						App->DeleteConfig();
-					if (ImGui::MenuItem("Load Default Configuration"))
-						App->LoadDefaultConfig();
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::MenuItem("Clean library (App will shut down)"))
-					App->resources->CleanResources();
-
-				if (ImGui::MenuItem("Make Build"))
-				{
-					open_tabs[BUILD_MENU] = true;
-				}
-
-				ImGui::EndMenu();
+				
 			}
-			if (ImGui::BeginMenu("View")) {
-				ImGui::MenuItem("Hierarchy", NULL, &open_tabs[HIERARCHY]);
-				ImGui::MenuItem("Object Inspector", NULL, &open_tabs[OBJ_INSPECTOR]);
-				ImGui::MenuItem("Primitive", NULL, &open_tabs[PRIMITIVE]);
-				ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
-				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
-				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
-				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
-				ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
-				ImGui::MenuItem("Assets", NULL, &open_tabs[ASSET_WINDOW]);
-				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
-				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
-				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
-				ImGui::EndMenu();
+			if (ImGui::MenuItem("Save scene as...")){
+				file_save = true;
 			}
-			if (ImGui::BeginMenu("Help")) {
-				ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
-				if (ImGui::MenuItem("Documentation"))
-					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
-				if (ImGui::MenuItem("Download latest"))
-					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
-				if (ImGui::MenuItem("Report a bug"))
-					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
+			if (ImGui::MenuItem("Load scene")){
+				std::string file_path = openFileWID();
+				App->scene->AskSceneLoadFile((char*)file_path.c_str());
+			}
+			if(ImGui::BeginMenu("Configuration")){
+				if (ImGui::MenuItem("Save Configuration"))
+					App->SaveConfig();
+				if (ImGui::MenuItem("Delete Configuration"))
+					App->DeleteConfig();
+				if (ImGui::MenuItem("Load Default Configuration"))
+					App->LoadDefaultConfig();
 				ImGui::EndMenu();
 			}
 
-			std::string current_viewport = "Viewport: Free camera";
+			if (ImGui::MenuItem("Clean library (App will shut down)"))
+				App->resources->CleanResources();
 
-			switch (App->camera->selected_camera->getViewportDir())
+			if (ImGui::MenuItem("Make Build"))
 			{
-			case VP_RIGHT: current_viewport = "Viewport: Right"; break;
-			case VP_LEFT: current_viewport = "Viewport: Left"; break;
-			case VP_UP: current_viewport = "Viewport: Up"; break;
-			case VP_DOWN: current_viewport = "Viewport: Down"; break;
-			case VP_FRONT: current_viewport = "Viewport: Front"; break;
-			case VP_BACK: current_viewport = "Viewport: Back"; break;
-			default: break;
+				open_tabs[BUILD_MENU] = true;
 			}
 
-<<<<<<< HEAD
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("View")) {
@@ -397,86 +345,83 @@ update_status ModuleUI::Update(float dt) {
 		case VP_BACK: current_viewport	= "Viewport: Back"; break;
 		default: break;
 		}
-
-		if (ImGui::BeginMenu(current_viewport.c_str()))
+			
+		if (ImGui::BeginMenu(current_viewport.c_str())) 
 		{
-				if (App->camera->selected_camera != App->camera->editor_camera)
+			if (App->camera->selected_camera != App->camera->editor_camera)
+			{
+				if (ImGui::MenuItem("Free Camera"))
 				{
-					if (ImGui::MenuItem("Free Camera"))
-					{
-						App->camera->selected_camera->active = false;
-						App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
-						App->camera->selected_camera->active = true;
-					}
+					App->camera->selected_camera->active = false;
+					App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
+					App->camera->selected_camera->active = true;
 				}
-
-				std::string viewport_name;
-				for (int i = 0; i < 6; i++)
-				{
-					if (App->camera->selected_camera != App->camera->viewports[i])
-					{
-						if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
-						{
-							App->camera->background_camera->active = false;
-							App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
-							App->camera->background_camera->active = true;
-						}
-					}
-				}
-
-				ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
-
-				ImGui::EndMenu();
 			}
 
-		}
-		ImGui::EndMainMenuBar();
-
-		if (file_save) {
-			disable_keyboard_control = true;
-			ImGui::Begin("Scene Name", &file_save);
-			ImGui::PushFont(ui_fonts[REGULAR]);
-
-			static char rename_buffer[64];
-			ImGui::InputText("Save as...", rename_buffer, 64);
-			ImGui::SameLine();
-			if (ImGui::Button("Save")) {
-				App->scene->AskSceneSaveFile(rename_buffer);
-				for (int i = 0; i < 64; i++)
-					rename_buffer[i] = '\0';
-				file_save = false;
-			}
-			ImGui::PopFont();
-			ImGui::End();
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
-			open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
+			std::string viewport_name;
 			for (int i = 0; i < 6; i++)
-				App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+			{
+				if (App->camera->selected_camera != App->camera->viewports[i])
+				{
+					if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
+					{
+						App->camera->background_camera->active = false;
+						App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
+						App->camera->background_camera->active = true;
+					}
+				}
+			}
+
+			ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
+			
+			ImGui::EndMenu();
 		}
-		InvisibleDockingEnd();
+	
 	}
+	ImGui::EndMainMenuBar();
+
+	if (file_save) {
+		disable_keyboard_control = true;
+		ImGui::Begin("Scene Name", &file_save);
+		ImGui::PushFont(ui_fonts[REGULAR]);
+
+		static char rename_buffer[64];
+		ImGui::InputText("Save as...", rename_buffer, 64);
+		ImGui::SameLine();
+		if (ImGui::Button("Save")) {
+			App->scene->AskSceneSaveFile(rename_buffer);
+			for (int i = 0; i < 64; i++)
+				rename_buffer[i] = '\0';
+			file_save = false;
+		}
+		ImGui::PopFont();
+		ImGui::End();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
+		open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
+		for (int i = 0; i < 6; i++)
+			App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+	}
+	InvisibleDockingEnd();
 	return UPDATE_CONTINUE;
+
 }
 
 update_status ModuleUI::PostUpdate(float dt) {
 	// Rendering
-	if (!App->is_game)
-	{
-		ImGui::Render();
+	ImGui::Render();
+	
+	glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
 
-		glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
-
-		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-	}
+	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
 	return UPDATE_CONTINUE;
 
 }
 
-bool ModuleUI::CleanUp()
-{
+bool ModuleUI::CleanUp() 
+{	
 	for (int i = 0; i < LAST_UI_TEX; i++) { // Cleanup textures
 		delete ui_textures[i];
 	}
@@ -535,9 +480,9 @@ void ModuleUI::DrawHierarchyTab()
 	bool item_hovered = false;
 
 	for (auto it = root_objs.begin(); it != root_objs.end(); it++)
-		if (DrawHierarchyNode(*(*it), id))
+		if (DrawHierarchyNode(*(*it), id)) 
 			item_hovered = true;
-
+		
 	if (ImGui::IsWindowHovered())
 	{
 		if (!item_hovered&&App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
@@ -553,7 +498,7 @@ void ModuleUI::DrawHierarchyTab()
 			GameObject* parent = nullptr;
 			if (!App->scene->selected_obj.empty())
 				parent = *App->scene->selected_obj.begin();
-
+			
 			GameObject* go = new GameObject("Empty", parent);
 			if (!App->scene->selected_obj.empty())
 				(*App->scene->selected_obj.begin())->addChild(go);
@@ -565,12 +510,12 @@ void ModuleUI::DrawHierarchyTab()
 				GameObject* parent = nullptr;
 				if (!App->scene->selected_obj.empty() ) {
 					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = *(App->scene->selected_obj.begin());
+						parent = *(App->scene->selected_obj.begin());						
 					}
 
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas
+					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* image = new GameObject("UI_Image", parent, true);
@@ -587,16 +532,16 @@ void ModuleUI::DrawHierarchyTab()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas
+					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* text = new GameObject("UI_Text", parent, true);
 					text->addComponent(Component_type::UI_TEXT);
 					parent->addChild(text);
 				}
-
+				
 			}
-
+			
 			if (ImGui::MenuItem("UI_Button"))
 			{
 				GameObject* parent = nullptr;
@@ -606,7 +551,7 @@ void ModuleUI::DrawHierarchyTab()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas
+					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* button = new GameObject("UI_Button", parent, true);
@@ -614,7 +559,7 @@ void ModuleUI::DrawHierarchyTab()
 					button->addComponent(Component_type::UI_BUTTON);
 					parent->addChild(button);
 				}
-
+				
 			}
 			if (ImGui::MenuItem("UI_CheckBox"))
 			{
@@ -625,7 +570,7 @@ void ModuleUI::DrawHierarchyTab()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas
+					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
@@ -633,7 +578,7 @@ void ModuleUI::DrawHierarchyTab()
 					chbox->addComponent(Component_type::UI_CHECKBOX);
 					parent->addChild(chbox);
 				}
-
+				
 			}
 			ImGui::TreePop();
 		}
@@ -644,17 +589,17 @@ void ModuleUI::DrawHierarchyTab()
 	ImGui::End();
 }
 
-bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
+bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id) 
 {
 	id++;
 	static int selection_mask = (1 << 2);
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick; 
 
 	std::list<GameObject*> children;
 	game_object.getChildren(children);
 
 	if(children.empty())
-		node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; 
 	for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
 		if (*it == &game_object) {
 			node_flags |= ImGuiTreeNodeFlags_Selected;
@@ -665,7 +610,7 @@ bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
 	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)game_object.getUUID(), node_flags, game_object.getName().c_str()) && !children.empty();
 	bool item_hovered = ImGui::IsItemHovered();
 
-
+	
 	if(!App->scene->selected_obj.empty() && (*App->scene->selected_obj.begin()) == &game_object)
 		selection_mask = (1 << id);
 	else if (App->scene->selected_obj.empty())
@@ -682,7 +627,7 @@ bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
 		{
 			App->scene->selected_obj.push_back(&game_object);
 		}
-
+		
 	}
 	else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
 		ImGui::OpenPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str());
@@ -782,12 +727,10 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
 				if (ImGui::Button("Add Script")) select_script = true;
 				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
 				if (ImGui::Button("Add Audio Source")) select_audio = true;
-				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER);
+				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
 				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-				if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
 			}
 
 			std::list<Component*> components;
@@ -885,7 +828,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ImGui::SameLine();
 				if (ImGui::Checkbox("Draw normals", &draw_normals))
 					c_mesh->setDrawNormals(draw_normals);
-
+				
 				if (!c_mesh->getMesh()) {
 					static bool add_mesh_menu = false;
 					if (ImGui::Button("Add mesh")) {
@@ -932,8 +875,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 						ImGui::TreePop();
 					}
 				}
-
-
+				
+				
 				if (ImGui::TreeNode("Material"))
 				{
 					if (Material* material = c_mesh->getMaterial())
@@ -1079,7 +1022,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					ImGui::Text("Num Bones: %d", c_mesh->components_bones.size());
 					ImGui::TreePop();
 				}
-
+			
 			}
 
 			if (ImGui::Button("Remove Component##Remove mesh"))
@@ -1087,7 +1030,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	case TRANSFORM:
-		if (ImGui::CollapsingHeader("Transform"))
+		if (ImGui::CollapsingHeader("Transform")) 
 		{
 			ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
 			ComponentTransform* c_trans = (ComponentTransform*)&component;
@@ -1135,7 +1078,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 			if (!c_trans->constraints[0][2])	ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
 			else								ImGui::Text("%.2f", position.z);
-
+			
 			//rotation
 			ImGui::Text("Rotation:");
 			ImGui::SameLine();
@@ -1176,7 +1119,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			}
 
 			ImGui::Checkbox("Draw axis", &c_trans->draw_axis);
-
+			
 			if (ImGui::CollapsingHeader("	Constraints"))
 			{
 				ImGui::Text("Position:");
@@ -1322,7 +1265,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			}
 			else{
 				for (auto it = c_script->instance_data->vars.begin(); it != c_script->instance_data->vars.end(); it++) {
-
+				
 					if (!(*it).isPublic())
 						continue;
 
@@ -1413,7 +1356,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ret = false;
 
 		}
-
+	
 	}
 	break;
 	case AUDIOLISTENER:
@@ -1437,7 +1380,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		if (ImGui::CollapsingHeader("Audio Source"))
 		{
 			static bool select_audio = false;
-
+			
 			AkUniqueID ID = ((ComponentAudioSource*)&component)->sound_ID;
 			if (ID != 0)
 			{
@@ -1488,7 +1431,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					select_audio = false;
 				}
 				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
-
+					
 					if (ImGui::MenuItem((*it).c_str())) {
 						((ComponentAudioSource*)&component)->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
 						((ComponentAudioSource*)&component)->SetSoundName((*it).c_str());
@@ -2184,112 +2127,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	}
-	case ANIMATION_EVENT:
-	{
-		if (ImGui::CollapsingHeader("Animation Events"))
-		{
-			ComponentAnimationEvent* anim_evt = (ComponentAnimationEvent*)&component;
-			//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
-			//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
-
-			static bool set_animation_menu = false;
-			/*if (ImGui::Button((R_anim != nullptr) ? "Change Animation" : "Add Animation")) {
-				set_animation_menu = true;
-			}*/
-
-			/*if (set_animation_menu) {
-
-				std::list<resource_deff> anim_res;
-				App->resources->getAnimationResourceList(anim_res);
-
-				ImGui::Begin("Animation selector", &set_animation_menu);
-				for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
-					resource_deff anim_deff = (*it);
-					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						App->resources->deasignResource(anim->getAnimationResource());
-						App->resources->assignResource(anim_deff.uuid);
-						anim->setAnimationResource(anim_deff.uuid);
-						set_animation_menu = false;
-						break;
-					}
-				}
-
-				ImGui::End();
-			}*/
-
-			static bool animation_active;
-			animation_active = anim_evt->isActive();
-
-			if (ImGui::Checkbox("Active##active animation evt", &animation_active))
-				anim_evt->setActive(animation_active);
-
-			ImGui::Checkbox("Loop", &anim_evt->loop);
-
-
-			ImGui::InputInt("Duration", &anim_evt->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltip();
-				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-				ImGui::TextUnformatted("In Frames");
-				ImGui::PopTextWrapPos();
-				ImGui::EndTooltip();
-			}
-			ImGui::InputInt("FrameRate", &anim_evt->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
-
-			ImGui::InputFloat("Speed", &anim_evt->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltip();
-				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-				ImGui::TextUnformatted("Animation Speed Multiplier");
-				ImGui::PopTextWrapPos();
-				ImGui::EndTooltip();
-			}
-			//if (R_anim != nullptr)
-			{
-				if (App->time->getGameState() != GameState::PLAYING)
-				{
-					ImGui::Text("Play");
-					ImGui::SameLine();
-					ImGui::Text("Pause");
-				}
-				else if (anim_evt->isPaused())
-				{
-					if (ImGui::Button("Play"))
-						anim_evt->Play();
-					ImGui::SameLine();
-					ImGui::Text("Pause");
-				}
-				else
-				{
-					ImGui::Text("Play");
-					ImGui::SameLine();
-					if (ImGui::Button("Pause"))
-						anim_evt->Pause();
-				}
-
-				ImGui::Text("Animation info:");
-				ImGui::Text(" Duration: %.1f ms", anim_evt->own_ticks * anim_evt->ticksXsecond * 1000);
-				//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
-			}
-
-			if (ImGui::Button("AnimEditor"))
-				p_anim_evt->toggleActive();
-			if (p_anim_evt->isActive())
-				p_anim_evt->Draw();
-
-			if (ImGui::Button("Remove Component##Remove animation"))
-				ret = false;
-
-		}
-		break;
-	}
-	case COLLIDER_CUBE:
-	{	if (ImGui::CollapsingHeader("Collider Cube"))
-			ImGui::Text("This game object has a collider");
-	}
-	break;
+	
 	default:
 		break;
 	}
@@ -2313,7 +2151,7 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 
 		if(ImGui::IsWindowFocused())
 			App->camera->selected_camera = &camera;
-
+		
 		ImGui::SetWindowSize(ImVec2(frame_buffer->size_x / 3 + 30 , frame_buffer->size_y / 3 + 40));
 
 		if (ImGui::ImageButton((void*) (camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(frame_buffer->size_x / 3, frame_buffer->size_y / 3), nullptr, ImVec2(0, 1), ImVec2(1, 0)))
@@ -2386,7 +2224,7 @@ void ModuleUI::DrawCameraMenuWindow()
 			continue;
 
 		std::string name;
-		if ((*it)->getParent())
+		if ((*it)->getParent()) 
 			name = (*it)->getParent()->getParent()->getName() + "Camera";
 		else
 		{
@@ -2414,7 +2252,7 @@ void ModuleUI::DrawCameraMenuWindow()
 			}
 			else
 				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Background camera");
-
+			
 			ImGui::Checkbox("Draw camera view", &(*it)->draw_in_UI);
 
 			ImGui::Checkbox("Draw frustum", &(*it)->draw_frustum);
@@ -2471,7 +2309,7 @@ void ModuleUI::DrawAssetsWindow()
 	ImGui::Begin("Assets Window", &open_tabs[ASSET_WINDOW]);
 	int element_size = 64;
 	std::string path, name, extension;
-
+	
 	int column_num = (int)trunc(ImGui::GetWindowSize().x / (element_size + 20));
 	static bool item_hovered = false;
 
@@ -2512,7 +2350,7 @@ void ModuleUI::DrawAssetsWindow()
 
 		for (auto& it : directory_iterator(asset_window_path)) {
 
-			path = name = extension = it.path().generic_string();	// Separate path, name and extension
+			path = name = extension = it.path().generic_string();	// Separate path, name and extension	
 			App->fs.getExtension(extension);
 			App->fs.getPath(path);
 			App->fs.getFileNameFromPath(name);
@@ -2654,7 +2492,7 @@ void ModuleUI::DrawAssetsWindow()
 					}
 				}
 			}
-
+			
 			if (draw_warning || draw_caution)
 			{
 				ImGui::Image((void*)ui_textures[draw_warning ? WARNING_ICON : CAUTION_ICON]->getGLid(), ImVec2(16, 16));
@@ -2687,7 +2525,7 @@ void ModuleUI::DrawAssetsWindow()
 	static bool name_script = false;
 	if (ImGui::BeginPopup("##asset window context menu"))
 	{
-		if (ImGui::Button("Add script"))
+		if (ImGui::Button("Add script")) 
 			name_script = true;
 
 		ImGui::EndPopup();
@@ -2709,11 +2547,11 @@ void ModuleUI::DrawAssetsWindow()
 			App->fs.CreateEmptyFile(full_path.c_str());
 			open_script_path = full_path;
 			std::string file_initial_text;
-			file_initial_text =
+			file_initial_text = 
 				"\nimport \"ObjectLinker\" for ObjectLinker,\nEngineComunicator,\nInputComunicator\n"
-				"\n//For each var you declare, remember to create"
-				"\n//		setters [varname=(v) { __varname = v }]"
-				"\n//		and getters [varname { __varname }]"
+				"\n//For each var you declare, remember to create" 
+				"\n//		setters [varname=(v) { __varname = v }]" 
+				"\n//		and getters [varname { __varname }]" 
 				"\n//The construct method is mandatory, do not erase!"
 				"\n//The import statement at the top og the cript is mandatory, do not erase!"
 				"\n//Be careful not to overwrite the methods declared in Game/ScriptingAPI/ObjectLinker.wren"
@@ -2749,7 +2587,7 @@ void ModuleUI::DrawAssetInspector()
 		App->fs.getFileNameFromPath(name);
 
 		ImGui::Text(name.c_str());
-
+		
 		if (extension.empty())  // is directory
 		{
 			ImGui::Text("type: directory");
@@ -2795,7 +2633,7 @@ void ModuleUI::DrawAssetInspector()
 		}
 		else if (type == "script")
 		{
-
+			
 			ScriptData* script_data = ((ResourceScript*)res)->getData();
 
 			bool updated = false;
@@ -2881,7 +2719,7 @@ void ModuleUI::DrawResourcesWindow()
 //	ImGui::Begin("Audio", &open_tabs[AUDIO]);
 //	ImGui::PushFont(ui_fonts[REGULAR]);
 //	ImGui::Text("Use this tab to check and play loaded audio files");
-//
+//	
 //	for (auto it = App->audio->audio_files.begin(); it != App->audio->audio_files.end(); it++)
 //	{
 //		if (ImGui::TreeNode((*it)->name.c_str()))
@@ -2901,7 +2739,7 @@ void ModuleUI::DrawResourcesWindow()
 //	ImGui::End();
 //}
 
-void ModuleUI::DrawPrimitivesTab()
+void ModuleUI::DrawPrimitivesTab() 
 {
 	ImGui::Begin("Primitives", &open_tabs[PRIMITIVE]);
 	ImGui::PushFont(ui_fonts[REGULAR]);
@@ -2971,7 +2809,7 @@ void ModuleUI::DrawSkyboxWindow()
 			}
 
 			for(int i = 0; i < 6; i++)
-			{
+			{ 
 				char* label = "";
 				Texture* texture = nullptr;
 
@@ -3014,7 +2852,7 @@ void ModuleUI::DrawSkyboxWindow()
 	}
 
 	ImGui::End();
-
+	
 }
 
 void ModuleUI::DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* reference_col)
@@ -3031,7 +2869,7 @@ void ModuleUI::DrawScriptEditor()
 		App->scripting->edited_scripts.at(open_script_path) = script_editor.GetText();
 	else
 		App->scripting->edited_scripts.insert(std::make_pair(open_script_path, script_editor.GetText()));
-
+	
 	disable_keyboard_control = true; // Will disable keybord control forever
 	ImGui::PushFont(ui_fonts[IMGUI_DEFAULT]);
 	auto cpos = script_editor.GetCursorPosition();
@@ -3049,7 +2887,7 @@ void ModuleUI::DrawScriptEditor()
 			if (ImGui::MenuItem("Quit", "Alt-F4")) {
 				// Exit or something
 			}
-
+	
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit"))
@@ -3233,7 +3071,7 @@ void ModuleUI::DrawBuildMenu()
 	int i = 0;
 	bool remove = false;
 	int removeIndex = 0;
-	for (std::list<resource_deff>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
+	for (std::list<std::string>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
 		bool tick = main_scene[i];
@@ -3250,7 +3088,7 @@ void ModuleUI::DrawBuildMenu()
 		main_scene[i] = (main_scene[i] && !tick) ? true : tick;
 		ImGui::SameLine(57);
 
-		ImGui::Text((*it_s).asset.c_str());
+		ImGui::Text((*it_s).c_str());
 
 		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
 		ImGui::PushID("Remove" + i);
@@ -3287,7 +3125,7 @@ void ModuleUI::DrawBuildMenu()
 		for (auto it = scene_res.begin(); it != scene_res.end(); it++) {
 			resource_deff scene_deff = (*it);
 			if (ImGui::MenuItem(scene_deff.asset.c_str())) {
-				build_scenes.push_back((*it));
+				build_scenes.push_back((*it).asset);
 				main_scene.push_back(build_scenes.size() == 1);
 				pickScene = false;
 				break;
@@ -3324,30 +3162,9 @@ void ModuleUI::DrawBuildMenu()
 	ImGui::End();
 }
 
-uint ModuleUI::getMainScene() const
-{
-	uint index = 0;
-	uint ret = 0;
-
-	for (int i = 0; i < main_scene.size(); ++i)
-	{
-		if (main_scene[i])
-		{
-			index = i;
-			break;
-		}
-	}
-	if (build_scenes.size() > 0)
-	{
-		ret = (*std::next(build_scenes.begin(), index)).uuid;
-	}
-
-	return ret;
-}
-
 void ModuleUI::DrawAboutLeaf()
 {
-	ImGui::Begin("About", &open_tabs[ABOUT]);
+	ImGui::Begin("About", &open_tabs[ABOUT]); 
 	ImGui::PushFont(ui_fonts[REGULAR]);
 
 	ImGui::Text("Kuroko Engine");
@@ -3374,7 +3191,7 @@ void ModuleUI::DrawAboutLeaf()
 	ImGui::SameLine();
 	if (ImGui::Button("Learn more##mathgeolib"))
 		App->requestBrowser("http://clb.demon.fi/MathGeoLib/");
-	SDL_version compiled;
+	SDL_version compiled; 
 	SDL_GetVersion(&compiled);
 	ImGui::Text("SDL %d.%d.%d", compiled.major, compiled.major, compiled.patch);
 	ImGui::SameLine();
@@ -3503,7 +3320,7 @@ void ModuleUI::DrawWindowConfigLeaf() const
 	bool width_mod, height_mod = false;
 	width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
 	height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
-
+	
 	if(width_mod || height_mod)
 		App->window->setSize(window->width, window->height);
 
@@ -3524,10 +3341,10 @@ void ModuleUI::DrawWindowConfigLeaf() const
 	ImGui::PopFont();
 }
 
-void ModuleUI::DrawHardwareLeaf() const
+void ModuleUI::DrawHardwareLeaf() const 
 {
 	ImGui::PushFont(ui_fonts[REGULAR]);
-
+	
 	//CPUs
 	ImGui::Text("CPUs");
 	ImGui::SameLine();
@@ -3585,15 +3402,15 @@ void ModuleUI::DrawHardwareLeaf() const
 	ImGui::Text("VRAM Reserved:");
 	ImGui::SameLine();
 	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
-
+		
 	ImGui::PopFont();
 }
 
-void ModuleUI::DrawApplicationLeaf() const
+void ModuleUI::DrawApplicationLeaf() const 
 {
 	// HARDCODED (?)
 	ImGui::PushFont(ui_fonts[REGULAR]);
-
+	
 	ImGui::Text("App name: Kuroko Engine");
 	ImGui::Text("Organization: UPC CITM");
 	char title[25];
@@ -3601,7 +3418,7 @@ void ModuleUI::DrawApplicationLeaf() const
 	ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
 	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
 	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-
+	
 	ImGui::PopFont();
 }
 
@@ -3635,7 +3452,7 @@ void ModuleUI::DrawTimeControlWindow()
 	ui_textures[STOP]->getSize(w, h);
 	if (ImGui::ImageButton((void*)ui_textures[STOP]->getGLid(), ImVec2(w, h), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, App->time->getGameState() == STOPPED ? 1.0f : 0.0f)))
 		App->time->Stop();
-
+	
 
 	static int advance_frames = 1;
 	static float time_scale = 1;
@@ -3792,7 +3609,7 @@ void ModuleUI::DrawGuizmo()
 		default:
 			break;
 		}
-
+		
 		aux_transform.CalculateMatrix();
 		float4x4 mat = float4x4(aux_transform.getMatrix());
 		mat.Transpose();
@@ -3864,7 +3681,7 @@ void ModuleUI::DrawTagSelection(GameObject* object) {
 			inx_it++;
 		}
 	}
-
+	
 }
 
 void ModuleUI::SaveConfig(JSON_Object* config) const
@@ -3883,7 +3700,7 @@ void ModuleUI::SaveConfig(JSON_Object* config) const
 	//json_object_set_boolean(config, "audio", open_tabs[AUDIO]);
 }
 
-void ModuleUI::LoadConfig(const JSON_Object* config)
+void ModuleUI::LoadConfig(const JSON_Object* config) 
 {
 	open_tabs[CONFIGURATION]	= json_object_get_boolean(config, "configuration");
 	open_tabs[HIERARCHY]		= json_object_get_boolean(config, "hierarchy");

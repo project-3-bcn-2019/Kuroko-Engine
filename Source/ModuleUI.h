@@ -22,7 +22,6 @@ class TextEditor;
 // Panel Classes
 class Panel;
 class PanelAnimation;
-class PanelAnimationEvent;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, SHADER_EDITOR, LAST_UI_TAB };  
@@ -77,8 +76,6 @@ public:
 	void DrawShaderEditor();
 	void DrawBuildMenu();
 
-	uint getMainScene() const;
-
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
 
@@ -92,8 +89,8 @@ public:
 	bool disable_keyboard_control = false;
 
 	// Panels
-	PanelAnimation* p_anim = nullptr;
-	PanelAnimationEvent* p_anim_evt = nullptr;
+	PanelAnimation* p_anim;
+
 private:
 	
 	bool docking_background = true;
@@ -115,7 +112,7 @@ private:
 	std::string asset_window_path = ASSETS_FOLDER;
 	std::string selected_asset;
 
-	std::list<resource_deff> build_scenes;
+	std::list<std::string> build_scenes;
 	std::vector<bool> main_scene;
 };
 #endif

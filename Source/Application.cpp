@@ -61,13 +61,14 @@ Application::Application()
 	list_modules.push_back(importer);
 	list_modules.push_back(exporter);
 
-	list_modules.push_back(resources);
+	
 	
 	// Scenes
 	list_modules.push_back(scene);	
 	
 	list_modules.push_back(physics);
 
+	list_modules.push_back(resources);
 	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
@@ -116,10 +117,6 @@ bool Application::Init()
 	{
 		// Create library directory if it does not exist
 		App->fs.createMainDirectories();
-	}
-	else
-	{
-		App->scene->main_scene = json_object_get_number(config, "main_scene");
 	}
 
 	app_log->AddLog("Application Init --------------\n");

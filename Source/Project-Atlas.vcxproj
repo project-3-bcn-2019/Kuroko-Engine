@@ -81,7 +81,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ComponentAnimationEvent.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
@@ -210,8 +209,6 @@
     <ClInclude Include="ModuleScene.h" />
     <ClInclude Include="ModuleWindow.h" />
     <ClInclude Include="Panel.h" />
-    <ClInclude Include="PanelAnimationEvent.h" />
-    <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
@@ -248,11 +245,9 @@
     <ClInclude Include="Wren\wren_value.h" />
     <ClInclude Include="Wren\wren_vm.h" />
     <ClInclude Include="Wwise.h" />
-    <ClInclude Include="Wwise_IDs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="ComponentAnimationEvent.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -340,8 +335,6 @@
     <ClCompile Include="ModuleRenderer3D.cpp" />
     <ClCompile Include="ModuleScene.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
-    <ClCompile Include="PanelAnimationEvent.cpp" />
-    <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PCG Random\pcg_basic.c" />

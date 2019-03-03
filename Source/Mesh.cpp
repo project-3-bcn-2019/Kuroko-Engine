@@ -119,15 +119,13 @@ Mesh::~Mesh()
 
 void Mesh::setMorphedVertices(float3 * vertices)
 {
-	RELEASE_ARRAY(morphed_vertices);
+	RELEASE(morphed_vertices);
 	morphed_vertices = vertices;
 }
 
 void Mesh::LoadDataToVRAM()
 {
 	// create VBOs
-	glDeleteBuffers(1, &vboId);
-	glDeleteBuffers(1, &iboId);
 	glGenBuffers(1, &vboId);    // for vertex buffer
 	glGenBuffers(1, &iboId);    // for index buffer
 
