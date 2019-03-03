@@ -76,6 +76,7 @@ public:
 
 	GameObject* MousePicking(GameObject* ignore = nullptr);
 	float3 MousePickingHit(GameObject* ignore = nullptr);
+	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
 private:
@@ -96,6 +97,7 @@ private:
 	std::list<GameObject*>	game_objs_to_delete;
 
 	Quadtree * quadtree		= nullptr;
+	Frustum* dragging_frustum = nullptr;
 
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;

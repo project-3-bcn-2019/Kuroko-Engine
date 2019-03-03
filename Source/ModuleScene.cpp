@@ -149,13 +149,18 @@ update_status ModuleScene::Update(float dt)
 		obj->addComponent(COLLIDER_CUBE);
 
 	}
+	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_REPEAT && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
 
+		int i = 0;
+		//App->debug->addFrustum()
+	}
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
-		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
-		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
-
+		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);  //is it used?
+		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);//is it used?
 		
+		
+
 		GameObject* picked = MousePicking();
 		if (picked != nullptr) {
 			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
@@ -231,6 +236,17 @@ void ModuleScene::DrawScene(float3 camera_pos)
 
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }
 
+void ModuleScene::MouseDragging()
+{
+	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
+	float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
+	if (dragging_frustum == nullptr) 
+	{ 
+		dragging_frustum = new Frustum();
+		dragging_frustum = App->camera->selected_camera->getFrustum();
+		//dragging_frustum.
+	}
+}
 GameObject* ModuleScene::MousePicking(GameObject* ignore)
 {
 	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
@@ -354,6 +370,7 @@ float3 ModuleScene::MousePickingHit(GameObject* ignore)
 		return ray_hits.front().intersection_point;
 	}
 }
+
 
 GameObject* ModuleScene::duplicateGameObject(GameObject * gobj) {
 
