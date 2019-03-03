@@ -138,9 +138,12 @@ void ModuleAudio::LoadSoundBank(const char* path)
 
 void ModuleAudio::GetBanksAndEvents()
 {
+	if (!App->is_game)
+		App->fs.copyFileTo(SOUNDBANKSINFO, LIBRARY_AUDIO, ".json", "SoundBanksInfo");
+
 	std::vector<std::string> stringBanks;
 	std::vector<std::string> stringEvents;
-	std::string infoFile_path = "Assets/Audio/SoundbanksInfo.json";
+	std::string infoFile_path = "Library/Audio/SoundbanksInfo.json";
 	JSON_Value* infoFile = json_parse_file(infoFile_path.c_str());
 	if (!infoFile) {
 		app_log->AddLog("Couldn't load %s, no value", infoFile_path);
