@@ -108,45 +108,48 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 bool ModuleUI::Start()
 {
-	io = &ImGui::GetIO();
+	if (!App->is_game)
+	{
+		io = &ImGui::GetIO();
 
-	ui_textures[PLAY]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
-	ui_textures[PAUSE]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
-	ui_textures[STOP]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
-	ui_textures[ADVANCE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
+		ui_textures[PLAY] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
+		ui_textures[PAUSE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
+		ui_textures[STOP] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
+		ui_textures[ADVANCE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
 
-	ui_textures[GUIZMO_TRANSLATE]	= (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
-	ui_textures[GUIZMO_ROTATE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
-	ui_textures[GUIZMO_SCALE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
-	ui_textures[GUIZMO_LOCAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
-	ui_textures[GUIZMO_GLOBAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
-	ui_textures[GUIZMO_SELECT]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
+		ui_textures[GUIZMO_TRANSLATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
+		ui_textures[GUIZMO_ROTATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
+		ui_textures[GUIZMO_SCALE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
+		ui_textures[GUIZMO_LOCAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
+		ui_textures[GUIZMO_GLOBAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
+		ui_textures[GUIZMO_SELECT] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
 
-	ui_textures[NO_TEXTURE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
+		ui_textures[NO_TEXTURE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
 
-	ui_textures[FOLDER_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
-	ui_textures[OBJECT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
-	ui_textures[SCENE_ICON]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
-	ui_textures[RETURN_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
-	ui_textures[SCRIPT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
-	ui_textures[PREFAB_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+		ui_textures[FOLDER_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
+		ui_textures[OBJECT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
+		ui_textures[SCENE_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
+		ui_textures[RETURN_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
+		ui_textures[SCRIPT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
+		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
 
-	ui_textures[CAUTION_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
-	ui_textures[WARNING_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
+		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
+		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
 
-	ui_fonts[TITLES]				= io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
-	ui_fonts[REGULAR]				= io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
-	ui_fonts[IMGUI_DEFAULT]			= io->Fonts->AddFontDefault();
-	//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
-	//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
-	//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
-	
-	open_tabs[BUILD_MENU] = false;
+		ui_fonts[TITLES] = io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
+		ui_fonts[REGULAR] = io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
+		ui_fonts[IMGUI_DEFAULT] = io->Fonts->AddFontDefault();
+		//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
+		//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
+		//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
 
-	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io->IniFilename = "Settings\\imgui.ini";
-	docking_background = true;
+		open_tabs[BUILD_MENU] = false;
+
+		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io->IniFilename = "Settings\\imgui.ini";
+		docking_background = true;
+	}
 
 
 	// HARDCODE
@@ -157,12 +160,14 @@ bool ModuleUI::Start()
 
 update_status ModuleUI::PreUpdate(float dt) {
 
-	// Start the ImGui frame
-	ImGui_ImplOpenGL2_NewFrame();
+	if (!App->is_game)
+	{
+		// Start the ImGui frame
+		ImGui_ImplOpenGL2_NewFrame();
 
-	ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
-	ImGui::NewFrame();
-
+		ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
+		ImGui::NewFrame();
+	}
 	
 
 	//ImGui::ShowDemoWindow();
@@ -171,245 +176,249 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 update_status ModuleUI::Update(float dt) {
 
-
-	InvisibleDockingBegin();
-	static bool file_save = false;
-	disable_keyboard_control = false;
-
-
-	if (open_tabs[CONFIGURATION]) 
+	if (!App->is_game)
 	{
-		ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
+		InvisibleDockingBegin();
+		static bool file_save = false;
+		disable_keyboard_control = false;
 
-		if (ImGui::CollapsingHeader("Graphics")) 
-			DrawGraphicsLeaf();
-		if (ImGui::CollapsingHeader("Window"))
-			DrawWindowConfigLeaf();
-		if (ImGui::CollapsingHeader("Hardware"))
-			DrawHardwareLeaf();
-		if (ImGui::CollapsingHeader("Application"))
-			DrawApplicationLeaf();
-		if (ImGui::CollapsingHeader("Editor preferences"))
-			DrawEditorPreferencesLeaf();
 
-		if (ImGui::Button("Reset Camera"))
-			App->camera->editor_camera->Reset();
+		if (open_tabs[CONFIGURATION])
+		{
+			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
 
-		ImGui::End();
-	}
+			if (ImGui::CollapsingHeader("Graphics"))
+				DrawGraphicsLeaf();
+			if (ImGui::CollapsingHeader("Window"))
+				DrawWindowConfigLeaf();
+			if (ImGui::CollapsingHeader("Hardware"))
+				DrawHardwareLeaf();
+			if (ImGui::CollapsingHeader("Application"))
+				DrawApplicationLeaf();
+			if (ImGui::CollapsingHeader("Editor preferences"))
+				DrawEditorPreferencesLeaf();
 
-	if (open_tabs[HIERARCHY])
-		DrawHierarchyTab();
+			if (ImGui::Button("Reset Camera"))
+				App->camera->editor_camera->Reset();
 
-	Camera* prev_selected = App->camera->background_camera;
-	App->camera->selected_camera = nullptr;
+			ImGui::End();
+		}
 
-	if (open_tabs[OBJ_INSPECTOR])
-		DrawObjectInspectorTab();
+		if (open_tabs[HIERARCHY])
+			DrawHierarchyTab();
 
-	if (!App->camera->selected_camera)
-		App->camera->selected_camera = prev_selected;
+		Camera* prev_selected = App->camera->background_camera;
+		App->camera->selected_camera = nullptr;
 
-	if (open_tabs[PRIMITIVE])
-		DrawPrimitivesTab();
+		if (open_tabs[OBJ_INSPECTOR])
+			DrawObjectInspectorTab();
 
-	if (open_tabs[ABOUT])
-		DrawAboutLeaf();
-	
-	if (open_tabs[LOG])
-		app_log->Draw("App log",&open_tabs[LOG]);
+		if (!App->camera->selected_camera)
+			App->camera->selected_camera = prev_selected;
 
-	if (open_tabs[TIME_CONTROL])
-		DrawTimeControlWindow();
+		if (open_tabs[PRIMITIVE])
+			DrawPrimitivesTab();
 
-	if (open_tabs[QUADTREE_CONFIG])
-		DrawQuadtreeConfigWindow();
+		if (open_tabs[ABOUT])
+			DrawAboutLeaf();
 
-	if (open_tabs[CAMERA_MENU])
-		DrawCameraMenuWindow();
+		if (open_tabs[LOG])
+			app_log->Draw("App log", &open_tabs[LOG]);
 
-	if (open_tabs[VIEWPORT_MENU])
-		DrawViewportsWindow();
+		if (open_tabs[TIME_CONTROL])
+			DrawTimeControlWindow();
 
-	if (open_tabs[ASSET_WINDOW])
-		DrawAssetsWindow();
+		if (open_tabs[QUADTREE_CONFIG])
+			DrawQuadtreeConfigWindow();
 
-	if (open_tabs[RESOURCES_TAB]) 
-		DrawResourcesWindow();
-	
-	if (open_tabs[SKYBOX_MENU])
-		DrawSkyboxWindow();
+		if (open_tabs[CAMERA_MENU])
+			DrawCameraMenuWindow();
 
-	if (open_tabs[SCRIPT_EDITOR])
-		DrawScriptEditor();
+		if (open_tabs[VIEWPORT_MENU])
+			DrawViewportsWindow();
 
-	if (open_tabs[BUILD_MENU])
-		DrawBuildMenu();
+		if (open_tabs[ASSET_WINDOW])
+			DrawAssetsWindow();
 
-	if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
-		App->gui->DrawGuizmo();
+		if (open_tabs[RESOURCES_TAB])
+			DrawResourcesWindow();
 
-	for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
-	{
-		if ((*it)->draw_in_UI)
-			DrawCameraViewWindow(*(*it));
-	}
+		if (open_tabs[SKYBOX_MENU])
+			DrawSkyboxWindow();
 
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Quit"))
-				App->CLOSE_APP();
-			if (ImGui::MenuItem("Import file"))
-			{
-				std::string file_path = openFileWID();
-				std::string extension = file_path;
-				App->fs.getExtension(extension);
-				App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
-				app_log->AddLog("%s copied to Assets folder", file_path.c_str());
-			}
-			if (ImGui::MenuItem("Save scene")) {
-				if (App->scene->existingScene())
-					App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
-				else{
+		if (open_tabs[SCRIPT_EDITOR])
+			DrawScriptEditor();
+
+		if (open_tabs[BUILD_MENU])
+			DrawBuildMenu();
+
+		if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
+			App->gui->DrawGuizmo();
+
+		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
+		{
+			if ((*it)->draw_in_UI)
+				DrawCameraViewWindow(*(*it));
+		}
+
+		if (ImGui::BeginMainMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Quit"))
+					App->CLOSE_APP();
+				if (ImGui::MenuItem("Import file"))
+				{
+					std::string file_path = openFileWID();
+					std::string extension = file_path;
+					App->fs.getExtension(extension);
+					App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
+					app_log->AddLog("%s copied to Assets folder", file_path.c_str());
+				}
+				if (ImGui::MenuItem("Save scene")) {
+					if (App->scene->existingScene())
+						App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
+					else {
+						file_save = true;
+					}
+
+				}
+				if (ImGui::MenuItem("Save scene as...")) {
 					file_save = true;
 				}
-				
+				if (ImGui::MenuItem("Load scene")) {
+					std::string file_path = openFileWID();
+					App->scene->AskSceneLoadFile((char*)file_path.c_str());
+				}
+				if (ImGui::BeginMenu("Configuration")) {
+					if (ImGui::MenuItem("Save Configuration"))
+						App->SaveConfig();
+					if (ImGui::MenuItem("Delete Configuration"))
+						App->DeleteConfig();
+					if (ImGui::MenuItem("Load Default Configuration"))
+						App->LoadDefaultConfig();
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::MenuItem("Clean library (App will shut down)"))
+					App->resources->CleanResources();
+
+				if (ImGui::MenuItem("Make Build"))
+				{
+					open_tabs[BUILD_MENU] = true;
+				}
+
+				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Save scene as...")){
-				file_save = true;
+			if (ImGui::BeginMenu("View")) {
+				ImGui::MenuItem("Hierarchy", NULL, &open_tabs[HIERARCHY]);
+				ImGui::MenuItem("Object Inspector", NULL, &open_tabs[OBJ_INSPECTOR]);
+				ImGui::MenuItem("Primitive", NULL, &open_tabs[PRIMITIVE]);
+				ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
+				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
+				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
+				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
+				ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
+				ImGui::MenuItem("Assets", NULL, &open_tabs[ASSET_WINDOW]);
+				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
+				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
+				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Load scene")){
-				std::string file_path = openFileWID();
-				App->scene->AskSceneLoadFile((char*)file_path.c_str());
-			}
-			if(ImGui::BeginMenu("Configuration")){
-				if (ImGui::MenuItem("Save Configuration"))
-					App->SaveConfig();
-				if (ImGui::MenuItem("Delete Configuration"))
-					App->DeleteConfig();
-				if (ImGui::MenuItem("Load Default Configuration"))
-					App->LoadDefaultConfig();
+			if (ImGui::BeginMenu("Help")) {
+				ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
+				if (ImGui::MenuItem("Documentation"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
+				if (ImGui::MenuItem("Download latest"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
+				if (ImGui::MenuItem("Report a bug"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Clean library (App will shut down)"))
-				App->resources->CleanResources();
+			std::string current_viewport = "Viewport: Free camera";
 
-			if (ImGui::MenuItem("Make Build"))
+			switch (App->camera->selected_camera->getViewportDir())
 			{
-				open_tabs[BUILD_MENU] = true;
+			case VP_RIGHT: current_viewport = "Viewport: Right"; break;
+			case VP_LEFT: current_viewport = "Viewport: Left"; break;
+			case VP_UP: current_viewport = "Viewport: Up"; break;
+			case VP_DOWN: current_viewport = "Viewport: Down"; break;
+			case VP_FRONT: current_viewport = "Viewport: Front"; break;
+			case VP_BACK: current_viewport = "Viewport: Back"; break;
+			default: break;
 			}
 
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("View")) {
-			ImGui::MenuItem("Hierarchy", NULL, &open_tabs[HIERARCHY]);
-			ImGui::MenuItem("Object Inspector", NULL, &open_tabs[OBJ_INSPECTOR]);
-			ImGui::MenuItem("Primitive", NULL, &open_tabs[PRIMITIVE]);
-			ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
-			ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
-			ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
-			ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
-			ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
-			ImGui::MenuItem("Assets", NULL, &open_tabs[ASSET_WINDOW]);
-			ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
-			ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
-			ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Help")) {
-			ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
-			if(ImGui::MenuItem("Documentation"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
-			if(ImGui::MenuItem("Download latest"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
-			if(ImGui::MenuItem("Report a bug"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
-			ImGui::EndMenu();
-		}
-
-		std::string current_viewport = "Viewport: Free camera";
-
-		switch (App->camera->selected_camera->getViewportDir())
-		{
-		case VP_RIGHT: current_viewport = "Viewport: Right"; break;
-		case VP_LEFT: current_viewport	= "Viewport: Left"; break;
-		case VP_UP: current_viewport	= "Viewport: Up"; break;
-		case VP_DOWN: current_viewport	= "Viewport: Down"; break;
-		case VP_FRONT: current_viewport = "Viewport: Front"; break;
-		case VP_BACK: current_viewport	= "Viewport: Back"; break;
-		default: break;
-		}
-			
-		if (ImGui::BeginMenu(current_viewport.c_str())) 
-		{
-			if (App->camera->selected_camera != App->camera->editor_camera)
+			if (ImGui::BeginMenu(current_viewport.c_str()))
 			{
-				if (ImGui::MenuItem("Free Camera"))
+				if (App->camera->selected_camera != App->camera->editor_camera)
 				{
-					App->camera->selected_camera->active = false;
-					App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
-					App->camera->selected_camera->active = true;
-				}
-			}
-
-			std::string viewport_name;
-			for (int i = 0; i < 6; i++)
-			{
-				if (App->camera->selected_camera != App->camera->viewports[i])
-				{
-					if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
+					if (ImGui::MenuItem("Free Camera"))
 					{
-						App->camera->background_camera->active = false;
-						App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
-						App->camera->background_camera->active = true;
+						App->camera->selected_camera->active = false;
+						App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
+						App->camera->selected_camera->active = true;
 					}
 				}
+
+				std::string viewport_name;
+				for (int i = 0; i < 6; i++)
+				{
+					if (App->camera->selected_camera != App->camera->viewports[i])
+					{
+						if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
+						{
+							App->camera->background_camera->active = false;
+							App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
+							App->camera->background_camera->active = true;
+						}
+					}
+				}
+
+				ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
+
+				ImGui::EndMenu();
 			}
 
-			ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
-			
-			ImGui::EndMenu();
 		}
-	
-	}
-	ImGui::EndMainMenuBar();
+		ImGui::EndMainMenuBar();
 
-	if (file_save) {
-		disable_keyboard_control = true;
-		ImGui::Begin("Scene Name", &file_save);
-		ImGui::PushFont(ui_fonts[REGULAR]);
+		if (file_save) {
+			disable_keyboard_control = true;
+			ImGui::Begin("Scene Name", &file_save);
+			ImGui::PushFont(ui_fonts[REGULAR]);
 
-		static char rename_buffer[64];
-		ImGui::InputText("Save as...", rename_buffer, 64);
-		ImGui::SameLine();
-		if (ImGui::Button("Save")) {
-			App->scene->AskSceneSaveFile(rename_buffer);
-			for (int i = 0; i < 64; i++)
-				rename_buffer[i] = '\0';
-			file_save = false;
+			static char rename_buffer[64];
+			ImGui::InputText("Save as...", rename_buffer, 64);
+			ImGui::SameLine();
+			if (ImGui::Button("Save")) {
+				App->scene->AskSceneSaveFile(rename_buffer);
+				for (int i = 0; i < 64; i++)
+					rename_buffer[i] = '\0';
+				file_save = false;
+			}
+			ImGui::PopFont();
+			ImGui::End();
 		}
-		ImGui::PopFont();
-		ImGui::End();
-	}
 
-	if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
-		open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
-		for (int i = 0; i < 6; i++)
-			App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+		if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
+			open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
+			for (int i = 0; i < 6; i++)
+				App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+		}
+		InvisibleDockingEnd();
 	}
-	InvisibleDockingEnd();
 	return UPDATE_CONTINUE;
-
 }
 
 update_status ModuleUI::PostUpdate(float dt) {
 	// Rendering
-	ImGui::Render();
-	
-	glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
+	if (!App->is_game)
+	{
+		ImGui::Render();
 
-	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+		glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
+
+		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+	}
 
 	return UPDATE_CONTINUE;
 
@@ -2970,7 +2979,7 @@ void ModuleUI::DrawBuildMenu()
 	int i = 0;
 	bool remove = false;
 	int removeIndex = 0;
-	for (std::list<std::string>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
+	for (std::list<resource_deff>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
 		bool tick = main_scene[i];
@@ -2987,7 +2996,7 @@ void ModuleUI::DrawBuildMenu()
 		main_scene[i] = (main_scene[i] && !tick) ? true : tick;
 		ImGui::SameLine(57);
 
-		ImGui::Text((*it_s).c_str());
+		ImGui::Text((*it_s).asset.c_str());
 
 		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
 		ImGui::PushID("Remove" + i);
@@ -3024,7 +3033,7 @@ void ModuleUI::DrawBuildMenu()
 		for (auto it = scene_res.begin(); it != scene_res.end(); it++) {
 			resource_deff scene_deff = (*it);
 			if (ImGui::MenuItem(scene_deff.asset.c_str())) {
-				build_scenes.push_back((*it).asset);
+				build_scenes.push_back((*it));
 				main_scene.push_back(build_scenes.size() == 1);
 				pickScene = false;
 				break;
@@ -3059,6 +3068,27 @@ void ModuleUI::DrawBuildMenu()
 		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
 	}
 	ImGui::End();
+}
+
+uint ModuleUI::getMainScene() const
+{
+	uint index = 0;
+	uint ret = 0;
+
+	for (int i = 0; i < main_scene.size(); ++i)
+	{
+		if (main_scene[i])
+		{
+			index = i;
+			break;
+		}
+	}
+	if (build_scenes.size() > 0)
+	{
+		ret = (*std::next(build_scenes.begin(), index)).uuid;
+	}
+
+	return ret;
 }
 
 void ModuleUI::DrawAboutLeaf()
