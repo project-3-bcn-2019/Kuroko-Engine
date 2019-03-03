@@ -13,6 +13,7 @@ ComponentAnimationEvent::ComponentAnimationEvent(JSON_Object* deff, GameObject* 
 	// resource if needed
 
 	own_ticks = json_object_get_number(deff, "own_ticks");
+	ticksXsecond = json_object_get_number(deff, "ticksXsecond");
 
 	JSON_Value* comp_arr_val = json_object_get_value(deff, "comp_arr");
 	JSON_Array* comp_arr = json_value_get_array(comp_arr_val);
@@ -92,7 +93,13 @@ bool ComponentAnimationEvent::Update(float dt)
 
 void ComponentAnimationEvent::Save(JSON_Object* config)
 {
+	json_object_set_string(config, "type", "animation_event");
+
+	json_object_set_boolean(config, "loop", loop);
+	json_object_set_number(config, "speed", speed);
+
 	json_object_set_number(config, "own_ticks", own_ticks);
+	json_object_set_number(config, "ticksXsecond", ticksXsecond);
 
 	JSON_Value* comp_arr_val = json_value_init_array();
 	JSON_Array* comp_arr = json_value_get_array(comp_arr_val);

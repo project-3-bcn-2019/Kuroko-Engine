@@ -96,6 +96,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "particle_emitter") {
 			component = new ComponentParticleEmitter(component_deff, this);
 		}
+		else if (type == "animation_event") {
+			component = new ComponentAnimationEvent(component_deff, this);
+		}
 
 		// Set component's parent-child
 		if (!component){
@@ -424,6 +427,9 @@ void GameObject::addComponent(Component* component)
 		components.push_back(component);
 		break;
 	case PARTICLE_EMITTER:
+		components.push_back(component);
+		break;
+	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
 	default:
