@@ -65,14 +65,14 @@ bool ComponentAnimationEvent::Update(float dt)
 {
 	std::list<Component*> components;
 	parent->getComponents(components);
-	for (auto it = AnimEvts.begin(); it != AnimEvts.end(); ++it)
+	for (auto it = curr->AnimEvts.begin(); it != curr->AnimEvts.end(); ++it)
 	{
 		for (auto it_components = components.begin(); it_components != components.end(); ++it_components)
 		{
 			if (it_components._Ptr->_Myval->getUUID() == it->first)
 			{
 				// Get the keyframe of animation currently and if so then
-				int expected_keyframe = animTime * ticksXsecond;
+				int expected_keyframe = animTime * curr->ticksXsecond;
 				/*
 				if (animation_resource_uuid != 0)
 				{
