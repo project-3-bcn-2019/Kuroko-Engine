@@ -64,7 +64,7 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Prefabs", GetAssetFolderUUIDs("\\Assets\\Prefabs\\*"));
 	json_object_set_value(json_object(json), "Scenes", GetAssetFolderUUIDs("\\Assets\\Scenes\\*"));
 	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts\\*"));
-	json_object_set_value(json_object(json), "Sounds", GetAssetFolderUUIDs("\\Assets\\Sounds\\*"));
+	json_object_set_value(json_object(json), "Audio", GetAssetFolderUUIDs("\\Assets\\Audio\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
 	//Missing: animations and bones

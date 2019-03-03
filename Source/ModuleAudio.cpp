@@ -44,7 +44,7 @@ bool ModuleAudio::Start()
 {
 	bool ret = Wwise::InitWwise();
 	SetVolume(75);
-	LoadSoundBank(std::to_string(App->resources->getAudioResourceUuid("Assets/Audio/Character.bnk")).c_str());
+	LoadSoundBank(std::to_string(App->resources->getAudioResourceUuid("Character")).c_str());
 
 	return ret;
 }
