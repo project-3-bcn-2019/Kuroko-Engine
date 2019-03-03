@@ -43,6 +43,7 @@
 #include "ResourceTexture.h"
 #include "Resource3dObject.h"
 #include "ResourceAnimation.h"
+#include "ResourceMesh.h"
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
@@ -102,7 +103,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 	InitializeScriptEditor();
 
 	// If it is a game build, we hide UI
-	enabled = !App->is_game;
+	//enabled = !App->is_game;
 
 
 	return true;
@@ -110,7 +111,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 bool ModuleUI::Start()
 {
-	if (!App->is_game)
+	if (!App->is_game || true)
 	{
 		io = &ImGui::GetIO();
 
@@ -162,7 +163,7 @@ bool ModuleUI::Start()
 
 update_status ModuleUI::PreUpdate(float dt) {
 
-	if (!App->is_game)
+	if (!App->is_game || true)
 	{
 		// Start the ImGui frame
 		ImGui_ImplOpenGL2_NewFrame();
@@ -178,7 +179,7 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 update_status ModuleUI::Update(float dt) {
 
-	if (!App->is_game)
+	if (!App->is_game || true)
 	{
 		InvisibleDockingBegin();
 		static bool file_save = false;
@@ -413,7 +414,7 @@ update_status ModuleUI::Update(float dt) {
 
 update_status ModuleUI::PostUpdate(float dt) {
 	// Rendering
-	if (!App->is_game)
+	if (!App->is_game || true)
 	{
 		ImGui::Render();
 
@@ -818,6 +819,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			if (mesh_active)
 			{
+				ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(c_mesh->getMeshResource());
+				ImGui::Text("Resource: %s", (R_mesh != nullptr) ? R_mesh->asset.c_str() : "None");
 
 				if (ImGui::Checkbox("Wireframe", &wireframe_enabled))
 					c_mesh->setWireframe(wireframe_enabled);

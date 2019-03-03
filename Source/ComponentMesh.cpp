@@ -30,7 +30,11 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-		if (parent3dobject) // Means that is being loaded from a scene
+		if (App->is_game)
+		{
+			setMeshResourceId(App->resources->getResourceUuid(json_object_get_string(deff, "mesh_name"), R_MESH));		
+		}
+		else if (parent3dobject) // Means that is being loaded from a scene
 			mesh_resource_uuid = App->resources->getMeshResourceUuid(parent3dobject, json_object_get_string(deff, "mesh_name"));
 		else // Means it is being loaded from a 3dObject binary
 			mesh_resource_uuid = json_object_get_number(deff, "mesh_resource_uuid");
@@ -184,7 +188,9 @@ Mesh* ComponentMesh::getMesh() const {
 }
 void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 
+	App->resources->deasignResource(mesh_resource_uuid);
 	mesh_resource_uuid = _mesh_resource_uuid;
+	App->resources->assignResource(mesh_resource_uuid);
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->Reload();
 
 	components_bones.clear();
