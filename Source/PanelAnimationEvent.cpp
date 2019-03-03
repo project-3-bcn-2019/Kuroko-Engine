@@ -81,6 +81,13 @@ void PanelAnimationEvent::Draw()
 			if (ImGui::Button("Add Key")) new_keyframe_win = true;
 			ImGui::SameLine();
 			if (ImGui::Button("Del Key")) del_keyframe_win = true;
+			ImGui::SameLine();
+			if (ImGui::Button("Delete All Keys")) 
+			{
+				auto get = c_AnimEvt->AnimEvts.find(selected_component->getUUID());
+				if (get != c_AnimEvt->AnimEvts.end())
+					get->second.clear();
+			}
 
 			if(new_keyframe_win)
 				AddKeyframe();
