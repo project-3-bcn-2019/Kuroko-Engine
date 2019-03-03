@@ -25,15 +25,13 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
-
 #include "ModulePhysics3D.h"
-
 #include "ModuleImporter.h" // TODO: remove this include and set skybox creation in another module (Importer?, delayed until user input?)
+#include "Wwise_IDs.h"
 #include "MathGeoLib\Geometry\LineSegment.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "Random.h"
 
-#include "../Game/Assets/Audio/Wwise_IDs.h"
 #include "ImGui\imgui.h"
 
 #include <array>
