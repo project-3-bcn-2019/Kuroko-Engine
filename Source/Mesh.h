@@ -14,6 +14,7 @@ class aiScene;
 class Material;
 class ComponentAnimation;
 class Texture;
+class GameObject;
 
 enum PrimitiveTypes
 {

@@ -98,6 +98,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 	LoadConfig(config);
 
 	InitializeScriptEditor();
+	InitializeScriptEditor();
 
 	// If it is a game build, we hide UI
 	enabled = !App->is_game;
@@ -242,6 +243,9 @@ update_status ModuleUI::Update(float dt) {
 
 	if (open_tabs[SCRIPT_EDITOR])
 		DrawScriptEditor();
+	
+	if (open_tabs[SHADER_EDITOR])
+		DrawShaderEditor();
 
 	if (open_tabs[BUILD_MENU])
 		DrawBuildMenu();
@@ -315,6 +319,7 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
 			ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
 			ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+			ImGui::MenuItem("Shader Editor",NULL, &open_tabs[SHADER_EDITOR]);
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Help")) {
@@ -448,7 +453,19 @@ void ModuleUI::InitializeScriptEditor()
 
 }
 
+void ModuleUI::InitializeShaderEditor()
+{
+	shader_editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
+	open_shader_path = "";
 
+	std::ifstream t(open_shader_path.c_str());
+	if (t.good())
+	{
+		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+		shader_editor.SetText(str);
+	}
+
+}
 
 
 void ModuleUI::DrawHierarchyTab()
@@ -2929,6 +2946,94 @@ void ModuleUI::DrawScriptEditor()
 	c_keys._V = App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN;
 
 	script_editor.Render("TextEditor", ui_fonts[IMGUI_DEFAULT], c_keys);
+	ImGui::PopFont();
+	ImGui::End();
+}
+
+void ModuleUI::DrawShaderEditor()
+{
+	if (App->scripting->edited_scripts.find(open_shader_path) != App->scripting->edited_scripts.end())
+		App->scripting->edited_scripts.at(open_shader_path) = shader_editor.GetText();
+	else
+		App->scripting->edited_scripts.insert(std::make_pair(open_shader_path, shader_editor.GetText()));
+
+	disable_keyboard_control = true; // Will disable keybord control forever
+	ImGui::PushFont(ui_fonts[IMGUI_DEFAULT]);
+	auto cpos = shader_editor.GetCursorPosition();
+
+	ImGui::Begin("Shader Editor", &open_tabs[SHADER_EDITOR], ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save"))
+			{
+				auto textToSave = shader_editor.GetText();
+				App->fs.SetFileString(open_shader_path.c_str(), textToSave.c_str());
+			}
+			if (ImGui::MenuItem("Quit", "Alt-F4")) {
+				// Exit or something
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			bool ro = shader_editor.IsReadOnly();
+			if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
+				shader_editor.SetReadOnly(ro);
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && shader_editor.CanUndo()))
+				shader_editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && shader_editor.CanRedo()))
+				shader_editor.Redo();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, shader_editor.HasSelection()))
+				shader_editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && shader_editor.HasSelection()))
+				shader_editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && shader_editor.HasSelection()))
+				shader_editor.Delete();
+			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
+				shader_editor.Paste();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Select all", nullptr, nullptr))
+				shader_editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(shader_editor.GetTotalLines(), 0));
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Dark palette"))
+				shader_editor.SetPalette(TextEditor::GetDarkPalette());
+			if (ImGui::MenuItem("Light palette"))
+				shader_editor.SetPalette(TextEditor::GetLightPalette());
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, shader_editor.GetTotalLines(),
+		shader_editor.IsOverwrite() ? "Ovr" : "Ins",
+		shader_editor.CanUndo() ? "*" : " ",
+		shader_editor.GetLanguageDefinition().mName.c_str(), open_shader_path.c_str());
+
+	TextEditor::CommandKeys c_keys;
+	c_keys.ctrl = (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT || App->input->GetKey(SDL_SCANCODE_RCTRL) == KEY_REPEAT);
+	c_keys._X = App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN;
+	c_keys._Y = App->input->GetKey(SDL_SCANCODE_Y) == KEY_DOWN;
+	c_keys._Z = App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN;
+	c_keys._C = App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN;
+	c_keys._V = App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN;
+
+	shader_editor.Render("TextEditor", ui_fonts[IMGUI_DEFAULT], c_keys);
 	ImGui::PopFont();
 	ImGui::End();
 }

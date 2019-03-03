@@ -24,7 +24,7 @@ class Panel;
 class PanelAnimation;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
-				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
+				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, SHADER_EDITOR, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
@@ -45,7 +45,9 @@ public:
 	update_status Update(float dt);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
+
 	void InitializeScriptEditor();
+	void InitializeShaderEditor();
 
 	void DrawHierarchyTab();
 	bool DrawHierarchyNode(GameObject& game_object, int& id);
@@ -71,6 +73,7 @@ public:
 	void DrawSkyboxWindow();
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
+	void DrawShaderEditor();
 	void DrawBuildMenu();
 
 	void DrawGuizmo();
@@ -98,7 +101,9 @@ private:
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
 	TextEditor script_editor;
+	TextEditor shader_editor;
 	std::string open_script_path;
+	std::string open_shader_path;
 
 	bool open_tabs[LAST_UI_TAB];  // _serializable_var
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
