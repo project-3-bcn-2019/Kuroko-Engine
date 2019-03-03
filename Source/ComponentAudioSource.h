@@ -3,7 +3,7 @@
 
 #include "Component.h"
 #include "Wwise.h"
-//#include "Game\Assets\Sounds\Wwise_IDs.h"
+//#include "Wwise_IDs.h"
 
 class WwiseGameObject;
 

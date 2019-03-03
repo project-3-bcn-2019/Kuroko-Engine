@@ -281,9 +281,16 @@ void ComponentMesh::Skining() const
 					//	uint VertexIndex = rBone->weights[j].VertexID;
 
 
+ 
 					//	if (VertexIndex >= mesh->mesh->getNumVertices())
 					//		continue;
 					//	float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+
+						/*if (VertexIndex >= mesh->mesh->getNumVertices())
+							continue;
+						float3 startingVertex(mesh->mesh->getVertices()[VertexIndex]);
+						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex] + mesh->mesh->getCentroid());
+						*/
 
 					//	vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
 					//	vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;

@@ -16,9 +16,14 @@ Time
 class PlayerController is ObjectLinker{
 
     // Getters
+    ShowDebugLogs{_show_debug_logs}
+
+    // Below this the values are not meant to be changed in the inspector (also there is no setter so they can't)
     MovingState {__moving_state}
     IdleState {__idle_state}
-    ShowDebugLogs{_show_debug_logs}
+    DashState {__dash_state}
+    Punch1 {__punch1_state}
+    MoveDirection {_move_direction}
 
 
     // Setters
@@ -35,29 +40,46 @@ class PlayerController is ObjectLinker{
     Start() {
         _show_debug_logs = true
         _player_state
+        _move_direction = Vec3.zero()
 
         //Initialize all the states as static so we have no problems switching to states at any moment
+        //the arguments are: (player, total_duration)
         __idle_state = IdleState.new(this)
-        __punch1_state = BasicAttackState.new(this)
+        __punch1_state = BasicAttackState.new(this,3000)
         __moving_state = MovingState.new(this)
-        __dash_state = DashState.new(this)
+        __dash_state = DashState.new(this,2000)
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = __idle_state //Reminder that "State" is a setter method
     }
 
     Update() {
+        this.CalculateDirection()
         _player_state.HandleInput()
         _player_state.Update()
+    }
+
+    CalculateDirection() {
+        //positive y means up and positive x means right
+        _move_direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
+        _move_direction.x = InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
+
+        if(_move_direction.y < 0.1 && _move_direction.y > -0.1)   _move_direction.y = 0.0
+        if(_move_direction.x < 0.1 && _move_direction.x > -0.1)   _move_direction.x = 0.0
     }
 }
 
 class State {
-    GetTotalDuration {_total_duration}
-    GetCurrentTime {_current_time_in}
+    TotalDuration {_total_duration}
+    CurrentTime {_current_time_in}
 
     construct new(player) {
         _player = player
+    }
+
+    construct new(player,total_duration) {
+        _player = player
+        _total_duration = total_duration
     }
 
     //Called one time when switching to the state
@@ -65,11 +87,6 @@ class State {
         _current_time_in = 0
 
         if (_player.ShowDebugLogs) EngineComunicator.consoleOutput("new state began")
-    }
-
-    //Called each frame before update
-    HandleInput() {
-
     }
 
     //Here are all the functions that all the states will do in update, remember to call super.Update() -p
@@ -82,6 +99,12 @@ class State {
 
         if (_player.ShowDebugLogs)  EngineComunicator.consoleOutput("Current time in this state:%(_current_time_in)")
     }
+
+    IsStateFinished() {
+        var ret = false
+        if (_current_time_in >= _total_duration) ret = true
+        return ret
+    }
 }
 
 class IdleState is State {
@@ -90,25 +113,20 @@ class IdleState is State {
 
     construct new(player) {
         _player = player
-        _direction = Vec3.zero()
         super(player)
     }
 
     BeginState() {
         super.BeginState()
-
-        _direction = Vec3.zero()
     }
 
     HandleInput() {
-        //We will use the direction just to check for input and switch to the moving state
-        _direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
-        _direction.x = InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
-
-        if(_direction.y < 0.1 && _direction.y > -0.1)   _direction.y = 0.0
-        if(_direction.x < 0.1 && _direction.x > -0.1)   _direction.x = 0.0
-
-        if(_direction.x != 0.0 || _direction.y != 0.0) _player.State = _player.MovingState
+        // If l-stick is not still switch to moving
+        if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _player.State = _player.MovingState
+        // If A prassed switch to dash
+        if (InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
+        // If X prassed switch to dash
+        if (InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
 
     Update() {
@@ -125,32 +143,26 @@ class MovingState is State {
     construct new(player) {
         super(player)
         _player = player
-        _direction = Vec3.zero()
     }
 
     BeginState() {
         super.BeginState()
-
-        _direction = Vec3.zero()
     }
 
     HandleInput() {
-        //positive y means up and positive x means right
-        _direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
-        _direction.x = InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
-
-        if(_direction.y < 0.1 && _direction.y > -0.1)   _direction.y = 0.0
-        if(_direction.x < 0.1 && _direction.x > -0.1)   _direction.x = 0.0
-
-        if(_direction.x == 0.0 && _direction.y == 0.0) _player.State = _player.IdleState
+        if(_player.MoveDirection.x == 0.0 && _player.MoveDirection.y == 0.0) _player.State = _player.IdleState
+        // If A prassed switch to dash
+        if (InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
+        // If X prassed switch to dash
+        if (InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
     
     Update() {
         super.Update()
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("Current state: Moving")
-            EngineComunicator.consoleOutput("direction.x =%(_direction.x)")
-            EngineComunicator.consoleOutput("direction.y =%(_direction.y)")
+            EngineComunicator.consoleOutput("direction.x =%(_player.MoveDirection.x)")
+            EngineComunicator.consoleOutput("direction.y =%(_player.MoveDirection.y)")
         }
     }
 }
@@ -161,18 +173,31 @@ class DashState is State {
         _player = player
     }
 
+    construct new(player,total_duration) {
+        _player = player
+        super(player,total_duration)
+    }
+
     HandleInput() {
 
     }
     
     Update() {
-        EngineComunicator.consoleOutput("Dashing state")
+        super.Update() 
+
+        if (super.IsStateFinished()) _player.State = _player.IdleState
+
+        EngineComunicator.consoleOutput("Current state: Dash")
     }
 }
 
 class AttackState is State {
     construct new(player) {
         super(player)
+    }
+
+    construct new(player,total_duration) {
+        super(player,total_duration)
     }
 }
 
@@ -182,8 +207,21 @@ class BasicAttackState is AttackState {
         _player = player
     }
 
+    construct new(player,total_duration) {
+        _player = player
+        super(player,total_duration)
+    }
+
     HandleInput() {
-        EngineComunicator.consoleOutput("Estoy handeleando el input que flipas como atake que soy")
+    
+    }
+
+    Update() {
+        super.Update() 
+
+        if (super.IsStateFinished()) _player.State = _player.IdleState
+
+        EngineComunicator.consoleOutput("Current state: BasicAttack")
     }
 }
 

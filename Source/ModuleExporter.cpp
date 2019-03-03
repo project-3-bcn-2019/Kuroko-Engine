@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "Globals.h"
 #include "Applog.h"
-
+#include "ModuleUI.h"
 
 ModuleExporter::ModuleExporter(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -42,6 +42,15 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		excludedFiles.push_back("memory.log");
 		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles);
 		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name);
+
+		CreateDirectory((fullPath + SETTINGS_FOLDER).c_str(), NULL);
+		JSON_Value* config_value = json_parse_file(App->config_file_name.c_str());
+		JSON_Object* config = json_value_get_object(config_value);
+		json_object_set_boolean(config, "is_game", true);
+		json_object_set_number(config, "main_scene", App->gui->getMainScene());
+		json_serialize_to_file_pretty(config_value, (fullPath + App->config_file_name).c_str());
+		json_value_free(config_value);
+		//Add default scene
 	}
 
 	return ret;
@@ -55,7 +64,7 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Prefabs", GetAssetFolderUUIDs("\\Assets\\Prefabs\\*"));
 	json_object_set_value(json_object(json), "Scenes", GetAssetFolderUUIDs("\\Assets\\Scenes\\*"));
 	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts\\*"));
-	json_object_set_value(json_object(json), "Sounds", GetAssetFolderUUIDs("\\Assets\\Sounds\\*"));
+	json_object_set_value(json_object(json), "Audio", GetAssetFolderUUIDs("\\Assets\\Audio\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
 	//Missing: animations and bones

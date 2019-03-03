@@ -13,12 +13,12 @@
 #include "ComponentAudioListener.h"
 #include "Camera.h"
 #include "Wwise.h"
+#include "Wwise_IDs.h"
 #include "Applog.h"
 
 #include <corecrt_wstring.h>
 
 #include "Wwise/IO/Win32/AkFilePackageLowLevelIOBlocking.h"
-#include "../Game/Assets/Audio/Wwise_IDs.h"
 
 
 ModuleAudio::ModuleAudio(Application* app, bool start_enabled) : Module(app, start_enabled)
@@ -33,24 +33,20 @@ ModuleAudio::~ModuleAudio()
 
 bool ModuleAudio::Init(const JSON_Object* config)
 {
-	App->importer->ImportSounds();
-
-	app_log->AddLog("Initializing Wwise");
-	
-	bool ret = Wwise::InitWwise();
-	
-	LoadSoundBank("Character"); // (std::to_string(App->resources->getAudioResourceUuid("Character")).c_str());
+	//App->importer->ImportSounds();
 
 	GetBanksAndEvents();
 	
-	return ret;
+	return true;
 }
 
 bool ModuleAudio::Start()
 {
+	bool ret = Wwise::InitWwise();
 	SetVolume(75);
+	LoadSoundBank(std::to_string(App->resources->getAudioResourceUuid("Character")).c_str());
 
-	return true;
+	return ret;
 }
 
 update_status ModuleAudio::PreUpdate(float dt)
