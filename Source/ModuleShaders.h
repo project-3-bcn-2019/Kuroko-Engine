@@ -20,6 +20,7 @@ struct Shader
 
 struct ShaderProgram
 {
+	std::string name;
 	uint programID = 0;
 	std::vector<uint> shaders;
 };
@@ -38,9 +39,10 @@ public:
 
 	void CreateDefVertexShader();
 	void CreateDefFragmentShader();
+	void CreateShaderFromTextEditor(char* script,ShaderType type);
 
-	void CompileShader(Shader* shader);
-	void CompileProgram(ShaderProgram* program);
+	bool CompileShader(Shader* shader);
+	bool CompileProgram(ShaderProgram* program);
 
 	ShaderProgram* GetDefaultShaderProgram()const;
 	ShaderProgram* GetAnimationShaderProgram()const;
@@ -57,6 +59,8 @@ private:
 	
 	ShaderProgram* defShaderProgram=nullptr;
 	ShaderProgram* animationShaderProgram = nullptr;
+
+	std::list<Shader*> all_Shaders;
 	
 };
 

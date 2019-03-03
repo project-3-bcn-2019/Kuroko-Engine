@@ -2970,6 +2970,7 @@ void ModuleUI::DrawShaderEditor()
 			if (ImGui::MenuItem("Save"))
 			{
 				auto textToSave = shader_editor.GetText();
+
 				App->fs.SetFileString(open_shader_path.c_str(), textToSave.c_str());
 			}
 			if (ImGui::MenuItem("Quit", "Alt-F4")) {

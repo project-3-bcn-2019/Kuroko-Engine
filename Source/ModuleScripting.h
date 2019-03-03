@@ -41,6 +41,7 @@ public:
 
 	WrenVM* vm							= nullptr;
 	std::map<std::string, std::string> edited_scripts;
+	std::map<std::string, std::string> edited_shaders;
 	std::map<std::string, WrenHandle*> base_signatures;
 	std::list<ScriptData*> loaded_instances;
 
