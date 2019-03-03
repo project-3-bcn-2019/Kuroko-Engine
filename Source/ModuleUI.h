@@ -77,7 +77,7 @@ public:
 	void DrawShaderEditor();
 	void DrawBuildMenu();
 
-	uint getMainScene() const;
+	/*uint getMainScene() const;*/
 
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);

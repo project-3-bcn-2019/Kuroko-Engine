@@ -47,7 +47,7 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		JSON_Value* config_value = json_parse_file(App->config_file_name.c_str());
 		JSON_Object* config = json_value_get_object(config_value);
 		json_object_set_boolean(config, "is_game", true);
-		json_object_set_number(config, "main_scene", App->gui->getMainScene());
+		/*json_object_set_number(config, "main_scene", App->gui->getMainScene());*/
 		json_serialize_to_file_pretty(config_value, (fullPath + App->config_file_name).c_str());
 		json_value_free(config_value);
 		//Add default scene

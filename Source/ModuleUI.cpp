@@ -7,7 +7,7 @@
 #include "ModuleInput.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
-#include "ModuleExporter.h"
+//#include "ModuleExporter.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
 #include "ModuleResourcesManager.h"
@@ -3041,7 +3041,7 @@ void ModuleUI::DrawShaderEditor()
 
 void ModuleUI::DrawBuildMenu()
 {
-	ImGui::Begin("Make Build", &open_tabs[BUILD_MENU]);
+	/*ImGui::Begin("Make Build", &open_tabs[BUILD_MENU]);
 
 	ImGui::Text("Select a path to make the build:");
 	ImGui::PushID("setPath");
@@ -3159,7 +3159,7 @@ void ModuleUI::DrawBuildMenu()
 		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 60);
 		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
 	}
-	ImGui::End();
+	ImGui::End();*/
 }
 
 void ModuleUI::DrawAboutLeaf()

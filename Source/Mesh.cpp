@@ -272,12 +272,11 @@ void Mesh::FillMeshGPU()
 	float4 color = { *colors, 1.0f };
 	for (int i = 0; i < num_vertices; i++)
 	{
-		MeshGPU[i].Assign(vertices[i], color);
+		MeshGPU[i].Assign(vertices[i]+getCentroid(), color);
 
 		MeshGPU[i].tex_coords = tex_coords[i];
 
 		MeshGPU[i].normal = normals[i];
-		
 	}
 }
 
@@ -383,7 +382,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 		{
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
-			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones");
+			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones[0]");
 			glUniformMatrix4fv(boneMeshes, numBones, GL_FALSE, boneTrans);
 			GLint proj_loc = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "projection");
 			glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
@@ -780,8 +779,8 @@ bool Mesh::LoadFromAssimpMesh(const aiMesh& imported_mesh, const aiScene& scene)
 	}
 	calculateCentroidandHalfsize();
 
-	for (int i = 0; i < num_vertices; i++)
-		vertices[i] -= centroid;
+	/*for (int i = 0; i < num_vertices; i++)
+		vertices[i] -= centroid;*/
 
 	return true;
 }
