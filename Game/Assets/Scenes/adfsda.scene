@@ -1,0 +1,68 @@
+{
+    "Game Objects": [
+        {
+            "name": "Cube",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 461990403,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE"
+                },
+                {
+                    "type": "animation_event",
+                    "loop": true,
+                    "speed": 1,
+                    "own_ticks": 12,
+                    "ticksXsecond": 3,
+                    "comp_arr": [
+                        {
+                            "obj_uuid": 3673504997,
+                            "keys_array": [
+                                {
+                                    "keyframe": 0,
+                                    "event_array": [
+                                        {
+                                            "event": -1
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

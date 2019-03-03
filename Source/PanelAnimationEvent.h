@@ -1,34 +1,37 @@
-#ifndef __PANELANIMATION_H__
-#define __PANELANIMATION_H__
-
+#ifndef __PANELANIMATIONEVENT_H__
+#define __PANELANIMATIONEVENT_H__
 #include "Panel.h"
 #include <list>
 
 class Component;
+class ComponentAnimationEvent;
 class ComponentAnimation;
 class ResourceAnimation;
 class GameObject;
 
-class PanelAnimation :
-	public Panel
+class PanelAnimationEvent : public Panel
 {
 public:
 
-	PanelAnimation(const char* name);
+	PanelAnimationEvent(const char* name);
 
 	bool fillInfo();
 
-	~PanelAnimation();
+	~PanelAnimationEvent();
 
 	void Draw();
-	void ComponentAnimationDraw();
 
+	void AddKeyframe();
+	void DeleteKeyframe();
+
+	void CopySpecs();
+	
 public:
 
 	GameObject* selected_obj = nullptr;
 
-	ComponentAnimation* compAnimation = nullptr;
-	ResourceAnimation* animation = nullptr;
+	ComponentAnimationEvent* c_AnimEvt = nullptr;
+	//ResourceAnimationEvent* r_AnimEvt = nullptr; // When Available
 	Component* selected_component = nullptr;
 
 	std::list<Component*> par_components;
@@ -56,8 +59,10 @@ private:
 
 	// Component Animation
 	bool new_keyframe_win = false;
+	bool del_keyframe_win = false;
 	int ev_t = -1;
 	int new_key_frame = 0;
+	int key_to_del = -1;
 
 public:
 	void ResetNewKeyValues()
@@ -68,4 +73,4 @@ public:
 	}
 };
 
-#endif // !__PANELANIMATION_H__
+#endif
