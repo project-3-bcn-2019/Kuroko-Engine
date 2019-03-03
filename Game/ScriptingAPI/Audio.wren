@@ -13,7 +13,7 @@ class ComponentAudioSource{
 	component { _component}		// UUID of the component 
 	component=(v){ _component = v}
 
-	construct new( parent, uuid){
+	construct new(parent, uuid){
 		gameObject = parent
 		component = uuid
 	}

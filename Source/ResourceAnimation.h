@@ -4,6 +4,7 @@
 #include "Resource.h"
 
 #include "MathGeoLib/MathGeoLib.h"
+#include <map>
 
 struct BoneTransform
 {
@@ -63,5 +64,6 @@ public:
 
 	BoneTransform* boneTransformations = nullptr;
 };
+
 
 #endif // !__RESOURCEANIMATION_H__

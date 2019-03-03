@@ -117,7 +117,7 @@ private:
 
 public:
 
-	std::vector<GameObject*> selected_obj;
+	std::list<GameObject*> selected_obj;
 	Skybox* skybox				= nullptr;
 
 	uint last_mat_id			= 0;

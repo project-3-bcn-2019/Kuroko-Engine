@@ -12,6 +12,7 @@
 #include "ResourcePrefab.h"
 #include "ResourceAnimation.h"
 #include "ResourceBone.h"
+#include "ResourceAudio.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -40,7 +41,12 @@ bool ModuleResourcesManager::Init(const JSON_Object * config)
 bool ModuleResourcesManager::Start()
 {
 	GeneratePrimitiveResources();
-	GenerateLibraryAndMeta();
+
+	if (!App->is_game)
+		GenerateLibraryAndMeta();
+	else
+		GenerateResources();
+
 	CompileAndGenerateScripts();
 	update_timer.Start();
 	return true;
@@ -48,17 +54,19 @@ bool ModuleResourcesManager::Start()
 
 update_status ModuleResourcesManager::Update(float dt)
 {
-	ManageUITextures();
-	if(update_timer.Read() > update_ratio){
-		ManageAssetModification();
+	if (!App->is_game)
+	{
+		ManageUITextures();
+		if (update_timer.Read() > update_ratio) {
+			ManageAssetModification();
 
-		if (reloadVM) {
-			ReloadVM();
-			reloadVM = false;
+			if (reloadVM) {
+				ReloadVM();
+				reloadVM = false;
+			}
+			update_timer.Start();
 		}
-		update_timer.Start();
 	}
-
 
 	return UPDATE_CONTINUE;
 }
@@ -96,7 +104,8 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 	case R_BONE: 
 		ret = (Resource*) new ResourceBone(deff);
 		break;
-	} 
+	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
+	}
 
 	if (ret)
 		resources[deff.uuid] = ret;
@@ -304,11 +313,92 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 	case R_SCENE:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_SCENES, SCENE_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
+	case R_AUDIO:
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_AUDIO, AUDIO_EXTENSION, uuid_str.c_str()); // Copy the file to the library
+		break;
 	}
 	// Meta generated and file imported, create resource in code
 	deff.set(uuid_number, enum_type, binary_path, full_asset_path);
 
 	return deff;
+}
+
+void ModuleResourcesManager::GenerateResources()
+{
+	JSON_Value* assets = json_parse_file("Library/assetsUUIDs.json");
+
+	GenerateFromMapFile(assets, R_MESH);
+	GenerateFromMapFile(assets, R_TEXTURE);
+	GenerateFromMapFile(assets, R_SCENE);
+	GenerateFromMapFile(assets, R_PREFAB);
+	GenerateFromMapFile(assets, R_SCRIPT);
+	GenerateFromMapFile(assets, R_ANIMATION);
+	GenerateFromMapFile(assets, R_BONE);
+	GenerateFromMapFile(assets, R_AUDIO);
+	//R_UI?
+}
+
+void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType type)
+{
+	std::string name;
+	std::string path;
+	std::string extension;
+	switch (type)
+	{
+	case R_MESH:
+		name = "Meshes";
+		path = MESHES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_TEXTURE:
+		name = "Textures";
+		path = TEXTURES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_SCENE:
+		name = "Scenes";
+		path = SCENES_FOLDER;
+		extension = SCENE_EXTENSION;
+		break;
+	case R_PREFAB:
+		name = "Prefabs";
+		path = PREFABS_FOLDER;
+		extension = PREFAB_EXTENSION;
+		break;
+	case R_SCRIPT:
+		name = "Scripts";
+		path = SCRIPTS_FOLDER;
+		extension = JSON_EXTENSION;
+		break;
+	case R_ANIMATION:
+		name = "Animations";
+		path = ANIMATIONS_FOLDER;
+		extension = OWN_ANIMATION_EXTENSION;
+		break;
+	case R_BONE:
+		name = "Bones";
+		path = BONES_FOLDER;
+		extension = OWN_BONE_EXTENSION;
+		break;
+	case R_AUDIO:
+		name = "Audio";
+		path = AUDIO_FOLDER;
+		extension = AUDIO_EXTENSION;
+		break;
+	}
+
+	//Generate resources
+	JSON_Array* meshes = json_object_get_array(json_object(file), name.c_str());
+	for (int i = 0; i < json_array_get_count(meshes); i++) {
+		JSON_Object* meshMap = json_array_get_object(meshes, i);
+		resource_deff deff;
+		deff.asset = json_object_get_string(meshMap, "name");
+		deff.uuid = json_object_get_number(meshMap, "uuid");
+		deff.type = type;
+		deff.binary = path + std::to_string(deff.uuid) + extension;
+
+		newResource(deff);
+	}
 }
 
 
@@ -466,13 +556,24 @@ uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, co
 	}
 	return 0;
 }
-
 uint ModuleResourcesManager::getAnimationResourceUuid(const char * Parent3dObject, const char * name)
 {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
 		if ((*it).second->type == R_ANIMATION) {
 			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
 			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
+				return res_anim->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getAnimationResourceUuid(const char * name) {
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_ANIMATION) {
+			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
+			if (res_anim->asset == name) {
 				return res_anim->uuid;
 			}
 		}
@@ -487,6 +588,19 @@ uint ModuleResourcesManager::getBoneResourceUuid(const char * Parent3dObject, co
 			ResourceBone* res_bone = (ResourceBone*)(*it).second;
 			if (res_bone->Parent3dObject == Parent3dObject && res_bone->asset == name) {
 				return res_bone->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_AUDIO) {
+			ResourceAudio* res_audio = (ResourceAudio*)(*it).second;
+			if (res_audio->asset == name) {
+				return res_audio->uuid;
 			}
 		}
 	}
@@ -551,7 +665,7 @@ void ModuleResourcesManager::ReleaseResourcesScriptHandles()
 }
 
 void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshes) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_MESH) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -561,7 +675,7 @@ void ModuleResourcesManager::getMeshResourceList(std::list<resource_deff>& meshe
 }
 
 void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scripts) {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_SCRIPT) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
@@ -572,11 +686,43 @@ void ModuleResourcesManager::getScriptResourceList(std::list<resource_deff>& scr
 
 void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& animations)
 {
-	for (auto it = resources.begin(); it != resources.end(); it++) {
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
 		if ((*it).second->type == R_ANIMATION) {
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			animations.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it)
+	{
+		bool exist = false;
+		for (auto it_s = ignore.begin(); it_s != ignore.end(); ++it_s)
+		{
+			if ((*it).second->asset == (*it_s))
+			{
+				exist = true;
+				break;
+			}
+		}
+		if (!exist && (*it).second->type == R_SCENE) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			scenes.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getAudioResourceList(std::list<resource_deff>& audio)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_AUDIO) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			audio.push_back(deff);
 		}
 	}
 }
@@ -594,6 +740,19 @@ std::string ModuleResourcesManager::getPrefabPath(const char * prefab_name) {
 	return std::string();
 }
 
+std::string ModuleResourcesManager::getScenePath(const char * scene_name) {
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SCENE) {
+			ResourceScene* curr = (ResourceScene*)(*it).second;
+			if (curr->scene_name == scene_name)
+				return curr->asset;
+		}
+	}
+
+	app_log->AddLog("%s scene could not be found", scene_name);
+	return std::string();
+}
+
 std::string ModuleResourcesManager::uuid2string(uint uuid) {
 	return std::to_string(uuid);
 }
@@ -604,7 +763,7 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 
 	std::string extension = _extension;
 
-	if (extension == ".FBX" || extension == ".fbx" || extension == ".dae" || extension == ".blend" || extension == ".3ds" || extension == ".obj"
+	if (extension == ".FBX" || extension == ".fbx" || extension == ".DAE" || extension == ".dae" || extension == ".blend" || extension == ".3ds" || extension == ".obj"
 		|| extension == ".gltf" || extension == ".glb" || extension == ".dxf" || extension == ".x")
 		ret = "3dobject";
 	else if (extension == ".bmp" || extension == ".dds" || extension == ".jpg" || extension == ".pcx" || extension == ".png"
@@ -620,6 +779,8 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "prefab";
 	else if (extension == ".scene")
 		ret = "scene";
+	else if (extension == ".bnk")
+		ret = "audio";
 
 
 	return ret;
@@ -639,6 +800,8 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_PREFAB;
 	if (str_type == "scene")
 		ret = R_SCENE;
+	if (str_type == "audio")
+		ret = R_AUDIO;
 
 	return ret;
 }
@@ -661,6 +824,9 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_3DOBJECT:
 		case R_SCRIPT:
 			ret = ".json";
+			break;
+		case R_AUDIO:
+			ret = ".bnk";
 			break;
 
 	}
@@ -688,6 +854,9 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 		break;
 	case R_SCENE:
 		ret = LIBRARY_SCENES;
+		break;
+	case R_AUDIO:
+		ret = LIBRARY_AUDIO;
 		break;
 	}
 	return ret;

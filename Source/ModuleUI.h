@@ -7,6 +7,7 @@
 #include "ComponentCamera.h"
 #include "FileSystem.h"
 #include <array>
+#include <list>
 #include "ImGui/TextEditor.h"
 
 struct ImGuiIO;
@@ -18,8 +19,12 @@ class Camera;
 struct Color;
 class TextEditor;
 
+// Panel Classes
+class Panel;
+class PanelAnimation;
+
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
-				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, LAST_UI_TAB };  
+				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
@@ -66,6 +71,7 @@ public:
 	void DrawSkyboxWindow();
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
+	void DrawBuildMenu();
 
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
@@ -78,6 +84,9 @@ public:
 	void LoadConfig(const JSON_Object* config);
 
 	bool disable_keyboard_control = false;
+
+	// Panels
+	PanelAnimation* p_anim;
 
 private:
 	
@@ -97,6 +106,9 @@ private:
 
 	std::string asset_window_path = ASSETS_FOLDER;
 	std::string selected_asset;
+
+	std::list<std::string> build_scenes;
+	std::vector<bool> main_scene;
 };
 #endif
 

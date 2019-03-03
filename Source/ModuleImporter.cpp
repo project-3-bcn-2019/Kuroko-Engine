@@ -141,9 +141,9 @@ void* ModuleImporter::ImportTexturePointer(const char* file) {
 	//}*/
 }
 
-void ModuleImporter::ImportNodeToSceneRecursive(const aiNode & node, const aiScene & scene, JSON_Value * objects_array, const std::vector<material_resource_deff>& in_mat_id, const std::map<std::string, uint>& in_bone_id, uint parent)
+void ModuleImporter::ImportNodeToSceneRecursive(const aiNode & node, const aiScene & scene, const char* file_name, JSON_Value * objects_array, const std::vector<material_resource_deff>& in_mat_id, const std::map<std::string, uint>& in_bone_id, uint parent)
 {
-	std::string name = node.mName.C_Str();
+	std::string name = (parent == 0)? file_name : node.mName.C_Str(); //Set file name for the root game object
 
 	//if (name.find("$Assimp") != std::string::npos)
 	//{
@@ -157,7 +157,7 @@ void ModuleImporter::ImportNodeToSceneRecursive(const aiNode & node, const aiSce
 	JSON_Value* components = json_value_init_array();
 	uint object_uuid = random32bits();
 
-	json_object_set_string(json_object(game_object), "name", node.mName.C_Str());
+	json_object_set_string(json_object(game_object), "name", name.c_str());
 	json_object_set_string(json_object(game_object), "tag", "undefined");
 	json_object_set_boolean(json_object(game_object), "static", false);
 	json_object_set_number(json_object(game_object), "UUID", object_uuid);
@@ -272,7 +272,7 @@ void ModuleImporter::ImportNodeToSceneRecursive(const aiNode & node, const aiSce
 			json_object_set_string(json_object(animation_component), "type", "animation");			// Set type
 			json_object_set_string(json_object(animation_component), "animation_binary_path", binary_full_path.c_str()); // (used for deleting binary file when asset is deleted)
 			json_object_set_number(json_object(animation_component), "animation_resource_uuid", uuid_number);
-			json_object_set_string(json_object(animation_component), "animation_name", scene.mAnimations[i]->mName.C_Str());
+			json_object_set_string(json_object(animation_component), "animation_name", file_name);
 			json_object_set_number(json_object(animation_component), "speed", 1);
 			json_object_set_boolean(json_object(animation_component), "loop", true);
 			
@@ -286,7 +286,7 @@ void ModuleImporter::ImportNodeToSceneRecursive(const aiNode & node, const aiSce
 
 
 	for (int i = 0; i < node.mNumChildren; i++)
-		ImportNodeToSceneRecursive(*node.mChildren[i], scene, objects_array, in_mat_id, in_bone_id, object_uuid);
+		ImportNodeToSceneRecursive(*node.mChildren[i], scene, file_name, objects_array, in_mat_id, in_bone_id, object_uuid);
 
 }
 
@@ -365,6 +365,8 @@ void ModuleImporter::ImportBonesRecursive(const aiNode& node, const aiScene & sc
 bool ModuleImporter::ImportScene(const char * file_original_name, std::string file_binary_name) {
 
 	const aiScene* imported_scene = aiImportFile(file_original_name, aiProcessPreset_TargetRealtime_MaxQuality);
+	std::string file_name = file_original_name;
+	App->fs.getFileNameFromPath(file_name);
 
 	if (imported_scene) {
 		JSON_Value* scene = json_value_init_object();
@@ -378,7 +380,7 @@ bool ModuleImporter::ImportScene(const char * file_original_name, std::string fi
 		std::map<std::string, uint> out_bone_id;
 		ImportMaterialsFromNode(*imported_scene, out_mat_deff);
 		ImportBonesRecursive(*imported_scene->mRootNode, *imported_scene, out_bone_id);
-		ImportNodeToSceneRecursive(*imported_scene->mRootNode, *imported_scene, objects_array, out_mat_deff, out_bone_id);
+		ImportNodeToSceneRecursive(*imported_scene->mRootNode, *imported_scene, file_name.c_str(), objects_array, out_mat_deff, out_bone_id);
 
 		std::string path;
 		App->fs.FormFullPath(path, file_binary_name.c_str(), LIBRARY_3DOBJECTS, JSON_EXTENSION);
@@ -821,7 +823,7 @@ void ModuleImporter::ImportSounds()
 	GetCurrentDirectory(256, folderPath);
 	// Add the assets folder to the path
 	std::string path = folderPath;
-	path += "\\Assets\\Sounds/*";
+	path += "\\Assets\\Audio/*";
 
 	WIN32_FIND_DATA file;
 	HANDLE search_handle = FindFirstFile(path.c_str(), &file);
@@ -833,21 +835,17 @@ void ModuleImporter::ImportSounds()
 			{
 				// Check type of flie
 				std::string name = file.cFileName;
-				std::string extension = "";
-				for (int i = name.size() - 1; i >= 0; i--)
-					if (name[i] == '.' | name[i] == ' ')
-						break;
-					else
-						extension = name[i] + extension;
+				std::string extension = name;
+				App->fs.getExtension(extension);
 
-				if (extension == "bnk")
+				if (extension == AUDIO_EXTENSION)
 				{
 					std::string source = path;
 					source.pop_back();
 					source += name;
 
 					std::string destiny = folderPath;
-					destiny += "\\Library\\Sounds/" + name;
+					destiny += "\\Library\\Audio/" + name;
 
 					std::ifstream  src(source, std::ios::binary);
 					std::ofstream  dst(destiny, std::ios::binary);

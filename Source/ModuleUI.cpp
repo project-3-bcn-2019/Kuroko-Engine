@@ -7,6 +7,7 @@
 #include "ModuleInput.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
+#include "ModuleExporter.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
 #include "ModuleResourcesManager.h"
@@ -26,19 +27,22 @@
 #include "ComponentTextUI.h"
 #include "ComponentRectTransform.h"
 #include "ComponentTransform.h"
+#include "ComponentParticleEmitter.h"
 #include "ComponentScript.h"
 #include "ComponentAudioSource.h"
-#include "Transform.h"
 #include "ComponentAABB.h"
 #include "ComponentCamera.h"
 #include "ComponentImageUI.h"
 #include "ComponentCheckBoxUI.h"
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
+#include "ComponentBillboard.h"
+#include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
 #include "ResourceTexture.h"
 #include "Resource3dObject.h"
+#include "ResourceAnimation.h"
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
@@ -58,12 +62,18 @@
 #include <experimental/filesystem>
 #include <fstream>
 
+// Include Panels
+#include "Panel.h"
+#include "PanelAnimation.h"
+
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
 
 
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
 	name = "gui";
+
+	p_anim = new PanelAnimation("AnimEditor");
 }
 
 
@@ -131,6 +141,8 @@ bool ModuleUI::Start()
 	//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
 	//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
 	
+	open_tabs[BUILD_MENU] = false;
+
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io->IniFilename = "Settings\\imgui.ini";
@@ -231,7 +243,10 @@ update_status ModuleUI::Update(float dt) {
 	if (open_tabs[SCRIPT_EDITOR])
 		DrawScriptEditor();
 
-	if (!App->scene->selected_obj.empty() && !App->scene->selected_obj[0]->is_static && !App->scene->selected_obj[0]->is_UI) // Not draw guizmo if it is static
+	if (open_tabs[BUILD_MENU])
+		DrawBuildMenu();
+
+	if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
 		App->gui->DrawGuizmo();
 
 	for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
@@ -279,6 +294,11 @@ update_status ModuleUI::Update(float dt) {
 
 			if (ImGui::MenuItem("Clean library (App will shut down)"))
 				App->resources->CleanResources();
+
+			if (ImGui::MenuItem("Make Build"))
+			{
+				open_tabs[BUILD_MENU] = true;
+			}
 
 			ImGui::EndMenu();
 		}
@@ -460,11 +480,11 @@ void ModuleUI::DrawHierarchyTab()
 		{
 			GameObject* parent = nullptr;
 			if (!App->scene->selected_obj.empty())
-				parent = App->scene->selected_obj[0];
+				parent = *App->scene->selected_obj.begin();
 			
 			GameObject* go = new GameObject("Empty", parent);
 			if (!App->scene->selected_obj.empty())
-				App->scene->selected_obj[0]->addChild(go);
+				(*App->scene->selected_obj.begin())->addChild(go);
 		}
 		if (ImGui::TreeNode("UI"))
 		{
@@ -472,8 +492,8 @@ void ModuleUI::DrawHierarchyTab()
 			{
 				GameObject* parent = nullptr;
 				if (!App->scene->selected_obj.empty() ) {
-					if (App->scene->selected_obj[0]->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = App->scene->selected_obj[0];						
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = *(App->scene->selected_obj.begin());						
 					}
 
 				}
@@ -490,8 +510,8 @@ void ModuleUI::DrawHierarchyTab()
 			{
 				GameObject* parent = nullptr;
 				if (!App->scene->selected_obj.empty()) {
-					if (App->scene->selected_obj[0]->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = App->scene->selected_obj[0];
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = *App->scene->selected_obj.begin();
 					}
 				}
 				else {
@@ -509,8 +529,8 @@ void ModuleUI::DrawHierarchyTab()
 			{
 				GameObject* parent = nullptr;
 				if (!App->scene->selected_obj.empty()) {
-					if (App->scene->selected_obj[0]->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = App->scene->selected_obj[0];
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = (*App->scene->selected_obj.begin());
 					}
 				}
 				else {
@@ -528,8 +548,8 @@ void ModuleUI::DrawHierarchyTab()
 			{
 				GameObject* parent = nullptr;
 				if (!App->scene->selected_obj.empty()) {
-					if (App->scene->selected_obj[0]->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = App->scene->selected_obj[0];
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = *App->scene->selected_obj.begin();
 					}
 				}
 				else {
@@ -574,7 +594,7 @@ bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
 	bool item_hovered = ImGui::IsItemHovered();
 
 	
-	if(!App->scene->selected_obj.empty() && App->scene->selected_obj[0] == &game_object)
+	if(!App->scene->selected_obj.empty() && (*App->scene->selected_obj.begin()) == &game_object)
 		selection_mask = (1 << id);
 	else if (App->scene->selected_obj.empty())
 		selection_mask = (1 >> id);
@@ -584,7 +604,12 @@ bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
 		if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
 			App->scene->selected_obj.clear();
 		}
-		App->scene->selected_obj.push_back(&game_object);
+		int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it
+		App->scene->selected_obj.remove(&game_object);
+		if(lastSize == App->scene->selected_obj.size())
+		{
+			App->scene->selected_obj.push_back(&game_object);
+		}
 		
 	}
 	else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
@@ -655,8 +680,9 @@ void ModuleUI::DrawObjectInspectorTab()
 	ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool select_script = false;
+	static bool select_audio = false;
 	if (App->scene->selected_obj.size() == 1) {
-		GameObject* selected_obj = App->scene->selected_obj[0];
+		GameObject* selected_obj = (*App->scene->selected_obj.begin());
 
 		if (selected_obj)
 		{
@@ -684,8 +710,10 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
 				if (ImGui::Button("Add Script")) select_script = true;
 				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Audio Source")) selected_obj->addComponent(AUDIOSOURCE);
-				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER);
+				if (ImGui::Button("Add Audio Source")) select_audio = true;
+				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
+				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
+				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
 			}
 
 			std::list<Component*> components;
@@ -717,6 +745,27 @@ void ModuleUI::DrawObjectInspectorTab()
 					}
 				}
 
+				ImGui::End();
+			}
+
+			if (select_audio)
+			{
+				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					selected_obj->addComponent(AUDIOSOURCE);
+					select_audio = false;
+				}
+				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+					if (ImGui::MenuItem((*it).c_str())) {
+						ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
+						c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+						c_source->SetSoundName((*it).c_str());
+						select_audio = false;
+						break;
+					}
+				}
 				ImGui::End();
 			}
 		}
@@ -1358,6 +1407,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (select_audio)
 			{
 				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					((ComponentAudioSource*)&component)->SetSoundID(0);
+					((ComponentAudioSource*)&component)->SetSoundName("Sound");
+					select_audio = false;
+				}
 				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 					
 					if (ImGui::MenuItem((*it).c_str())) {
@@ -1642,6 +1697,33 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			//SKELETAL_TODO: missing resource info
 
 			ComponentAnimation* anim = (ComponentAnimation*)&component;
+			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+			if (ImGui::Button((R_anim != nullptr)? "Change Animation":"Add Animation")) {
+				set_animation_menu = true;
+			}
+
+			if (set_animation_menu) {
+
+				std::list<resource_deff> anim_res;
+				App->resources->getAnimationResourceList(anim_res);
+
+				ImGui::Begin("Animation selector", &set_animation_menu);
+				for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
+					resource_deff anim_deff = (*it);
+					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+						App->resources->deasignResource(anim->getAnimationResource());
+						App->resources->assignResource(anim_deff.uuid);
+						anim->setAnimationResource(anim_deff.uuid);
+						set_animation_menu = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}
 
 			static bool animation_active;
 			animation_active = anim->isActive();
@@ -1649,14 +1731,45 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Checkbox("Active##active animation", &animation_active))
 				anim->setActive(animation_active);
 
-			//Change/Add animation button
-			//getAnimationResourceList()
-
 			ImGui::Checkbox("Loop", &anim->loop);
 
-			ImGui::PushID("Speed");
-			ImGui::InputFloat("", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::PopID();
+			ImGui::InputFloat("Speed", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+
+			if (R_anim != nullptr)
+			{
+				if (App->time->getGameState() != GameState::PLAYING)
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else if (anim->isPaused())
+				{
+					if (ImGui::Button("Play"))
+						anim->Play();
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					if (ImGui::Button("Pause"))
+						anim->Pause();
+				}
+
+				ImGui::Text("Animation info:");
+				ImGui::Text(" Duration: %.1f ms", R_anim->getDuration()*1000);
+				ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+			}
+
+			if (ImGui::Button("AnimEditor"))
+				p_anim->toggleActive();
+			if (p_anim->isActive())
+				p_anim->Draw();
+
+			if (ImGui::Button("Remove Component##Remove animation"))
+				ret = false;
 		}
 		break;
 	case BONE:
@@ -1665,6 +1778,339 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 		}
 		break;
+
+	case BILLBOARD:
+	{
+		ComponentBillboard * c_billboard = (ComponentBillboard*)&component;
+		if (ImGui::CollapsingHeader("Billboard"))
+		{
+			if (Material* material = c_billboard->billboard->getMaterial())
+			{
+				static int preview_size = 128;
+				ImGui::Text("Id: %d", material->getId());
+				ImGui::SameLine();
+				if (ImGui::Button("remove material"))
+				{
+					delete c_billboard->billboard->getMaterial();
+					c_billboard->billboard->setMaterial(nullptr);
+					ImGui::TreePop();
+					return true;
+				}
+
+				ImGui::Text("Preview size");
+				ImGui::SameLine();
+				if (ImGui::Button("64")) preview_size = 64;
+				ImGui::SameLine();
+				if (ImGui::Button("128")) preview_size = 128;
+				ImGui::SameLine();
+				if (ImGui::Button("256")) preview_size = 256;
+
+				Texture* texture = nullptr;
+				if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+					texture = tex_res->texture;
+
+
+				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+				ImGui::SameLine();
+
+				int w = 0; int h = 0;
+				if (texture)
+					texture->getSize(w, h);
+
+				ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+				//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+				//	material->setCheckeredTexture(DIFFUSE);
+				//ImGui::SameLine()
+			}
+			else
+				ImGui::TextWrapped("No material assigned");
+
+			if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+
+					if (Material* material = c_billboard->billboard->getMaterial())
+						App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+					else
+						c_billboard->billboard->setMaterial(new Material());
+
+					c_billboard->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+				}
+			}
+
+			ImGui::Checkbox("Use Color", &c_billboard->billboard->useColor);
+
+			if (c_billboard->billboard->useColor)
+			{
+				static bool draw_colorpicker = false;
+				static Color reference_color = c_billboard->billboard->color;
+				static GameObject* last_selected = c_billboard->getParent();
+
+				std::string label = c_billboard->getParent()->getName() + " color picker";
+
+				if (last_selected != c_billboard->getParent())
+					reference_color = c_billboard->billboard->color;
+
+				ImGui::SameLine();
+				if (ImGui::ColorButton((label + "button").c_str(), ImVec4(c_billboard->billboard->color.r, c_billboard->billboard->color.g, c_billboard->billboard->color.b, c_billboard->billboard->color.a)))
+					draw_colorpicker = !draw_colorpicker;
+
+				if (draw_colorpicker)
+					DrawColorPickerWindow(label.c_str(), (Color*)&c_billboard->billboard->color, &draw_colorpicker, (Color*)&reference_color);
+				else
+					reference_color = c_billboard->billboard->color;
+
+				last_selected = c_billboard->getParent();
+			}
+
+			if (ImGui::CollapsingHeader("Alignement"))
+			{
+				if (ImGui::Selectable("Screen aligned", c_billboard->billboard->alignment == SCREEN_ALIGN))
+					c_billboard->billboard->alignment = SCREEN_ALIGN;
+
+				if (ImGui::Selectable("World aligned", c_billboard->billboard->alignment == WORLD_ALIGN))
+					c_billboard->billboard->alignment = WORLD_ALIGN;
+
+				if (ImGui::Selectable("Axis aligned", c_billboard->billboard->alignment == AXIAL_ALIGN))
+					c_billboard->billboard->alignment = AXIAL_ALIGN;
+			}
+
+			if (ImGui::Button("Remove##Remove billboard"))
+				return false;
+		}
+		break;
+	}
+	case PARTICLE_EMITTER:
+	{
+		ComponentParticleEmitter* c_emitter = (ComponentParticleEmitter*)&component;
+		if (ImGui::CollapsingHeader("Particle emitter"))
+		{
+			//Emitter Lifetime
+			ImGui::Text("Set to -1 for infinite lifetime");
+			if (ImGui::SliderFloat("LifeTime", &c_emitter->emitterLifetime, -1, 100))
+				c_emitter->time = 0;
+
+			if (ImGui::Button("Reset"))
+				c_emitter->time = 0;
+
+			ImGui::Text("LifeTime: %.2f", c_emitter->emitterLifetime - c_emitter->time);
+
+			ImGui::NewLine();
+			int particles = c_emitter->maxParticles;
+
+			ImGui::Text("Set to 0 for uncapped particles");
+			if (ImGui::SliderInt("Max particles", &particles, 0, 1000))
+				c_emitter->maxParticles = particles;
+
+
+			ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
+			ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
+
+
+			//Area of spawn
+
+			if (ImGui::CollapsingHeader("Spawn Area"))
+			{
+
+				if (ImGui::Selectable("AABB", c_emitter->area.type == AAB))
+				{
+					c_emitter->area.type = AAB;
+				}
+				if (ImGui::Selectable("Sphere", c_emitter->area.type == SPHERE))
+				{
+					c_emitter->area.type = SPHERE;
+				}
+				if (ImGui::Selectable("Point", c_emitter->area.type == AREA_NONE))
+				{
+					c_emitter->area.type = AREA_NONE;
+				}
+
+
+				switch (c_emitter->area.type)
+				{
+				case SPHERE:
+
+					ImGui::DragFloat("Radius", &c_emitter->area.sphere.r, 0.1f);
+					break;
+				case AAB:
+				{
+					float3 size = c_emitter->area.aabb.Size();
+					if (ImGui::DragFloat3("Size", (float*)&size, 0.1f))
+					{
+						c_emitter->area.aabb.SetFromCenterAndSize(c_emitter->area.aabb.CenterPoint(), size);
+					}
+				}
+				break;
+				case AREA_NONE:
+				default:
+					break;
+				}
+
+				ImGui::Separator();
+			}
+
+			if (ImGui::CollapsingHeader("Particle"))
+			{
+
+				//Direction
+				ImGui::DragFloat3("Direction", (float*)&c_emitter->direction, 0.1f);
+				ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
+				ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
+
+
+				//LifeTime
+				float minlife = c_emitter->particleLifetime.min;
+				float maxlife = c_emitter->particleLifetime.max;
+
+				ImGui::PushID("LT");
+
+				ImGui::Text("Particle Life Time");
+				ImGui::SliderFloat("Min", &c_emitter->particleLifetime.min, 0, c_emitter->particleLifetime.max);
+				ImGui::SliderFloat("Max", &c_emitter->particleLifetime.max, c_emitter->particleLifetime.min, 100);
+
+
+				ImGui::PopID();
+
+				//Speed
+				ImGui::PushID("Speed Variation");
+
+				ImGui::Text("Speed");
+				ImGui::SliderFloat("Min", &c_emitter->speed.min, 0, c_emitter->speed.max);
+				ImGui::SliderFloat("Max", &c_emitter->speed.max, c_emitter->speed.min, 100);
+
+				ImGui::PopID();
+
+				//Start Size
+				ImGui::PushID("SSize");
+
+				ImGui::Text("Start Size");
+				ImGui::SliderFloat("Min", &c_emitter->startSize.min, 0, c_emitter->startSize.max);
+				ImGui::SliderFloat("Max", &c_emitter->startSize.max, c_emitter->startSize.min, 100);
+
+				ImGui::PopID();
+
+				//End Size
+				ImGui::PushID("ESize");
+
+				ImGui::Text("End Size");
+				ImGui::SliderFloat("Min", &c_emitter->endSize.min, 0, c_emitter->endSize.max);
+				ImGui::SliderFloat("Max", &c_emitter->endSize.max, c_emitter->endSize.min, 100);
+
+				ImGui::PopID();
+
+				////Start Spin
+				//ImGui::PushID("SSpin");
+
+				//ImGui::Text("Start Spin");
+				//ImGui::SliderFloat("Min", &startSpin.min, 0, startSpin.max);
+				//ImGui::SliderFloat("Max", &startSpin.max, startSpin.min, 100);
+
+				//ImGui::PopID();
+
+				////End Spin
+				//ImGui::PushID("ESpin");
+
+				//ImGui::Text("End Spin");
+				//ImGui::SliderFloat("Min", &endSpin.min, 0, endSpin.max);
+				//ImGui::SliderFloat("Max", &endSpin.max, endSpin.min, 100);
+
+				//ImGui::PopID();
+
+				//Start Color
+				ImGui::PushID("SColor");
+
+				ImGui::Text("StartColor");
+
+				ImGui::ColorEdit4("Min", (float*)&c_emitter->startColor.min);
+				ImGui::ColorEdit4("Max", (float*)&c_emitter->startColor.max);
+
+				ImGui::PopID();
+
+				//End Color
+				ImGui::PushID("EColor");
+
+				ImGui::Text("EndColor");
+
+				ImGui::ColorEdit4("Min", (float*)&c_emitter->endColor.min);
+				ImGui::ColorEdit4("Max", (float*)&c_emitter->endColor.max);
+
+				ImGui::PopID();
+			}
+
+
+
+			if (ImGui::CollapsingHeader("Billboard"))
+			{
+				if (Material* material = c_emitter->billboard->getMaterial())
+				{
+					static int preview_size = 128;
+					ImGui::Text("Id: %d", material->getId());
+					ImGui::SameLine();
+					if (ImGui::Button("remove material"))
+					{
+						delete c_emitter->billboard->getMaterial();
+						c_emitter->billboard->setMaterial(nullptr);
+						ImGui::TreePop();
+						return true;
+					}
+
+					ImGui::Text("Preview size");
+					ImGui::SameLine();
+					if (ImGui::Button("64")) preview_size = 64;
+					ImGui::SameLine();
+					if (ImGui::Button("128")) preview_size = 128;
+					ImGui::SameLine();
+					if (ImGui::Button("256")) preview_size = 256;
+
+					Texture* texture = nullptr;
+					if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+						texture = tex_res->texture;
+
+
+					ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+					ImGui::SameLine();
+
+					int w = 0; int h = 0;
+					if (texture)
+						texture->getSize(w, h);
+
+					ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+					//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+					//	material->setCheckeredTexture(DIFFUSE);
+					//ImGui::SameLine()
+				}
+				else
+					ImGui::TextWrapped("No material assigned");
+
+				if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
+				{
+					std::string texture_path = openFileWID();
+					uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+					if (new_resource != 0) {
+						App->resources->assignResource(new_resource);
+
+						if (Material* material = c_emitter->billboard->getMaterial())
+							App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+						else
+							c_emitter->billboard->setMaterial(new Material());
+
+						c_emitter->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+					}
+				}
+
+			}
+
+			if (ImGui::Button("Remove##Remove particle emitter"))
+				return false;
+		}
+		break;
+	}
+	
 	default:
 		break;
 	}
@@ -1698,7 +2144,7 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 			x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2)  - 1;
 			y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
 
-			App->scene->selected_obj[0] = App->scene->MousePicking(camera.getParent() ? camera.getParent()->getParent() : nullptr);
+			App->scene->selected_obj.push_back(App->scene->MousePicking(camera.getParent() ? camera.getParent()->getParent() : nullptr));
 		}
 		ImGui::End();
 	}
@@ -2487,6 +2933,129 @@ void ModuleUI::DrawScriptEditor()
 	ImGui::End();
 }
 
+void ModuleUI::DrawBuildMenu()
+{
+	ImGui::Begin("Make Build", &open_tabs[BUILD_MENU]);
+
+	ImGui::Text("Select a path to make the build:");
+	ImGui::PushID("setPath");
+	static std::string buildPath;
+	char* buffer = new char[buildPath.size()];
+	memcpy(buffer, buildPath.c_str(), sizeof(char)*buildPath.size());
+	ImGui::InputTextEx("", buffer, buildPath.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+	RELEASE_ARRAY(buffer);
+	ImGui::PopID();
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Click to choose path", false))
+	{
+		buildPath = openFileWID(true);
+	}
+	ImGui::NewLine();
+
+	ImGui::Text("Write Build Name:");
+	ImGui::PushID("name");
+	static char buildName[15];
+	ImGui::InputTextEx("", buildName, 15, {125, 23}, ImGuiInputTextFlags_None);
+	ImGui::PopID();
+	ImGui::NewLine();
+
+	ImGui::Text("Select Scenes:");
+	ImGui::BeginChild("scenes", { 0,100 }, true);
+	ImGui::Text("Main  |  Scenes");
+	int i = 0;
+	bool remove = false;
+	int removeIndex = 0;
+	for (std::list<std::string>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
+		bool tick = main_scene[i];
+		ImGui::PushID(i);
+		if (ImGui::Checkbox("", &tick))
+		{
+			for (int j = 0; j < main_scene.size(); ++j)
+			{
+				main_scene[j] = false;
+			}
+			main_scene[i] = true;
+		}
+		ImGui::PopID();
+		main_scene[i] = (main_scene[i] && !tick) ? true : tick;
+		ImGui::SameLine(57);
+
+		ImGui::Text((*it_s).c_str());
+
+		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
+		ImGui::PushID("Remove" + i);
+		if (ImGui::Button("Remove"))
+		{
+			remove = true;
+			removeIndex = i;
+		}
+		ImGui::PopID();
+
+		i++;
+	}
+	if (remove)
+	{
+		build_scenes.erase(std::next(build_scenes.begin(), removeIndex));
+		bool wasMain = main_scene[removeIndex];
+		main_scene.erase(std::next(main_scene.begin(), removeIndex));
+		if (wasMain && main_scene.size() > 0)
+			main_scene[0] = true;
+		remove = false;
+	}
+	static bool pickScene = false;
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
+	if (ImGui::Button("+", { 23,23 }))
+	{
+		pickScene = true;
+	}
+	if (pickScene)
+	{
+		std::list<resource_deff> scene_res;
+		App->resources->getSceneResourceList(scene_res, build_scenes);
+
+		ImGui::Begin("Scene selector", &pickScene);
+		for (auto it = scene_res.begin(); it != scene_res.end(); it++) {
+			resource_deff scene_deff = (*it);
+			if (ImGui::MenuItem(scene_deff.asset.c_str())) {
+				build_scenes.push_back((*it).asset);
+				main_scene.push_back(build_scenes.size() == 1);
+				pickScene = false;
+				break;
+			}
+		}
+		ImGui::End();
+	}
+	ImGui::EndChild();
+
+	static bool building = false;
+	static bool errorBuilding = false;
+	if (building)
+	{
+		building = false;
+		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		if (!errorBuilding)
+			open_tabs[BUILD_MENU] = false;
+	}
+	ImGui::NewLine();
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
+	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
+	{
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 20);
+		ImGui::Text("Creating...");
+		building = true;
+		errorBuilding = false;
+	}
+	if (errorBuilding)
+	{
+		ImGui::NewLine();
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 60);
+		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
+	}
+	ImGui::End();
+}
+
 void ModuleUI::DrawAboutLeaf()
 {
 	ImGui::Begin("About", &open_tabs[ABOUT]); 
@@ -2816,24 +3385,24 @@ void ModuleUI::DrawGizmoMenuTab() {
 	else
 	{
 
-		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_SELECT]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, !draw_guizmo ? 1.0f : 0.0f)) || App->input->GetKey(SDL_SCANCODE_U) == KEY_DOWN)
+		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_SELECT]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, !draw_guizmo ? 1.0f : 0.0f)) || (App->input->GetKey(SDL_SCANCODE_Q) == KEY_DOWN && App->input->GetMouseButton(SDL_BUTTON_RIGHT) != KEY_REPEAT))
 			draw_guizmo = !draw_guizmo;
 
 
 		ImGui::SameLine();
-		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_TRANSLATE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::TRANSLATE && draw_guizmo ? 1.0f : 0.0f)) || App->input->GetKey(SDL_SCANCODE_I) == KEY_DOWN) {
+		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_TRANSLATE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::TRANSLATE && draw_guizmo ? 1.0f : 0.0f)) || (App->input->GetKey(SDL_SCANCODE_W) == KEY_DOWN && App->input->GetMouseButton(SDL_BUTTON_RIGHT) != KEY_REPEAT)) {
 			gizmo_operation = ImGuizmo::OPERATION::TRANSLATE;
 			draw_guizmo = true;
 		}
 
 		ImGui::SameLine();
-		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_ROTATE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::ROTATE && draw_guizmo ? 1.0f : 0.0f)) || App->input->GetKey(SDL_SCANCODE_O) == KEY_DOWN) {
+		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_ROTATE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::ROTATE && draw_guizmo ? 1.0f : 0.0f)) || (App->input->GetKey(SDL_SCANCODE_E) == KEY_DOWN && App->input->GetMouseButton(SDL_BUTTON_RIGHT) != KEY_REPEAT)) {
 			gizmo_operation = ImGuizmo::OPERATION::ROTATE;
 			draw_guizmo = true;
 		}
 
 		ImGui::SameLine();
-		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_SCALE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::SCALE&& draw_guizmo ? 1.0f : 0.0f)) || App->input->GetKey(SDL_SCANCODE_P) == KEY_DOWN) {
+		if (ImGui::ImageButton((void*)ui_textures[GUIZMO_SCALE]->getGLid(), ImVec2(32, 32), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, gizmo_operation == ImGuizmo::OPERATION::SCALE&& draw_guizmo ? 1.0f : 0.0f)) || (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN && App->input->GetMouseButton(SDL_BUTTON_RIGHT) != KEY_REPEAT)) {
 			gizmo_operation = ImGuizmo::OPERATION::SCALE;
 			draw_guizmo = true;
 		}
@@ -2915,7 +3484,7 @@ void ModuleUI::DrawGuizmo()
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
-		ComponentTransform* transform = (ComponentTransform*)App->scene->selected_obj[0]->getComponent(TRANSFORM);
+		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
 		Transform* trans = transform->global;
 
 		Transform aux_transform;

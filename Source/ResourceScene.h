@@ -6,5 +6,6 @@ public:
 	ResourceScene(resource_deff deff);
 	~ResourceScene();
 
+	std::string scene_name;
 };
 

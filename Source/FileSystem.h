@@ -2,6 +2,7 @@
 #define _FILE_SYSTEM_
 
 #include "Resource.h"
+#include <list>
 
 
 #define OWN_MESH_EXTENSION ".kr"
@@ -14,6 +15,7 @@
 #define PREFAB_EXTENSION ".prefab"
 #define VERTEXSHADER_EXTENSION ".vex"
 #define FRAGMENTSHADER_EXTENSION ".frag"
+#define AUDIO_EXTENSION ".bnk"
 
 #define LIBRARY_FOLDER "Library\\"
 #define MESHES_FOLDER "Library\\Meshes\\"
@@ -22,6 +24,7 @@
 #define TEXTURES_FOLDER "Library\\Textures\\"
 #define OBJECTS_FOLDER "Library\\3dObjects\\"
 #define SCRIPTS_FOLDER "Library\\Scripts\\"
+#define AUDIO_FOLDER "Library\\Audio\\"
 #define MATERIALS_FOLDER "Library\\Materials\\"
 
 
@@ -32,6 +35,7 @@
 #define SETTINGS_FOLDER "Settings\\"
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
+#define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define ASSETS_FOLDER "Assets\\"
 
 enum lib_dir {
@@ -44,6 +48,7 @@ enum lib_dir {
 	LIBRARY_ANIMATIONS,
 	LIBRARY_BONES,
 	LIBRARY_MATERIALS,
+	LIBRARY_AUDIO,
 	SETTINGS,
 	ASSETS,
 	ASSETS_SCENES,
@@ -71,6 +76,7 @@ public:
 	bool FindInDirectory(const char* directory, const char* file_name, std::string& final_path); // File name with extension
 	std::string getPathFromLibDir(lib_dir r_type);
 
+	void createMainDirectories();
 
 	void getFileNameFromPath(std::string& str);
 	bool getPath(std::string & str);
@@ -80,8 +86,8 @@ public:
 	bool removePath(std::string& str);
 
 
-
-
+	void makeBuild(const char* buildPath);
+	void CopyFolder(const char* src, const char* dst, bool recursive = false, std::list<const char*>* excludedFiles = nullptr);
 
 };
 

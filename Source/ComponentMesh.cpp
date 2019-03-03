@@ -23,11 +23,11 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	std::string path;
 
 	// Load mesh from own file format
-	
+
 	//std::string mesh_name = json_object_get_string(deff, "mesh_name"); // Mesh name not used for now
 	primitive_type = primitiveString2PrimitiveType(json_object_get_string(deff, "primitive_type"));
 
-													 
+
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
@@ -165,7 +165,7 @@ bool ComponentMesh::Update(float dt)
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
 	{
 		setMeshResourceId(mesh_resource_uuid);
-		
+
 		RELEASE_ARRAY(boneTransforms);
 
 		boneTransforms = new float[components_bones.size()*16];
@@ -179,7 +179,7 @@ bool ComponentMesh::Update(float dt)
 		}
 
 	}
-	
+
 	return true;
 }
 
@@ -228,7 +228,7 @@ PrimitiveTypes ComponentMesh::primitiveString2PrimitiveType(std::string primitiv
 		ret = Primitive_Sphere;
 	else if (primitive_type_string == "CYLINDER")
 		ret = Primitive_Cylinder;
-	
+
 	return ret;
 }
 
@@ -257,7 +257,7 @@ void ComponentMesh::Skining() const
 {
 	ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
 	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION) != nullptr)
-	{		
+	{
 		float3* vertices = new float3[mesh->mesh->getNumVertices()];
 		memset(vertices, 0, sizeof(float)*mesh->mesh->getNumVertices() * 3);
 
@@ -273,7 +273,7 @@ void ComponentMesh::Skining() const
 				{
 					hasBones = true;
 					float4x4 boneTransform =((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
-			
+
 					memcpy(&boneTransforms[i * 16], boneTransform.Transposed().v, 16 * sizeof(float)); //copy of the final bone trasformations for the shader use
 
 					//for (int j = 0; j < rBone->numWeights; j++)
@@ -296,7 +296,7 @@ void ComponentMesh::Skining() const
 
 		if (hasBones)
 		{
-			mesh->mesh->setMorphedVertices(vertices);			
+			mesh->mesh->setMorphedVertices(vertices);
 		}
 		else
 			mesh->mesh->setMorphedVertices(nullptr);

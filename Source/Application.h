@@ -16,12 +16,15 @@ class ModuleRenderer3D;
 class ModuleCamera3D;
 class ModuleUI;
 class ModuleImporter;
+class ModuleExporter;
 class ModuleDebug;
 class ModuleTimeManager;
 class ModuleResourcesManager;
 class ModuleScripting;
 class FontManager;
 class ModuleShaders;
+
+class ModulePhysics3D;
 
 class Application
 {
@@ -35,11 +38,14 @@ public:
 	ModuleCamera3D* camera;
 	ModuleUI* gui;
 	ModuleImporter* importer;
+	ModuleExporter* exporter;
 	ModuleTimeManager* time;
 	ModuleResourcesManager* resources;
 	ModuleScripting* scripting;
 	FontManager* fontManager;
 	ModuleShaders* shaders;
+
+	ModulePhysics3D* physics;
 
 	FileSystem fs;
 private:

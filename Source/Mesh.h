@@ -13,8 +13,7 @@ class aiMesh;
 class aiScene;
 class Material;
 class ComponentAnimation;
-class ComponentBone;
-class GameObject;
+class Texture;
 
 enum PrimitiveTypes
 {
@@ -53,7 +52,7 @@ public:
 };
 
 class Mesh {
-	
+
 	friend class Skybox;
 public:
 	Mesh(const aiMesh& mesh, const aiScene& scene, const char* file_name = "");
@@ -63,6 +62,7 @@ public:
 	~Mesh();
 
 	void Draw(Material* mat, bool draw_as_selected = false) const;
+	void Draw(Texture* tex, bool draw_as_selected = false) const;
 	void FillMeshGPU();
 	void FillboneVertexInfo(GameObject* parent, std::vector<uint> bones);
 	void MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation,float* global_transform,float* boneTrans,uint numBones, bool draw_as_selected = false) const;
@@ -80,7 +80,7 @@ public:
 	const float3* getNormals()		{ return normals; }
 	const float3* getColors()		{ return colors; }
 	const float2* getTexCoords()	{ return tex_coords; }
-	const char* getName()			{ return mesh_name.c_str(); }         
+	const char* getName()			{ return mesh_name.c_str(); }
 	void setName(const char* name)	{ mesh_name = name; }
 	uint getNumVertices() { return num_vertices; }
 	uint getNumTris() { return num_tris; }

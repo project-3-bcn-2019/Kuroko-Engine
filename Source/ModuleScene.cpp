@@ -24,13 +24,16 @@
 #include "ComponentAudioSource.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleTimeManager.h"
+
+#include "ModulePhysics3D.h"
 
 #include "ModuleImporter.h" // TODO: remove this include and set skybox creation in another module (Importer?, delayed until user input?)
 #include "MathGeoLib\Geometry\LineSegment.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "Random.h"
 
-#include "../Game/Assets/Sounds/Wwise_IDs.h"
+#include "../Game/Assets/Audio/Wwise_IDs.h"
 #include "ImGui\imgui.h"
 
 #include <array>
@@ -106,7 +109,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (current == selected_obj[0]) 
+		if (current == *selected_obj.begin()) 
 			selected_obj.clear();
 		game_objects.remove(current);
 
@@ -132,6 +135,21 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
+
+	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
+	{
+		GameObject* obj = new GameObject("TEST");
+
+		obj->own_half_size = float3(0.5, 0.5, 0.5);
+
+		OBB* obb = ((ComponentAABB*)obj->getComponent(C_AABB))->getOBB();
+
+		obb->SetFrom(AABB(float3(-0.5, -0.5, -0.5), float3(0.5, 0.5, 0.5)));
+
+		obj->addComponent(COLLIDER_CUBE);
+
+	}
+
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
 		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
@@ -139,12 +157,19 @@ update_status ModuleScene::Update(float dt)
 
 		
 		GameObject* picked = MousePicking();
-		if (picked != nullptr)
+		if (picked != nullptr) {
+			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
+				App->scene->selected_obj.clear();
+			}
 			selected_obj.push_back(picked);
+		}
+		else {
+			App->scene->selected_obj.clear();
+		}
 	}
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
-		(*it)->Update(dt);
+		(*it)->Update(App->time->getGameDeltaTime()/1000);
 
 	if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
 	{
@@ -164,6 +189,8 @@ update_status ModuleScene::Update(float dt)
 		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
 		component->SetSoundName("Footsteps");
 	}
+
+	//App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;
 }

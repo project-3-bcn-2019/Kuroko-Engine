@@ -95,14 +95,17 @@ update_status ModuleCamera3D::Update(float dt)
 		if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
 			speed = 5.0f * speed;
 
-		if (App->input->GetKey(SDL_SCANCODE_T) == KEY_REPEAT) { displacement.y += speed; };
-		if (App->input->GetKey(SDL_SCANCODE_G) == KEY_REPEAT) { displacement.y -= speed; };
+		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+		{
+			if (App->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT) { displacement.y += speed; };
+			if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT) { displacement.y -= speed; };
 
-		if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) { displacement += selected_camera->Z * speed; };
-		if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) { displacement -= selected_camera->Z * speed; };
+			if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) { displacement += selected_camera->Z * speed; };
+			if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) { displacement -= selected_camera->Z * speed; };
 
-		if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) { displacement += selected_camera->X * speed; };
-		if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) { displacement -= selected_camera->X * speed; };
+			if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) { displacement += selected_camera->X * speed; };
+			if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) { displacement -= selected_camera->X * speed; };
+		}
 
 		// panning
 		if (App->input->GetMouseButton(SDL_BUTTON_MIDDLE) == KEY_REPEAT && !orbit)
