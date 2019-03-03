@@ -430,10 +430,10 @@ void GameObject::addComponent(Component* component)
 	case PARTICLE_EMITTER:
 		components.push_back(component);
 		break;
-	case ANIMATION_EVENT:
-	components.push_back(component);
-		break;
 	case COLLIDER_CUBE:
+		components.push_back(component);
+		break;
+	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
 	default:

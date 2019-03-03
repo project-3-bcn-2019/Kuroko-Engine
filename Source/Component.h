@@ -109,12 +109,19 @@ public:
 	// Each Animation event should have its own function, similar to a
 	// callback system but by type
 
+	// You have to create these function in each component, the virtual will
+	// only be used when it fails to get animations from component and return
+	// an invalid result.
+
 	// Currently no values can be used in animations, only call function
 	// certain keyframe, if really needed for vertical slice I will
 	// implement it, but will take time and for each type of value used
 	// a cast system should be added to every component so that it gets the
 	// value wanted (similar to a union usage) maybe will create new union
 	// based struct but for now should not be needed
+
+	// You have to create each ComponentTypeAnimEVT enum, which holds the evt
+	// types for the type of componetn you want to be animated
 
 	virtual std::string EvTypetoString(int evt) { 
 		//	Template for virtual EvTypetoString
