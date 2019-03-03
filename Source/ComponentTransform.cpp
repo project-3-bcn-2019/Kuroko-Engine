@@ -85,9 +85,10 @@ void ComponentTransform::GlobalToLocal()
 {
 	if (Transform* inh_transform = getInheritedTransform())
 	{
-		local->setPosition(inh_transform->getRotation().Inverted() * (global->getPosition() - (inh_transform->getRotation() * local->getRotation() * float3(getParent()->own_centroid.x *  inh_transform->getScale().x, getParent()->own_centroid.y *  inh_transform->getScale().y, getParent()->own_centroid.z *  inh_transform->getScale().z))) - inh_transform->getPosition());
-		local->setRotation(inh_transform->getRotation().Inverted() * global->getRotation());
-		local->setScale(global->getScale().Div(inh_transform->getScale()));
+		local->mat = inh_transform->getMatrix().Inverted() * global->getMatrix();
+		math::float4x4 rot_mat;
+		local->mat.Decompose(local->position, rot_mat, local->scale);
+		local->rotation = rot_mat.RotatePart().ToQuat();
 	}
 	else
 		local->Set(global->getPosition(), global->getRotation(), global->getScale());
@@ -99,9 +100,10 @@ void ComponentTransform::LocalToGlobal()
 {
 	if (Transform* inh_transform = getInheritedTransform())
 	{
-		global->setPosition(inh_transform->getRotation() * local->getPosition() + inh_transform->getPosition() + (inh_transform->getRotation() * local->getRotation() * float3(getParent()->own_centroid.x *  inh_transform->getScale().x, getParent()->own_centroid.y *  inh_transform->getScale().y, getParent()->own_centroid.z *  inh_transform->getScale().z)));
-		global->setRotation(inh_transform->getRotation() * local->getRotation());
-		global->setScale(local->getScale().Mul(inh_transform->getScale()));
+		global->mat = inh_transform->getMatrix()* local->getMatrix();
+		math::float4x4 rot_mat;
+		global->mat.Decompose(global->position, rot_mat, global->scale);
+		global->rotation = rot_mat.RotatePart().ToQuat();
 	}
 	else
 		global->Set(local->getPosition(), local->getRotation(), local->getScale());
