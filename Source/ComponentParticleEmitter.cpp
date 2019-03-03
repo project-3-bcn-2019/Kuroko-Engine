@@ -405,3 +405,41 @@ void ComponentParticleEmitter::SetArea(AreaType type)
 {
 	area.type = type;
 }
+
+
+std::string ComponentParticleEmitter::EvTypetoString(int evt)
+{
+	switch (evt)
+	{
+	case AnimEventType::PARTICLE_PLAY:
+		return "PLAY";
+	case AnimEventType::PARTICLE_STOP:
+		return "STOP";
+	case AnimEventType::PARTICLE_NONE:
+		return "NONE";
+	}
+	return "ERROR";
+}
+
+int ComponentParticleEmitter::getEvAmount()
+{
+	return AnimEventType::PARTICLE_AMOUNT_OF_EVENTS;
+}
+
+void ComponentParticleEmitter::ProcessAnimationEvents(std::map<int, void*>& evts)
+{
+	for (auto it_evt = evts.begin(); it_evt != evts.end(); ++it_evt)
+	{
+		switch (it_evt->first)
+		{
+		case AnimEventType::PARTICLE_PLAY:
+			//Play();
+			break;
+		case AnimEventType::PARTICLE_STOP:
+			//Stop();
+			break;
+		default:
+			break;
+		}
+	}
+}
