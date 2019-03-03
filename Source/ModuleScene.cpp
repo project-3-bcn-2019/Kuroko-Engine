@@ -682,6 +682,7 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 		GameObject* obj = new GameObject(obj_deff);
 		child_parent[obj_uuid] = parent;
 		loaded_gameobjects[obj_uuid] = obj;
+		game_objects.push_back(obj);
 	}
 
 
@@ -701,9 +702,9 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 	}
 
 	// Push all gameobjects with handled parenting in the scene
-	for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
+	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
 		game_objects.push_back((*it).second);			
-	}
+	}*/
 }
 
 void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
@@ -721,6 +722,7 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 		GameObject* obj = new GameObject(obj_deff);
 		child_parent[obj_uuid] = parent;
 		loaded_gameobjects[obj_uuid] = obj;
+		game_objects.push_back(obj);
 	}
 
 	GameObject* father_of_all = nullptr; //Store this for setting prefab spawn position
@@ -748,9 +750,9 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 	*c_trans->local = prefab_load_spawn;
 
 	// Push all gameobjects with handled parenting in the scene
-	for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
+	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
 		game_objects.push_back((*it).second);
-	}
+	}*/
 }
 
 

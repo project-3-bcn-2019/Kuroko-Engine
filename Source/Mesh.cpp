@@ -111,13 +111,15 @@ Mesh::~Mesh()
 
 void Mesh::setMorphedVertices(float3 * vertices)
 {
-	RELEASE(morphed_vertices);
+	RELEASE_ARRAY(morphed_vertices);
 	morphed_vertices = vertices;
 }
 
 void Mesh::LoadDataToVRAM()
 {
 	// create VBOs
+	glDeleteBuffers(1, &vboId);
+	glDeleteBuffers(1, &iboId);
 	glGenBuffers(1, &vboId);    // for vertex buffer
 	glGenBuffers(1, &iboId);    // for index buffer
 
@@ -704,8 +706,8 @@ bool Mesh::LoadFromAssimpMesh(const aiMesh& imported_mesh, const aiScene& scene)
 	}
 	calculateCentroidandHalfsize();
 
-	/*for (int i = 0; i < num_vertices; i++)
-		vertices[i] -= centroid;*/
+	for (int i = 0; i < num_vertices; i++)
+		vertices[i] -= centroid;
 
 	return true;
 }
