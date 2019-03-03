@@ -52,15 +52,32 @@ bool ModuleScene::Start()
 	want_load_scene_file = false;
 
 	std::array<Texture*, 6> skybox_texs;
-	skybox_texs[LEFT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_left.png");
-	skybox_texs[RIGHT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_right.png");
-	skybox_texs[UP]		= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_up.png");
-	skybox_texs[DOWN]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_down.png");
-	skybox_texs[FRONT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_front.png");
-	skybox_texs[BACK]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
+	if (!App->is_game)
+	{
+		skybox_texs[LEFT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_left.png");
+		skybox_texs[RIGHT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_right.png");
+		skybox_texs[UP] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_up.png");
+		skybox_texs[DOWN] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_down.png");
+		skybox_texs[FRONT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_front.png");
+		skybox_texs[BACK] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
+	}
+	else
+	{
+		skybox_texs[LEFT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_left", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[RIGHT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_right", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[UP] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_up", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[DOWN] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_down", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[FRONT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_front", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[BACK] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_back", R_TEXTURE)) + DDS_EXTENSION).c_str());
+	}
 	skybox->setAllTextures(skybox_texs);
 
 	quadtree = new Quadtree(AABB(float3(-50, -10, -50), float3(50, 10, 50)));
+
+	if (App->is_game && main_scene != 0)
+	{
+		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
+	}
 
 	return true;
 }

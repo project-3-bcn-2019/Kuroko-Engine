@@ -256,10 +256,7 @@ void ComponentMesh::Skining() const
 				if (rBone != nullptr)
 				{
 					hasBones = true;
-					Transform offset;
-					offset.setMatrix(rBone->Offset);
-					offset.setScale(offset.getScale()*1000.f);
-					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*offset.getMatrix().Inverted();
+					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 
 					for (int j = 0; j < rBone->numWeights; j++)
 					{
@@ -268,7 +265,8 @@ void ComponentMesh::Skining() const
 
 						if (VertexIndex >= mesh->mesh->getNumVertices())
 							continue;
-						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+						float3 startingVertex(mesh->mesh->getVertices()[VertexIndex]);
+						float3 movementWeight = boneTransform.TransformPos(startingVertex);
 
 						/*vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
 						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;

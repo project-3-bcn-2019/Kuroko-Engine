@@ -11,6 +11,12 @@
 
 #define MINSPAWNRATE 0.01f
 
+enum AnimEventType {
+	PARTICLE_NONE,
+	PARTICLE_CREATE,
+	PARTICLE_AMOUNT_OF_EVENTS
+};
+
 enum AreaType
 {
 	SPHERE,
@@ -75,6 +81,11 @@ public:
 	void UpdateSpawnAreaPos();
 
 	void SetArea(AreaType type);
+
+	// Animation Events
+	std::string EvTypetoString(int evt) override;
+	int getEvAmount() override;
+	void ProcessAnimationEvents(std::map<int, void*>& evts) override;
 
 private:
 

@@ -576,6 +576,12 @@
     <ClInclude Include="ComponentParticleEmitter.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentAnimationEvent.h">
+      <Filter>Sources\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelAnimationEvent.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
     <ClInclude Include="ModuleExporter.h">
       <Filter>Sources\Modules</Filter>
     </ClInclude>
@@ -584,6 +590,9 @@
     </ClInclude>
     <ClInclude Include="Wwise_IDs.h">
       <Filter>Sources\Wwise</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelHierarchyTab.h">
+      <Filter>Sources\UI Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -959,11 +968,20 @@
     <ClCompile Include="ComponentParticleEmitter.cpp">
       <Filter>Sources\Game</Filter>
     </ClCompile>
+    <ClCompile Include="ComponentAnimationEvent.cpp">
+      <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelAnimationEvent.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
     <ClCompile Include="ModuleExporter.cpp">
       <Filter>Sources\Modules</Filter>
     </ClCompile>
     <ClCompile Include="ResourceAudio.cpp">
       <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelHierarchyTab.cpp">
+      <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
