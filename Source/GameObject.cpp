@@ -18,7 +18,7 @@
 #include "ComponentParticleEmitter.h"
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
-
+#include "ComponentAnimationEvent.h"
 #include "ComponentColliderCube.h"
 
 #include "Camera.h"
@@ -367,6 +367,10 @@ Component* GameObject::addComponent(Component_type type)
 		break;
 	case PARTICLE_EMITTER:
 		new_component = new ComponentParticleEmitter(this);
+		components.push_back(new_component);
+		break;
+	case ANIMATION_EVENT:
+		new_component = new ComponentAnimationEvent(this);
 		components.push_back(new_component);
 		break;
 	default:

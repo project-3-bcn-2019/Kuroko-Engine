@@ -23,7 +23,7 @@ typedef std::map<uint, std::map<double, std::map<int, void*>>> CompAnimMap;
 class ComponentAnimationEvent : public Component
 {
 public:
-	ComponentAnimationEvent(GameObject*) : Component(gameobject, ANIMATION_EVENT) {} // empty constructor
+	ComponentAnimationEvent(GameObject* gameobject) : Component(gameobject, ANIMATION_EVENT) {} // empty constructor
 	ComponentAnimationEvent(JSON_Object* deff, GameObject* parent);
 	~ComponentAnimationEvent();
 
@@ -52,5 +52,6 @@ public:
 
 	CompAnimMap AnimEvts;
 	int own_ticks = 0;
+	int ticksXsecond = 0;
 };
 #endif

@@ -71,13 +71,14 @@ bool ComponentAnimationEvent::Update(float dt)
 			if (it_components._Ptr->_Myval->getUUID() == it->first)
 			{
 				// Get the keyframe of animation currently and if so then
-				int expected_keyframe = 0;
+				int expected_keyframe = animTime * ticksXsecond;
+				/*
 				if (animation_resource_uuid != 0)
 				{
 					Resource* get = App->resources->getResource(animation_resource_uuid);
 					if (get != nullptr)
 						expected_keyframe = animTime * ((ResourceAnimation*)get)->ticksXsecond;
-				}
+				}*/
 				auto find_key = it->second.find(expected_keyframe);
 				if (find_key != it->second.end())
 					it_components._Ptr->_Myval->ProcessAnimationEvents(find_key->second);
@@ -85,6 +86,8 @@ bool ComponentAnimationEvent::Update(float dt)
 			}
 		}
 	}
+
+	return true;
 }
 
 void ComponentAnimationEvent::Save(JSON_Object* config)
