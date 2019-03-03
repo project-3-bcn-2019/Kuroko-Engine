@@ -46,7 +46,7 @@
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
-
+#include "ComponentAnimationEvent.h"
 
 #include "Random.h"
 #include "VRAM.h"
@@ -65,6 +65,7 @@
 // Include Panels
 #include "Panel.h"
 #include "PanelAnimation.h"
+#include "PanelAnimationEvent.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -74,6 +75,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	name = "gui";
 
 	p_anim = new PanelAnimation("AnimEditor");
+	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
 }
 
 
@@ -91,7 +93,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 	ImGui_ImplSDL2_InitForOpenGL(App->window->main_window->window, App->renderer3D->getContext());
 	ImGui_ImplOpenGL2_Init();
-
+	
 	// Setup style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
@@ -719,6 +721,7 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
 				if (ImGui::Button("Add Script")) select_script = true;
 				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
+				if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
 				if (ImGui::Button("Add Audio Source")) select_audio = true;
 				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
 				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
@@ -2117,6 +2120,107 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			if (ImGui::Button("Remove##Remove particle emitter"))
 				return false;
+		}
+		break;
+	}
+	case ANIMATION_EVENT:
+	{
+		if (ImGui::CollapsingHeader("Animation Events"))
+		{
+			ComponentAnimationEvent* anim_evt = (ComponentAnimationEvent*)&component;
+			//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+			//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+			/*if (ImGui::Button((R_anim != nullptr) ? "Change Animation" : "Add Animation")) {
+				set_animation_menu = true;
+			}*/
+
+			/*if (set_animation_menu) {
+
+				std::list<resource_deff> anim_res;
+				App->resources->getAnimationResourceList(anim_res);
+
+				ImGui::Begin("Animation selector", &set_animation_menu);
+				for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
+					resource_deff anim_deff = (*it);
+					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+						App->resources->deasignResource(anim->getAnimationResource());
+						App->resources->assignResource(anim_deff.uuid);
+						anim->setAnimationResource(anim_deff.uuid);
+						set_animation_menu = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}*/
+
+			static bool animation_active;
+			animation_active = anim_evt->isActive();
+
+			if (ImGui::Checkbox("Active##active animation evt", &animation_active))
+				anim_evt->setActive(animation_active);
+
+			ImGui::Checkbox("Loop", &anim_evt->loop);
+
+
+			ImGui::InputInt("Duration", &anim_evt->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				ImGui::TextUnformatted("In Frames");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+			ImGui::InputInt("FrameRate", &anim_evt->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+
+			ImGui::InputFloat("Speed", &anim_evt->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				ImGui::TextUnformatted("Animation Speed Multiplier");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+			//if (R_anim != nullptr)
+			{
+				if (App->time->getGameState() != GameState::PLAYING)
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else if (anim_evt->isPaused())
+				{
+					if (ImGui::Button("Play"))
+						anim_evt->Play();
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					if (ImGui::Button("Pause"))
+						anim_evt->Pause();
+				}
+
+				ImGui::Text("Animation info:");
+				ImGui::Text(" Duration: %.1f ms", anim_evt->own_ticks * anim_evt->ticksXsecond * 1000);
+				//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+			}
+
+			if (ImGui::Button("AnimEditor"))
+				p_anim_evt->toggleActive();
+			if (p_anim_evt->isActive())
+				p_anim_evt->Draw();
+
+			if (ImGui::Button("Remove Component##Remove animation"))
+				ret = false;
+
 		}
 		break;
 	}

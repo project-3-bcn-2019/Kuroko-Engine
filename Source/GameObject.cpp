@@ -18,7 +18,7 @@
 #include "ComponentParticleEmitter.h"
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
-
+#include "ComponentAnimationEvent.h"
 #include "ComponentColliderCube.h"
 
 #include "Camera.h"
@@ -96,6 +96,10 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "particle_emitter") {
 			component = new ComponentParticleEmitter(component_deff, this);
 		}
+		else if (type == "animation_event") {
+			component = new ComponentAnimationEvent(component_deff, this);
+		}
+
 		else if (type == "collider_cube") {
 			component = new ComponentColliderCube(component_deff, this);
 		}
@@ -369,6 +373,10 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentParticleEmitter(this);
 		components.push_back(new_component);
 		break;
+	case ANIMATION_EVENT:
+		new_component = new ComponentAnimationEvent(this);
+		components.push_back(new_component);
+		break;
 	default:
 		break;
 	}
@@ -423,6 +431,9 @@ void GameObject::addComponent(Component* component)
 		components.push_back(component);
 		break;
 	case COLLIDER_CUBE:
+		components.push_back(component);
+		break;
+	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
 	default:

@@ -22,6 +22,7 @@ class TextEditor;
 // Panel Classes
 class Panel;
 class PanelAnimation;
+class PanelAnimationEvent;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -88,8 +89,8 @@ public:
 	bool disable_keyboard_control = false;
 
 	// Panels
-	PanelAnimation* p_anim;
-
+	PanelAnimation* p_anim = nullptr;
+	PanelAnimationEvent* p_anim_evt = nullptr;
 private:
 	
 	bool docking_background = true;
