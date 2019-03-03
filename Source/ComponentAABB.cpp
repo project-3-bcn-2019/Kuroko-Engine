@@ -31,6 +31,9 @@ void ComponentAABB::Reload()
 	std::list<Component*> meshes;
 	getParent()->getComponents(MESH, meshes);
 
+	if (meshes.empty())// HARDCODED SOLUTION SO THAT GAME OBJECTS WITH NO MESH CAN HAVE AN AABB/OBB
+		return;
+
 	float3 min_point = float3::inf;
 	float3 max_point = -float3::inf;
 
@@ -159,5 +162,7 @@ void ComponentAABB::DrawOBB() const
 void ComponentAABB::Save(JSON_Object* config) {
 
 	json_object_set_string(config, "type", "AABB");
+
+	
 
 }
