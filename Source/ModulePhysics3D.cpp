@@ -140,7 +140,7 @@ void ModulePhysics3D::UpdatePhysics()
 
 	world->stepSimulation(17, 1);
 
-	//float *matrix = new float[16];
+	////float *matrix = new float[16];
 	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
 	{
 		float* matrix = new float[16];
@@ -308,6 +308,15 @@ PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
 
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 {
+	world->removeCollisionObject(body_to_delete->body);
+
+	delete body_to_delete->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), body_to_delete->body->getCollisionShape()), end(shapes));
+	delete body_to_delete->body->getMotionState();
+	motions.erase(std::remove(begin(motions), end(motions), body_to_delete->body->getMotionState()), end(motions));
+	delete body_to_delete;
+	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
+
 }
 
 void ModulePhysics3D::GetCollisionsFromObject(std::list<Collision>& list_to_fill, GameObject * to_get)

@@ -717,6 +717,7 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
 				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
+				if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
 			}
 
 			std::list<Component*> components;
@@ -2214,6 +2215,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	}
+	case COLLIDER_CUBE:
+	{	if (ImGui::CollapsingHeader("Collider Cube"))
+			ImGui::Text("This game object has a collider");
+	}
+	break;
 	default:
 		break;
 	}
