@@ -245,6 +245,7 @@
     <ClInclude Include="Wren\wren_value.h" />
     <ClInclude Include="Wren\wren_vm.h" />
     <ClInclude Include="Wwise.h" />
+    <ClInclude Include="Wwise_IDs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
