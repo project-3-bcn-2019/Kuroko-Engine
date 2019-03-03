@@ -411,10 +411,8 @@ std::string ComponentParticleEmitter::EvTypetoString(int evt)
 {
 	switch (evt)
 	{
-	case AnimEventType::PARTICLE_PLAY:
-		return "PLAY";
-	case AnimEventType::PARTICLE_STOP:
-		return "STOP";
+	case AnimEventType::PARTICLE_CREATE:
+		return "CREATE";
 	case AnimEventType::PARTICLE_NONE:
 		return "NONE";
 	}
@@ -432,11 +430,8 @@ void ComponentParticleEmitter::ProcessAnimationEvents(std::map<int, void*>& evts
 	{
 		switch (it_evt->first)
 		{
-		case AnimEventType::PARTICLE_PLAY:
-			//Play();
-			break;
-		case AnimEventType::PARTICLE_STOP:
-			//Stop();
+		case AnimEventType::PARTICLE_CREATE:
+			CreateParticle();
 			break;
 		default:
 			break;
