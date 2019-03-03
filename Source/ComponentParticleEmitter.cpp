@@ -91,7 +91,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(JSON_Object* deff, GameObject
 	emisionTime = json_object_dotget_number(deff, "Emision Time");
 	period = json_object_dotget_number(deff, "Period");
 	maxParticles = json_object_dotget_number(deff, "Max Particles");
-	
+	script_controlled = json_object_get_boolean(deff, "Script Controlled");
 	
 	//Particle Info
 	speed = LoadRange(deff, "Speed");
@@ -176,6 +176,7 @@ void ComponentParticleEmitter::Save(JSON_Object * json)
 	json_object_dotset_number(json, "Emmision Time", emisionTime);
 	json_object_dotset_number(json, "Period", period);
 	json_object_dotset_number(json, "Max Particles", maxParticles);
+	json_object_set_boolean(json, "Script Controlled", script_controlled);
 
 	//Particle Info
 	SaveRange(json, "Speed", speed);
@@ -226,12 +227,15 @@ void ComponentParticleEmitter::CreateParticle()
 	newParticle->info.Set(GetRandom(startSize), GetRandom(endSize), GetRandom(startSpin), GetRandom(endSpin), GetRandom(speed), GetRandom(particleLifetime), GetRandomPosition(), dir, gravity, GetRandom(startColor), GetRandom(endColor));
 	newParticle->Reset();
 	particles.push_back(newParticle);
+	currentParticles++;
 
 
 }
 
 void ComponentParticleEmitter::SpawnParticles(float dt)
 {
+	if (script_controlled)
+		return;
 	uint particlesToSpawn = 1;
 
 	if (period < dt)
@@ -244,7 +248,6 @@ void ComponentParticleEmitter::SpawnParticles(float dt)
 		for (uint i = 0; i < particlesToSpawn; i++)
 		{
 			CreateParticle();
-			currentParticles++;
 		}
 
 		emisionTimer.Start();

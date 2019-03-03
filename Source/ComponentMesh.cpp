@@ -102,7 +102,7 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			//Skining();
+			Skining();
 			mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
@@ -256,7 +256,10 @@ void ComponentMesh::Skining() const
 				if (rBone != nullptr)
 				{
 					hasBones = true;
-					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
+					Transform offset;
+					offset.setMatrix(rBone->Offset);
+					offset.setScale(offset.getScale()*1000.f);
+					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*offset.getMatrix().Inverted();
 
 					for (int j = 0; j < rBone->numWeights; j++)
 					{

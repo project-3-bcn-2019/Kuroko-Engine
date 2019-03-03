@@ -104,6 +104,7 @@ private:
 
 	std::list<Particle*> particles;
 
+	bool script_controlled = false;
 	float emitterLifetime = 0;
 	float time = 0;
 	ComponentTransform* transform = nullptr;

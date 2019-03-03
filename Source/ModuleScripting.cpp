@@ -14,6 +14,7 @@
 #include "ComponentAudioSource.h"
 #include "ComponentAnimation.h"
 #include "ComponentColliderCube.h"
+#include "ComponentParticleEmitter.h"
 #include "Transform.h"
 
 
@@ -21,6 +22,7 @@
 void SetGameObjectPos(WrenVM* vm);
 void ModGameObjectPos(WrenVM* vm);
 void lookAt(WrenVM* vm);
+void rotate(WrenVM* vm);
 
 void getGameObjectPosX(WrenVM* vm);
 void getGameObjectPosY(WrenVM* vm);
@@ -40,9 +42,11 @@ void InstantiatePrefab(WrenVM* vm);
 void getTime(WrenVM* vm);
 void BreakPoint(WrenVM* vm);
 void FindGameObjectByTag(WrenVM* vm);
+void LoadScene(WrenVM* vm);
 
 // Math
 void sqrt(WrenVM* vm);
+void angleBetween(WrenVM* vm);
 
 //Time
 void GetDeltaTime(WrenVM* vm);
@@ -68,6 +72,9 @@ void StopAudio(WrenVM* vm);
 void SetAnimation(WrenVM* vm);
 void PlayAnimation(WrenVM* vm);
 void PauseAnimation(WrenVM* vm);
+
+// Particles
+void CreateParticles(WrenVM* vm);
 
 
 WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature); // Wren foraign methods
@@ -113,6 +120,7 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		object_linker_code = App->fs.GetFileString(OBJECT_LINKER_PATH);
 		audio_code = App->fs.GetFileString(AUDIO_PATH);
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
+		particles_code = App->fs.GetFileString(PARTICLES_PATH);
 		return true;
 	}
 	else
@@ -394,6 +402,13 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->animation_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "Particles") == 0) {
+		int string_size = strlen(App->scripting->particles_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->particles_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
 }
 
@@ -442,6 +457,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_modPos(_,_,_,_)") == 0) {
 				return ModGameObjectPos; // C function for ObjectComunicator.C_modPos
 			}
+			if (strcmp(signature, "C_rotate(_,_,_,_") == 0) {
+				return rotate;//Rotates the game object x degrees in each axis
+			}
 			if (strcmp(signature, "C_lookAt(_,_,_,_)") == 0) {
 				return lookAt; // C function for ObjectComunicator.C_LookAt
 			}
@@ -480,6 +498,10 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
 				return sqrt; // C function for Math.C_sqrt(_)
 		}
+		if (strcmp(className, "Math") == 0) {
+			if (isStatic && strcmp(signature, "C_angleBetween(_,_,_,_,_,_)") == 0)
+				return angleBetween;
+		}
 		if (strcmp(className, "Time") == 0) {
 			if (isStatic && strcmp(signature, "C_GetDeltaTime()") == 0) {
 				return GetDeltaTime;
@@ -502,6 +524,8 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return BreakPoint;
 			if (isStatic && strcmp(signature, "C_FindGameObjectsByTag(_)") == 0)
 				return FindGameObjectByTag;
+			if (isStatic && strcmp(signature, "LoadScene(_)") == 0)
+				return LoadScene;
 		}
 		if (strcmp(className, "InputComunicator") == 0) {
 			if (isStatic && strcmp(signature, "getKey(_,_)") == 0)
@@ -533,7 +557,7 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return StopAudio;
 		}
 	}
-	// AUDIO
+	// ANIMATION
 	if (strcmp(module, "Animation") == 0) {
 		if (strcmp(className, "AnimationComunicator") == 0) {
 			if (isStatic && strcmp(signature, "C_SetAnimation(_,_,_)") == 0)
@@ -542,6 +566,14 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return PlayAnimation;
 			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
 				return PauseAnimation;
+		}
+	}
+
+	// Particles
+	if (strcmp(module, "Particles") == 0) {
+		if (strcmp(className, "ParticleComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_CreateParticles(_,_,_)") == 0)
+				return CreateParticles;
 		}
 	}
 
@@ -603,6 +635,24 @@ void lookAt(WrenVM* vm) {
 
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
 	c_trans->local->LookAt(float3(c_trans->global->getPosition().x, c_trans->global->getPosition().y, c_trans->global->getPosition().z), target);
+}
+
+void rotate(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	float3 rotation = { (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3), (float)wrenGetSlotDouble(vm, 4) };
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for not existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+	float3 final_rotation = c_trans->local->getRotationEuler() + rotation;
+	
+	c_trans->local->setRotationEuler(final_rotation);
 }
 
 void getGameObjectPosX(WrenVM* vm) {
@@ -854,10 +904,26 @@ void FindGameObjectByTag(WrenVM* vm) {
 	// retrun the list in slot 0
 }
 
+void LoadScene(WrenVM* vm) {
+	std::string scene_name = wrenGetSlotString(vm, 1);
+
+	std::string scene_path = App->resources->getScenePath(scene_name.c_str());
+	App->scene->AskSceneLoadFile((char*)scene_path.c_str());
+}
+
 // Math
 void sqrt(WrenVM* vm) {
 	int number = wrenGetSlotDouble(vm, 1);
 	wrenSetSlotDouble(vm, 0, sqrt(number));
+}
+
+void angleBetween(WrenVM * vm)
+{
+	float3 vector1 = { (float)wrenGetSlotDouble(vm, 1), (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3) };
+	float3 vector2 = { (float)wrenGetSlotDouble(vm, 4), (float)wrenGetSlotDouble(vm, 5), (float)wrenGetSlotDouble(vm, 6) };
+
+	float angle = vector1.AngleBetween(vector2);
+	wrenSetSlotDouble(vm, 0, angle);
 }
 
 // Time
@@ -1098,4 +1164,30 @@ void PauseAnimation(WrenVM* vm) {
 
 	component->Pause();
 }
+
+// Particles
+void CreateParticles(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	uint particles = wrenGetSlotDouble(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentParticleEmitter* component = (ComponentParticleEmitter*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentParticles with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	for(int i = 0; i < particles; i++)
+		component->CreateParticle();
+}
+
 

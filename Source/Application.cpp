@@ -9,6 +9,7 @@
 #include "ModuleCamera3D.h"
 #include "ModuleUI.h"
 #include "ModuleImporter.h"
+#include "ModuleExporter.h"
 #include "AppLog.h"
 #include "Random.h"
 #include "ModuleTimeManager.h"
@@ -28,26 +29,6 @@ Application::Application()
 {
 	randomizeSeed();
 
-	// Create library directory if it does not exist
-	CreateDirectory("Library", NULL);
-	CreateDirectory("Library\\Meshes", NULL);
-	CreateDirectory("Library\\Animations", NULL);
-	CreateDirectory("Library\\Animations\\Bones", NULL);
-	CreateDirectory("Library\\Textures", NULL);
-	CreateDirectory("Library\\3dObjects", NULL);
-	CreateDirectory("Library\\Scripts", NULL);
-	CreateDirectory("Library\\Sounds", NULL);
-	CreateDirectory("Library\\Materials", NULL);
-
-
-	CreateDirectory("Library\\Prefabs", NULL);
-	CreateDirectory("Library\\Scenes", NULL);
-
-
-	CreateDirectory("Assets", NULL);
-	CreateDirectory("Assets\\Scenes", NULL);
-	CreateDirectory("Assets\\Scripts", NULL);
-
 	window = new ModuleWindow(this);
 	input = new ModuleInput(this);
 	audio = new ModuleAudio(this);
@@ -56,6 +37,7 @@ Application::Application()
 	renderer3D = new ModuleRenderer3D(this);
 	//renderer2D = new ModuleRenderer2D(this);
 	importer = new ModuleImporter(this);
+	exporter = new ModuleExporter(this);
 	camera = new ModuleCamera3D(this);
 	gui = new ModuleUI(this);
 	time = new ModuleTimeManager(this);
@@ -77,6 +59,7 @@ Application::Application()
 	list_modules.push_back(camera);
 	list_modules.push_back(input);
 	list_modules.push_back(importer);
+	list_modules.push_back(exporter);
 
 	
 	
@@ -85,11 +68,11 @@ Application::Application()
 	
 	list_modules.push_back(physics);
 
+	list_modules.push_back(resources);
 	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
 	// Renderer last!
-	list_modules.push_back(resources);
 	list_modules.push_back(scripting);
 	list_modules.push_back(shaders);
 	list_modules.push_back(gui);
@@ -130,6 +113,11 @@ bool Application::Init()
 	config = json_value_get_object(config_value);
 
 	is_game = json_object_get_boolean(config, "is_game");
+	if (!is_game)
+	{
+		// Create library directory if it does not exist
+		App->fs.createMainDirectories();
+	}
 
 	app_log->AddLog("Application Init --------------\n");
 	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret; it++)

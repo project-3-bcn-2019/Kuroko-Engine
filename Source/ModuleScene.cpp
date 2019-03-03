@@ -33,7 +33,7 @@
 #include "glew-2.1.0\include\GL\glew.h"
 #include "Random.h"
 
-#include "../Game/Assets/Sounds/Wwise_IDs.h"
+#include "../Game/Assets/Audio/Wwise_IDs.h"
 #include "ImGui\imgui.h"
 
 #include <array>
@@ -188,11 +188,6 @@ update_status ModuleScene::Update(float dt)
 		component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
 		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
 		component->SetSoundName("Footsteps");
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
-	{
-		App->importer->AssetsToLibraryJSON();
 	}
 
 	//App->physics->UpdatePhysics();

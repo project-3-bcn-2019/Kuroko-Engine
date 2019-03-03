@@ -16,6 +16,7 @@ class ModuleRenderer3D;
 class ModuleCamera3D;
 class ModuleUI;
 class ModuleImporter;
+class ModuleExporter;
 class ModuleDebug;
 class ModuleTimeManager;
 class ModuleResourcesManager;
@@ -37,6 +38,7 @@ public:
 	ModuleCamera3D* camera;
 	ModuleUI* gui;
 	ModuleImporter* importer;
+	ModuleExporter* exporter;
 	ModuleTimeManager* time;
 	ModuleResourcesManager* resources;
 	ModuleScripting* scripting;

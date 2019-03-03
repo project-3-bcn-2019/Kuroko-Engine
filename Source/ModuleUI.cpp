@@ -7,6 +7,7 @@
 #include "ModuleInput.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
+#include "ModuleExporter.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
 #include "ModuleResourcesManager.h"
@@ -681,6 +682,7 @@ void ModuleUI::DrawObjectInspectorTab()
 	ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool select_script = false;
+	static bool select_audio = false;
 	if (App->scene->selected_obj.size() == 1) {
 		GameObject* selected_obj = (*App->scene->selected_obj.begin());
 
@@ -711,7 +713,7 @@ void ModuleUI::DrawObjectInspectorTab()
 				if (ImGui::Button("Add Script")) select_script = true;
 				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
 				if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
-				if (ImGui::Button("Add Audio Source")) selected_obj->addComponent(AUDIOSOURCE);
+				if (ImGui::Button("Add Audio Source")) select_audio = true;
 				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
 				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
@@ -746,6 +748,27 @@ void ModuleUI::DrawObjectInspectorTab()
 					}
 				}
 
+				ImGui::End();
+			}
+
+			if (select_audio)
+			{
+				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					selected_obj->addComponent(AUDIOSOURCE);
+					select_audio = false;
+				}
+				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+					if (ImGui::MenuItem((*it).c_str())) {
+						ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
+						c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+						c_source->SetSoundName((*it).c_str());
+						select_audio = false;
+						break;
+					}
+				}
 				ImGui::End();
 			}
 		}
@@ -1387,6 +1410,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (select_audio)
 			{
 				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					((ComponentAudioSource*)&component)->SetSoundID(0);
+					((ComponentAudioSource*)&component)->SetSoundName("Sound");
+					select_audio = false;
+				}
 				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 					
 					if (ImGui::MenuItem((*it).c_str())) {
@@ -1882,6 +1911,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 
 			ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
+			ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
 
 
 			//Area of spawn
@@ -3012,23 +3042,23 @@ void ModuleUI::DrawBuildMenu()
 
 	ImGui::Text("Select a path to make the build:");
 	ImGui::PushID("setPath");
-	static std::string path;
-	char* buffer = new char[path.size()];
-	memcpy(buffer, path.c_str(), sizeof(char)*path.size());
-	ImGui::InputTextEx("", buffer, path.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+	static std::string buildPath;
+	char* buffer = new char[buildPath.size()];
+	memcpy(buffer, buildPath.c_str(), sizeof(char)*buildPath.size());
+	ImGui::InputTextEx("", buffer, buildPath.size(), { 0,0 }, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
 	RELEASE_ARRAY(buffer);
 	ImGui::PopID();
 	ImGui::SameLine();
 	if (ImGui::RadioButton("Click to choose path", false))
 	{
-		path = openFileWID(true);
+		buildPath = openFileWID(true);
 	}
 	ImGui::NewLine();
 
 	ImGui::Text("Write Build Name:");
 	ImGui::PushID("name");
-	static char name[15];
-	ImGui::InputTextEx("", name, 15, {125, 23}, ImGuiInputTextFlags_None);
+	static char buildName[15];
+	ImGui::InputTextEx("", buildName, 15, {125, 23}, ImGuiInputTextFlags_None);
 	ImGui::PopID();
 	ImGui::NewLine();
 
@@ -3102,10 +3132,30 @@ void ModuleUI::DrawBuildMenu()
 	}
 	ImGui::EndChild();
 
+	static bool building = false;
+	static bool errorBuilding = false;
+	if (building)
+	{
+		building = false;
+		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		if (!errorBuilding)
+			open_tabs[BUILD_MENU] = false;
+	}
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
-	ImGui::Button("Create Build");
-
+	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
+	{
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 20);
+		ImGui::Text("Creating...");
+		building = true;
+		errorBuilding = false;
+	}
+	if (errorBuilding)
+	{
+		ImGui::NewLine();
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 60);
+		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
+	}
 	ImGui::End();
 }
 
