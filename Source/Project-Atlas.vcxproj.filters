@@ -591,6 +591,7 @@
     <ClInclude Include="Wwise_IDs.h">
       <Filter>Sources\Wwise</Filter>
     </ClInclude>
+    <ClInclude Include="PanelHierarchyTab.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -977,6 +978,7 @@
     <ClCompile Include="ResourceAudio.cpp">
       <Filter>Sources\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="PanelHierarchyTab.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MathGeoLib\Math\Matrix.inl">
