@@ -36,6 +36,7 @@ class PlayerController is ObjectLinker{
     }
 
     ComponentAnimation {_component_animation}
+    ComponentAudioSource {_component_audio_source}
 
     Speed {_speed}
 
@@ -51,13 +52,16 @@ class PlayerController is ObjectLinker{
         _old_move_direction = Vec3.zero()
         _speed = 0.5
         _component_animation = getComponent(ComponentType.ANIMATION)
+        _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
 
+        _component_audio_source.setSound("Punch")
         //Initialize all the states as static so we have no problems switching to states at any moment
         //the arguments are: (player, total_duration)
         __idle_state = IdleState.new(this)
         __punch1_state = BasicAttackState.new(this,700)
         __moving_state = MovingState.new(this)
         __dash_state = DashState.new(this,500)
+
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = __idle_state //Reminder that "State" is a setter method
@@ -297,6 +301,7 @@ class BasicAttackState is AttackState {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("PunchingAnimation")
         _player.ComponentAnimation.Play()
+        _player.ComponentAudioSource.Play()
     }
 
     HandleInput() {
