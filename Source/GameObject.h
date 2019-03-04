@@ -36,13 +36,14 @@ public:
 	bool getComponents(Component_type type, std::list<Component*>& list_to_fill) const;
 	void getComponents(std::list<Component*>& list_to_fill) const { list_to_fill = components; };
 
-	GameObject* getChild(const char* name) const;
+	GameObject* getChild(const char* name, bool  ignoreAssimpNodes = false) const;
 	void getChildren(std::list<GameObject*>& list_to_fill) const { list_to_fill = children; };
 	void getAllDescendants(std::list<GameObject*>& list_to_fill) const;
 	void addChild(GameObject* new_child) {if(new_child) children.push_back(new_child); };
 	void removeChild(GameObject* child) { children.remove(child); }
 
 	GameObject* getParent() const { return parent; };
+	GameObject* getAbsoluteParent();
 	void setParent(GameObject* parent) { this->parent = parent; }// Can recieve nullptr
 
 	float3 getCentroid() const { return centroid; };	// includes all childs
