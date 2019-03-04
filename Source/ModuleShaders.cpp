@@ -123,6 +123,8 @@ void ModuleShaders::CreateDefVertexShader()
 	"layout(location = 3) in vec3 normal;\n"
 	"layout(location = 4) in ivec4 BoneIDs;\n"
 	"layout(location = 5) in vec4 Weights;\n"
+	"layout(location = 6) in int wCounter;\n"
+
 
 	"out vec2 TexCoord;\n"
 	"out vec3 ret_normal;\n"
@@ -143,12 +145,15 @@ void ModuleShaders::CreateDefVertexShader()
 
 		"for(int i=0;i<4;i++)\n"
 		"{\n"
-			"mat4 boneTransform = gBones[BoneIDs[i]];\n"
-			"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
-			"totalLocalPos += posePosition * Weights[i];\n"
+			"if(Weights[i]!=0)\n"
+			"{\n"
+				"mat4 boneTransform = gBones[BoneIDs[i]];\n"
+				"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
+				"totalLocalPos += posePosition * Weights[i];\n"
 
-			"vec4 worldNormal = boneTransform * vec4(normal,0.0);\n"
-			"totalNormal += worldNormal * Weights[i];\n"
+				"vec4 worldNormal = boneTransform * vec4(normal,0.0);\n"
+				"totalNormal += worldNormal * Weights[i];\n"
+			"}\n"
 		"}\n"
 
 		"gl_Position = projection * view * totalLocalPos;\n"

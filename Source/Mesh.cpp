@@ -301,8 +301,10 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 				{
 					int Vindex = rBone->weights[j].VertexID;											//taking the index of the vertex that affect the bone.
 
-					if (MeshGPU[Vindex].boneCouinter > 3)												//if a bone is affected by more than 4 bones continue
+					if (MeshGPU[Vindex].boneCouinter > 3)						//if a bone is affected by more than 4 bones continue
+					{
 						continue;
+					}
 
 					MeshGPU[Vindex].index[MeshGPU[Vindex].boneCouinter]=i;								//setting the index of the bone inside the bone array.
 					MeshGPU[Vindex].weights[MeshGPU[Vindex].boneCouinter] = rBone->weights[j].weight;	//setting the weight that the bone acts to the verrtext
@@ -380,6 +382,16 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 		}
 		else
 		{
+			GLenum err;
+			do
+			{
+
+				err = glGetError();
+				if (err != GL_NO_ERROR) {
+					app_log->AddLog("error!");
+				}
+			} while (err != GL_NO_ERROR);
+
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
 			GLint boneMeshes = glGetUniformLocation(App->shaders->GetAnimationShaderProgram()->programID, "gBones[0]");
