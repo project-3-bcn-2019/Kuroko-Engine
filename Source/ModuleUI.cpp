@@ -2140,30 +2140,28 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			static bool set_animation_menu = false;
 
-			if (anim_evt->AnimEvts.size() <= 0)
+			
+			if (ImGui::Button("Create Animation"))
+				p_anim_evt->new_anim_set_win = true;
+			if (p_anim_evt->new_anim_set_win)
 			{
-				if (ImGui::Button("Create Animation"))
-					p_anim_evt->new_anim_set_win = true;
-				if (p_anim_evt->new_anim_set_win)
+				ImGui::Begin("Name", &p_anim_evt->new_anim_set_win);
+
+				ImGui::InputText("#SetName", p_anim_evt->prov, 50);
+				if (ImGui::Button("Create"))
 				{
-					ImGui::Begin("Name");
-
-					ImGui::InputText("#SetName", p_anim_evt->prov, 50);
-					if (ImGui::Button("Create"))
-					{
-						AnimSet push;
-						push.name = p_anim_evt->prov;
-						p_anim_evt->new_anim_set_win = false;
+					AnimSet push;
+					push.name = p_anim_evt->prov;
+					p_anim_evt->new_anim_set_win = false;
 
 
-						anim_evt->AnimEvts.push_back(push);
-						anim_evt->curr = &anim_evt->AnimEvts.back();
-						p_anim_evt->curr = --anim_evt->AnimEvts.end();
-						//p_anim_evt->prov = "\0";
-					}
-
-					ImGui::End();
+					anim_evt->AnimEvts.push_back(push);
+					anim_evt->curr = &anim_evt->AnimEvts.back();
+					p_anim_evt->curr = --anim_evt->AnimEvts.end();
+					//p_anim_evt->prov = "\0";
 				}
+
+				ImGui::End();
 			}
 			
 			if (anim_evt->curr == nullptr && anim_evt->AnimEvts.size() > 0)
