@@ -594,6 +594,7 @@
     <ClInclude Include="PanelHierarchyTab.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
+    <ClInclude Include="PanelObjectInspector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -983,6 +984,7 @@
     <ClCompile Include="PanelHierarchyTab.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
+    <ClCompile Include="PanelObjectInspector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MathGeoLib\Math\Matrix.inl">

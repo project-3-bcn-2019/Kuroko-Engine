@@ -23,6 +23,7 @@ class TextEditor;
 class Panel;
 class PanelAnimation;
 class PanelAnimationEvent;
+class PanelHierarchyTab;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -48,8 +49,8 @@ public:
 	bool CleanUp();
 	void InitializeScriptEditor();
 
-	void DrawHierarchyTab();
-	bool DrawHierarchyNode(GameObject& game_object, int& id);
+	void DrawHierarchyTab();									//PANEL DONE
+	bool DrawHierarchyNode(GameObject& game_object, int& id);	//PANEL DONE
 	void DrawObjectInspectorTab();
 	bool DrawComponent(Component& component, int id);
 	//void DrawAudioTab();
@@ -79,7 +80,6 @@ public:
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
 
-
 	void InvisibleDockingBegin();
 	void InvisibleDockingEnd();
 
@@ -91,6 +91,8 @@ public:
 	// Panels
 	PanelAnimation* p_anim = nullptr;
 	PanelAnimationEvent* p_anim_evt = nullptr;
+	PanelHierarchyTab* p_hierarchy = nullptr;
+
 private:
 	
 	bool docking_background = true;
