@@ -149,6 +149,13 @@ update_status ModuleScene::Update(float dt)
 		obj->addComponent(COLLIDER_CUBE);
 
 	}
+	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_UP && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
+
+		if (dragging) {
+			dragging = false;
+		}
+		//App->debug->addFrustum()
+	}
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_REPEAT && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
 
 		int i = 0;
@@ -241,28 +248,36 @@ void ModuleScene::MouseDragging()
 {
 	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
 	float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
-	if (dragging_frustum == nullptr) 
+	if (dragging == false) 
 	{ 
+		dragging = true;
 		dragging_frustum = new Frustum();
 		dragging_frustum = App->camera->selected_camera->getFrustum();
 		initial_drag = float2(x, y);
-		dragging_frustum->UnProjectLineSegment(x, y).ToRay();
-
-		
+		dragging_frustum->UnProjectLineSegment(x, y).ToRay();		
 	}
-	Ray drag_ray = dragging_frustum->UnProjectLineSegment(x, y).ToRay();
+
+	Ray final_ray = dragging_frustum->UnProjectLineSegment(x, y).ToRay();
 	Ray initial_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, initial_drag.y).ToRay();
 	Ray corner_ray = dragging_frustum->UnProjectLineSegment(x, initial_drag.y).ToRay();
 	Ray corner2_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, y).ToRay();
-	glColor3f(1.0f,0.0f, 0.0f);
+
+	glColor4f(0.0f,0.0f, 0.75f, 0.1f);
+
+	bool face_cull_enabled = glIsEnabled(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+
+	
+
 	glBegin(GL_QUADS);
 	glVertex3f(initial_ray.pos.x, initial_ray.pos.y, initial_ray.pos.z);
 	glVertex3f(corner2_ray.pos.x, corner2_ray.pos.y, corner2_ray.pos.z);
-	glVertex3f(drag_ray.pos.x, drag_ray.pos.y, drag_ray.pos.z);
+	glVertex3f(final_ray.pos.x, final_ray.pos.y, final_ray.pos.z);
 	glVertex3f(corner_ray.pos.x, corner_ray.pos.y, corner_ray.pos.z);
 	
 	glEnd();
 	glColor3f(1.0f, 1.0f, 1.0f);
+	face_cull_enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
 	//dragging_frustum.pos
 }
 GameObject* ModuleScene::MousePicking(GameObject* ignore)

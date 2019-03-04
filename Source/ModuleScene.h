@@ -97,6 +97,8 @@ private:
 	std::list<GameObject*>	game_objs_to_delete;
 
 	Quadtree * quadtree		= nullptr;
+
+	bool dragging = false;
 	Frustum* dragging_frustum = nullptr;
 	float2 initial_drag;
 
