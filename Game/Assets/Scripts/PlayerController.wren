@@ -95,23 +95,23 @@ class PlayerController is ObjectLinker{
         var pos_x = getPosX("global")
         var pos_z = getPosZ("global")
 
-        if (pos_x > 23 ){
+        if (pos_x > 40){
             if (movement.x > 0){
                 movement.x = 0
             }
         }
-        if (pos_x < -23 ){
+        if (pos_x < -40 ){
             if (movement.x < 0){
                 movement.x = 0
             }
         }
 
-        if (pos_z > 20 ){
+        if (pos_z > 40 ){
             if (movement.z > 0){
                 movement.z = 0
             }
         }
-        if (pos_z < -22 ){
+        if (pos_z < -40 ){
             if (movement.z < 0){
                 movement.z = 0
             }
@@ -168,6 +168,7 @@ class IdleState is State {
 
     BeginState() {
         _player.ComponentAnimation.setAnimation("PunchingAnimation")
+        _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Pause()
         super.BeginState()
     }
@@ -198,6 +199,7 @@ class MovingState is State {
     BeginState() {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("RunningAnimation")
+        _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
     }
 
@@ -247,6 +249,7 @@ class DashState is State {
     BeginState() {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("DashingAnimation")
+        _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         _dash_speed = 1
@@ -298,6 +301,7 @@ class BasicAttackState is AttackState {
     BeginState() {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("PunchingAnimation")
+        _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
         _player.ComponentAudioSource.Play()
     }
