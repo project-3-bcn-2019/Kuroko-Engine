@@ -640,9 +640,9 @@ void lookAt(WrenVM* vm) {
 }
 
 void rotate(WrenVM* vm) {
-
+	//HARDCODED
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
-	float3 rotation = { (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3), (float)wrenGetSlotDouble(vm, 4) };
+	float3 rotation = { (float)wrenGetSlotDouble(vm, 2)*DEGTORAD, (float)wrenGetSlotDouble(vm, 3)*DEGTORAD, (float)wrenGetSlotDouble(vm, 4)*DEGTORAD };
 	if (math::IsNan(rotation.y))
 	{
 		rotation.y = 0;
@@ -652,11 +652,16 @@ void rotate(WrenVM* vm) {
 		app_log->AddLog("Script asking for not existing gameObject");
 		return;
 	}
-
+	float2 rot2D = { rotation.x,-rotation.y };
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
-	float3 final_rotation = c_trans->local->getRotationEuler() + rotation;
+	/*float3 final_rotation = c_trans->local->getRotationEuler() + rotation;*/
+	Quat rot = Quat::identity;
+
+	rot = rot.FromEulerXYZ(0,rot2D.AimedAngle()+90*DEGTORAD,0);
+	c_trans->local->setRotation(rot);
 	//c_trans->local->RotateAroundAxis(c_trans->local->Up(), rotation.y);
-	c_trans->local->setRotationEuler(final_rotation);
+
+//	c_trans->local->setRotationEuler(final_rotation);
 }
 
 void getGameObjectPosX(WrenVM* vm) {

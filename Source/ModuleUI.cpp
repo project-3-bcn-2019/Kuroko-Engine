@@ -2333,6 +2333,12 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 {
 	if (FrameBuffer* frame_buffer = camera.getFrameBuffer())
 	{
+		if (camera.getParent())
+			if (!camera.getParent()->getParent())
+				return;
+			else
+				return;
+
 		std::string window_name;
 
 		if (camera.getParent())

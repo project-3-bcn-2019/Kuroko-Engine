@@ -36,6 +36,7 @@ class PlayerController is ObjectLinker{
     }
 
     ComponentAnimation {_component_animation}
+    ComponentAudioSource {_component_audio_source}
 
     Speed {_speed}
 
@@ -51,6 +52,7 @@ class PlayerController is ObjectLinker{
         _old_move_direction = Vec3.zero()
         _speed = 0.5
         _component_animation = getComponent(ComponentType.ANIMATION)
+        _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
 
         //Initialize all the states as static so we have no problems switching to states at any moment
         //the arguments are: (player, total_duration)
@@ -58,6 +60,7 @@ class PlayerController is ObjectLinker{
         __punch1_state = BasicAttackState.new(this,700)
         __moving_state = MovingState.new(this)
         __dash_state = DashState.new(this,500)
+
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = __idle_state //Reminder that "State" is a setter method
@@ -216,12 +219,12 @@ class MovingState is State {
 
         _player.modPos(movement.x,movement.y,movement.z)
 
-        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.z,_player.OldMoveDirection.y,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _player.rotate(0,angle,0)
+        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
-         _player.OldMoveDirection.x = _player.MoveDirection.x
-_player.OldMoveDirection.y = _player.MoveDirection.y
-_player.OldMoveDirection.z = _player.MoveDirection.z
+        _player.OldMoveDirection.x = _player.MoveDirection.x
+        _player.OldMoveDirection.y = _player.MoveDirection.y
+        _player.OldMoveDirection.z = _player.MoveDirection.z
 
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("Current state: Moving")
@@ -297,6 +300,7 @@ class BasicAttackState is AttackState {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("PunchingAnimation")
         _player.ComponentAnimation.Play()
+        _player.ComponentAudioSource.Play()
     }
 
     HandleInput() {

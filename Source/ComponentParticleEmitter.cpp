@@ -91,11 +91,12 @@ ComponentParticleEmitter::ComponentParticleEmitter(JSON_Object* deff, GameObject
 	emisionTime = json_object_dotget_number(deff, "Emmision Time");
 	period = json_object_dotget_number(deff, "Period");
 	maxParticles = json_object_dotget_number(deff, "Max Particles");
+	emitterLifetime = json_object_dotget_number(deff, "EmitterLifetime");
 	script_controlled = json_object_get_boolean(deff, "Script Controlled");
 	
 	//Particle Info
 	speed = LoadRange(deff, "Speed");
-	particleLifetime = LoadRange(deff, "Life");
+	particleLifetime = LoadRange(deff, "ParticleLifetime");
 	startSize = LoadRange(deff, "StartSize");
 	endSize = LoadRange(deff, "EndSize");
 	
@@ -176,11 +177,12 @@ void ComponentParticleEmitter::Save(JSON_Object * json)
 	json_object_dotset_number(json, "Emmision Time", emisionTime);
 	json_object_dotset_number(json, "Period", period);
 	json_object_dotset_number(json, "Max Particles", maxParticles);
+	json_object_dotset_number(json, "EmitterLifetime", emitterLifetime);
 	json_object_set_boolean(json, "Script Controlled", script_controlled);
 
 	//Particle Info
 	SaveRange(json, "Speed", speed);
-	SaveRange(json, "Life", particleLifetime);
+	SaveRange(json, "ParticleLifetime", particleLifetime);
 	SaveRange(json, "StartSize", startSize);
 	SaveRange(json, "EndSize", endSize);
 
