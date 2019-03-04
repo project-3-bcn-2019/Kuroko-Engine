@@ -74,6 +74,7 @@ void StopAudio(WrenVM* vm);
 void SetAnimation(WrenVM* vm);
 void PlayAnimation(WrenVM* vm);
 void PauseAnimation(WrenVM* vm);
+void ResetAnimation(WrenVM* vm);
 
 // Particles
 void CreateParticles(WrenVM* vm);
@@ -568,6 +569,8 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return PlayAnimation;
 			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
 				return PauseAnimation;
+			if (isStatic && strcmp(signature, "C_ResetAnimation(_,_)") == 0)
+				return ResetAnimation();
 		}
 	}
 
@@ -1173,6 +1176,28 @@ void PauseAnimation(WrenVM* vm) {
 	}
 
 	component->Pause();
+}
+
+void ResetAnimation(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimation* component = (ComponentAnimation*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->Reset();
 }
 
 // Particles

@@ -19,6 +19,7 @@ public:
 
 	void Play() { paused = false; }
 	void Pause() { paused = true; }
+	void Reset() { animTime = 0; }
 
 	void Save(JSON_Object* config);
 
