@@ -216,12 +216,12 @@ class MovingState is State {
 
         _player.modPos(movement.x,movement.y,movement.z)
 
-        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.z,_player.OldMoveDirection.y,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _player.rotate(0,angle,0)
+        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
-         _player.OldMoveDirection.x = _player.MoveDirection.x
-_player.OldMoveDirection.y = _player.MoveDirection.y
-_player.OldMoveDirection.z = _player.MoveDirection.z
+        _player.OldMoveDirection.x = _player.MoveDirection.x
+        _player.OldMoveDirection.y = _player.MoveDirection.y
+        _player.OldMoveDirection.z = _player.MoveDirection.z
 
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("Current state: Moving")
