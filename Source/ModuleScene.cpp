@@ -187,24 +187,24 @@ update_status ModuleScene::Update(float dt)
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		(*it)->Update(App->time->getGameDeltaTime()/1000);
 
-	if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
-	{
-		// Create audio listener
-		audiolistenerdefault = new GameObject("Default Audio Listener");
-		audiolistenerdefault->addComponent(AUDIOLISTENER);
-	}
+	//if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
+	//{
+	//	// Create audio listener
+	//	audiolistenerdefault = new GameObject("Default Audio Listener");
+	//	audiolistenerdefault->addComponent(AUDIOLISTENER);
+	//}
 
-	if (App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
-	{
-		// Create audio source
-		GameObject* audiosource = new GameObject("Audio Source");
-		ComponentAudioSource* component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
-		component->SetSoundID(AK::EVENTS::PUNCH);
-		component->SetSoundName("Punch");
-		component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
-		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
-		component->SetSoundName("Footsteps");
-	}
+	//if (App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
+	//{
+	//	// Create audio source
+	//	GameObject* audiosource = new GameObject("Audio Source");
+	//	ComponentAudioSource* component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
+	//	component->SetSoundID(AK::EVENTS::PUNCH);
+	//	component->SetSoundName("Punch");
+	//	component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
+	//	component->SetSoundID(AK::EVENTS::FOOTSTEPS);
+	//	component->SetSoundName("Footsteps");
+	//}
 
 	//App->physics->UpdatePhysics();
 

@@ -54,7 +54,7 @@ class PlayerController is ObjectLinker{
         _component_animation = getComponent(ComponentType.ANIMATION)
         _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
 
-        _component_audio_source.setSound("Punch")
+        _component_audio_source.setSound("Footsteps")
         //Initialize all the states as static so we have no problems switching to states at any moment
         //the arguments are: (player, total_duration)
         __idle_state = IdleState.new(this)
@@ -322,7 +322,9 @@ class BasicAttackState is AttackState {
         _player.ComponentAnimation.setAnimation("PunchingAnimation")
         _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
+        _player.ComponentAudioSource.setSound("Punch")
         _player.ComponentAudioSource.Play()
+        _player.ComponentAudioSource.setSound("Footsteps")
     }
 
     HandleInput() {
