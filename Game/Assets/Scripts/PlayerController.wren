@@ -95,23 +95,23 @@ class PlayerController is ObjectLinker{
         var pos_x = getPosX("global")
         var pos_z = getPosZ("global")
 
-        if (pos_x > 35){
+        if (pos_x > 40){
             if (movement.x > 0){
                 movement.x = 0
             }
         }
-        if (pos_x < -35 ){
+        if (pos_x < -40 ){
             if (movement.x < 0){
                 movement.x = 0
             }
         }
 
-        if (pos_z > 35 ){
+        if (pos_z > 40 ){
             if (movement.z > 0){
                 movement.z = 0
             }
         }
-        if (pos_z < -35 ){
+        if (pos_z < -40 ){
             if (movement.z < 0){
                 movement.z = 0
             }
