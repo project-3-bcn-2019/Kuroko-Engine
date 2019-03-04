@@ -13,7 +13,7 @@ ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): C
 	speed = json_object_get_number(deff, "speed");
 
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-	if (App->is_game)
+	if (App->is_game && !App->debug_game)
 	{
 		animation_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "animation_name"), R_ANIMATION);
 	}

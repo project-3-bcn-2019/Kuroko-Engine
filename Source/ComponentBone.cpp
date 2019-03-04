@@ -9,7 +9,7 @@
 ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(parent, BONE)
 {
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-	if (App->is_game)
+	if (App->is_game && !App->debug_game)
 	{
 		bone_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "bone_name"), R_BONE);
 	}
@@ -47,9 +47,9 @@ void ComponentBone::Save(JSON_Object * config)
 
 bool ComponentBone::Update(float dt)
 {
-	float3 size = { 0.05f, 0.05f, 0.05f };
+	/*float3 size = { 0.05f, 0.05f, 0.05f };
 	float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
-	App->renderer3D->DirectDrawCube(size, pos);
+	App->renderer3D->DirectDrawCube(size, pos);*/
 
 	return true;
 }
