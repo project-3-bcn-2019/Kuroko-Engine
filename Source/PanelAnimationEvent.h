@@ -64,9 +64,12 @@ private:
 	int new_key_frame = 0;
 	int key_to_del = -1;
 
+	ResourceAnimation* sel_res = nullptr;
+	bool empty = false;
 	
 
 public:
+	bool copy_specs_win = false;
 	bool new_anim_set_win = false;
 	char prov[50] = "\0";
 

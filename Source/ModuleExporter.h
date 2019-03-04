@@ -13,10 +13,11 @@ public:
 	bool CleanUp();
 
 	bool CreateBuild(const char* path, const char* name);
+	void AssetsToLibraryJSON();
 
 private:
-	void AssetsToLibraryJSON();
 	JSON_Value* GetAssetFolderUUIDs(const char* path);
+	void Get3dObjectsUUIDs(const char* path, JSON_Value* json);
 	
 public:
 

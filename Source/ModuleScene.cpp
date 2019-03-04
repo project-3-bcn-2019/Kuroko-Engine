@@ -78,7 +78,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	LoadScene("Assets/Scenes/alitaRunning.scene");
+	LoadScene("Assets/Scenes/MainScene.scene");
 
 	return true;
 }
@@ -106,7 +106,7 @@ bool ModuleScene::CleanUp()
 update_status ModuleScene::PostUpdate(float dt)
 {
 	// Quadtree management
-	if(draw_quadtree)
+	if(draw_quadtree && !App->is_game)
 		quadtree->DebugDraw();
 
 	if (quadtree_reload) {
@@ -125,7 +125,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (selected_obj.size() && current == *selected_obj.begin()) 
+		if (!selected_obj.empty() && current == *selected_obj.begin()) 
 			selected_obj.clear();
 		game_objects.remove(current);
 
@@ -219,7 +219,8 @@ void ModuleScene::DrawScene(float3 camera_pos)
 		skybox->Draw();
 	}
 
-	App->debug->DrawShapes();
+	if (!App->is_game)
+		App->debug->DrawShapes();
 
 	std::list<GameObject*> drawable_gameobjects;
 

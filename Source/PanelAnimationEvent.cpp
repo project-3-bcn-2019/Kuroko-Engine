@@ -257,38 +257,67 @@ void PanelAnimationEvent::DeleteKeyframe()
 void PanelAnimationEvent::CopySpecs()
 {
 	fillInfo();
-	ComponentAnimation* c_cast = (ComponentAnimation*)c_AnimEvt->getParent()->getComponent(Component_type::ANIMATION);
 	
-	if (c_cast != nullptr)
+	if (copy_specs_win)
 	{
-		c_AnimEvt->curr->loop = c_cast->loop;
-		c_AnimEvt->curr->speed = c_cast->speed;
+		ImGui::Begin("Resource to Link To", &copy_specs_win);
 
-		if (c_cast->getAnimationResource() != 0)
+		std::list<resource_deff> anim_list;
+		App->resources->getAnimationResourceList(anim_list);
+		if (anim_list.size() > 0)
 		{
-			ResourceAnimation* get = (ResourceAnimation*)App->resources->getResource(c_cast->getAnimationResource());
-			if (get != nullptr)
-			{
-				c_AnimEvt->curr->linked_animation = get->uuid;
+			std::string get = anim_list.front().asset;
+			if (sel_res != nullptr)
+				get = sel_res->asset;
 
-				if (get->ticks < c_AnimEvt->curr->own_ticks)
+			if (ImGui::BeginCombo("##Animations", get.c_str()))
+			{
+				for (auto it = anim_list.begin(); it != anim_list.end(); ++it)
 				{
-					for (auto it = c_AnimEvt->curr->AnimEvts.begin(); it != c_AnimEvt->curr->AnimEvts.end(); ++it)
+					if (ImGui::Selectable(it->asset.c_str(), &empty))
 					{
-						for (int i = c_AnimEvt->curr->own_ticks; i > get->ticks; i--)
-						{
-							auto get_key = it->second.find(i);
-							if (get_key != it->second.end())
-								it->second.erase(get_key);
-						}
+						sel_res = (ResourceAnimation*)App->resources->getResource(it->uuid);
+						empty = false;
 					}
 				}
 
-				c_AnimEvt->curr->own_ticks = get->ticks;
-
-				c_AnimEvt->curr->ticksXsecond = get->ticksXsecond;
-
+				ImGui::EndCombo();
 			}
 		}
+		if (ImGui::Button("Link!") && sel_res != nullptr)
+		{
+			c_AnimEvt->curr->linked_animation = sel_res->uuid;
+
+			if (sel_res->ticks < c_AnimEvt->curr->own_ticks)
+			{
+				for (auto it = c_AnimEvt->curr->AnimEvts.begin(); it != c_AnimEvt->curr->AnimEvts.end(); ++it)
+				{
+					for (int i = c_AnimEvt->curr->own_ticks; i > sel_res->ticks; i--)
+					{
+						auto get_key = it->second.find(i);
+						if (get_key != it->second.end())
+							it->second.erase(get_key);
+					}
+				}
+			}
+
+			c_AnimEvt->curr->own_ticks = sel_res->ticks;
+
+			c_AnimEvt->curr->ticksXsecond = sel_res->ticksXsecond;
+
+			sel_res = nullptr;
+
+			copy_specs_win = false;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			sel_res = nullptr;
+
+			copy_specs_win = false;
+		}
+
+		ImGui::End();
 	}
+	
 }

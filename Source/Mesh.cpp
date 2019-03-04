@@ -209,15 +209,18 @@ void Mesh::Draw(Texture* tex, bool draw_as_selected)  const
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	if (draw_as_selected)
-	{
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glLineWidth(2.5f);
-	}
+	if (tex)
+		glBindTexture(GL_TEXTURE_2D, tex->getGLid());
 	else
-		glColor3f(tint_color.r, tint_color.b, tint_color.g);
-
-	if (tex)		glBindTexture(GL_TEXTURE_2D, tex->getGLid());
+	{
+		if (draw_as_selected)
+		{
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glLineWidth(2.5f);
+		}
+		else
+			glColor3f(tint_color.r, tint_color.b, tint_color.g);
+	}
 
 	size_t Offset = sizeof(float3) * num_vertices;
 

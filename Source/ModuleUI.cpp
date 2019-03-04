@@ -264,7 +264,7 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[BUILD_MENU])
 			DrawBuildMenu();
 
-		if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
 			App->gui->DrawGuizmo();
 
 		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
@@ -2231,7 +2231,9 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					ImGui::EndCombo();
 				}
 				
-				if (ImGui::Button("Link Animation")) p_anim_evt->CopySpecs();
+				if (ImGui::Button("Link Animation")) p_anim_evt->copy_specs_win = true;
+
+				p_anim_evt->CopySpecs();
 				if (ImGui::IsItemHovered())
 				{
 					ImGui::BeginTooltip();
@@ -2298,7 +2300,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					}
 
 					ImGui::Text("Animation info:");
-					ImGui::Text(" Duration: %.1f ms", anim_evt->curr->own_ticks * anim_evt->curr->ticksXsecond * 1000);
+					ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
 					//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
 				}
 
