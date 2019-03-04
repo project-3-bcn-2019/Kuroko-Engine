@@ -3,7 +3,9 @@ import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
 InputComunicator,
 Vec3,
-Time
+Time,
+ComponentType,
+Math
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -32,6 +34,10 @@ class PlayerController is ObjectLinker{
         _player_state.BeginState()
     }
 
+    ComponentAnimation {_component_animation}
+
+    Speed {_speed}
+
     ShowDebugLogs = (value) {_show_debug_logs = value} 
 
 
@@ -41,13 +47,15 @@ class PlayerController is ObjectLinker{
         _show_debug_logs = true
         _player_state
         _move_direction = Vec3.zero()
+        _speed = 0.5
+        _component_animation = getComponent(ComponentType.ANIMATION)
 
         //Initialize all the states as static so we have no problems switching to states at any moment
         //the arguments are: (player, total_duration)
         __idle_state = IdleState.new(this)
-        __punch1_state = BasicAttackState.new(this,3000)
+        __punch1_state = BasicAttackState.new(this,700)
         __moving_state = MovingState.new(this)
-        __dash_state = DashState.new(this,2000)
+        __dash_state = DashState.new(this,800)
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = __idle_state //Reminder that "State" is a setter method
@@ -62,10 +70,18 @@ class PlayerController is ObjectLinker{
     CalculateDirection() {
         //positive y means up and positive x means right
         _move_direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
-        _move_direction.x = InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
+        _move_direction.x = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
 
         if(_move_direction.y < 0.1 && _move_direction.y > -0.1)   _move_direction.y = 0.0
         if(_move_direction.x < 0.1 && _move_direction.x > -0.1)   _move_direction.x = 0.0
+    }
+
+    modPos(x,y,z) {
+        super.modPos(x,y,z)
+    } 
+
+    rotate(x,y,z) {
+        super.lookAt(x,y,z)
     }
 }
 
@@ -117,6 +133,8 @@ class IdleState is State {
     }
 
     BeginState() {
+        _player.ComponentAnimation.setAnimation("PunchingAnimation")
+        _player.ComponentAnimation.Pause()
         super.BeginState()
     }
 
@@ -147,6 +165,8 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
+        _player.ComponentAnimation.setAnimation("RunningAnimation2013")
+        _player.ComponentAnimation.Play()
     }
 
     HandleInput() {
@@ -159,6 +179,12 @@ class MovingState is State {
     
     Update() {
         super.Update()
+
+        var movement = Vec3.new(_player.MoveDirection.x*_player.Speed,0,_player.MoveDirection.y*_player.Speed)
+        _player.modPos(movement.x,movement.y,movement.z)
+
+        //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
+
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("Current state: Moving")
             EngineComunicator.consoleOutput("direction.x =%(_player.MoveDirection.x)")
@@ -176,6 +202,12 @@ class DashState is State {
     construct new(player,total_duration) {
         _player = player
         super(player,total_duration)
+    }
+
+    BeginState() {
+        super.BeginState()
+        _player.ComponentAnimation.setAnimation("DashingAnimation")
+        _player.ComponentAnimation.Play()
     }
 
     HandleInput() {
@@ -210,6 +242,12 @@ class BasicAttackState is AttackState {
     construct new(player,total_duration) {
         _player = player
         super(player,total_duration)
+    }
+
+    BeginState() {
+        super.BeginState()
+        _player.ComponentAnimation.setAnimation("PunchingAnimation")
+        _player.ComponentAnimation.Play()
     }
 
     HandleInput() {
