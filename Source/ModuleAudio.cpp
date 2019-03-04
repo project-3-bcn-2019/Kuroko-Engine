@@ -43,7 +43,7 @@ bool ModuleAudio::Init(const JSON_Object* config)
 bool ModuleAudio::Start()
 {
 	bool ret = Wwise::InitWwise();
-	SetVolume(75);
+	SetVolume(50);
 	LoadSoundBank(std::to_string(App->resources->getAudioResourceUuid("Character")).c_str());
 
 	return ret;
