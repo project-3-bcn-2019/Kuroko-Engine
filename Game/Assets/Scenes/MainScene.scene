@@ -4,7 +4,7 @@
             "name": "Floor",
             "tag": "undefined",
             "static": false,
-            "UUID": 364652538,
+            "UUID": 670557530,
             "Components": [
                 {
                     "type": "transform",
@@ -40,7 +40,7 @@
                     "type": "mesh",
                     "primitive_type": "CUBE",
                     "material": {
-                        "diffuse": "missing_reference"
+                        "diffuse": "Assets\/Textures\/chess.jpg"
                     }
                 }
             ]
@@ -49,7 +49,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 1316713983,
+            "UUID": 286051193,
             "Components": [
                 {
                     "type": "transform",
@@ -94,7 +94,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 2346065998,
+            "UUID": 3566684666,
             "Components": [
                 {
                     "type": "transform",
@@ -139,7 +139,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 4283653192,
+            "UUID": 1438937110,
             "Components": [
                 {
                     "type": "transform",
@@ -184,7 +184,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 73373461,
+            "UUID": 857618687,
             "Components": [
                 {
                     "type": "transform",
