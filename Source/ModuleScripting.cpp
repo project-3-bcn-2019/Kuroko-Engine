@@ -570,7 +570,7 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (isStatic && strcmp(signature, "C_Pause(_,_)") == 0)
 				return PauseAnimation;
 			if (isStatic && strcmp(signature, "C_ResetAnimation(_,_)") == 0)
-				return ResetAnimation();
+				return ResetAnimation;
 		}
 	}
 
