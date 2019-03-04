@@ -30,3 +30,14 @@ std::string Component::TypeToString()
 
 	return uid;
 }
+
+void Component::SaveCompUUID(JSON_Object * config)
+{
+	json_object_set_number(config, "uuid", uuid);
+}
+
+void Component::LoadCompUUID(JSON_Object * deff)
+{
+	uuid = json_object_get_number(deff, "uuid");
+	if (uuid == 0) uuid = random32bits();
+}

@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <list>
 
 typedef std::map<int, void*> KeyframeVals;
 typedef std::map<double, KeyframeVals> KeyMap;
@@ -19,6 +20,21 @@ typedef std::map<uint, std::map<double, std::map<int, void*>>> CompAnimMap;
 // ...<...,...<...,std::map<...,...>> is the keyframe info
 // ...<...,...<...,std::map<int,...>> int is the component event triggered
 // // ...<...,...<...,std::map<...,void*>> void* is the values required for the event to play
+
+struct AnimSet
+{
+	std::string name = "error";
+
+	uint linked_animation = 0;
+
+	CompAnimMap AnimEvts;
+	int own_ticks = 0;
+	int ticksXsecond = 0;
+	bool loop = false;
+	float speed = 1.0f;
+
+	bool selected;
+};
 
 class ComponentAnimationEvent : public Component
 {
@@ -38,11 +54,8 @@ public:
 
 	bool Finished() const { return false; }
 	bool isPaused() const { return paused; }
-
-	bool loop = false;
-
-	float speed = 1.0f;
-
+	
+	void CheckLinkAnim();
 private:
 
 	float animTime = 0.0f;
@@ -50,8 +63,10 @@ private:
 
 public:
 
-	CompAnimMap AnimEvts;
-	int own_ticks = 0;
-	int ticksXsecond = 0;
+	std::list<AnimSet> AnimEvts;
+	AnimSet* curr = nullptr;
+
+	
+	
 };
 #endif
