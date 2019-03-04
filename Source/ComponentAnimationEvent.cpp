@@ -83,7 +83,7 @@ bool ComponentAnimationEvent::Update(float dt)
 	if (curr == nullptr && AnimEvts.size() > 0)
 		curr = &AnimEvts.front();
 
-	if (App->time->getGameState() == PLAYING && curr != nullptr)
+	if (App->time->getGameState() == PLAYING && isPaused() && curr != nullptr)
 	{
 		animTime += dt * curr->speed;
 		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
@@ -201,9 +201,11 @@ void ComponentAnimationEvent::CheckLinkAnim()
 			{
 				if (it->linked_animation = get->getAnimationResource())
 				{
+					paused = false;
 					curr = &it._Ptr->_Myval;
 					break;
 				}
+				paused = true;
 			}
 		}
 	}
