@@ -18,11 +18,10 @@ class animation_test is ObjectLinker{
 
 construct new(){}
 
-	animation { _animation }
-	animation=(v) { _animation = v }
+animation { _animation }
+animation=(v) { _animation = v }
 
  Start() {
-	
 	_component_animation = getComponent(ComponentType.ANIMATION)
  }
 

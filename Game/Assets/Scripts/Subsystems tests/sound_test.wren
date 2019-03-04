@@ -16,11 +16,13 @@ import "Audio" for ComponentAudioSource
 
 class sound_test is ObjectLinker{
 
-	sound_name { _sound_name }
-	sound_name=(v) { _sound_name = v }
+
 
 	audio_source {_audio_source}
 	audio_source=(v) {_audio_source = v}
+
+	sound_name { _sound_name }
+	sound_name=(v) { _sound_name = v }
 
 	construct new(){}
 
