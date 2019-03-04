@@ -149,14 +149,14 @@ void ModuleShaders::CreateDefVertexShader()
 			"{\n"
 				"mat4 boneTransform = gBones[BoneIDs[i]];\n"
 				"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
-				"totalLocalPos += posePosition * Weights[i];\n"
+				"totalLocalPos += posePosition*Weights[i];\n"
 
 				"vec4 worldNormal = boneTransform * vec4(normal,0.0);\n"
 				"totalNormal += worldNormal * Weights[i];\n"
 			"}\n"
 		"}\n"
 
-		"gl_Position = projection * view * totalLocalPos;\n"
+		"gl_Position = projection * view * vec4(totalLocalPos.xyz,1.0);\n"
 		"ret_normal = totalNormal.xyz;\n"
 		"TexCoord = texCoord;\n"
 		"ourColor = color;\n"
