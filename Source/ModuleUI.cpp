@@ -2231,7 +2231,9 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					ImGui::EndCombo();
 				}
 				
-				if (ImGui::Button("Link Animation")) p_anim_evt->CopySpecs();
+				if (ImGui::Button("Link Animation")) p_anim_evt->copy_specs_win = true;
+
+				p_anim_evt->CopySpecs();
 				if (ImGui::IsItemHovered())
 				{
 					ImGui::BeginTooltip();
@@ -2298,7 +2300,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					}
 
 					ImGui::Text("Animation info:");
-					ImGui::Text(" Duration: %.1f ms", anim_evt->curr->own_ticks * anim_evt->curr->ticksXsecond * 1000);
+					ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
 					//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
 				}
 
