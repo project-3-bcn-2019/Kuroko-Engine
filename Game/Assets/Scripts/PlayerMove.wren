@@ -69,6 +69,10 @@ audio_source=(v) {__audio_source = v}
 punch_sound {__punch_sound}
 punch_sound=(v) {__punch_sound = v}
 
+//Animation
+component_animation {__component_animation}
+component_animation=(v) {__component_animation = v}
+
 setInput(){
 
 var ret = true
@@ -117,6 +121,7 @@ return ret
  Start() {
 audio_source = getComponent(ComponentType.AUDIO_SOURCE)
 audio_source.setSound(punch_sound)
+component_animation = getComponent(ComponentType.ANIMATION)
 direction = Vec3.zero()
 old_direction = Vec3.zero()
 dashing = false
@@ -139,7 +144,8 @@ if(dashing == false && attacking == false){
 
 
 if(InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN) && dash_available && !attacking){
-
+  component_animation.setAnimation("DashingAnimation")
+  component_animation.Play()
   dashing = true
   dash_current_time = 0.0
   move = false
@@ -147,30 +153,38 @@ if(InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)
 
 
 if(InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN) && !attacking && !dashing){
-audio_source.Play()
+  component_animation.setAnimation("PunchingAnimation")
+  component_animation.Play()
+  audio_source.Play()
   attacking = true
   attack_current_time = 0.0
   move = false
 }
 
 if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_DOWN) && !attacking && !dashing){
-audio_source.Play()
+  component_animation.setAnimation("PunchingAnimation")
+  component_animation.Play()
+  audio_source.Play()
   attacking = true
   attack_current_time = 0.0
   move = false
 }
 
+if(!dashing && !move && !attacking){
+  component_animation.setAnimation("PunchingAnimation")
+  component_animation.Pause()
+}
+
 
 if(move){
-
+  component_animation.setAnimation("RunningAnimation2013")
+  component_animation.Play()
   var movement = Vec3.new(direction.x*speed,0,direction.z*speed)
   modPos(movement.x,movement.y,movement.z)
 
   var angle = Math.C_angleBetween(old_direction.x,old_direction.y,old_direction.z,direction.x,direction.y,direction.z)
 
-  EngineComunicator.consoleOutput("angle = %(angle)")
-
-  rotate(0,angle,0)
+  rotate(direction.x,direction.y,direction.z)
 
   /*var pos = getPos("global")
   var look = Vec3.new(direction.x+pos.x,0,direction.z+pos.z)
@@ -198,7 +212,6 @@ if(dash_available == false){
 }
 
 if(attacking){
-EngineComunicator.consoleOutput("Attacking")
 
  attack_current_time =  attack_current_time + Time.C_GetDeltaTime()
   if(attack_current_time >= attack_duration){

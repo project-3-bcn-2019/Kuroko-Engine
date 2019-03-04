@@ -175,9 +175,7 @@ class IdleState is State {
     HandleInput() {
         // If l-stick is not still switch to moving
         if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _player.State = _player.MovingState
-        // If A prassed switch to dash
-        if (InputComunicator.getButton(-1,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
-        // If X prassed switch to dash
+        // If X prassed switch to punch
         if (InputComunicator.getButton(-1,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
 
@@ -199,7 +197,7 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("RunningAnimation2013")
+        _player.ComponentAnimation.setAnimation("RunningAnimation")
         _player.ComponentAnimation.Play()
     }
 
