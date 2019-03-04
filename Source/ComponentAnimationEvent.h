@@ -61,6 +61,8 @@ private:
 	float animTime = 0.0f;
 	bool paused = false;
 
+	int last_frame = -1;
+
 public:
 
 	std::list<AnimSet> AnimEvts;
