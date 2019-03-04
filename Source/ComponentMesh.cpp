@@ -73,8 +73,8 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 
 ComponentMesh::~ComponentMesh() {
 	// Deassign all the components that the element had if it is deleted
-	if(primitive_type == Primitive_None)
-		App->resources->deasignResource(mesh_resource_uuid);
+	/*if(primitive_type == Primitive_None)
+		App->resources->deasignResource(mesh_resource_uuid);*/
 	delete mat;
 }
 
@@ -163,7 +163,7 @@ void ComponentMesh::DrawSelected() const
 
 bool ComponentMesh::Update(float dt)
 {
-	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
+	if (components_bones.size() == 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{
 		setMeshResourceId(mesh_resource_uuid);
 	}
@@ -196,7 +196,7 @@ void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 	components_bones.clear();
 	for (int i = 0; i < bones_names.size(); ++i)
 	{
-		GameObject* GO = parent->getParent()->getChild(bones_names[i].c_str());
+		GameObject* GO = parent->getAbsoluteParent()->getChild(bones_names[i].c_str(), true);
 		if (GO != nullptr)
 		{
 			Component* bone = GO->getComponent(BONE);
@@ -246,7 +246,7 @@ std::string ComponentMesh::PrimitiveType2primitiveString(PrimitiveTypes type) {
 void ComponentMesh::Skining() const
 {
 	ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
-	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION) != nullptr)
+	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{		
 		float3* vertices = new float3[mesh->mesh->getNumVertices()];
 		memset(vertices, 0, sizeof(float)*mesh->mesh->getNumVertices() * 3);
@@ -254,8 +254,8 @@ void ComponentMesh::Skining() const
 		bool hasBones = false;
 		for (int i = 0; i < components_bones.size(); i++)
 		{
-			GameObject* pare = parent->getParent();
-			ComponentBone* bone = (ComponentBone*)pare->getChildComponent(components_bones[i]);
+			GameObject* absoluteParent = parent->getAbsoluteParent();
+			ComponentBone* bone = (ComponentBone*)absoluteParent->getChildComponent(components_bones[i]);
 			if (bone != nullptr)
 			{
 				ResourceBone* rBone = (ResourceBone*)App->resources->getResource(bone->getBoneResource());
@@ -263,10 +263,6 @@ void ComponentMesh::Skining() const
 				{
 					hasBones = true;
 					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
-					float3 pos, scale;
-					Quat rot;
-					((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix().Decompose(pos, rot, scale);
-					scale = scale;
 
 					for (int j = 0; j < rBone->numWeights; j++)
 					{
