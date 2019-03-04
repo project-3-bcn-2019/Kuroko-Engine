@@ -108,6 +108,8 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
 			continue;
 		}
+		component->LoadCompUUID(component_deff);
+
 		addComponent(component);
 	}
 

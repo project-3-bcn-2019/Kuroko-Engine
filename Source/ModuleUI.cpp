@@ -2182,6 +2182,16 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 						}
 					ImGui::EndCombo();
 				}
+				
+				if (ImGui::Button("Link Animation")) p_anim_evt->CopySpecs();
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+					ImGui::TextUnformatted("Link the component animation to the\nskeletal animation, if available");
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+				}
 
 				static bool animation_active;
 				animation_active = anim_evt->isActive();

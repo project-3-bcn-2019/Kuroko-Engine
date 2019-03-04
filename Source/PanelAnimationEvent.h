@@ -2,9 +2,9 @@
 
 #include "Panel.h"
 #include <list>
+#include "ComponentAnimationEvent.h"
 
 class Component;
-class ComponentAnimationEvent;
 class ComponentAnimation;
 class ResourceAnimation;
 class GameObject;

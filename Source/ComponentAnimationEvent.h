@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <list>
 
 typedef std::map<int, void*> KeyframeVals;
 typedef std::map<double, KeyframeVals> KeyMap;
@@ -53,7 +54,8 @@ public:
 
 	bool Finished() const { return false; }
 	bool isPaused() const { return paused; }
-
+	
+	void CheckLinkAnim();
 private:
 
 	float animTime = 0.0f;
@@ -62,7 +64,7 @@ private:
 public:
 
 	std::list<AnimSet> AnimEvts;
-	AnimSet* curr;
+	AnimSet* curr = nullptr;
 
 	
 	
