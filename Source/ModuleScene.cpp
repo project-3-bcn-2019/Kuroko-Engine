@@ -109,7 +109,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (current == *selected_obj.begin()) 
+		if (!selected_obj.empty() && current == *selected_obj.begin())
 			selected_obj.clear();
 		game_objects.remove(current);
 
@@ -152,6 +152,7 @@ update_status ModuleScene::Update(float dt)
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_REPEAT && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
 
 		int i = 0;
+		MouseDragging();
 		//App->debug->addFrustum()
 	}
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
@@ -244,8 +245,25 @@ void ModuleScene::MouseDragging()
 	{ 
 		dragging_frustum = new Frustum();
 		dragging_frustum = App->camera->selected_camera->getFrustum();
-		//dragging_frustum.
+		initial_drag = float2(x, y);
+		dragging_frustum->UnProjectLineSegment(x, y).ToRay();
+
+		
 	}
+	Ray drag_ray = dragging_frustum->UnProjectLineSegment(x, y).ToRay();
+	Ray initial_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, initial_drag.y).ToRay();
+	Ray corner_ray = dragging_frustum->UnProjectLineSegment(x, initial_drag.y).ToRay();
+	Ray corner2_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, y).ToRay();
+	glColor3f(1.0f,0.0f, 0.0f);
+	glBegin(GL_QUADS);
+	glVertex3f(initial_ray.pos.x, initial_ray.pos.y, initial_ray.pos.z);
+	glVertex3f(corner2_ray.pos.x, corner2_ray.pos.y, corner2_ray.pos.z);
+	glVertex3f(drag_ray.pos.x, drag_ray.pos.y, drag_ray.pos.z);
+	glVertex3f(corner_ray.pos.x, corner_ray.pos.y, corner_ray.pos.z);
+	
+	glEnd();
+	glColor3f(1.0f, 1.0f, 1.0f);
+	//dragging_frustum.pos
 }
 GameObject* ModuleScene::MousePicking(GameObject* ignore)
 {

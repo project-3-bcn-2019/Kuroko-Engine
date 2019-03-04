@@ -98,6 +98,7 @@ private:
 
 	Quadtree * quadtree		= nullptr;
 	Frustum* dragging_frustum = nullptr;
+	float2 initial_drag;
 
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
