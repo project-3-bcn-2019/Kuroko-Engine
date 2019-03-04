@@ -113,7 +113,7 @@ void ComponentMesh::Draw() const
 			//mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
 			ComponentAnimation* animation = nullptr;
-			animation = (ComponentAnimation*)parent->getParent()->getComponent(ANIMATION);
+			animation = (ComponentAnimation*)parent->getAbsoluteParent()->getComponent(ANIMATION);
 			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v,boneTransforms,(uint)components_bones.size());
 
 
@@ -153,7 +153,7 @@ void ComponentMesh::DrawSelected() const
 			//mesh_from_resource->Draw(nullptr, true);
 			//Descoment to use shader render
 			ComponentAnimation* animation = nullptr;
-			animation = (ComponentAnimation*)parent->getParent()->getComponent(ANIMATION);
+			animation = (ComponentAnimation*)parent->getAbsoluteParent()->getComponent(ANIMATION);
 			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, boneTransforms, (uint)components_bones.size(), true);
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -179,7 +179,7 @@ bool ComponentMesh::Update(float dt)
 
 		if (mesh != nullptr)
 		{
-			mesh->mesh->FillboneVertexInfo(parent->getParent(), components_bones);
+			mesh->mesh->FillboneVertexInfo(parent->getAbsoluteParent(), components_bones);
 		}
 
 	}

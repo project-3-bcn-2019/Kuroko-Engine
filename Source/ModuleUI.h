@@ -115,13 +115,8 @@ private:
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
-	TextEditor script_editor;
 	TextEditor shader_editor;
-	std::string open_script_path;
 	std::string open_shader_path;
-
-	bool open_tabs[LAST_UI_TAB];  // _serializable_var
-	std::array<Texture*, LAST_UI_TEX> ui_textures;
 
 	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
 

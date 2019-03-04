@@ -272,7 +272,7 @@ void Mesh::FillMeshGPU()
 	float4 color = { *colors, 1.0f };
 	for (int i = 0; i < num_vertices; i++)
 	{
-		MeshGPU[i].Assign(vertices[i]+getCentroid(), color);
+		MeshGPU[i].Assign(vertices[i], color);
 
 		MeshGPU[i].tex_coords = tex_coords[i];
 
