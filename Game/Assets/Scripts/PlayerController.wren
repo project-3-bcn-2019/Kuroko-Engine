@@ -55,7 +55,7 @@ class PlayerController is ObjectLinker{
         __idle_state = IdleState.new(this)
         __punch1_state = BasicAttackState.new(this,700)
         __moving_state = MovingState.new(this)
-        __dash_state = DashState.new(this,800)
+        __dash_state = DashState.new(this,500)
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = __idle_state //Reminder that "State" is a setter method
@@ -208,6 +208,8 @@ class DashState is State {
         super.BeginState()
         _player.ComponentAnimation.setAnimation("DashingAnimation")
         _player.ComponentAnimation.Play()
+        _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        _dash_speed = 1
     }
 
     HandleInput() {
@@ -217,9 +219,16 @@ class DashState is State {
     Update() {
         super.Update() 
 
+        var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
+        _player.modPos(movement.x,movement.y,movement.z)
+
         if (super.IsStateFinished()) _player.State = _player.IdleState
 
-        EngineComunicator.consoleOutput("Current state: Dash")
+        if (_player.ShowDebugLogs){  
+            EngineComunicator.consoleOutput("direction.x =%(_dash_direction.x)")
+            EngineComunicator.consoleOutput("direction.y =%(_dash_direction.y)")
+            EngineComunicator.consoleOutput("Current state: Dash")
+        }
     }
 }
 
