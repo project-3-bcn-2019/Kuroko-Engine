@@ -106,7 +106,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 	InitializeScriptEditor();
 
 	// If it is a game build, we hide UI
-	//enabled = !App->is_game;
+	enabled = !App->is_game;
 
 
 	return true;
@@ -114,7 +114,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 bool ModuleUI::Start()
 {
-	if (!App->is_game || true)
+	if (!App->is_game)
 	{
 		io = &ImGui::GetIO();
 
@@ -166,7 +166,7 @@ bool ModuleUI::Start()
 
 update_status ModuleUI::PreUpdate(float dt) {
 
-	if (!App->is_game || true)
+	if (!App->is_game)
 	{
 		// Start the ImGui frame
 		ImGui_ImplOpenGL2_NewFrame();
@@ -182,7 +182,7 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 update_status ModuleUI::Update(float dt) {
 
-	if (!App->is_game || true)
+	if (!App->is_game)
 	{
 		InvisibleDockingBegin();
 		static bool file_save = false;
@@ -417,7 +417,7 @@ update_status ModuleUI::Update(float dt) {
 
 update_status ModuleUI::PostUpdate(float dt) {
 	// Rendering
-	if (!App->is_game || true)
+	if (!App->is_game)
 	{
 		ImGui::Render();
 

@@ -54,7 +54,7 @@ bool ModuleWindow::Init(const JSON_Object* config)
 		main_window->height = height = DM.h - main_window->adaptable_offsety;
 		}
 		
-		main_window->window = SDL_CreateWindow(json_object_get_string(config,"title"), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
+		main_window->window = SDL_CreateWindow(((App->is_game)?  App->game_title.c_str():App->engine_title.c_str()), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
 		if(main_window->window == NULL)
 		{

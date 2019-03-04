@@ -30,7 +30,7 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-		if (App->is_game)
+		if (App->is_game && !App->debug_game)
 		{
 			setMeshResourceId(App->resources->getResourceUuid(json_object_get_string(deff, "mesh_name"), R_MESH));		
 		}

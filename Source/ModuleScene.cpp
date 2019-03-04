@@ -52,7 +52,7 @@ bool ModuleScene::Start()
 	want_load_scene_file = false;
 
 	std::array<Texture*, 6> skybox_texs;
-	if (!App->is_game)
+	if (!App->is_game || App->debug_game)
 	{
 		skybox_texs[LEFT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_left.png");
 		skybox_texs[RIGHT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_right.png");
@@ -74,10 +74,11 @@ bool ModuleScene::Start()
 
 	quadtree = new Quadtree(AABB(float3(-50, -10, -50), float3(50, 10, 50)));
 
-	if (App->is_game && main_scene != 0)
+	if (App->is_game && !App->debug_game && main_scene != 0)
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
+	LoadScene("Assets/Scenes/alitaRunning.scene");
 
 	return true;
 }
