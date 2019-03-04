@@ -43,49 +43,49 @@ public:
 
 	void SaveRange(JSON_Object* json, const char* name, const range<float>& range)
 	{
-		json_object_dotset_number(json, name, range.min);
-		json_object_dotset_number(json, name, range.max);
+		json_object_dotset_number(json, (std::string(name) + "_min").c_str(), range.min);
+		json_object_dotset_number(json, (std::string(name) + "_max").c_str(), range.max);
 	}
 
 	void SaveColor(JSON_Object* json, const char* name, const Color& color)
-	{
-		json_object_dotset_number(json, name, color.r);
-		json_object_dotset_number(json, name, color.g);
-		json_object_dotset_number(json, name, color.b);
-		json_object_dotset_number(json, name, color.a);
+	{														  
+		json_object_dotset_number(json, (std::string(name) + "_r").c_str(), color.r);
+		json_object_dotset_number(json, (std::string(name) + "_g").c_str(), color.g);
+		json_object_dotset_number(json, (std::string(name) + "_b").c_str(), color.b);
+		json_object_dotset_number(json, (std::string(name) + "_a").c_str(), color.a);
 	}
 
 	void SaveFloat3(JSON_Object* json, const char* name, const float3& vector)
 	{
-		json_object_dotset_number(json, name, vector.x);
-		json_object_dotset_number(json, name, vector.y);
-		json_object_dotset_number(json, name, vector.z);
-	}
+		json_object_dotset_number(json, (std::string(name) + "_x").c_str(), vector.x);
+		json_object_dotset_number(json, (std::string(name) + "_y").c_str(), vector.y);
+		json_object_dotset_number(json, (std::string(name) + "_z").c_str(), vector.z);
+	}									
 
 	range<float> LoadRange(JSON_Object* json, const char* name)
 	{
 		range<float> range;
-		range.min = json_object_dotget_number(json, name);
-		range.max = json_object_dotget_number(json, name);
+		range.min = json_object_dotget_number(json, (std::string(name) + "_min").c_str());
+		range.max = json_object_dotget_number(json, (std::string(name) + "_max").c_str());
 		return range;
 	}
 
 	Color LoadColor(JSON_Object* json, const char* name)
 	{
 		Color color;
-		color.r = json_object_dotget_number(json, name);
-		color.g = json_object_dotget_number(json, name);
-		color.b = json_object_dotget_number(json, name);
-		color.a = json_object_dotget_number(json, name);
+		color.r = json_object_dotget_number(json, (std::string(name) + "_r").c_str());
+		color.g = json_object_dotget_number(json, (std::string(name) + "_g").c_str());
+		color.b = json_object_dotget_number(json, (std::string(name) + "_b").c_str());
+		color.a = json_object_dotget_number(json, (std::string(name) + "_a").c_str());
 		return color;
 	}
 
 	float3 LoadFloat3(JSON_Object* json, const char* name)
 	{
 		float3 vector;
-		vector.x = json_object_dotget_number(json, name);
-		vector.y = json_object_dotget_number(json, name);
-		vector.z = json_object_dotget_number(json, name);
+		vector.x = json_object_dotget_number(json, (std::string(name) + "_x").c_str());
+		vector.y = json_object_dotget_number(json, (std::string(name) + "_y").c_str());
+		vector.z = json_object_dotget_number(json, (std::string(name) + "_z").c_str());
 		return vector;
 	}
 
