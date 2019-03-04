@@ -83,6 +83,34 @@ class PlayerController is ObjectLinker{
     rotate(x,y,z) {
         super.lookAt(x,y,z)
     }
+
+    CheckBoundaries(movement){
+        //Collision stuff delete later
+        var pos_x = getPosX("global")
+        var pos_z = getPosZ("global")
+
+        if (pos_x > 23 ){
+            if (movement.x > 0){
+                movement.x = 0
+            }
+        }
+        if (pos_x < -23 ){
+            if (movement.x < 0){
+                movement.x = 0
+            }
+        }
+
+        if (pos_z > 20 ){
+            if (movement.z > 0){
+                movement.z = 0
+            }
+        }
+        if (pos_z < -22 ){
+            if (movement.z < 0){
+                movement.z = 0
+            }
+        }
+    }
 }
 
 class State {
@@ -181,6 +209,9 @@ class MovingState is State {
         super.Update()
 
         var movement = Vec3.new(_player.MoveDirection.x*_player.Speed,0,_player.MoveDirection.y*_player.Speed)
+
+        _player.CheckBoundaries(movement)
+
         _player.modPos(movement.x,movement.y,movement.z)
 
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
@@ -220,6 +251,8 @@ class DashState is State {
         super.Update() 
 
         var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
+
+        _player.CheckBoundaries(movement)
         _player.modPos(movement.x,movement.y,movement.z)
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
@@ -277,3 +310,7 @@ class SpecialAttackState is AttackState {
         super(player)
     }
 }
+
+
+
+

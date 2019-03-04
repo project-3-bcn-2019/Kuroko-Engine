@@ -1,5 +1,7 @@
 #include "ModuleScripting.h"
 #include "Wren/wren.hpp"
+#include "Wren/wren_value.h"
+#include "Wren/wren_vm.h"
 #include "Applog.h"
 #include "ModuleInput.h"
 #include "ScriptData.h"
@@ -641,7 +643,10 @@ void rotate(WrenVM* vm) {
 
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	float3 rotation = { (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3), (float)wrenGetSlotDouble(vm, 4) };
-
+	if (math::IsNan(rotation.y))
+	{
+		rotation.y = 0;
+	}
 	GameObject* go = App->scene->getGameObject(gameObjectUUID);
 	if (!go) {
 		app_log->AddLog("Script asking for not existing gameObject");
@@ -650,8 +655,8 @@ void rotate(WrenVM* vm) {
 
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
 	float3 final_rotation = c_trans->local->getRotationEuler() + rotation;
-	
-	c_trans->local->setRotationEuler(final_rotation);
+	c_trans->local->RotateAroundAxis(c_trans->local->Up(), rotation.y);
+	//c_trans->local->setRotationEuler(final_rotation);
 }
 
 void getGameObjectPosX(WrenVM* vm) {
