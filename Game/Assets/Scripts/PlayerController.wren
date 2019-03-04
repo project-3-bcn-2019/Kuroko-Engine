@@ -54,6 +54,7 @@ class PlayerController is ObjectLinker{
         _component_animation = getComponent(ComponentType.ANIMATION)
         _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
 
+        _component_audio_source.setSound("Punch")
         //Initialize all the states as static so we have no problems switching to states at any moment
         //the arguments are: (player, total_duration)
         __idle_state = IdleState.new(this)
