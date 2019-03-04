@@ -4,7 +4,7 @@
             "name": "Floor",
             "tag": "undefined",
             "static": false,
-            "UUID": 1592588938,
+            "UUID": 2274245311,
             "Components": [
                 {
                     "type": "transform",
@@ -52,7 +52,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 542747877,
+            "UUID": 401627794,
             "Components": [
                 {
                     "type": "transform",
@@ -100,7 +100,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 788069341,
+            "UUID": 1867400091,
             "Components": [
                 {
                     "type": "transform",
@@ -148,7 +148,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 1776478354,
+            "UUID": 1141050759,
             "Components": [
                 {
                     "type": "transform",
@@ -196,7 +196,7 @@
             "name": "Cube",
             "tag": "undefined",
             "static": false,
-            "UUID": 4236444563,
+            "UUID": 662811214,
             "Components": [
                 {
                     "type": "transform",
@@ -244,14 +244,14 @@
             "name": "MainCamera",
             "tag": "undefined",
             "static": false,
-            "UUID": 1226952371,
+            "UUID": 4237104787,
             "Components": [
                 {
                     "type": "transform",
                     "local": {
-                        "px": -5.1329612731933594,
+                        "px": 1,
                         "py": 50,
-                        "pz": -36.975555419921875,
+                        "pz": -100,
                         "sx": 1,
                         "sy": 1,
                         "sz": 1,
@@ -261,9 +261,9 @@
                         "qw": 0.92387956380844116
                     },
                     "global": {
-                        "px": -5.1329612731933594,
+                        "px": 1,
                         "py": 50,
-                        "pz": -36.975555419921875,
+                        "pz": -100,
                         "sx": 1,
                         "sy": 1,
                         "sz": 1,
@@ -323,12 +323,12 @@
                 {
                     "type": "camera",
                     "camera": {
-                        "pos_x": -5.1329612731933594,
+                        "pos_x": 1,
                         "pos_y": 50,
-                        "pos_z": -36.975555419921875,
-                        "ref_x": -5.1329612731933594,
-                        "ref_y": 45.305797576904297,
-                        "ref_z": -32.281352996826172,
+                        "pos_z": -100,
+                        "ref_x": 1,
+                        "ref_y": 45.305801391601563,
+                        "ref_z": -95.305801391601563,
                         "frustum_type": 2,
                         "active": false,
                         "draw_in_UI": false,
@@ -348,9 +348,9 @@
         },
         {
             "name": "Alita",
-            "tag": "undefined",
+            "tag": "player",
             "static": false,
-            "UUID": 2416291615,
+            "UUID": 2719737795,
             "Components": [
                 {
                     "type": "transform",
@@ -526,7 +526,7 @@
                             "speed": 1,
                             "own_ticks": 14,
                             "ticksXsecond": 24,
-                            "linked_anim": 758901200,
+                            "linked_anim": 3445727850,
                             "name": "Particle",
                             "comp_arr": [
                                 {
@@ -591,8 +591,8 @@
             "name": "RunningAnimation:Group39255_$AssimpFbx$_RotationPivot",
             "tag": "undefined",
             "static": false,
-            "UUID": 850442923,
-            "Parent": 2416291615,
+            "UUID": 2831141431,
+            "Parent": 2719737795,
             "Components": [
                 {
                     "type": "transform",
@@ -632,8 +632,8 @@
             "name": "RunningAnimation:Group39255_$AssimpFbx$_RotationPivotInverse",
             "tag": "undefined",
             "static": false,
-            "UUID": 2960378446,
-            "Parent": 850442923,
+            "UUID": 547153579,
+            "Parent": 2831141431,
             "Components": [
                 {
                     "type": "transform",
@@ -673,8 +673,8 @@
             "name": "RunningAnimation:Group39255_$AssimpFbx$_ScalingPivot",
             "tag": "undefined",
             "static": false,
-            "UUID": 870077213,
-            "Parent": 2960378446,
+            "UUID": 273484497,
+            "Parent": 547153579,
             "Components": [
                 {
                     "type": "transform",
@@ -714,8 +714,8 @@
             "name": "RunningAnimation:Group39255_$AssimpFbx$_ScalingPivotInverse",
             "tag": "undefined",
             "static": false,
-            "UUID": 1844860878,
-            "Parent": 870077213,
+            "UUID": 1770669709,
+            "Parent": 273484497,
             "Components": [
                 {
                     "type": "transform",
@@ -755,8 +755,8 @@
             "name": "RunningAnimation:Group39255",
             "tag": "undefined",
             "static": false,
-            "UUID": 2700684783,
-            "Parent": 1844860878,
+            "UUID": 1907101194,
+            "Parent": 1770669709,
             "Components": [
                 {
                     "type": "transform",
@@ -874,8 +874,8 @@
             "name": "QuickRigCharacter1_Reference",
             "tag": "undefined",
             "static": false,
-            "UUID": 2699245160,
-            "Parent": 2416291615,
+            "UUID": 3633062387,
+            "Parent": 2719737795,
             "Components": [
                 {
                     "type": "transform",
@@ -915,8 +915,8 @@
             "name": "QuickRigCharacter1_Hips_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1533260201,
-            "Parent": 2699245160,
+            "UUID": 2074377760,
+            "Parent": 3633062387,
             "Components": [
                 {
                     "type": "transform",
@@ -956,8 +956,8 @@
             "name": "QuickRigCharacter1_Hips_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 3273254203,
-            "Parent": 1533260201,
+            "UUID": 3591387050,
+            "Parent": 2074377760,
             "Components": [
                 {
                     "type": "transform",
@@ -997,8 +997,8 @@
             "name": "QuickRigCharacter1_Hips_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1269909286,
-            "Parent": 3273254203,
+            "UUID": 1533140111,
+            "Parent": 3591387050,
             "Components": [
                 {
                     "type": "transform",
@@ -1038,8 +1038,8 @@
             "name": "QuickRigCharacter1_Hips",
             "tag": "undefined",
             "static": false,
-            "UUID": 1529314190,
-            "Parent": 1269909286,
+            "UUID": 397296894,
+            "Parent": 1533140111,
             "Components": [
                 {
                     "type": "transform",
@@ -1085,8 +1085,8 @@
             "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1303519020,
-            "Parent": 1529314190,
+            "UUID": 3065831714,
+            "Parent": 397296894,
             "Components": [
                 {
                     "type": "transform",
@@ -1126,8 +1126,8 @@
             "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1793219427,
-            "Parent": 1303519020,
+            "UUID": 1460451948,
+            "Parent": 3065831714,
             "Components": [
                 {
                     "type": "transform",
@@ -1167,8 +1167,8 @@
             "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2110411910,
-            "Parent": 1793219427,
+            "UUID": 3643731985,
+            "Parent": 1460451948,
             "Components": [
                 {
                     "type": "transform",
@@ -1208,8 +1208,8 @@
             "name": "QuickRigCharacter1_LeftUpLeg",
             "tag": "undefined",
             "static": false,
-            "UUID": 495000660,
-            "Parent": 2110411910,
+            "UUID": 2662121867,
+            "Parent": 3643731985,
             "Components": [
                 {
                     "type": "transform",
@@ -1255,8 +1255,8 @@
             "name": "QuickRigCharacter1_LeftLeg",
             "tag": "undefined",
             "static": false,
-            "UUID": 2642876907,
-            "Parent": 495000660,
+            "UUID": 2519366560,
+            "Parent": 2662121867,
             "Components": [
                 {
                     "type": "transform",
@@ -1302,8 +1302,8 @@
             "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 3274913862,
-            "Parent": 2642876907,
+            "UUID": 1319743544,
+            "Parent": 2519366560,
             "Components": [
                 {
                     "type": "transform",
@@ -1343,8 +1343,8 @@
             "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2291719251,
-            "Parent": 3274913862,
+            "UUID": 4012896856,
+            "Parent": 1319743544,
             "Components": [
                 {
                     "type": "transform",
@@ -1384,8 +1384,8 @@
             "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2727129243,
-            "Parent": 2291719251,
+            "UUID": 3692986521,
+            "Parent": 4012896856,
             "Components": [
                 {
                     "type": "transform",
@@ -1425,8 +1425,8 @@
             "name": "QuickRigCharacter1_LeftFoot",
             "tag": "undefined",
             "static": false,
-            "UUID": 368762395,
-            "Parent": 2727129243,
+            "UUID": 2212229082,
+            "Parent": 3692986521,
             "Components": [
                 {
                     "type": "transform",
@@ -1472,8 +1472,8 @@
             "name": "QuickRigCharacter1_LeftToeBase",
             "tag": "undefined",
             "static": false,
-            "UUID": 888398763,
-            "Parent": 368762395,
+            "UUID": 3670157220,
+            "Parent": 2212229082,
             "Components": [
                 {
                     "type": "transform",
@@ -1519,8 +1519,8 @@
             "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1089634217,
-            "Parent": 1529314190,
+            "UUID": 2234689471,
+            "Parent": 397296894,
             "Components": [
                 {
                     "type": "transform",
@@ -1560,8 +1560,8 @@
             "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 584758435,
-            "Parent": 1089634217,
+            "UUID": 802458445,
+            "Parent": 2234689471,
             "Components": [
                 {
                     "type": "transform",
@@ -1601,8 +1601,8 @@
             "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 899917995,
-            "Parent": 584758435,
+            "UUID": 1554559335,
+            "Parent": 802458445,
             "Components": [
                 {
                     "type": "transform",
@@ -1642,8 +1642,8 @@
             "name": "QuickRigCharacter1_RightUpLeg",
             "tag": "undefined",
             "static": false,
-            "UUID": 3178469237,
-            "Parent": 899917995,
+            "UUID": 3197437180,
+            "Parent": 1554559335,
             "Components": [
                 {
                     "type": "transform",
@@ -1689,8 +1689,8 @@
             "name": "QuickRigCharacter1_RightLeg",
             "tag": "undefined",
             "static": false,
-            "UUID": 3703060469,
-            "Parent": 3178469237,
+            "UUID": 1029069068,
+            "Parent": 3197437180,
             "Components": [
                 {
                     "type": "transform",
@@ -1736,8 +1736,8 @@
             "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1672277843,
-            "Parent": 3703060469,
+            "UUID": 2605032009,
+            "Parent": 1029069068,
             "Components": [
                 {
                     "type": "transform",
@@ -1777,8 +1777,8 @@
             "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2154215341,
-            "Parent": 1672277843,
+            "UUID": 4039668043,
+            "Parent": 2605032009,
             "Components": [
                 {
                     "type": "transform",
@@ -1818,8 +1818,8 @@
             "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 4215677076,
-            "Parent": 2154215341,
+            "UUID": 1719532350,
+            "Parent": 4039668043,
             "Components": [
                 {
                     "type": "transform",
@@ -1859,8 +1859,8 @@
             "name": "QuickRigCharacter1_RightFoot",
             "tag": "undefined",
             "static": false,
-            "UUID": 3184363395,
-            "Parent": 4215677076,
+            "UUID": 2010343002,
+            "Parent": 1719532350,
             "Components": [
                 {
                     "type": "transform",
@@ -1906,8 +1906,8 @@
             "name": "QuickRigCharacter1_RightToeBase_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2779197052,
-            "Parent": 3184363395,
+            "UUID": 1200402135,
+            "Parent": 2010343002,
             "Components": [
                 {
                     "type": "transform",
@@ -1947,8 +1947,8 @@
             "name": "QuickRigCharacter1_RightToeBase_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 3314956901,
-            "Parent": 2779197052,
+            "UUID": 1408204616,
+            "Parent": 1200402135,
             "Components": [
                 {
                     "type": "transform",
@@ -1988,8 +1988,8 @@
             "name": "QuickRigCharacter1_RightToeBase",
             "tag": "undefined",
             "static": false,
-            "UUID": 1245401669,
-            "Parent": 3314956901,
+            "UUID": 4211733748,
+            "Parent": 1408204616,
             "Components": [
                 {
                     "type": "transform",
@@ -2035,8 +2035,8 @@
             "name": "QuickRigCharacter1_Spine_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1081995259,
-            "Parent": 1529314190,
+            "UUID": 2637539188,
+            "Parent": 397296894,
             "Components": [
                 {
                     "type": "transform",
@@ -2076,8 +2076,8 @@
             "name": "QuickRigCharacter1_Spine_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 973293684,
-            "Parent": 1081995259,
+            "UUID": 1817280852,
+            "Parent": 2637539188,
             "Components": [
                 {
                     "type": "transform",
@@ -2117,8 +2117,8 @@
             "name": "QuickRigCharacter1_Spine_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 3313303,
-            "Parent": 973293684,
+            "UUID": 3711556630,
+            "Parent": 1817280852,
             "Components": [
                 {
                     "type": "transform",
@@ -2158,8 +2158,8 @@
             "name": "QuickRigCharacter1_Spine",
             "tag": "undefined",
             "static": false,
-            "UUID": 3836536387,
-            "Parent": 3313303,
+            "UUID": 1678814059,
+            "Parent": 3711556630,
             "Components": [
                 {
                     "type": "transform",
@@ -2205,8 +2205,8 @@
             "name": "QuickRigCharacter1_Spine1",
             "tag": "undefined",
             "static": false,
-            "UUID": 3322697742,
-            "Parent": 3836536387,
+            "UUID": 930488095,
+            "Parent": 1678814059,
             "Components": [
                 {
                     "type": "transform",
@@ -2252,8 +2252,8 @@
             "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2908454094,
-            "Parent": 3322697742,
+            "UUID": 3146834385,
+            "Parent": 930488095,
             "Components": [
                 {
                     "type": "transform",
@@ -2293,8 +2293,8 @@
             "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2225428613,
-            "Parent": 2908454094,
+            "UUID": 3938699017,
+            "Parent": 3146834385,
             "Components": [
                 {
                     "type": "transform",
@@ -2334,8 +2334,8 @@
             "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2380254032,
-            "Parent": 2225428613,
+            "UUID": 2571469261,
+            "Parent": 3938699017,
             "Components": [
                 {
                     "type": "transform",
@@ -2375,8 +2375,8 @@
             "name": "QuickRigCharacter1_Spine2",
             "tag": "undefined",
             "static": false,
-            "UUID": 1423532022,
-            "Parent": 2380254032,
+            "UUID": 3873543194,
+            "Parent": 2571469261,
             "Components": [
                 {
                     "type": "transform",
@@ -2422,8 +2422,8 @@
             "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1341498701,
-            "Parent": 1423532022,
+            "UUID": 400310384,
+            "Parent": 3873543194,
             "Components": [
                 {
                     "type": "transform",
@@ -2463,8 +2463,8 @@
             "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2546303644,
-            "Parent": 1341498701,
+            "UUID": 1582989035,
+            "Parent": 400310384,
             "Components": [
                 {
                     "type": "transform",
@@ -2504,8 +2504,8 @@
             "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1923998613,
-            "Parent": 2546303644,
+            "UUID": 3006913423,
+            "Parent": 1582989035,
             "Components": [
                 {
                     "type": "transform",
@@ -2545,8 +2545,8 @@
             "name": "QuickRigCharacter1_LeftShoulder",
             "tag": "undefined",
             "static": false,
-            "UUID": 3082242144,
-            "Parent": 1923998613,
+            "UUID": 3669318223,
+            "Parent": 3006913423,
             "Components": [
                 {
                     "type": "transform",
@@ -2592,8 +2592,8 @@
             "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1240204426,
-            "Parent": 3082242144,
+            "UUID": 147394633,
+            "Parent": 3669318223,
             "Components": [
                 {
                     "type": "transform",
@@ -2633,8 +2633,8 @@
             "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1440354273,
-            "Parent": 1240204426,
+            "UUID": 4234818708,
+            "Parent": 147394633,
             "Components": [
                 {
                     "type": "transform",
@@ -2674,8 +2674,8 @@
             "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2699044099,
-            "Parent": 1440354273,
+            "UUID": 3613535916,
+            "Parent": 4234818708,
             "Components": [
                 {
                     "type": "transform",
@@ -2715,8 +2715,8 @@
             "name": "QuickRigCharacter1_LeftArm",
             "tag": "undefined",
             "static": false,
-            "UUID": 4031762927,
-            "Parent": 2699044099,
+            "UUID": 668148888,
+            "Parent": 3613535916,
             "Components": [
                 {
                     "type": "transform",
@@ -2762,8 +2762,8 @@
             "name": "QuickRigCharacter1_LeftForeArm",
             "tag": "undefined",
             "static": false,
-            "UUID": 3367938521,
-            "Parent": 4031762927,
+            "UUID": 3222959958,
+            "Parent": 668148888,
             "Components": [
                 {
                     "type": "transform",
@@ -2809,8 +2809,8 @@
             "name": "QuickRigCharacter1_LeftHand",
             "tag": "undefined",
             "static": false,
-            "UUID": 3315931321,
-            "Parent": 3367938521,
+            "UUID": 551561524,
+            "Parent": 3222959958,
             "Components": [
                 {
                     "type": "transform",
@@ -2856,8 +2856,8 @@
             "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1424858578,
-            "Parent": 1423532022,
+            "UUID": 1904709743,
+            "Parent": 3873543194,
             "Components": [
                 {
                     "type": "transform",
@@ -2897,8 +2897,8 @@
             "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 389917258,
-            "Parent": 1424858578,
+            "UUID": 3756762028,
+            "Parent": 1904709743,
             "Components": [
                 {
                     "type": "transform",
@@ -2938,8 +2938,8 @@
             "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1098264535,
-            "Parent": 389917258,
+            "UUID": 3806543972,
+            "Parent": 3756762028,
             "Components": [
                 {
                     "type": "transform",
@@ -2979,8 +2979,8 @@
             "name": "QuickRigCharacter1_RightShoulder",
             "tag": "undefined",
             "static": false,
-            "UUID": 4201375099,
-            "Parent": 1098264535,
+            "UUID": 3563687623,
+            "Parent": 3806543972,
             "Components": [
                 {
                     "type": "transform",
@@ -3026,8 +3026,8 @@
             "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 2102573848,
-            "Parent": 4201375099,
+            "UUID": 4025699678,
+            "Parent": 3563687623,
             "Components": [
                 {
                     "type": "transform",
@@ -3067,8 +3067,8 @@
             "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 995784892,
-            "Parent": 2102573848,
+            "UUID": 1132081255,
+            "Parent": 4025699678,
             "Components": [
                 {
                     "type": "transform",
@@ -3108,8 +3108,8 @@
             "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 81169739,
-            "Parent": 995784892,
+            "UUID": 3583734823,
+            "Parent": 1132081255,
             "Components": [
                 {
                     "type": "transform",
@@ -3149,8 +3149,8 @@
             "name": "QuickRigCharacter1_RightArm",
             "tag": "undefined",
             "static": false,
-            "UUID": 631344177,
-            "Parent": 81169739,
+            "UUID": 893280204,
+            "Parent": 3583734823,
             "Components": [
                 {
                     "type": "transform",
@@ -3196,8 +3196,8 @@
             "name": "QuickRigCharacter1_RightForeArm",
             "tag": "undefined",
             "static": false,
-            "UUID": 4100272664,
-            "Parent": 631344177,
+            "UUID": 1987275956,
+            "Parent": 893280204,
             "Components": [
                 {
                     "type": "transform",
@@ -3243,8 +3243,8 @@
             "name": "QuickRigCharacter1_RightHand",
             "tag": "undefined",
             "static": false,
-            "UUID": 2336749643,
-            "Parent": 4100272664,
+            "UUID": 615183336,
+            "Parent": 1987275956,
             "Components": [
                 {
                     "type": "transform",
@@ -3290,8 +3290,8 @@
             "name": "QuickRigCharacter1_Neck_$AssimpFbx$_Translation",
             "tag": "undefined",
             "static": false,
-            "UUID": 3232119566,
-            "Parent": 1423532022,
+            "UUID": 2398133390,
+            "Parent": 3873543194,
             "Components": [
                 {
                     "type": "transform",
@@ -3331,8 +3331,8 @@
             "name": "QuickRigCharacter1_Neck_$AssimpFbx$_PreRotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 168308778,
-            "Parent": 3232119566,
+            "UUID": 1533092183,
+            "Parent": 2398133390,
             "Components": [
                 {
                     "type": "transform",
@@ -3372,8 +3372,8 @@
             "name": "QuickRigCharacter1_Neck_$AssimpFbx$_Rotation",
             "tag": "undefined",
             "static": false,
-            "UUID": 1149125286,
-            "Parent": 168308778,
+            "UUID": 2153641006,
+            "Parent": 1533092183,
             "Components": [
                 {
                     "type": "transform",
@@ -3413,8 +3413,8 @@
             "name": "QuickRigCharacter1_Neck",
             "tag": "undefined",
             "static": false,
-            "UUID": 2684538308,
-            "Parent": 1149125286,
+            "UUID": 3425195619,
+            "Parent": 2153641006,
             "Components": [
                 {
                     "type": "transform",
@@ -3460,8 +3460,8 @@
             "name": "QuickRigCharacter1_Head",
             "tag": "undefined",
             "static": false,
-            "UUID": 472470617,
-            "Parent": 2684538308,
+            "UUID": 1777391318,
+            "Parent": 3425195619,
             "Components": [
                 {
                     "type": "transform",
