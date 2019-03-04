@@ -655,8 +655,8 @@ void rotate(WrenVM* vm) {
 
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
 	float3 final_rotation = c_trans->local->getRotationEuler() + rotation;
-	c_trans->local->RotateAroundAxis(c_trans->local->Up(), rotation.y);
-	//c_trans->local->setRotationEuler(final_rotation);
+	//c_trans->local->RotateAroundAxis(c_trans->local->Up(), rotation.y);
+	c_trans->local->setRotationEuler(final_rotation);
 }
 
 void getGameObjectPosX(WrenVM* vm) {
