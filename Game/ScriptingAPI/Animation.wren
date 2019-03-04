@@ -3,7 +3,7 @@ class AnimationComunicator{
 	foreign static C_SetAnimation(gameObject, component, animation)
 	foreign static C_Play(gameObject, component)
 	foreign static C_Pause(gameObject, component)
-        foreing static C_ResetAnimation(gameObject, component)
+        foreign static C_ResetAnimation(gameObject, component)
 }
 class ComponentAnimation{
 	gameObject { _gameObject}		// UUID of the linked GO
