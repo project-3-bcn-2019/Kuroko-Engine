@@ -1,5 +1,7 @@
 #include "ModuleScripting.h"
 #include "Wren/wren.hpp"
+#include "Wren/wren_value.h"
+#include "Wren/wren_vm.h"
 #include "Applog.h"
 #include "ModuleInput.h"
 #include "ScriptData.h"
