@@ -2200,7 +2200,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				{
 					ImGui::BeginTooltip();
 					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-					ImGui::TextUnformatted("Link the component animation to the\nskeletal animation, if available");
+					auto get = component.getParent()->getComponentByUUID(p_anim_evt->curr->linked_animation);
+					if (get != nullptr)
+						ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
+					else
+						ImGui::TextUnformatted("Link the component animation to the\nskeletal animation, if available");
 					ImGui::PopTextWrapPos();
 					ImGui::EndTooltip();
 				}

@@ -11,7 +11,7 @@
 
 #define MINSPAWNRATE 0.01f
 
-enum AnimEventType {
+enum ParticleAnimEvents {
 	PARTICLE_NONE,
 	PARTICLE_CREATE,
 	PARTICLE_AMOUNT_OF_EVENTS

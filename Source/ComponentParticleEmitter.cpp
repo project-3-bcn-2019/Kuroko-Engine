@@ -411,9 +411,9 @@ std::string ComponentParticleEmitter::EvTypetoString(int evt)
 {
 	switch (evt)
 	{
-	case AnimEventType::PARTICLE_CREATE:
+	case ParticleAnimEvents::PARTICLE_CREATE:
 		return "CREATE";
-	case AnimEventType::PARTICLE_NONE:
+	case ParticleAnimEvents::PARTICLE_NONE:
 		return "NONE";
 	}
 	return "ERROR";
@@ -421,7 +421,7 @@ std::string ComponentParticleEmitter::EvTypetoString(int evt)
 
 int ComponentParticleEmitter::getEvAmount()
 {
-	return AnimEventType::PARTICLE_AMOUNT_OF_EVENTS;
+	return ParticleAnimEvents::PARTICLE_AMOUNT_OF_EVENTS;
 }
 
 void ComponentParticleEmitter::ProcessAnimationEvents(std::map<int, void*>& evts)
@@ -430,7 +430,7 @@ void ComponentParticleEmitter::ProcessAnimationEvents(std::map<int, void*>& evts
 	{
 		switch (it_evt->first)
 		{
-		case AnimEventType::PARTICLE_CREATE:
+		case ParticleAnimEvents::PARTICLE_CREATE:
 			CreateParticle();
 			break;
 		default:

@@ -75,17 +75,17 @@ ComponentAnimationEvent::~ComponentAnimationEvent()
 
 bool ComponentAnimationEvent::Update(float dt)
 {
-	if (!isPaused())
-	{
-		animTime += dt * curr->speed;
-		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
-			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);
-	}
-
 	std::list<Component*> components;
 	parent->getComponents(components);
 	if (curr == nullptr && AnimEvts.size() > 0)
 		curr = &AnimEvts.front();
+
+	if (!isPaused() && curr != nullptr)
+	{
+		animTime += dt * curr->speed;
+		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
+			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);
+	}	
 
 	if (curr != nullptr)
 	{

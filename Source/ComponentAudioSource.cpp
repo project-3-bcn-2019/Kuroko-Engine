@@ -118,13 +118,13 @@ std::string ComponentAudioSource::EvTypetoString(int evt)
 {
 	switch (evt)
 	{
-	case AnimEvent_type::AUDIO_PLAY:
+	case AudioAnimEvents::AUDIO_PLAY:
 		return "PLAY";
-	case AnimEvent_type::AUDIO_STOP:
+	case AudioAnimEvents::AUDIO_STOP:
 		return "STOP";
-	case AnimEvent_type::AUDIO_PAUSE:
+	case AudioAnimEvents::AUDIO_PAUSE:
 		return "PAUSE";
-	case AnimEvent_type::AUDIO_RESUME:
+	case AudioAnimEvents::AUDIO_RESUME:
 		return "RESUME";
 	}
 	return "ERROR";
@@ -132,7 +132,7 @@ std::string ComponentAudioSource::EvTypetoString(int evt)
 
 int ComponentAudioSource::getEvAmount()
 {
-	return AnimEvent_type::AUDIO_AMOUNT_OF_EVENTS;
+	return AudioAnimEvents::AUDIO_AMOUNT_OF_EVENTS;
 }
 
 void ComponentAudioSource::ProcessAnimationEvents(std::map<int, void*>& evts)
@@ -141,16 +141,16 @@ void ComponentAudioSource::ProcessAnimationEvents(std::map<int, void*>& evts)
 	{
 		switch(it_evt->first)
 		{
-		case AnimEvent_type::AUDIO_PLAY:
+		case AudioAnimEvents::AUDIO_PLAY:
 			Play();
 			break;
-		case AnimEvent_type::AUDIO_STOP:
+		case AudioAnimEvents::AUDIO_STOP:
 			Stop();
 			break;
-		case AnimEvent_type::AUDIO_PAUSE:
+		case AudioAnimEvents::AUDIO_PAUSE:
 			Pause();
 			break;
-		case AnimEvent_type::AUDIO_RESUME:
+		case AudioAnimEvents::AUDIO_RESUME:
 			Resume();
 			break;
 		default:
