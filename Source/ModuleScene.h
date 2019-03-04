@@ -1,6 +1,7 @@
 #ifndef __MODULE_SCENE
 #define __MODULE_SCENE
 #include "Module.h"
+#include "MathGeoLib\Geometry\Polygon.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Math\float3.h"
