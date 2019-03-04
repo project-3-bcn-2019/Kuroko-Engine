@@ -21,7 +21,7 @@ PanelObjectInspector::~PanelObjectInspector()
 
 void PanelObjectInspector::Draw()
 {
-	ImGui::Begin("Object inspector", &active);
+	ImGui::Begin("Object Inspector", &active);
 	//ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool select_script = false;

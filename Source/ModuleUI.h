@@ -1,5 +1,6 @@
 #ifndef __MODULE_IMGUI
 #define __MODULE_IMGUI
+
 #include "Module.h"
 #include "Globals.h"
 #include "ImGui/imgui.h"
@@ -25,6 +26,8 @@ class PanelAnimation;
 class PanelAnimationEvent;
 class PanelHierarchyTab;
 class PanelObjectInspector;
+class PanelAssetsWin;
+class PanelPrimitives;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -55,7 +58,7 @@ public:
 	void DrawObjectInspectorTab();								//PANEL DONE
 	bool DrawComponent(Component& component, int id);
 	//void DrawAudioTab();
-	void DrawPrimitivesTab();
+	void DrawPrimitivesTab();									//PANEL DONE
 	void DrawGraphicsLeaf() const;
 	void DrawAboutLeaf();
 	void DrawWindowConfigLeaf() const;
@@ -68,8 +71,8 @@ public:
 	void DrawQuadtreeConfigWindow();
 	void DrawCameraMenuWindow();
 	void DrawViewportsWindow();
-	void DrawAssetsWindow();
-	void DrawAssetInspector();
+	void DrawAssetsWindow();									//PANEL DONE
+	void DrawAssetInspector();									//PANEL DONE
 	void DrawResourcesWindow(); // A list where you can see all the resources
 	void DrawSkyboxWindow();
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
@@ -94,6 +97,8 @@ public:
 	PanelAnimationEvent* p_anim_evt = nullptr;
 	PanelHierarchyTab* p_hierarchy = nullptr;
 	PanelObjectInspector* p_inspector = nullptr;
+	PanelAssetsWin* p_assetswindow = nullptr;
+	PanelPrimitives* p_primitives = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW

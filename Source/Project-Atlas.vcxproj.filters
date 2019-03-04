@@ -597,7 +597,10 @@
     <ClInclude Include="PanelObjectInspector.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
-    <ClInclude Include="PanelAssetsWin.h" />
+    <ClInclude Include="PanelAssetsWin.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelPrimitives.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -990,7 +993,10 @@
     <ClCompile Include="PanelObjectInspector.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
-    <ClCompile Include="PanelAssetsWin.cpp" />
+    <ClCompile Include="PanelAssetsWin.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelPrimitives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MathGeoLib\Math\Matrix.inl">

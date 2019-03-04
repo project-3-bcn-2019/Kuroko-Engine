@@ -214,6 +214,7 @@
     <ClInclude Include="PanelAssetsWin.h" />
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
+    <ClInclude Include="PanelPrimitives.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
@@ -346,6 +347,7 @@
     <ClCompile Include="PanelAssetsWin.cpp" />
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
+    <ClCompile Include="PanelPrimitives.cpp" />
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PCG Random\pcg_basic.c" />
