@@ -1,0 +1,229 @@
+{
+    "Game Objects": [
+        {
+            "name": "Floor",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 364652538,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 0.25,
+                        "sz": 50,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 0.25,
+                        "sz": 50,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1316713983,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 5,
+                        "pz": -25,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 5,
+                        "pz": -25,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2346065998,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 5,
+                        "pz": 25,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 5,
+                        "pz": 25,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4283653192,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 25,
+                        "py": 5,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0.70698469877243042,
+                        "qz": 0,
+                        "qw": 0.70722883939743042
+                    },
+                    "global": {
+                        "px": 25,
+                        "py": 5,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0.70698469877243042,
+                        "qz": 0,
+                        "qw": 0.70722883939743042
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cube",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 73373461,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -25,
+                        "py": 5,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0.70698469877243042,
+                        "qz": 0,
+                        "qw": 0.70722883939743042
+                    },
+                    "global": {
+                        "px": -25,
+                        "py": 5,
+                        "pz": 0,
+                        "sx": 50,
+                        "sy": 10,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0.70698469877243042,
+                        "qz": 0,
+                        "qw": 0.70722883939743042
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    }
+                }
+            ]
+        }
+    ]
+}
