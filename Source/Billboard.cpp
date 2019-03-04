@@ -57,7 +57,7 @@ Billboard::Billboard(Component* p_component, Mesh* _mesh, JSON_Object* deff)
 
 	alignment = (Alignment)((int)json_object_dotget_number(deff, "Alignment"));
 
-	Material* material = new Material();
+	material = new Material();
 	// ASSIGNING RESOURCE
 
 	const char* diffuse_path = json_object_dotget_string(deff, "material.diffuse");
