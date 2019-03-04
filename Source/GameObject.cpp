@@ -495,6 +495,7 @@ void GameObject::Save(JSON_Object * config) {
 	for (auto it = components.begin(); it != components.end(); it++) {
 		JSON_Value* curr_component = json_value_init_object(); // Create new components 
 		(*it)->Save(json_object(curr_component));			   // Save component
+		(*it)->SaveCompUUID(json_object(curr_component));
 		json_array_append_value(json_array(component_array), curr_component); // Add them to array
 	}
 

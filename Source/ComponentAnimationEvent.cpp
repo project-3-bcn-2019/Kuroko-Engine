@@ -13,33 +13,38 @@ ComponentAnimationEvent::ComponentAnimationEvent(JSON_Object* deff, GameObject* 
 	{
 		AnimSet push;
 
-		push.loop = json_object_get_boolean(deff, "loop");
-		push.speed = json_object_get_number(deff, "speed");
+		JSON_Object* AnimSet = json_value_get_object(json_array_get_value(AnimArr, i));
+
+		push.loop = json_object_get_boolean(AnimSet, "loop");
+		push.speed = json_object_get_number(AnimSet, "speed");
 
 		// resource if needed
 
-		push.own_ticks = json_object_get_number(deff, "own_ticks");
-		push.ticksXsecond = json_object_get_number(deff, "ticksXsecond");
+		push.own_ticks = json_object_get_number(AnimSet, "own_ticks");
+		push.ticksXsecond = json_object_get_number(AnimSet, "ticksXsecond");
 
-		push.name = json_object_get_string(deff, "name");
-		push.linked_animation = json_object_get_number(deff, "linked_animation");
+		push.name = json_object_get_string(AnimSet, "name");
+		push.linked_animation = json_object_get_number(AnimSet, "linked_animation");
 
-		JSON_Value* comp_arr_val = json_object_get_value(deff, "comp_arr");
-		JSON_Array* comp_arr = json_value_get_array(comp_arr_val);
+		JSON_Array* comp_arr = json_value_get_array(json_object_get_value(AnimSet, "comp_arr"));
 
 		for (int i = 0; i < json_array_get_count(comp_arr); ++i)
 		{
 			JSON_Object* comp_obj = json_value_get_object(json_array_get_value(comp_arr, i));
-			JSON_Value* keys_arr_val = json_object_get_value(comp_obj, "keys_array");
-			JSON_Array* keys_arr = json_value_get_array(keys_arr_val);
+			JSON_Array* keys_arr = json_value_get_array(json_object_get_value(comp_obj, "keys_array"));
 
 			std::pair<uint, KeyMap> push_comp_anim;
+			
+			push_comp_anim.first = json_object_get_number(comp_obj, "obj_uuid");
+			
 			for (int j = 0; j < json_array_get_count(keys_arr); ++j)
 			{
 				JSON_Object* key_obj = json_value_get_object(json_array_get_value(keys_arr, j));
 				JSON_Value* events_arr_val = json_object_get_value(key_obj, "event_array");
 				JSON_Array* events_arr = json_value_get_array(events_arr_val);
 				std::pair<double, std::map<int, void*>> push_key;
+
+				push_key.first = json_object_get_number(key_obj, "keyframe");
 
 				for (int k = 0; k < json_array_get_count(events_arr); ++k)
 				{
@@ -51,12 +56,10 @@ ComponentAnimationEvent::ComponentAnimationEvent(JSON_Object* deff, GameObject* 
 
 					push_key.second.insert(push_evt);
 				}
-				push_key.first = json_object_get_number(key_obj, "keyframe");
-
+				
 				push_comp_anim.second.insert(push_key);
 			}
-			push_comp_anim.first = json_object_get_number(comp_obj, "obj_uuid");
-
+			
 			push.AnimEvts.insert(push_comp_anim);
 		}
 
@@ -80,16 +83,18 @@ bool ComponentAnimationEvent::Update(float dt)
 	if (curr == nullptr && AnimEvts.size() > 0)
 		curr = &AnimEvts.front();
 
-	if (!isPaused() && curr != nullptr)
+	if (App->time->getGameState() == PLAYING && curr != nullptr)
 	{
 		animTime += dt * curr->speed;
 		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
 			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);
+
+		CheckLinkAnim();
 	}	
 
 	if (curr != nullptr)
 	{
-		CheckLinkAnim();
+		
 		for (auto it = curr->AnimEvts.begin(); it != curr->AnimEvts.end(); ++it)
 		{
 			for (auto it_components = components.begin(); it_components != components.end(); ++it_components)
@@ -178,7 +183,9 @@ void ComponentAnimationEvent::Save(JSON_Object* config)
 
 			json_array_append_value(comp_arr, comp_val);
 		}
-		json_array_append_value(AnimArr, comp_arr_val);
+
+		json_object_set_value(AnimSetObj, "comp_arr", comp_arr_val);
+		json_array_append_value(AnimArr, AnimSetVal);
 	}
 	json_object_set_value(config, "AnimArr", AnimList);
 }
