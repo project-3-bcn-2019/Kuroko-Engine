@@ -15,7 +15,7 @@
 //CAkDefaultIOHookBlocking g_defaultIO;
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
-#define BANKNAME_INIT "Assets/Audio/Init.bnk"
+#define BANKNAME_INIT "Init"
 
 //Initialize all Wwise modules. Receives the base path for soundbanks and the current language
 bool Wwise::InitWwise()

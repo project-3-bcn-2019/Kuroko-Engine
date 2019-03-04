@@ -74,6 +74,8 @@ public:
 	void DrawScriptEditor();
 	void DrawBuildMenu();
 
+	uint getMainScene() const;
+
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
 
@@ -108,7 +110,7 @@ private:
 	std::string asset_window_path = ASSETS_FOLDER;
 	std::string selected_asset;
 
-	std::list<std::string> build_scenes;
+	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;
 };
 #endif

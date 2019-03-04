@@ -13,7 +13,11 @@ ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): C
 	speed = json_object_get_number(deff, "speed");
 
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-	if (parent3dobject) // Means that is being loaded from a scene
+	if (App->is_game)
+	{
+		animation_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "animation_name"), R_ANIMATION);
+	}
+	else if (parent3dobject) // Means that is being loaded from a scene
 		animation_resource_uuid = App->resources->getAnimationResourceUuid(parent3dobject, json_object_get_string(deff, "animation_name"));
 	else // Means it is being loaded from a 3dObject binary
 		animation_resource_uuid = json_object_get_number(deff, "animation_resource_uuid");

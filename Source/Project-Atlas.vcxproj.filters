@@ -591,6 +591,9 @@
     <ClInclude Include="Wwise_IDs.h">
       <Filter>Sources\Wwise</Filter>
     </ClInclude>
+    <ClInclude Include="PanelHierarchyTab.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -976,6 +979,9 @@
     </ClCompile>
     <ClCompile Include="ResourceAudio.cpp">
       <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelHierarchyTab.cpp">
+      <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

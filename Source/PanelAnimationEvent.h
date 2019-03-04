@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __PANELANIMATIONEVENT_H__
+#define __PANELANIMATIONEVENT_H__
 #include "Panel.h"
 #include <list>
 #include "ComponentAnimationEvent.h"
@@ -79,3 +79,5 @@ public:
 		new_key_frame = 0;
 	}
 };
+
+#endif

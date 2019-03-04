@@ -81,7 +81,7 @@ update_status ModuleCamera3D::Update(float dt)
 	updateFOVfromWindow();
 
 	// Not allow camera to be modified if UI is being operated
-	if (selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
+	if (true && selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
 	{
 		// Movement
 		float3 displacement = float3::zero;

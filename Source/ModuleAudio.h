@@ -6,6 +6,7 @@
 
 
 #define DEFAULT_VOLUME 75
+#define SOUNDBANKSINFO "Assets\\Audio\\SoundbanksInfo.json"
 
 
 class ModuleAudio : public Module {

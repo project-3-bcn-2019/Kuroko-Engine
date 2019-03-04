@@ -30,7 +30,11 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-		if (parent3dobject) // Means that is being loaded from a scene
+		if (App->is_game)
+		{
+			setMeshResourceId(App->resources->getResourceUuid(json_object_get_string(deff, "mesh_name"), R_MESH));		
+		}
+		else if (parent3dobject) // Means that is being loaded from a scene
 			mesh_resource_uuid = App->resources->getMeshResourceUuid(parent3dobject, json_object_get_string(deff, "mesh_name"));
 		else // Means it is being loaded from a 3dObject binary
 			mesh_resource_uuid = json_object_get_number(deff, "mesh_resource_uuid");
@@ -184,7 +188,9 @@ Mesh* ComponentMesh::getMesh() const {
 }
 void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 
+	App->resources->deasignResource(mesh_resource_uuid);
 	mesh_resource_uuid = _mesh_resource_uuid;
+	App->resources->assignResource(mesh_resource_uuid);
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->Reload();
 
 	components_bones.clear();
@@ -256,10 +262,11 @@ void ComponentMesh::Skining() const
 				if (rBone != nullptr)
 				{
 					hasBones = true;
-					Transform offset;
-					offset.setMatrix(rBone->Offset);
-					offset.setScale(offset.getScale()*1000.f);
-					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*offset.getMatrix().Inverted();
+					float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
+					float3 pos, scale;
+					Quat rot;
+					((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix().Decompose(pos, rot, scale);
+					scale = scale;
 
 					for (int j = 0; j < rBone->numWeights; j++)
 					{
@@ -268,7 +275,8 @@ void ComponentMesh::Skining() const
 
 						if (VertexIndex >= mesh->mesh->getNumVertices())
 							continue;
-						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+						float3 startingVertex(mesh->mesh->getVertices()[VertexIndex]);
+						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex] + mesh->mesh->getCentroid());
 
 						/*vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
 						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;
