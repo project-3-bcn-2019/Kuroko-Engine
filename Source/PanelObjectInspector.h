@@ -15,10 +15,8 @@ public:
 
 	void Draw();
 
+private:
 	void DrawTagSelection(GameObject * object);
-
-public:
-	//bool disable_keyboard_control = false;
 };
 
 #endif

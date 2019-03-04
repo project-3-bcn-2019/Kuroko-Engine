@@ -68,6 +68,7 @@
 #include "PanelAnimation.h"
 #include "PanelAnimationEvent.h"
 #include "PanelHierarchyTab.h"
+#include "PanelObjectInspector.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -79,6 +80,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_anim = new PanelAnimation("AnimEditor");
 	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
 	p_hierarchy = new PanelHierarchyTab("Hierarchy", true);
+	p_inspector = new PanelObjectInspector("Object Inspector", true);
 
 }
 
@@ -216,8 +218,8 @@ update_status ModuleUI::Update(float dt) {
 		Camera* prev_selected = App->camera->background_camera;
 		App->camera->selected_camera = nullptr;
 
-		if (open_tabs[OBJ_INSPECTOR])
-			DrawObjectInspectorTab();
+		if (p_inspector->isActive())
+			p_inspector->Draw();
 
 		if (!App->camera->selected_camera)
 			App->camera->selected_camera = prev_selected;
@@ -692,105 +694,105 @@ bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id)
 
 void ModuleUI::DrawObjectInspectorTab()
 {
-	ImGui::Begin("Object inspector", &open_tabs[OBJ_INSPECTOR]);
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	//ImGui::Begin("Object inspector", &open_tabs[OBJ_INSPECTOR]);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
 
-	static bool select_script = false;
-	static bool select_audio = false;
-	if (App->scene->selected_obj.size() == 1) {
-		GameObject* selected_obj = (*App->scene->selected_obj.begin());
+	//static bool select_script = false;
+	//static bool select_audio = false;
+	//if (App->scene->selected_obj.size() == 1) {
+	//	GameObject* selected_obj = (*App->scene->selected_obj.begin());
 
-		if (selected_obj)
-		{
-			ImGui::Text("Name: %s", selected_obj->getName().c_str());
+	//	if (selected_obj)
+	//	{
+	//		ImGui::Text("Name: %s", selected_obj->getName().c_str());
 
-			ImGui::Checkbox("Active", &selected_obj->is_active);
-			ImGui::SameLine();
-			if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
-				App->scene->quadtree_reload = true;
+	//		ImGui::Checkbox("Active", &selected_obj->is_active);
+	//		ImGui::SameLine();
+	//		if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
+	//			App->scene->quadtree_reload = true;
 
-			DrawTagSelection(selected_obj);
-			// Add a new tag
-			static char new_tag[64];
-			ImGui::InputText("New Tag", new_tag, 64);
-			if (ImGui::Button("Add Tag")) {
-				App->scripting->tags.push_back(new_tag);
-				for (int i = 0; i < 64; i++)
-					new_tag[i] = '\0';
+	//		DrawTagSelection(selected_obj);
+	//		// Add a new tag
+	//		static char new_tag[64];
+	//		ImGui::InputText("New Tag", new_tag, 64);
+	//		if (ImGui::Button("Add Tag")) {
+	//			App->scripting->tags.push_back(new_tag);
+	//			for (int i = 0; i < 64; i++)
+	//				new_tag[i] = '\0';
 
-			}
+	//		}
 
-			if (ImGui::CollapsingHeader("Add component"))
-			{
-				if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
-				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
-				if (ImGui::Button("Add Script")) select_script = true;
-				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
-				if (ImGui::Button("Add Audio Source")) select_audio = true;
-				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
-				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
-				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-				if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
-			}
+	//		if (ImGui::CollapsingHeader("Add component"))
+	//		{
+	//			if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
+	//			if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
+	//			if (ImGui::Button("Add Script")) select_script = true;
+	//			if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
+	//			if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
+	//			if (ImGui::Button("Add Audio Source")) select_audio = true;
+	//			if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
+	//			if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
+	//			if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
+	//			if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
+	//		}
 
-			std::list<Component*> components;
-			selected_obj->getComponents(components);
+	//		std::list<Component*> components;
+	//		selected_obj->getComponents(components);
 
-			std::list<Component*> components_to_erase;
-			int id = 0;
-			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-				if (!DrawComponent(*(*it), id))
-					components_to_erase.push_back(*it);
-				id++;
-			}
+	//		std::list<Component*> components_to_erase;
+	//		int id = 0;
+	//		for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
+	//			if (!DrawComponent(*(*it), id))
+	//				components_to_erase.push_back(*it);
+	//			id++;
+	//		}
 
-			for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
-				selected_obj->removeComponent(*it);
+	//		for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
+	//			selected_obj->removeComponent(*it);
 
-			if (select_script) {
-				std::list<resource_deff> script_res;
-				App->resources->getScriptResourceList(script_res);
+	//		if (select_script) {
+	//			std::list<resource_deff> script_res;
+	//			App->resources->getScriptResourceList(script_res);
 
-				ImGui::Begin("Script selector", &select_script);
-				for (auto it = script_res.begin(); it != script_res.end(); it++) {
-					resource_deff script_deff = (*it);
-					if (ImGui::MenuItem(script_deff.asset.c_str())) {
-						ComponentScript* c_script = (ComponentScript*)selected_obj->addComponent(SCRIPT);
-						c_script->assignScriptResource(script_deff.uuid);
-						select_script = false;
-						break;
-					}
-				}
+	//			ImGui::Begin("Script selector", &select_script);
+	//			for (auto it = script_res.begin(); it != script_res.end(); it++) {
+	//				resource_deff script_deff = (*it);
+	//				if (ImGui::MenuItem(script_deff.asset.c_str())) {
+	//					ComponentScript* c_script = (ComponentScript*)selected_obj->addComponent(SCRIPT);
+	//					c_script->assignScriptResource(script_deff.uuid);
+	//					select_script = false;
+	//					break;
+	//				}
+	//			}
 
-				ImGui::End();
-			}
+	//			ImGui::End();
+	//		}
 
-			if (select_audio)
-			{
-				ImGui::Begin("Select Audio Event", &select_audio);
-				if (ImGui::MenuItem("NONE"))
-				{
-					selected_obj->addComponent(AUDIOSOURCE);
-					select_audio = false;
-				}
-				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+	//		if (select_audio)
+	//		{
+	//			ImGui::Begin("Select Audio Event", &select_audio);
+	//			if (ImGui::MenuItem("NONE"))
+	//			{
+	//				selected_obj->addComponent(AUDIOSOURCE);
+	//				select_audio = false;
+	//			}
+	//			for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 
-					if (ImGui::MenuItem((*it).c_str())) {
-						ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
-						c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
-						c_source->SetSoundName((*it).c_str());
-						select_audio = false;
-						break;
-					}
-				}
-				ImGui::End();
-			}
-		}
-	}
+	//				if (ImGui::MenuItem((*it).c_str())) {
+	//					ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
+	//					c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+	//					c_source->SetSoundName((*it).c_str());
+	//					select_audio = false;
+	//					break;
+	//				}
+	//			}
+	//			ImGui::End();
+	//		}
+	//	}
+	//}
 
-	ImGui::PopFont();
-	ImGui::End();
+	//ImGui::PopFont();
+	//ImGui::End();
 
 }
 

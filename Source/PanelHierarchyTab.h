@@ -14,10 +14,10 @@ public:
 	~PanelHierarchyTab();
 
 	void Draw();
+
+private:
 	bool DrawHierarchyNode(GameObject & game_object, int & id);
 
-public:
-	//bool disable_keyboard_control = false;
 };
 
 #endif
