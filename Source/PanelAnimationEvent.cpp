@@ -73,7 +73,7 @@ void PanelAnimationEvent::Draw()
 	{
 		if (ImGui::BeginCombo("Components", selected_component->TypeToString().c_str()))
 		{
-			//c_AnimEvt->getParent()->getComponents(par_components);
+			c_AnimEvt->getParent()->getComponents(par_components);
 
 			for (std::list<Component*>::iterator it = par_components.begin(); it != par_components.end(); ++it)
 				if (it._Ptr->_Myval->getType() != Component_type::ANIMATION && it._Ptr->_Myval->getType() != Component_type::ANIMATION_EVENT && ImGui::Selectable(it._Ptr->_Myval->TypeToString().c_str(), &it._Ptr->_Myval->AnimSel)) {
@@ -82,7 +82,7 @@ void PanelAnimationEvent::Draw()
 				}
 			ImGui::EndCombo();
 
-			//par_components.clear();
+			par_components.clear();
 		}
 
 		if (selected_component->getType() != Component_type::ANIMATION && selected_component->getType() != Component_type::ANIMATION_EVENT)

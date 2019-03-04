@@ -2144,7 +2144,9 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	{
 		if (ImGui::CollapsingHeader("Animation Events"))
 		{
-			ComponentAnimationEvent* anim_evt = (ComponentAnimationEvent*)&component;
+
+			ComponentAnimationEvent* anim_evt = nullptr;
+			anim_evt = (ComponentAnimationEvent*)&component;
 			//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
 			//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
 
@@ -2166,6 +2168,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 
 					anim_evt->AnimEvts.push_back(push);
+					if(anim_evt->curr != nullptr)
+						anim_evt->curr->selected = false;
 					anim_evt->curr = &anim_evt->AnimEvts.back();
 					p_anim_evt->curr = --anim_evt->AnimEvts.end();
 					//p_anim_evt->prov = "\0";
@@ -2176,25 +2180,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			
 			if (anim_evt->curr == nullptr && anim_evt->AnimEvts.size() > 0)
 			{
-				if (ImGui::BeginCombo("Animation Sets", "Select Animation"))
-				{
-
-					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
-						if (ImGui::Selectable(it->name.c_str(), &it->selected))
-						{
-							anim_evt->curr->selected = false;
-							anim_evt->curr = &it._Ptr->_Myval;
-						}
-					ImGui::EndCombo();
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button("Delete"))
-					anim_evt->AnimEvts.erase(p_anim_evt->curr);
-			}
-
-			if (anim_evt->curr != nullptr)
-			{
 				if (ImGui::BeginCombo("Animation Sets", anim_evt->curr->name.c_str()))
 				{
 
@@ -2203,6 +2188,45 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 						{
 							anim_evt->curr->selected = false;
 							anim_evt->curr = &it._Ptr->_Myval;
+							anim_evt->curr->selected = true;
+
+							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+								if (&it._Ptr->_Myval == anim_evt->curr)
+								{
+									p_anim_evt->curr = it;
+									break;
+								}
+						}
+					ImGui::EndCombo();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("Delete"))
+				{
+					anim_evt->AnimEvts.erase(p_anim_evt->curr);
+					anim_evt->curr = nullptr;
+					p_anim_evt->curr = anim_evt->AnimEvts.end();
+				}
+			}
+
+			if (anim_evt->curr != nullptr)
+			{
+				if (ImGui::BeginCombo("Animation Sets##12", anim_evt->curr->name.c_str()))
+				{
+
+					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+						if (ImGui::Selectable(it->name.c_str(), &it->selected))
+						{
+							anim_evt->curr->selected = false;
+							anim_evt->curr = &it._Ptr->_Myval;
+							anim_evt->curr->selected = true;
+
+							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+								if (&it._Ptr->_Myval == anim_evt->curr)
+								{
+									p_anim_evt->curr = it;
+									break;
+								}
 						}
 					ImGui::EndCombo();
 				}
@@ -2212,11 +2236,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				{
 					ImGui::BeginTooltip();
 					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-					auto get = component.getParent()->getComponentByUUID(p_anim_evt->curr->linked_animation);
+					auto get = component.getParent()->getComponent(Component_type::ANIMATION);
 					if (get != nullptr)
 						ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
 					else
-						ImGui::TextUnformatted("Link the component animation to the\nskeletal animation, if available");
+						ImGui::TextUnformatted(("No Animation to link to"));
 					ImGui::PopTextWrapPos();
 					ImGui::EndTooltip();
 				}
