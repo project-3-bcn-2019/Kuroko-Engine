@@ -6,10 +6,6 @@
 
 extern "C" {
   #include "wren.h"
-  #include "wren_value.h"
-  #include "wren_vm.h"
 }
-
-
 
 #endif

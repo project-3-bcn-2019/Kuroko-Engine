@@ -519,6 +519,8 @@ static bool findEntry(MapEntry* entries, uint32_t capacity, Value key,
 static bool insertEntry(MapEntry* entries, uint32_t capacity,
                         Value key, Value value)
 {
+  ASSERT(entries != NULL, "Should ensure capacity before inserting.");
+  
   MapEntry* entry;
   if (findEntry(entries, capacity, key, &entry))
   {
@@ -528,7 +530,6 @@ static bool insertEntry(MapEntry* entries, uint32_t capacity,
   }
   else
   {
-    ASSERT(entry != NULL, "Should ensure capacity before inserting.");
     entry->key = key;
     entry->value = value;
     return true;
@@ -798,6 +799,15 @@ Value wrenStringFromCodePoint(WrenVM* vm, int value)
   wrenUtf8Encode(value, (uint8_t*)string->value);
   hashString(string);
 
+  return OBJ_VAL(string);
+}
+
+Value wrenStringFromByte(WrenVM *vm, uint8_t value)
+{
+  int length = 1;
+  ObjString* string = allocateString(vm, length);
+  string->value[0] = value;
+  hashString(string);
   return OBJ_VAL(string);
 }
 
