@@ -125,7 +125,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (selected_obj.size() && current == *selected_obj.begin()) 
+		if (!selected_obj.empty() && current == *selected_obj.begin()) 
 			selected_obj.clear();
 		game_objects.remove(current);
 

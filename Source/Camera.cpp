@@ -87,13 +87,15 @@ void Camera::LookAtSelectedGeometry()
 
 void Camera::FitToSizeSelectedGeometry(float distance)
 {
-	if (GameObject* selected_obj = *App->scene->selected_obj.begin())
-	{
-		AABB* aabb = ((ComponentAABB*)selected_obj->getComponent(C_AABB))->getAABB(); 
+	if (!App->scene->selected_obj.empty()) {
+		GameObject* selected_obj = *App->scene->selected_obj.begin();
+
+		AABB* aabb = ((ComponentAABB*)selected_obj->getComponent(C_AABB))->getAABB();
 		float3 new_pos = aabb->Centroid() + aabb->HalfSize() + float3(distance, distance, distance);
 		new_pos = Quat::RotateY(((ComponentTransform*)selected_obj->getComponent(TRANSFORM))->global->getRotationEuler().y) * new_pos;
 		frustum->pos = new_pos;
 		LookAt(selected_obj->getCentroid());
+
 	}
 	else
 		LookAt(float3::zero);
