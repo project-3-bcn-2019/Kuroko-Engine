@@ -31,22 +31,31 @@ bool PanelAnimationEvent::fillInfo()
 
 	if (selected_obj != nullptr)
 	{
-		c_AnimEvt = (ComponentAnimationEvent*)selected_obj->getComponent(Component_type::ANIMATION_EVENT);
-
-		if (c_AnimEvt != nullptr)
+		auto get = (ComponentAnimationEvent*)selected_obj->getComponent(Component_type::ANIMATION_EVENT);
+		if (get != c_AnimEvt)
 		{
-			if (selected_component == nullptr)
-				selected_component = c_AnimEvt->getParent()->getComponent(Component_type::TRANSFORM);
-			/*uint get_uid = c_AnimEvt->getAnimationResource();
-			animation = (ResourceAnimation*)App->resources->getResource(c_AnimEvt->getAnimationResource());
+			c_AnimEvt = get;
+			c_AnimEvt->getParent()->getComponents(par_components);
+			selected_component = (ComponentAnimation*)par_components.front();
 			
-			numFrames = 0;
-			if (animation != nullptr)
-				numFrames = animation->ticks;
-			// Create a new Animation Resource that will control the animation of this node
-			*/
-			ret = true;
+				/*uint get_uid = c_AnimEvt->getAnimationResource();
+				animation = (ResourceAnimation*)App->resources->getResource(c_AnimEvt->getAnimationResource());
+
+				numFrames = 0;
+				if (animation != nullptr)
+					numFrames = animation->ticks;
+				// Create a new Animation Resource that will control the animation of this node
+				*/
+				
+			}
 		}
+
+	if (c_AnimEvt != nullptr)
+	{
+		if (selected_component == nullptr)
+			selected_component = c_AnimEvt->getParent()->getComponent(Component_type::TRANSFORM);
+
+		ret = true;
 	}
 
 	return ret;
@@ -64,7 +73,7 @@ void PanelAnimationEvent::Draw()
 	{
 		if (ImGui::BeginCombo("Components", selected_component->TypeToString().c_str()))
 		{
-			c_AnimEvt->getParent()->getComponents(par_components);
+			//c_AnimEvt->getParent()->getComponents(par_components);
 
 			for (std::list<Component*>::iterator it = par_components.begin(); it != par_components.end(); ++it)
 				if (it._Ptr->_Myval->getType() != Component_type::ANIMATION && it._Ptr->_Myval->getType() != Component_type::ANIMATION_EVENT && ImGui::Selectable(it._Ptr->_Myval->TypeToString().c_str(), &it._Ptr->_Myval->AnimSel)) {
@@ -73,7 +82,7 @@ void PanelAnimationEvent::Draw()
 				}
 			ImGui::EndCombo();
 
-			par_components.clear();
+			//par_components.clear();
 		}
 
 		if (selected_component->getType() != Component_type::ANIMATION && selected_component->getType() != Component_type::ANIMATION_EVENT)
