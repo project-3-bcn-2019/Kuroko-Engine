@@ -1,7 +1,13 @@
 #include "PanelSkyboxWin.h"
 #include "Application.h"
 #include "ModuleScene.h"
+#include "ModuleUI.h"
+#include "Material.h"
 #include "Skybox.h"
+#include "ModuleImporter.h"
+
+//#include "WinItemDialog.h" 
+
 
 PanelSkyboxWin::PanelSkyboxWin(const char * name, bool active): Panel(name)
 {
@@ -36,7 +42,7 @@ void PanelSkyboxWin::Draw()
 	//			draw_colorpicker = !draw_colorpicker;
 
 	//		if (draw_colorpicker)
-	//			DrawColorPickerWindow("Skybox color picker", (Color*)&skybox->color, &draw_colorpicker, (Color*)&reference_color);
+	//			App->gui->DrawColorPickerWindow("Skybox color picker", (Color*)&skybox->color, &draw_colorpicker, (Color*)&reference_color);
 	//		else
 	//			reference_color = skybox->color;
 	//	}
@@ -65,7 +71,7 @@ void PanelSkyboxWin::Draw()
 
 	//			if (ImGui::TreeNode(label))
 	//			{
-	//				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(64, 64));
+	//				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(64, 64));
 	//				ImGui::SameLine();
 
 	//				int w = 0; int h = 0;
