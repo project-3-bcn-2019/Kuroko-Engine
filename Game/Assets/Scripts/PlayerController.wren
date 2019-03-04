@@ -197,7 +197,7 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("RunningAnimation2013")
+        _player.ComponentAnimation.setAnimation("RunningAnimation")
         _player.ComponentAnimation.Play()
     }
 
