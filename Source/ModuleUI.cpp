@@ -2300,7 +2300,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					}
 
 					ImGui::Text("Animation info:");
-					ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
+					if(anim_evt->curr->ticksXsecond != 0)
+						ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
 					//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
 				}
 

@@ -133,7 +133,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 {
 	for (auto cam = App->camera->game_cameras.begin(); cam != App->camera->game_cameras.end(); ++cam)
 	{	
-		if (!(*cam)->IsViewport() || (!(*cam)->active && !(*cam)->draw_in_UI))
+		if ((!(*cam)->IsViewport() && App->is_game) || (!(*cam)->active && !(*cam)->draw_in_UI) || (*cam) == App->camera->editor_camera)
 			continue;
 
 		Draw(*cam);	
