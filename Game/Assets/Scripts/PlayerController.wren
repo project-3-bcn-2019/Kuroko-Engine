@@ -72,8 +72,8 @@ class PlayerController is ObjectLinker{
         _move_direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
         _move_direction.x = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
 
-        if(_move_direction.y < 0.1 && _move_direction.y > -0.1)   _move_direction.y = 0.0
-        if(_move_direction.x < 0.1 && _move_direction.x > -0.1)   _move_direction.x = 0.0
+        if(_move_direction.y < 0.2 && _move_direction.y > -0.2)   _move_direction.y = 0.0
+        if(_move_direction.x < 0.2 && _move_direction.x > -0.2)   _move_direction.x = 0.0
     }
 
     modPos(x,y,z) {
