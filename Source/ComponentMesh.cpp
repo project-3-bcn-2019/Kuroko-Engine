@@ -166,16 +166,16 @@ void ComponentMesh::DrawSelected() const
 
 bool ComponentMesh::Update(float dt)
 {
+
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{
 		setMeshResourceId(mesh_resource_uuid);
 
-		RELEASE_ARRAY(boneTransforms);
-
-		boneTransforms = new float[components_bones.size()*16];
-
 		ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
 
+		RELEASE_ARRAY(boneTransforms);
+
+		boneTransforms = new float[components_bones.size() * 16];
 
 		if (mesh != nullptr)
 		{
@@ -318,6 +318,10 @@ void ComponentMesh::Skining() const
 
 		/*mesh->mesh->updateVRAM();*/
 	}
+}
+
+void ComponentMesh::CleanBoneTransforms()
+{
 }
 
 void ComponentMesh::Save(JSON_Object* config) {

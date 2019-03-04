@@ -147,7 +147,8 @@ void ModuleShaders::CreateDefVertexShader()
 		"{\n"
 			"if(Weights[i]!=0)\n"
 			"{\n"
-				"mat4 boneTransform = gBones[BoneIDs[i]];\n"
+				"int indx=int(BoneIDs[i]);\n"
+				"mat4 boneTransform = gBones[indx];\n"
 				"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
 				"totalLocalPos += posePosition*Weights[i];\n"
 

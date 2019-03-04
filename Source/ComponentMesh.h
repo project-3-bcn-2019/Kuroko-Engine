@@ -33,6 +33,7 @@ public:
 	std::string PrimitiveType2primitiveString(PrimitiveTypes type);
 
 	void Skining() const;
+	void CleanBoneTransforms();
 
 	void Save(JSON_Object* config);
 

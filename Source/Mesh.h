@@ -126,6 +126,8 @@ private:
 	Vertex* MeshGPU = nullptr;
 	int meshgpucounter = 0;
 
+	bool test = false;
+
 public:
 	Color tint_color = White;
 };

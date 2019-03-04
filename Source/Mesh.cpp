@@ -272,7 +272,7 @@ void Mesh::FillMeshGPU()
 	float4 color = { *colors, 1.0f };
 	for (int i = 0; i < num_vertices; i++)
 	{
-		MeshGPU[i].Assign(vertices[i], color);
+		MeshGPU[i].Assign(vertices[i]+centroid, color);
 
 		MeshGPU[i].tex_coords = tex_coords[i];
 
@@ -288,6 +288,9 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 		glDeleteBuffers(1, &vboId);
 	if (vaoId != 0)
 		glDeleteVertexArrays(1, &vaoId);
+
+	RELEASE_ARRAY(MeshGPU);
+	MeshGPU = new Vertex[num_vertices];
 
 	for (int i = 0; i<bones.size(); ++i)
 	{
@@ -320,7 +323,7 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 
 void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, float* global_transform, float* boneTrans, uint numBones, bool draw_as_selected) const
 {
-	float3 lightPosition = { 0.0f,10.0f,10.0f };
+	float3 lightPosition = { 0.0f,10.0f,0.0f };
 	float3 lightColors = { 1.0f,1.0f,1.0f };
 
 	//Texture* diffuse_tex = mat ? mat->getTexture(DIFFUSE) : nullptr;
