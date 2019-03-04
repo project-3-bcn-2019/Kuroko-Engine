@@ -77,9 +77,9 @@ bool ComponentAnimationEvent::Update(float dt)
 {
 	if (!isPaused())
 	{
-		animTime += dt * speed;
-		if (animTime * ticksXsecond > own_ticks && loop)
-			animTime -= (own_ticks / (float)ticksXsecond);
+		animTime += dt * curr->speed;
+		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
+			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);
 	}
 
 	std::list<Component*> components;
