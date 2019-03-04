@@ -26,6 +26,7 @@ class PlayerController is ObjectLinker{
     DashState {__dash_state}
     Punch1 {__punch1_state}
     MoveDirection {_move_direction}
+    OldMoveDirection {_old_move_direction}
 
 
     // Setters
@@ -47,6 +48,7 @@ class PlayerController is ObjectLinker{
         _show_debug_logs = true
         _player_state
         _move_direction = Vec3.zero()
+        _old_move_direction = Vec3.zero()
         _speed = 0.5
         _component_animation = getComponent(ComponentType.ANIMATION)
 
@@ -81,7 +83,7 @@ class PlayerController is ObjectLinker{
     } 
 
     rotate(x,y,z) {
-        super.lookAt(x,y,z)
+        super.rotate(x,y,z)
     }
 
     CheckBoundaries(movement){
@@ -170,9 +172,9 @@ class IdleState is State {
         // If l-stick is not still switch to moving
         if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _player.State = _player.MovingState
         // If A prassed switch to dash
-        if (InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
+        if (InputComunicator.getButton(-1,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
         // If X prassed switch to dash
-        if (InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        if (InputComunicator.getButton(-1,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
 
     Update() {
@@ -200,9 +202,9 @@ class MovingState is State {
     HandleInput() {
         if(_player.MoveDirection.x == 0.0 && _player.MoveDirection.y == 0.0) _player.State = _player.IdleState
         // If A prassed switch to dash
-        if (InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
+        if (InputComunicator.getButton(-1,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
         // If X prassed switch to dash
-        if (InputComunicator.getButton(0,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        if (InputComunicator.getButton(-1,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
     
     Update() {
@@ -214,7 +216,12 @@ class MovingState is State {
 
         _player.modPos(movement.x,movement.y,movement.z)
 
+        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.z,_player.OldMoveDirection.y,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        _player.rotate(0,angle,0)
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
+         _player.OldMoveDirection.x = _player.MoveDirection.x
+_player.OldMoveDirection.y = _player.MoveDirection.y
+_player.OldMoveDirection.z = _player.MoveDirection.z
 
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("Current state: Moving")
