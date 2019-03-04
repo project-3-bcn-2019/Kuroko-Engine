@@ -126,7 +126,6 @@ attacking = false
 
  Update() {
 var move = false
-old_direction = direction
 
 //TODO: Update the player's direction with the input and then move him using the speed
 //TODO 2:If the player dashes, deactivate movement and make him dash
@@ -137,6 +136,7 @@ if(dashing == false && attacking == false){
    move = setInput()   
 	
 }
+
 
 if(InputComunicator.getButton(0,InputComunicator.C_A, InputComunicator.KEY_DOWN) && dash_available && !attacking){
 
@@ -160,7 +160,6 @@ audio_source.Play()
   move = false
 }
 
-EngineComunicator.consoleOutput("%(move)")
 
 if(move){
 
@@ -168,6 +167,9 @@ if(move){
   modPos(movement.x,movement.y,movement.z)
 
   var angle = Math.C_angleBetween(old_direction.x,old_direction.y,old_direction.z,direction.x,direction.y,direction.z)
+
+  EngineComunicator.consoleOutput("angle = %(angle)")
+
   rotate(0,angle,0)
 
   /*var pos = getPos("global")

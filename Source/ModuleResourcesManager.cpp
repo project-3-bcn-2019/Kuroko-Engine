@@ -468,8 +468,8 @@ Resource * ModuleResourcesManager::getResource(uint uuid) {
 	if (it != resources.end()) {
 		ret = resources[uuid];
 	}
-	else
-		app_log->AddLog("WARNING: Asking for non existing resource");
+	//else
+	//	app_log->AddLog("WARNING: Asking for non existing resource");
 
 	return ret;
 }

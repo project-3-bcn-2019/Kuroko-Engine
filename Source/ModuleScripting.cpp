@@ -457,7 +457,7 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_modPos(_,_,_,_)") == 0) {
 				return ModGameObjectPos; // C function for ObjectComunicator.C_modPos
 			}
-			if (strcmp(signature, "C_rotate(_,_,_,_") == 0) {
+			if (strcmp(signature, "C_rotate(_,_,_,_)") == 0) {
 				return rotate;//Rotates the game object x degrees in each axis
 			}
 			if (strcmp(signature, "C_lookAt(_,_,_,_)") == 0) {
@@ -497,10 +497,10 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 		if (strcmp(className, "Math") == 0) {
 			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
 				return sqrt; // C function for Math.C_sqrt(_)
-		}
-		if (strcmp(className, "Math") == 0) {
+
 			if (isStatic && strcmp(signature, "C_angleBetween(_,_,_,_,_,_)") == 0)
 				return angleBetween;
+		
 		}
 		if (strcmp(className, "Time") == 0) {
 			if (isStatic && strcmp(signature, "C_GetDeltaTime()") == 0) {
@@ -640,7 +640,6 @@ void lookAt(WrenVM* vm) {
 void rotate(WrenVM* vm) {
 
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
-
 	float3 rotation = { (float)wrenGetSlotDouble(vm, 2), (float)wrenGetSlotDouble(vm, 3), (float)wrenGetSlotDouble(vm, 4) };
 
 	GameObject* go = App->scene->getGameObject(gameObjectUUID);
@@ -923,6 +922,7 @@ void angleBetween(WrenVM * vm)
 	float3 vector2 = { (float)wrenGetSlotDouble(vm, 4), (float)wrenGetSlotDouble(vm, 5), (float)wrenGetSlotDouble(vm, 6) };
 
 	float angle = vector1.AngleBetween(vector2);
+	angle = angle * RADTODEG;
 	wrenSetSlotDouble(vm, 0, angle);
 }
 
