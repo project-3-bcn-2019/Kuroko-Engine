@@ -78,6 +78,22 @@ class PlayerController is ObjectLinker{
         _move_direction.y = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_Y)
         _move_direction.x = -InputComunicator.getAxisNormalized(-1,InputComunicator.L_AXIS_X)
 
+        if(InputComunicator.getKey(InputComunicator.UP, InputComunicator.KEY_REPEAT)){
+	       _move_direction.y = 1
+        }
+	 	
+  if(InputComunicator.getKey(InputComunicator.DOWN, InputComunicator.KEY_REPEAT)){
+    _move_direction.y = -1
+  }
+
+  if(InputComunicator.getKey(InputComunicator.LEFT, InputComunicator.KEY_REPEAT)){
+	_move_direction.x = 1
+  }
+		
+  if(InputComunicator.getKey(InputComunicator.RIGHT, InputComunicator.KEY_REPEAT)){
+   _move_direction.x = -1
+  }
+
         if(_move_direction.y < 0.2 && _move_direction.y > -0.2)   _move_direction.y = 0.0
         if(_move_direction.x < 0.2 && _move_direction.x > -0.2)   _move_direction.x = 0.0
     }
@@ -178,6 +194,7 @@ class IdleState is State {
         if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _player.State = _player.MovingState
         // If X prassed switch to punch
         if (InputComunicator.getButton(-1,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
 
     Update() {
@@ -207,8 +224,10 @@ class MovingState is State {
         if(_player.MoveDirection.x == 0.0 && _player.MoveDirection.y == 0.0) _player.State = _player.IdleState
         // If A prassed switch to dash
         if (InputComunicator.getButton(-1,InputComunicator.C_A, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
+        if (InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_DOWN)) _player.State = _player.DashState
         // If X prassed switch to dash
         if (InputComunicator.getButton(-1,InputComunicator.C_X, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
     }
     
     Update() {
