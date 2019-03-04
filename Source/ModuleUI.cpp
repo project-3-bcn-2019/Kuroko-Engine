@@ -67,6 +67,7 @@
 #include "Panel.h"
 #include "PanelAnimation.h"
 #include "PanelAnimationEvent.h"
+#include "PanelHierarchyTab.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -77,6 +78,8 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 
 	p_anim = new PanelAnimation("AnimEditor");
 	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
+	p_hierarchy = new PanelHierarchyTab("Hierarchy", true);
+
 }
 
 
@@ -207,8 +210,8 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::End();
 		}
 
-		if (open_tabs[HIERARCHY])
-			DrawHierarchyTab();
+		if (p_hierarchy->isActive())
+			p_hierarchy->Draw();
 
 		Camera* prev_selected = App->camera->background_camera;
 		App->camera->selected_camera = nullptr;
