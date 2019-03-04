@@ -25,6 +25,7 @@ construct new(){}
  Update() {
   if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_REPEAT)){
      _particle_emitter.createParticles(3)
+     EngineComunicator.consoleOutput("particles from script!")
   }
  }
 }

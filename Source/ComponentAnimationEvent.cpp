@@ -83,16 +83,16 @@ bool ComponentAnimationEvent::Update(float dt)
 	if (curr == nullptr && AnimEvts.size() > 0)
 		curr = &AnimEvts.front();
 
-	if (App->time->getGameState() == PLAYING && curr != nullptr)
+	if(true) CheckLinkAnim();
+
+	if (App->time->getGameState() == PLAYING && !isPaused() && curr != nullptr)
 	{
 		animTime += dt * curr->speed;
 		if (animTime * curr->ticksXsecond > curr->own_ticks && curr->loop)
-			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);
-
-		CheckLinkAnim();
+			animTime -= (curr->own_ticks / (float)curr->ticksXsecond);		
 	}	
 
-	if (curr != nullptr)
+	if (curr != nullptr && App->time->getGameState() == PLAYING)
 	{
 		
 		for (auto it = curr->AnimEvts.begin(); it != curr->AnimEvts.end(); ++it)
@@ -103,17 +103,22 @@ bool ComponentAnimationEvent::Update(float dt)
 				{
 					// Get the keyframe of animation currently and if so then
 					int expected_keyframe = animTime * curr->ticksXsecond;
-					/*
-					if (animation_resource_uuid != 0)
+					if (expected_keyframe != last_frame)
 					{
-						Resource* get = App->resources->getResource(animation_resource_uuid);
-						if (get != nullptr)
-							expected_keyframe = animTime * ((ResourceAnimation*)get)->ticksXsecond;
-					}*/
-					auto find_key = it->second.find(expected_keyframe);
-					if (find_key != it->second.end())
-						it_components._Ptr->_Myval->ProcessAnimationEvents(find_key->second);
-					break;
+						/*
+						if (animation_resource_uuid != 0)
+						{
+							Resource* get = App->resources->getResource(animation_resource_uuid);
+							if (get != nullptr)
+								expected_keyframe = animTime * ((ResourceAnimation*)get)->ticksXsecond;
+						}*/
+						auto find_key = it->second.find(expected_keyframe);
+						if (find_key != it->second.end())
+							it_components._Ptr->_Myval->ProcessAnimationEvents(find_key->second);
+
+						last_frame = expected_keyframe;
+						break;						
+					}
 				}
 			}
 		}
@@ -193,7 +198,7 @@ void ComponentAnimationEvent::Save(JSON_Object* config)
 void ComponentAnimationEvent::CheckLinkAnim()
 {
 	ComponentAnimation* get = (ComponentAnimation*)parent->getComponent(Component_type::ANIMATION);
-	if (get != nullptr)
+	if (get != nullptr && curr != nullptr)
 	{
 		if (curr->linked_animation != get->getAnimationResource())
 		{
@@ -201,9 +206,11 @@ void ComponentAnimationEvent::CheckLinkAnim()
 			{
 				if (it->linked_animation = get->getAnimationResource())
 				{
+					paused = false;
 					curr = &it._Ptr->_Myval;
 					break;
 				}
+				paused = true;
 			}
 		}
 	}
