@@ -111,7 +111,11 @@ bool Application::Init()
 
 	config = json_value_get_object(config_value);
 
+	engine_title =	json_object_get_string(config, "engine_title");
+	game_title =	json_object_get_string(config, "game_title");
+
 	is_game = json_object_get_boolean(config, "is_game");
+	debug_game = json_object_get_boolean(config, "debug_game");
 	if (!is_game)
 	{
 		// Create library directory if it does not exist

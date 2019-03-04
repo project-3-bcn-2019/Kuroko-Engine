@@ -174,8 +174,7 @@ update_status ModuleInput::PreUpdate(float dt)
 		case SDL_DROPFILE:
 		{
 			std::string extension = e.drop.file;
-			App->fs.getExtension(extension);
-			App->fs.copyFileTo(e.drop.file, ASSETS, extension.c_str());
+			App->fs.copyFileTo(e.drop.file, ASSETS);
 			app_log->AddLog("%s copied to Assets folder", e.drop.file);
 			break;
 		}

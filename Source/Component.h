@@ -103,6 +103,9 @@ public:
 	// Helper Functions
 	std::string TypeToString();
 
+	void SaveCompUUID(JSON_Object* config);
+	void LoadCompUUID(JSON_Object* deff);
+
 	// When Creating animations for components all of these functions
 	// are required in order to process the events for the panel and 
 	// for the actual play of animations for components

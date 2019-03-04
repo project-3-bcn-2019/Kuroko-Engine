@@ -9,7 +9,11 @@
 ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(parent, BONE)
 {
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-	if (parent3dobject) // Means that is being loaded from a scene
+	if (App->is_game && !App->debug_game)
+	{
+		bone_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "bone_name"), R_BONE);
+	}
+	else if (parent3dobject) // Means that is being loaded from a scene
 		bone_resource_uuid = App->resources->getBoneResourceUuid(parent3dobject, json_object_get_string(deff, "bone_name"));
 	else // Means it is being loaded from a 3dObject binary
 		bone_resource_uuid = json_object_get_number(deff, "bone_resource_uuid");

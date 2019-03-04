@@ -108,6 +108,8 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
 			continue;
 		}
+		component->LoadCompUUID(component_deff);
+
 		addComponent(component);
 	}
 
@@ -224,20 +226,20 @@ bool GameObject::getComponents(Component_type type, std::list<Component*>& list_
 	return !list_to_fill.empty();
 }
 
-GameObject* GameObject::getChild(const char* name) const
+GameObject* GameObject::getChild(const char* name, bool  ignoreAssimpNodes) const
 {
 	GameObject* child = nullptr;
 
 	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
 	{
-		if ((*it)->getName().find(name) != -1)
+		if ((*it)->getName().find(name) != -1 && (!ignoreAssimpNodes || (*it)->getName().find("$AssimpFbx$") == std::string::npos))
 		{
 			child = (*it);
 			break;
 		}
 		else
 		{
-			child = (*it)->getChild(name);
+			child = (*it)->getChild(name, ignoreAssimpNodes);
 			if (child != nullptr)
 				break;
 		}
@@ -255,6 +257,14 @@ void GameObject::getAllDescendants(std::list<GameObject*>& list_to_fill) const
 		(*it)->getAllDescendants(list_to_fill);
 
 	return;
+}
+
+GameObject* GameObject::getAbsoluteParent()
+{
+	if (parent == nullptr)
+		return this;
+	else
+		return parent->getAbsoluteParent();
 }
 
 Component* GameObject::addComponent(Component_type type)

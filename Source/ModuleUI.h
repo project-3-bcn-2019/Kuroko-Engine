@@ -23,6 +23,8 @@ class TextEditor;
 class Panel;
 class PanelAnimation;
 class PanelAnimationEvent;
+class PanelHierarchyTab;
+class PanelObjectInspector;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, SHADER_EDITOR, LAST_UI_TAB };  
@@ -50,9 +52,9 @@ public:
 	void InitializeScriptEditor();
 	void InitializeShaderEditor();
 
-	void DrawHierarchyTab();
-	bool DrawHierarchyNode(GameObject& game_object, int& id);
-	void DrawObjectInspectorTab();
+	void DrawHierarchyTab();									//PANEL DONE
+	bool DrawHierarchyNode(GameObject& game_object, int& id);	//PANEL DONE
+	void DrawObjectInspectorTab();								//PANEL DONE
 	bool DrawComponent(Component& component, int id);
 	//void DrawAudioTab();
 	void DrawPrimitivesTab();
@@ -82,7 +84,6 @@ public:
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
 
-
 	void InvisibleDockingBegin();
 	void InvisibleDockingEnd();
 
@@ -94,6 +95,17 @@ public:
 	// Panels
 	PanelAnimation* p_anim = nullptr;
 	PanelAnimationEvent* p_anim_evt = nullptr;
+	PanelHierarchyTab* p_hierarchy = nullptr;
+	PanelObjectInspector* p_inspector = nullptr;
+
+public:
+	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
+	std::string open_script_path; //USED IN SCRIPT EDITOR & ASSETS WINDOW
+
+	bool open_tabs[LAST_UI_TAB];  // _serializable_var
+
+	std::array<Texture*, LAST_UI_TEX> ui_textures;
+
 private:
 	
 	bool docking_background = true;
@@ -110,10 +122,11 @@ private:
 
 	bool open_tabs[LAST_UI_TAB];  // _serializable_var
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
+
 	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
 
-	std::string asset_window_path = ASSETS_FOLDER;
-	std::string selected_asset;
+	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
+	std::string selected_asset; //NOT IN USE I GUESS---------------
 
 	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;

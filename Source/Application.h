@@ -74,7 +74,9 @@ public:
 	std::string config_file_name, custom_config_file_name;
 
 	bool is_game = false;
-
+	bool debug_game = false;
+	std::string engine_title;
+	std::string game_title;
 
 private:
 

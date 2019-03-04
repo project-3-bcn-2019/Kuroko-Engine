@@ -42,7 +42,7 @@ bool ModuleResourcesManager::Start()
 {
 	GeneratePrimitiveResources();
 
-	if (!App->is_game)
+	if (!App->is_game || App->debug_game)
 		GenerateLibraryAndMeta();
 	else
 		GenerateResources();

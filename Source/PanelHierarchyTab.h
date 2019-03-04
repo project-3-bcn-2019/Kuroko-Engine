@@ -4,14 +4,20 @@
 #include "Panel.h"
 #include <list>
 
+class GameObject;
+
 class PanelHierarchyTab : public Panel
 {
 public:
 
-	PanelHierarchyTab(const char* name);
+	PanelHierarchyTab(const char* name, bool active);
 	~PanelHierarchyTab();
 
 	void Draw();
+
+private:
+	bool DrawHierarchyNode(GameObject & game_object, int & id);
+
 };
 
 #endif

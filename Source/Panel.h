@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __PANEL_H__
+#define __PANEL_H__
 
 #include <string>
 #include "ImGui/imgui.h"
@@ -6,7 +7,7 @@
 class Panel
 {
 public:
-	Panel(const char* name) : name(name) {}
+	Panel(const char* name, bool _active = false) : name(name), active (_active) {}
 	virtual ~Panel() {}
 
 	virtual void Draw() {}
@@ -21,3 +22,6 @@ protected:
 	bool active = false;
 
 };
+
+
+#endif // !__PANEL_H__
