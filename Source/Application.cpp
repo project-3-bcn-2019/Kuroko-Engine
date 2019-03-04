@@ -64,11 +64,12 @@ Application::Application()
 	list_modules.push_back(resources);
 	
 	// Scenes
-	list_modules.push_back(scene);	
+	list_modules.push_back(audio);
+	list_modules.push_back(scene);
+	
 	
 	list_modules.push_back(physics);
 
-	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
 	// Renderer last!
