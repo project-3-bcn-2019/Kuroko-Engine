@@ -30,7 +30,7 @@ ModuleCamera3D::~ModuleCamera3D()
 bool ModuleCamera3D::Init(const JSON_Object* config)
 {
 	app_log->AddLog("Setting up the camera");
-	background_camera = selected_camera = editor_camera = new Camera(float3(-2.0, 2.0f, -5.0f), float3::zero);
+	background_camera = selected_camera = editor_camera = new Camera(float3(-2.0, 5.0f, -5.0f), float3::zero);
 	editor_camera->active = true;
 
 	viewports[VP_RIGHT] = new Camera(float3(10.0, 0.0f, 0.0f ), float3::zero);
@@ -81,7 +81,7 @@ update_status ModuleCamera3D::Update(float dt)
 	updateFOVfromWindow();
 
 	// Not allow camera to be modified if UI is being operated
-	if (true && selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
+	if (!App->is_game && selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
 	{
 		// Movement
 		float3 displacement = float3::zero;
