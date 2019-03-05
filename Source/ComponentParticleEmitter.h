@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "Particle.h"
 #include "Timer.h"
+#include "ComponentTransform.h"
 #include <list>
 #include <queue>
 
@@ -121,6 +122,7 @@ private:
 	ComponentTransform* transform = nullptr;
 	Mesh* mesh = nullptr;
 	Billboard* billboard = nullptr;
+	TransformMode transform_mode = GLOBAL;
 
 	LCG lcg;
 

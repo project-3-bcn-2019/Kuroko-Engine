@@ -1991,6 +1991,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
 				ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
 
+				static bool local_particles = false;
+				local_particles = c_emitter->transform_mode == LOCAL;
+
+				if (ImGui::Checkbox("Local", &local_particles))
+					c_emitter->transform_mode = local_particles ? LOCAL : GLOBAL;
 
 				//LifeTime
 				float minlife = c_emitter->particleLifetime.min;

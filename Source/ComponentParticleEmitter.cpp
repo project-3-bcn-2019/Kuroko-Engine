@@ -220,7 +220,11 @@ void ComponentParticleEmitter::CreateParticle()
 	vartiation.y = vartiation.y * dirVartiation * DEGTORAD;
 	vartiation.z = vartiation.z * dirVartiation * DEGTORAD;
 
-	float3 dir = direction + vartiation;
+	float3 dir = float3::zero;
+	if (transform_mode == GLOBAL)
+		dir = direction + vartiation;
+	else
+		dir = (transform->global->getRotation() * direction) + vartiation;
 
 	//Create New Particle
 	Particle* newParticle = new Particle();
