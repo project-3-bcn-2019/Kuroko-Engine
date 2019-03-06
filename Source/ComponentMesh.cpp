@@ -73,8 +73,8 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 
 ComponentMesh::~ComponentMesh() {
 	// Deassign all the components that the element had if it is deleted
-	/*if(primitive_type == Primitive_None)
-		App->resources->deasignResource(mesh_resource_uuid);*/
+	if(primitive_type == Primitive_None)
+		App->resources->deasignResource(mesh_resource_uuid);
 	delete mat;
 }
 

@@ -34,13 +34,13 @@ ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Compon
 
 ComponentCamera::~ComponentCamera()
 {
-	/*if (camera != App->camera->editor_camera && !camera->IsViewport())
+	if (camera != App->camera->editor_camera && !camera->IsViewport())
 	{
 		if (camera == App->camera->override_editor_cam_culling) App->camera->override_editor_cam_culling = nullptr;
 		if (camera == App->camera->selected_camera)				App->camera->selected_camera = App->camera->background_camera;
 		App->camera->game_cameras.remove(camera);
 		delete camera;
-	}*/
+	}
 }
 
 bool ComponentCamera::Update(float dt)
