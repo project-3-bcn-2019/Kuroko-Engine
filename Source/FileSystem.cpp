@@ -227,6 +227,9 @@ std::string FileSystem::getPathFromLibDir(lib_dir lib_dir) {
 	case LIBRARY_SCRIPTS:
 		ret = SCRIPTS_FOLDER;
 		break;
+	case LIBRARY_GRAPHS:
+		ret = GRAPHS_FOLDER;
+		break;
 	case SETTINGS:
 		ret = SETTINGS_FOLDER;
 		break;

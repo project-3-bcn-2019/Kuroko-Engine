@@ -73,6 +73,7 @@
 #include "PanelObjectInspector.h"
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
+#include "PanelAnimationGraph.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -87,7 +88,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_inspector = new PanelObjectInspector("Object Inspector", true);
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
-
+	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
 }
 
 
@@ -261,6 +262,9 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[SKYBOX_MENU])
 			DrawSkyboxWindow();
 
+		if (p_animation_graph->isActive())
+			p_animation_graph->Draw();
+
 		if (open_tabs[SCRIPT_EDITOR])
 			DrawScriptEditor();
 
@@ -326,6 +330,8 @@ update_status ModuleUI::Update(float dt) {
 			if (ImGui::BeginMenu("View")) {
 				if (ImGui::MenuItem("Hierarchy", NULL, p_hierarchy->isActive()))
 					p_hierarchy->toggleActive();
+				if (ImGui::MenuItem("Animation Graph", NULL, p_anim->isActive()))
+					p_animation_graph->toggleActive();
 				if (ImGui::MenuItem("Object Inspector", NULL, p_inspector->isActive()))
 					p_inspector->toggleActive();
 				if (ImGui::MenuItem("Primitive", NULL, p_primitives->isActive()))

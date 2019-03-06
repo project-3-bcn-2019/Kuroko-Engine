@@ -88,6 +88,8 @@ public:
 	bool LoadGraph();
 	void UnloadFromMemory();
 
+	bool saveGraph() const;
+
 	Node* addNode(const char* name, float2 pos = { 20,20 });
 	void pushLink(NodeLink* link);
 

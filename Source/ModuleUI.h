@@ -28,6 +28,7 @@ class PanelHierarchyTab;
 class PanelObjectInspector;
 class PanelAssetsWin;
 class PanelPrimitives;
+class PanelAnimationGraph;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -99,6 +100,7 @@ public:
 	PanelObjectInspector* p_inspector = nullptr;
 	PanelAssetsWin* p_assetswindow = nullptr;
 	PanelPrimitives* p_primitives = nullptr;
+	PanelAnimationGraph* p_animation_graph = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW

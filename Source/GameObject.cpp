@@ -20,6 +20,7 @@
 #include "ModulePhysics3D.h"
 #include "ComponentAnimationEvent.h"
 #include "ComponentColliderCube.h"
+#include "ComponentAnimator.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -387,6 +388,12 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentAnimationEvent(this);
 		components.push_back(new_component);
 		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+		{
+			new_component = new ComponentAnimator(this);
+			components.push_back(new_component);
+		}
 	default:
 		break;
 	}
@@ -446,6 +453,9 @@ void GameObject::addComponent(Component* component)
 	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+			components.push_back(component);
 	default:
 		break;
 	}

@@ -212,6 +212,7 @@
     <ClInclude Include="ModuleWindow.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="PanelAnimationEvent.h" />
+    <ClInclude Include="PanelAnimationGraph.h" />
     <ClInclude Include="PanelAssetsWin.h" />
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
@@ -348,6 +349,7 @@
     <ClCompile Include="ModuleScene.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
     <ClCompile Include="PanelAnimationEvent.cpp" />
+    <ClCompile Include="PanelAnimationGraph.cpp" />
     <ClCompile Include="PanelAssetsWin.cpp" />
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />

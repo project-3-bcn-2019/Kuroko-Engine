@@ -115,6 +115,69 @@ void ResourceAnimationGraph::UnloadFromMemory()
 	links.clear(); //Links are deleted from node destructor
 }
 
+bool ResourceAnimationGraph::saveGraph() const
+{
+	uint size = 0;
+	//Nodes: nameLength, name, position, UID, animation UID, num Links
+	size += sizeof(int);
+	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
+	{
+		size += (*it_n).second->name.length() + 2 * sizeof(float) + 4 * sizeof(uint);
+
+		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
+		{
+			size += sizeof(int) + 2 * sizeof(uint);
+		}
+	}
+	//Links: type, UID, connected node
+	//Transitions: originNode, destinationNode, output, input
+
+	char* buffer = new char[size];
+	char* cursor = buffer;
+
+	uint bytes = 0;
+
+	int nodeAmount = nodes.size();
+	memcpy(cursor, &nodeAmount, sizeof(int));
+	cursor += sizeof(int);
+	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
+	{
+		bytes = (*it_n).second->name.length();
+		memcpy(cursor, &bytes, sizeof(uint));
+		cursor += sizeof(uint);
+		memcpy(cursor, (*it_n).second->name.c_str(), bytes);
+		cursor += bytes;
+
+		float position[2] = { (*it_n).second->pos.x, (*it_n).second->pos.y };
+		bytes = sizeof(float) * 2;
+		memcpy(cursor, position, bytes);
+		cursor += bytes;
+
+		uint uids[3] = { (*it_n).second->UID, (*it_n).second->animationUID, (*it_n).second->links.size() };
+		bytes = sizeof(uint) * 3;
+		memcpy(cursor, uids, bytes);
+		cursor += bytes;
+
+		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
+		{
+			int type = (int)(*it_l)->type;
+			bytes = sizeof(int);
+			memcpy(cursor, &type, bytes);
+			cursor += bytes;
+
+			uint links[2] = { (*it_l)->UID, (*it_l)->connectedNodeLink };
+			bytes = sizeof(uint) * 2;
+			memcpy(cursor, links, bytes);
+			cursor += bytes;
+		}
+	}
+
+	App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);
+	RELEASE_ARRAY(buffer);
+
+	return true;
+}
+
 Node* ResourceAnimationGraph::addNode(const char* name, float2 pos)
 {
 	Node* node = new Node(name, uuid, pos);

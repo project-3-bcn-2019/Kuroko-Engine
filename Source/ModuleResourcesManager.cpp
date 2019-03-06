@@ -13,6 +13,7 @@
 #include "ResourceAnimation.h"
 #include "ResourceBone.h"
 #include "ResourceAudio.h"
+#include "ResourceAnimationGraph.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -93,18 +94,21 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 
 	switch (deff.type) {
 	case R_TEXTURE: ret = (Resource*) new ResourceTexture(deff); break;
-	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;     
-	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break; 
+	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;
+	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break;
 	case R_SCRIPT: ret = (Resource*) new ResourceScript(deff); break;
 	case R_SCENE: ret = (Resource*) new ResourceScene(deff); break;
 	case R_PREFAB: ret = (Resource*) new ResourcePrefab(deff); break;
 	case R_ANIMATION:
 		ret = (Resource*) new ResourceAnimation(deff);
 		break;
-	case R_BONE: 
+	case R_BONE:
 		ret = (Resource*) new ResourceBone(deff);
 		break;
 	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
+	case R_ANIMATIONGRAPH:
+		ret = (Resource*) new ResourceAnimationGraph(deff);
+		break;
 	}
 
 	if (ret)
@@ -868,6 +872,9 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_AUDIO:
 			ret = ".bnk";
 			break;
+		case R_ANIMATIONGRAPH:
+			ret = GRAPH_EXTENSION;
+			break;
 
 	}
 
@@ -898,6 +905,8 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 	case R_AUDIO:
 		ret = LIBRARY_AUDIO;
 		break;
+	case R_ANIMATIONGRAPH:
+		ret = LIBRARY_GRAPHS;
 	}
 	return ret;
 }

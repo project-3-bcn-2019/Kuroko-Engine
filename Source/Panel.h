@@ -3,6 +3,7 @@
 
 #include <string>
 #include "ImGui/imgui.h"
+#include "Globals.h"
 
 class Panel
 {
