@@ -43,6 +43,9 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles);
 		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name);
 
+		CreateDirectory((fullPath + SCRIPTINGAPI_FOLDER).c_str(), NULL);
+		App->fs.CopyFolder("ScriptingAPI\\*", (fullPath + SCRIPTINGAPI_FOLDER).c_str(), false);
+
 		CreateDirectory((fullPath + SETTINGS_FOLDER).c_str(), NULL);
 		JSON_Value* config_value = json_parse_file(App->config_file_name.c_str());
 		JSON_Object* config = json_value_get_object(config_value);

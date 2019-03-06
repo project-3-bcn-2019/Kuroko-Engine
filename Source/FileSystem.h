@@ -39,6 +39,7 @@
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
 #define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define ASSETS_FOLDER "Assets\\"
+#define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 
 enum lib_dir {
 	LIBRARY_MESHES,
