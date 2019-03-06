@@ -8,8 +8,9 @@ class Component;
 class ComponentAnimation;
 class ResourceAnimation;
 class GameObject;
-
-class PanelAnimation :
+class BoneTransform;
+class PanelAnimation
+	:
 	public Panel
 {
 public:
@@ -29,6 +30,7 @@ public:
 
 	ComponentAnimation* compAnimation = nullptr;
 	ResourceAnimation* animation = nullptr;
+	BoneTransform* selectedBone = nullptr;
 	Component* selected_component = nullptr;
 
 	std::list<Component*> par_components;
@@ -43,6 +45,8 @@ private:
 	float buttonPos = 0.0f;
 	float offset = 0.0f;
 
+	int frames = 0;
+
 	bool dragging = false;
 	bool scrolled = false;
 	bool animplay = false;
@@ -52,7 +56,7 @@ private:
 	float zoom = 50;
 	float speed = 0.0f;
 	float progress = 0.0f;
-	float winSize = 0.0f;
+	float winSize = 400.f;
 
 	// Component Animation
 	bool new_keyframe_win = false;

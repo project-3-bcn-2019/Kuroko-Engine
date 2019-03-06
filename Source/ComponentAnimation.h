@@ -26,6 +26,9 @@ public:
 	bool Finished() const { return false; }
 	bool isPaused() const { return paused; }
 
+	float GetAnimTime() const { return animTime; }
+	void SetAnimTime(float time) { animTime = time; }
+
 public:
 
 	bool loop = false;
@@ -39,6 +42,11 @@ private:
 	bool paused = false;
 
 	std::map<uint, uint> bones;
+
+public:
+	// Panel Animation Bound
+	bool TestPlay = false;
+	bool TestPause = false;
 };
 
 #endif // !_COMPONENT_ANIMATION
