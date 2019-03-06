@@ -75,7 +75,7 @@ void PanelAnimation::Draw()
 		ImGui::SliderInt("##CurrFrame", &frames, 0, animation->ticks - 1);
 		compAnimation->SetAnimTime(frames / animation->ticksXsecond);
 
-		ImGui::ProgressBar((compAnimation->GetAnimTime() / (animation->getDuration() - 1 / animation->ticksXsecond)), ImVec2(winSize,0));
+		ImGui::ProgressBar((compAnimation->GetAnimTime() / (animation->getDuration() - 1 / animation->ticksXsecond)), ImVec2(winSize, 0));
 		ImGui::SameLine();
 		if (ImGui::Button("Play"))
 		{
@@ -102,37 +102,49 @@ void PanelAnimation::Draw()
 
 
 		//Animation typeos of Keys
+		ImGui::BeginChild("##FrameTypes", ImVec2(95, 130), true, ImGuiWindowFlags_HorizontalScrollbar);
+		{
+			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "KeyTypes");
 
-		ImGui::BeginGroup();
+			ImGui::BeginGroup();
+			ImVec2 p = ImGui::GetCursorScreenPos();
+			ImGui::GetWindowDrawList()->AddLine(p, ImVec2(p.x + 75, p.y), IM_COL32(100, 100, 100, 255),2.f);
 
-		ImGui::SetCursorPosY(110);
+			ImGui::SetCursorPosY(30);
 
-		ImGui::Text("Position");
+			ImGui::Text("Position");
 
-		ImGui::SetCursorPosY(130);
+			ImGui::SetCursorPosY(50);
 
-		ImGui::Text("Scale");
+			ImGui::Text("Scale");
 
-		ImGui::SetCursorPosY(150);
+			ImGui::SetCursorPosY(70);
 
-		ImGui::Text("Rotation");
+			ImGui::Text("Rotation");
 
-		ImGui::EndGroup();
+			ImGui::SetCursorPosY(90);
+			ImGui::Text("Components");
 
+			ImGui::EndGroup();
+			
+		}	ImGui::EndChild();
 		ImGui::SameLine();
 
 		//Animation TimeLine
-		ImGui::BeginChild("TimeLine", ImVec2(winSize, 180), true, ImGuiWindowFlags_HorizontalScrollbar);
+		//ImGui::SetNextWindowContentWidth(numFrames * 25);
+		ImGui::BeginChild("TimeLine", ImVec2(winSize, 130), true, ImGuiWindowFlags_HorizontalScrollbar);
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImVec2 redbar = ImGui::GetCursorScreenPos();
-		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,140 });
+		
+		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,110 });
 		ImGui::SetCursorScreenPos(p);
 
+		
 		for (int i = 0; i < numFrames; i++)
 		{
 			ImGui::BeginGroup();
 
-			ImGui::GetWindowDrawList()->AddLine({ p.x,p.y }, ImVec2(p.x, p.y + 135), IM_COL32(100, 100, 100, 255), 1.0f);
+			ImGui::GetWindowDrawList()->AddLine({ p.x,p.y }, ImVec2(p.x, p.y + 100), IM_COL32(100, 100, 100, 255), 1.0f);
 
 			char frame[8];
 			sprintf(frame, "%01d", i);
@@ -143,15 +155,15 @@ void PanelAnimation::Draw()
 			{
 				if (selectedBone->PosKeysTimes[i] == i)
 				{
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 35), 6.0f, ImColor(0.0f, 0.0f, 1.0f, 0.5f));
+					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 30), 6.0f, ImColor(0.0f, 0.0f, 1.0f, 0.5f));
 				}
 				if (selectedBone->ScaleKeysTimes[i] == i)
 				{
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 75), 6.0f, ImColor(0.0f, 1.0f, 0.0f, 0.5f));
+					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 50), 6.0f, ImColor(0.0f, 1.0f, 0.0f, 0.5f));
 				}
 				if (selectedBone->RotKeysTimes[i] == i)
 				{
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 115), 6.0f, ImColor(1.0f, 0.0f, 0.0f, 0.5f));
+					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 70), 6.0f, ImColor(1.0f, 0.0f, 0.0f, 0.5f));
 				}
 			}
 
@@ -166,7 +178,7 @@ void PanelAnimation::Draw()
 		//RedLine
 		if (!(App->time->getGameState() == PLAYING) && !compAnimation->TestPlay && !compAnimation->TestPause)
 		{
-			ImGui::GetWindowDrawList()->AddLine({ redbar.x,redbar.y - 10 }, ImVec2(redbar.x, redbar.y + 165), IM_COL32(255, 0, 0, 100), 1.0f);
+			ImGui::GetWindowDrawList()->AddLine({ redbar.x,redbar.y - 10 }, ImVec2(redbar.x, redbar.y + 100), IM_COL32(255, 0, 0, 100), 1.0f);
 			progress = 0.0f;
 			ImGui::SetScrollX(0);
 		}
