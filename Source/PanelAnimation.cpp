@@ -46,9 +46,11 @@ bool PanelAnimation::fillInfo()
 				if (selectedBone == nullptr)
 				{
 					selectedBone = animation->boneTransformations;
-					GameObject* get = compAnimation->getParent()->getChild(selectedBone->NodeName.c_str());
-					if (get != nullptr)
-						compBone = (ComponentBone*)get->getComponent(Component_type::BONE);
+					GameObject* get_go = compAnimation->getParent()->getChildByUUID(compAnimation->GetCBone(0));
+					if (get_go != nullptr)
+						compBone = (ComponentBone*)get_go->getComponent(Component_type::BONE);
+					else
+						compBone = nullptr;
 				}
 				ret = true;
 			}
@@ -129,7 +131,7 @@ void PanelAnimation::Draw()
 			ImGui::Text("Rotation");
 
 			ImGui::SetCursorPosY(90);
-			ImGui::Text("Components");
+			if (compBone != nullptr) ImGui::Text("Components");
 
 			ImGui::EndGroup();
 			
@@ -174,9 +176,12 @@ void PanelAnimation::Draw()
 					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 61), ImVec2(p.x + 25, p.y + 80), ImColor(0.0f, 1.0f, 0.0f, 0.5f));
 				
 				// Component Keys
-				ImGui::SetCursorPos(ImVec2((i*25.f), 90));
-				if (ImGui::InvisibleButton("TestInvisButton", ImVec2(15, 15)))
-					bool caca = true;
+				if (compBone != nullptr)
+				{
+					ImGui::SetCursorPos(ImVec2((i*25.f), 90));
+					if (ImGui::InvisibleButton("TestInvisButton", ImVec2(15, 15)))
+						bool caca = true;
+				}
 
 			}
 
@@ -195,6 +200,7 @@ void PanelAnimation::Draw()
 			progress = 0.0f;
 			ImGui::SetScrollX(0);
 		}
+		
 		else if (!compAnimation->TestPause)
 		{
 			float auxprgbar = progress;
@@ -271,9 +277,11 @@ void PanelAnimation::Draw()
 				if (ImGui::Button(animation->boneTransformations[i].NodeName.c_str()))
 				{
 					selectedBone = &animation->boneTransformations[i];
-					GameObject* get = compAnimation->getParent()->getChild(selectedBone->NodeName.c_str());
-					if (get != nullptr)
-						compBone = (ComponentBone*)get->getComponent(Component_type::BONE);
+					GameObject* get_go = compAnimation->getParent()->getChildByUUID(compAnimation->GetCBone(i));
+					if (get_go != nullptr)
+						compBone = (ComponentBone*)get_go->getComponent(Component_type::BONE);
+					else
+						compBone = nullptr;
 				}
 			}
 		}

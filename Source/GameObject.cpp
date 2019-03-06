@@ -248,6 +248,28 @@ GameObject* GameObject::getChild(const char* name, bool  ignoreAssimpNodes) cons
 	return child;
 }
 
+GameObject * GameObject::getChildByUUID(uint cmp_uuid) const
+{
+	GameObject* child = nullptr;
+
+	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
+	{
+		if ((*it)->getUUID() == cmp_uuid)
+		{
+			child = (*it);
+			break;
+		}
+		else
+		{
+			child = (*it)->getChildByUUID(cmp_uuid);
+			if (child != nullptr)
+				break;
+		}
+	}
+
+	return child;
+}
+
 void GameObject::getAllDescendants(std::list<GameObject*>& list_to_fill) const
 {
 	for (auto it = children.begin(); it != children.end(); it++)

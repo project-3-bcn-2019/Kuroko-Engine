@@ -47,6 +47,14 @@ public:
 	// Panel Animation Bound
 	bool TestPlay = false;
 	bool TestPause = false;
+	uint GetCBone(uint index) const 
+	{ 
+		auto get = bones.find(index);
+		if(get != bones.end())
+			return get->second;
+
+		return 0;
+	}
 };
 
 #endif // !_COMPONENT_ANIMATION
