@@ -5,9 +5,11 @@
 #include "ModuleUI.h"
 #include "Material.h"
 #include "ScriptData.h"
-
+#include "GameObject.h"
+#include "ComponentAudioSource.h"
 #include "ResourceTexture.h"
 #include "ResourceScript.h"
+#include "Include_Wwise.h"
 
 #include <experimental/filesystem>
 #include <fstream>
@@ -208,7 +210,6 @@ void PanelAssetsWin::Draw()
 							item_hovered = true;
 					}
 				}
-
 				else if (type == "graph")
 				{
 					if (ImGui::IsMouseDoubleClicked(0)) {
@@ -220,6 +221,26 @@ void PanelAssetsWin::Draw()
 					}
 					else {
 						if (ImGui::ImageButton((void*)App->gui->ui_textures[GRAPH_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+						{
+							selected_asset = it.path().generic_string();
+						}
+						else if (ImGui::IsItemHovered())
+							item_hovered = true;
+					}
+				}
+				else if (type == "audio")
+				{
+					if (ImGui::IsMouseDoubleClicked(0)) {
+						ImGui::ImageButton((void*)App->gui->ui_textures[AUDIO_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+						if (ImGui::IsItemHovered())
+						{
+							// Audio Events should appear here instead of SoundBanks
+							// or at least each SoundBank should present a list of the events it
+							// contains, when double clicked, and be able to select one of them
+						}
+					}
+					else {
+						if (ImGui::ImageButton((void*)App->gui->ui_textures[AUDIO_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
 						{
 							selected_asset = it.path().generic_string();
 						}
