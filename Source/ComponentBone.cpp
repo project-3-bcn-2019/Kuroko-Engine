@@ -53,3 +53,29 @@ bool ComponentBone::Update(float dt)
 
 	return true;
 }
+
+void ComponentBone::ProcessCompAnimations(const uint anim_uuid, const int frame)
+{
+	if (last_frame != frame)
+	{
+		auto get_AnimSet = AnimSets.find(anim_uuid);
+		if (get_AnimSet != AnimSets.end())
+		{
+			auto get_key = get_AnimSet->second.AnimEvts.find(frame);
+			if (get_key != get_AnimSet->second.AnimEvts.end())
+			{
+				std::list<Component*> components;
+				getParent()->getComponents(components);
+				for (auto it_uuids = get_key->second.begin(); it_uuids != get_key->second.end(); ++it_uuids)
+				{
+					for (auto it_comp = components.begin(); it_comp != components.end(); ++it_comp)
+					{
+						if (it_uuids->first == it_comp._Ptr->_Myval->getUUID())
+							it_comp._Ptr->_Myval->ProcessAnimationEvents(it_uuids->second);
+					}
+				}
+			}
+		}
+		last_frame = frame;
+	}
+}

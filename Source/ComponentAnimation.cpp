@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
+#include "ComponentBone.h"
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {
@@ -76,6 +77,10 @@ bool ComponentAnimation::Update(float dt)
 					local.Decompose(pos, rot, scale);
 					transform->local->Set(pos, rot, scale);
 				}
+
+				ComponentBone* bone = (ComponentBone*)GO->getComponent(BONE);
+				if (bone != nullptr && getAnimationResource() != 0)
+					bone->ProcessCompAnimations(getAnimationResource(), (animTime * anim->ticksXsecond));
 			}
 		}
 	}

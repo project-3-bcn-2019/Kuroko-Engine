@@ -40,7 +40,6 @@ private:
 
 	float animTime = 0.0f;
 	bool paused = false;
-
 	std::map<uint, uint> bones;
 
 public:
