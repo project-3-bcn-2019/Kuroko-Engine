@@ -82,6 +82,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ComponentAnimationEvent.h" />
+    <ClInclude Include="ComponentAnimator.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceAnimation.h" />
+    <ClInclude Include="ResourceAnimationGraph.h" />
     <ClInclude Include="ResourceAudio.h" />
     <ClInclude Include="ResourceBone.h" />
     <ClInclude Include="ResourceMesh.h" />
@@ -257,6 +259,7 @@
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentAnimationEvent.cpp" />
+    <ClCompile Include="ComponentAnimator.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -358,6 +361,7 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="ResourceAnimation.cpp" />
+    <ClCompile Include="ResourceAnimationGraph.cpp" />
     <ClCompile Include="ResourceAudio.cpp" />
     <ClCompile Include="ResourceBone.cpp" />
     <ClCompile Include="ResourceMesh.cpp" />

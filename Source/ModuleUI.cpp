@@ -37,6 +37,7 @@
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
+#include "ComponentAnimator.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
@@ -44,6 +45,7 @@
 #include "Resource3dObject.h"
 #include "ResourceAnimation.h"
 #include "ResourceMesh.h"
+#include "ResourceAnimationGraph.h"
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
@@ -144,6 +146,7 @@ bool ModuleUI::Start()
 		ui_textures[RETURN_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
 		ui_textures[SCRIPT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
 		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+		ui_textures[GRAPH_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/graph_icon.png");
 
 		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
 		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
@@ -1724,8 +1727,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	case ANIMATION:
 		if (ImGui::CollapsingHeader("Animation"))
 		{
-			//SKELETAL_TODO: missing resource info
-
 			ComponentAnimation* anim = (ComponentAnimation*)&component;
 			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
 			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
@@ -2321,6 +2322,45 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	}
+	case ANIMATOR:
+		if (ImGui::CollapsingHeader("Animator"))
+		{
+			ComponentAnimator* animator = (ComponentAnimator*)&component;
+			ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(animator->getAnimationGraphResource());
+			ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+			if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+				set_animation_menu = true;
+			}
+
+			if (set_animation_menu) {
+
+				std::list<resource_deff> graph_res;
+				App->resources->getAnimationGraphResourceList(graph_res);
+
+				ImGui::Begin("Animation selector", &set_animation_menu);
+				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+					resource_deff anim_deff = (*it);
+					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+						App->resources->deasignResource(animator->getAnimationGraphResource());
+						App->resources->assignResource(anim_deff.uuid);
+						animator->setAnimationGraphResource(anim_deff.uuid);
+						set_animation_menu = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}
+
+			static bool animator_active;
+			animator_active = animator->isActive();
+
+			if (ImGui::Checkbox("Active##active animator", &animator_active))
+				animator->setActive(animator_active);
+		}
+		break;
 	case COLLIDER_CUBE:
 	{	if (ImGui::CollapsingHeader("Collider Cube"))
 			ImGui::Text("This game object has a collider");

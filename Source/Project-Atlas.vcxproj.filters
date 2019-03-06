@@ -606,6 +606,12 @@
     <ClInclude Include="PanelPrimitives.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceAnimationGraph.h">
+      <Filter>Sources\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentAnimator.h">
+      <Filter>Sources\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1006,6 +1012,12 @@
     </ClCompile>
     <ClCompile Include="PanelSkyboxWin.cpp">
       <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceAnimationGraph.cpp">
+      <Filter>Sources\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentAnimator.cpp">
+      <Filter>Sources\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

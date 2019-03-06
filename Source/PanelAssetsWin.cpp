@@ -208,6 +208,25 @@ void PanelAssetsWin::Draw()
 							item_hovered = true;
 					}
 				}
+
+				else if (type == "graph")
+				{
+					if (ImGui::IsMouseDoubleClicked(0)) {
+						ImGui::ImageButton((void*)App->gui->ui_textures[GRAPH_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+						if (ImGui::IsItemHovered())
+						{
+							//Open Graph window
+						}
+					}
+					else {
+						if (ImGui::ImageButton((void*)App->gui->ui_textures[GRAPH_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+						{
+							selected_asset = it.path().generic_string();
+						}
+						else if (ImGui::IsItemHovered())
+							item_hovered = true;
+					}
+				}
 			}
 
 			if (draw_warning || draw_caution)
@@ -240,10 +259,13 @@ void PanelAssetsWin::Draw()
 	item_hovered = false;
 
 	static bool name_script = false;
+	static bool name_graph = false;
 	if (ImGui::BeginPopup("##asset window context menu"))
 	{
-		if (ImGui::Button("Add script"))
+		if (ImGui::Button("Add Script"))
 			name_script = true;
+		if (ImGui::Button("Add Animation Graph"))
+			name_graph = true;
 
 		ImGui::EndPopup();
 	}
@@ -286,6 +308,25 @@ void PanelAssetsWin::Draw()
 			name_script = false;
 		}
 		//ImGui::PopFont();
+		ImGui::End();
+	}
+	if (name_graph)
+	{
+		App->gui->disable_keyboard_control = true;
+		ImGui::Begin("Animation Graph Name", &name_graph);
+
+		static char rename_buffer[64];
+		ImGui::InputText("Create as...", rename_buffer, 64);
+		ImGui::SameLine();
+		if (ImGui::Button("Create"))
+		{
+			std::string graph_name = rename_buffer;
+			std::string full_path = asset_window_path + "/" + graph_name + GRAPH_EXTENSION;
+			App->fs.CreateEmptyFile(full_path.c_str());
+
+			name_graph = false;
+		}
+
 		ImGui::End();
 	}
 
@@ -331,7 +372,10 @@ void PanelAssetsWin::DrawAssetInspector()
 			else					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unloaded");
 		}
 		else
+		{
+			ImGui::End();
 			return;
+		}
 
 		if (type == "texture")
 		{
