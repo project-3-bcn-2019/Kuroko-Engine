@@ -139,7 +139,7 @@ void PanelAnimation::Draw()
 		ImGui::SameLine();
 
 		//Animation TimeLine
-		//ImGui::SetNextWindowContentWidth(numFrames * 25);
+
 		ImGui::BeginChild("TimeLine", ImVec2(winSize, 130), true, ImGuiWindowFlags_HorizontalScrollbar);
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImVec2 redbar = ImGui::GetCursorScreenPos();
@@ -148,6 +148,7 @@ void PanelAnimation::Draw()
 
 
 		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,110 });
+
 		ImGui::SetCursorScreenPos(p);
 
 		
@@ -196,9 +197,10 @@ void PanelAnimation::Draw()
 		//RedLine
 		if (!(App->time->getGameState() == PLAYING) && !compAnimation->TestPlay && !compAnimation->TestPause)
 		{
-			ImGui::GetWindowDrawList()->AddLine({ redbar.x,redbar.y - 10 }, ImVec2(redbar.x, redbar.y + 100), IM_COL32(255, 0, 0, 100), 1.0f);
+			ImGui::GetWindowDrawList()->AddLine({ redbar.x + frames * 25,redbar.y - 10 }, ImVec2(redbar.x + frames * 25, redbar.y + 100), IM_COL32(255, 255, 100, 255), 1.0f);
+			ImGui::GetWindowDrawList()->AddRectFilled({ redbar.x + frames * 25,redbar.y - 10 }, ImVec2(redbar.x + frames * 25 + 25, redbar.y + 100), IM_COL32(255, 255, 100, 50) );
 			progress = 0.0f;
-			ImGui::SetScrollX(0);
+			//ImGui::SetScrollX(0);
 		}
 		
 		else if (!compAnimation->TestPause)
