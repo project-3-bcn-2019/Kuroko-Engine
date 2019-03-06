@@ -9,9 +9,9 @@ class ComponentAnimation;
 class ResourceAnimation;
 class GameObject;
 class BoneTransform;
-class PanelAnimation
-	:
-	public Panel
+class ComponentBone;
+
+class PanelAnimation : public Panel
 {
 public:
 
@@ -31,8 +31,8 @@ public:
 	ComponentAnimation* compAnimation = nullptr;
 	ResourceAnimation* animation = nullptr;
 	BoneTransform* selectedBone = nullptr;
-	Component* selected_component = nullptr;
-
+	ComponentBone* compBone = nullptr;
+	Component* selected_component = nullptr;	
 	std::list<Component*> par_components;
 
 	float numFrames = 1;

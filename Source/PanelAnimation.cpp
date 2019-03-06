@@ -9,6 +9,7 @@
 #include "FileSystem.h"
 #include "GameObject.h"
 #include "ModuleTimeManager.h"
+#include "ComponentBone.h"
 
 PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 {
@@ -43,7 +44,12 @@ bool PanelAnimation::fillInfo()
 				numFrames = animation->ticks;
 				// Create a new Animation Resource that will control the animation of this node
 				if (selectedBone == nullptr)
+				{
 					selectedBone = animation->boneTransformations;
+					GameObject* get = compAnimation->getParent()->getChild(selectedBone->NodeName.c_str());
+					if (get != nullptr)
+						compBone = (ComponentBone*)get->getComponent(Component_type::BONE);
+				}
 				ret = true;
 			}
 				
@@ -136,6 +142,9 @@ void PanelAnimation::Draw()
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImVec2 redbar = ImGui::GetCursorScreenPos();
 		
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y +20), ImVec2(p.x + numFrames * 25, p.y + 20), IM_COL32(100, 100, 100, 255), 2.f);
+
+
 		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,110 });
 		ImGui::SetCursorScreenPos(p);
 
@@ -145,7 +154,9 @@ void PanelAnimation::Draw()
 			ImGui::BeginGroup();
 
 			ImGui::GetWindowDrawList()->AddLine({ p.x,p.y }, ImVec2(p.x, p.y + 100), IM_COL32(100, 100, 100, 255), 1.0f);
-
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y + 40), ImVec2(p.x + numFrames * 25, p.y + 40), IM_COL32(100, 100, 100, 150), 1.f);
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y + 60), ImVec2(p.x + numFrames * 25, p.y + 60), IM_COL32(100, 100, 100, 150), 1.f);
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y + 80), ImVec2(p.x + numFrames * 25, p.y + 80), IM_COL32(100, 100, 100, 150), 1.f);
 			char frame[8];
 			sprintf(frame, "%01d", i);
 			ImVec2 aux = { p.x + 3,p.y };
@@ -154,16 +165,19 @@ void PanelAnimation::Draw()
 			if (animation != nullptr && selectedBone != nullptr)
 			{
 				if (selectedBone->PosKeysTimes[i] == i)
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 30), 6.0f, ImColor(0.0f, 0.0f, 1.0f, 0.5f));	
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 21), ImVec2(p.x + 25, p.y + 40), ImColor(0.0f, 0.0f, 1.0f, 0.5f));	
+				
 				if (selectedBone->ScaleKeysTimes[i] == i)
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 50), 6.0f, ImColor(0.0f, 1.0f, 0.0f, 0.5f));
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 41), ImVec2(p.x + 25, p.y + 60), ImColor(1.0f, 0.0f, 0.0f, 0.5f));
+				
 				if (selectedBone->RotKeysTimes[i] == i)
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 70), 6.0f, ImColor(1.0f, 0.0f, 0.0f, 0.5f));
-
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 61), ImVec2(p.x + 25, p.y + 80), ImColor(0.0f, 1.0f, 0.0f, 0.5f));
+				
 				// Component Keys
 				ImGui::SetCursorPos(ImVec2((i*25.f), 90));
-				if (ImGui::InvisibleButton("TestInvisButton", ImVec2(12, 12)))
+				if (ImGui::InvisibleButton("TestInvisButton", ImVec2(15, 15)))
 					bool caca = true;
+
 			}
 
 			p = { p.x + zoom,p.y };
@@ -248,7 +262,7 @@ void PanelAnimation::Draw()
 
 		ImGui::BeginGroup();
 
-		ImGui::BeginChild("All Animations", ImVec2(250, 140), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+		ImGui::BeginChild("All Animations", ImVec2(0, 130), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
 		if (animation != nullptr)
 		{
@@ -257,25 +271,23 @@ void PanelAnimation::Draw()
 				if (ImGui::Button(animation->boneTransformations[i].NodeName.c_str()))
 				{
 					selectedBone = &animation->boneTransformations[i];
+					GameObject* get = compAnimation->getParent()->getChild(selectedBone->NodeName.c_str());
+					if (get != nullptr)
+						compBone = (ComponentBone*)get->getComponent(Component_type::BONE);
 				}
 			}
 		}
 
 		ImGui::EndChild();
 
-		//ImGui::SameLine();
-
-		ImGui::BeginChild("Selected Bone", ImVec2(250, 30), true);
-
-		if (selectedBone != nullptr)
-		{
-			ImGui::Text(selectedBone->NodeName.c_str());
-		}
-
-		ImGui::EndChild();
 		ImGui::EndGroup();
 
 		ImGui::NewLine();
+
+		if (compBone != nullptr)
+		{
+			ImGui::Text("Linekd to: %s", compBone->getParent()->getName().c_str());
+		}
 		
 	}
 
