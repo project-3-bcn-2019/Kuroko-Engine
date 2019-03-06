@@ -154,17 +154,16 @@ void PanelAnimation::Draw()
 			if (animation != nullptr && selectedBone != nullptr)
 			{
 				if (selectedBone->PosKeysTimes[i] == i)
-				{
-					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 30), 6.0f, ImColor(0.0f, 0.0f, 1.0f, 0.5f));
-				}
+					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 30), 6.0f, ImColor(0.0f, 0.0f, 1.0f, 0.5f));	
 				if (selectedBone->ScaleKeysTimes[i] == i)
-				{
 					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 50), 6.0f, ImColor(0.0f, 1.0f, 0.0f, 0.5f));
-				}
 				if (selectedBone->RotKeysTimes[i] == i)
-				{
 					ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(p.x + 1, p.y + 70), 6.0f, ImColor(1.0f, 0.0f, 0.0f, 0.5f));
-				}
+
+				// Component Keys
+				ImGui::SetCursorPos(ImVec2((i*25.f), 90));
+				if (ImGui::InvisibleButton("TestInvisButton", ImVec2(12, 12)))
+					bool caca = true;
 			}
 
 			p = { p.x + zoom,p.y };
