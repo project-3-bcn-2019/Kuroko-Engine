@@ -304,7 +304,7 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 				{
 					int Vindex = rBone->weights[j].VertexID;											//taking the index of the vertex that affect the bone.
 
-					if (MeshGPU[Vindex].boneCouinter > 3)						//if a bone is affected by more than 4 bones continue
+					if (MeshGPU[Vindex].boneCouinter > 3)												//if a bone is affected by more than 4 bones continue
 					{
 						continue;
 					}
@@ -361,6 +361,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 		{
 			glUseProgram(App->shaders->GetDefaultShaderProgram()->programID);
 
+
 			GLint model_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "model_matrix");
 			glUniformMatrix4fv(model_loc, 1, GL_FALSE, global_transform);
 			GLint proj_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "projection");
@@ -385,7 +386,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 		}
 		else
 		{
-			GLenum err;
+			/*GLenum err;
 			do
 			{
 
@@ -393,7 +394,19 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 				if (err != GL_NO_ERROR) {
 					app_log->AddLog("error!");
 				}
-			} while (err != GL_NO_ERROR);
+			} while (err != GL_NO_ERROR);*/
+
+			app_log->AddLog("-----------------------------------------------");
+			for (int i = 0; i < numBones; i++)
+			{
+				app_log->AddLog("%f,%f,%f,%f", boneTrans[i * 16], boneTrans[i * 16 + 1], boneTrans[i * 16 + 2], boneTrans[i * 16 + 3]);
+				app_log->AddLog("%f,%f,%f,%f", boneTrans[i * 16 + 4], boneTrans[i * 16 + 5], boneTrans[i * 16 + 6], boneTrans[i * 16 + 7]);
+				app_log->AddLog("%f,%f,%f,%f", boneTrans[i * 16 + 8], boneTrans[i * 16 + 9], boneTrans[i * 16 + 10], boneTrans[i * 16 + 11]);
+				app_log->AddLog("%f,%f,%f,%f", boneTrans[i * 16 + 12], boneTrans[i * 16 + 13], boneTrans[i * 16 + 14], boneTrans[i * 16 + 15]);
+
+			}
+
+			app_log->AddLog("-----------------------------------------------");
 
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
@@ -425,6 +438,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 	}
 	else
 	{
+		
 		glUseProgram(App->shaders->GetDefaultShaderProgram()->programID);
 
 		GLint model_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "model_matrix");

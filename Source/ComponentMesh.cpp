@@ -281,7 +281,6 @@ void ComponentMesh::Skining() const
 					hasBones = true;
 					float4x4 boneTransform =((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 
-
 					memcpy(&boneTransforms[i * 16], boneTransform.Transposed().v, 16 * sizeof(float)); //copy of the final bone trasformations for the shader use
 
 					//for (int j = 0; j < rBone->numWeights; j++)
@@ -308,6 +307,8 @@ void ComponentMesh::Skining() const
 				}
 			}
 		}
+
+	
 
 		if (hasBones)
 		{

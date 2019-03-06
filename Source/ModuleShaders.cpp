@@ -143,24 +143,39 @@ void ModuleShaders::CreateDefVertexShader()
 		"vec4 totalLocalPos = vec4(0.0);\n"
 		"vec4 totalNormal = vec4(0.0);\n"
 
-		"for(int i=0;i<4;i++)\n"
+		/*"for(int i=0;i<4;i++)\n"
 		"{\n"
 			"if(Weights[i]!=0)\n"
 			"{\n"
 				"int indx=int(BoneIDs[i]);\n"
 				"mat4 boneTransform = gBones[indx];\n"
 				"vec4 posePosition = boneTransform * vec4(position,1.0);\n"
-				"totalLocalPos += posePosition*Weights[i];\n"
+				"totalLocalPos += posePosition*Weights[i];\n"				
 
 				"vec4 worldNormal = boneTransform * vec4(normal,0.0);\n"
 				"totalNormal += worldNormal * Weights[i];\n"
+				"test=totalLocalPos;\n"
 			"}\n"
-		"}\n"
+		"}\n"*/
+		"vec4 test=vec4(0.0,0.0,0.0,1.0);"
+		"mat4 matTest=mat4(0.0);"
 
-		"gl_Position = projection * view * vec4(totalLocalPos.xyz,1.0);\n"
+		"mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];	 \n"
+		"BoneTransform += gBones[BoneIDs[1]] * Weights[1];		 \n"
+		"test.x=float(gBones[BoneIDs[1]]==matTest);"
+
+		"BoneTransform += gBones[BoneIDs[2]] * Weights[2];		 \n"
+		"test.y=float(gBones[BoneIDs[2]]==matTest);"
+
+
+		"BoneTransform += gBones[BoneIDs[3]] * Weights[3];		 \n"
+		"test.z=float(gBones[BoneIDs[0]]==matTest);"
+
+		"vec4 test2=BoneTransform * vec4(position,1.0);"
+		"gl_Position = projection * view * vec4(test2.xyz,1.0); \n"
 		"ret_normal = totalNormal.xyz;\n"
 		"TexCoord = texCoord;\n"
-		"ourColor = color;\n"
+		"ourColor = test;\n"
 	"}\n";
 }
 
