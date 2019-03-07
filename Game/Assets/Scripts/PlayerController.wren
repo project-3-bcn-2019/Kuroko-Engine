@@ -21,10 +21,10 @@ class PlayerController is ObjectLinker{
     ShowDebugLogs{_show_debug_logs}
 
     // Below this the values are not meant to be changed in the inspector (also there is no setter so they can't)
-    MovingState {__moving_state}
-    IdleState {__idle_state}
-    DashState {__dash_state}
-    Punch1 {__punch1_state}
+    MovingState {_moving_state}
+    IdleState {_idle_state}
+    DashState {_dash_state}
+    Punch1 {_punch1_state}
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
@@ -66,16 +66,16 @@ class PlayerController is ObjectLinker{
 
         _component_audio_source.setSound("Footsteps") //This should not be here -Pol
 
-        //Initialize all the states as static so we have no problems switching to states at any moment
+        //Initialize all the states
         //the arguments are: (player, total_duration)
-        __idle_state = IdleState.new(this)
-        __punch1_state = BasicAttackState.new(this,700)
-        __moving_state = MovingState.new(this)
-        __dash_state = DashState.new(this,500)
+        _idle_state = IdleState.new(this)
+        _punch1_state = BasicAttackState.new(this,700)
+        _moving_state = MovingState.new(this)
+        _dash_state = DashState.new(this,500)
 
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
-        this.State = __idle_state //Reminder that "State" is a setter method
+        this.State = _idle_state //Reminder that "State" is a setter method
     }
 
     Update() {
