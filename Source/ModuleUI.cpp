@@ -38,6 +38,7 @@
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
 #include "ComponentAnimator.h"
+#include "ComponentPhysics.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
@@ -2368,9 +2369,76 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				animator->setActive(animator_active);
 		}
 		break;
-	case COLLIDER_CUBE:
+	case PHYSICS:
 	{	if (ImGui::CollapsingHeader("Collider Cube"))
-			ImGui::Text("This game object has a collider");
+		{
+		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+		ComponentPhysics* c_phys = (ComponentPhysics*)&component;
+
+		static float3 position;
+		static float3 rotation;
+		static float3 scale;
+
+		Transform* transform = nullptr;
+
+		transform = c_phys->transform;
+
+		position = transform->getPosition();
+		rotation = transform->getRotationEuler();
+		scale = transform->getScale();
+
+		//position
+		ImGui::Text("Offset:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		//rotation
+		ImGui::Text("Rotation:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f");
+		ImGui::Text("%.2f", rotation.x);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		//scale
+		ImGui::Text("   Scale:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		if (ImGui::Button("Reset Transform"))
+		{
+			position = float3::zero; rotation = float3::zero, scale = float3::one;
+		}
+
+		transform->setPosition(position);
+		transform->setRotationEuler(rotation);
+		transform->setScale(scale);
+		}
 	}
 	break;
 	default:

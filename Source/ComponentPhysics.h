@@ -4,29 +4,40 @@
 #include "MathGeoLib/MathGeoLib.h"
 #include <list>
 
+#include "MathGeoLib\Geometry\OBB.h"
+
 class GameObject;
 class PhysBody;
 class PCube;
+class Transform;
+enum collision_shape;
 
-class ComponentColliderCube : public Component
+class ComponentPhysics : public Component
 {
 //public:
 public:
 
-	ComponentColliderCube(GameObject* parent);
-	ComponentColliderCube(JSON_Object* deff, GameObject* parent);
+	ComponentPhysics(GameObject* parent, collision_shape shape, bool is_environment = true);
+	ComponentPhysics(JSON_Object* deff, GameObject* parent);
 
 	void OnCollision(GameObject* A, GameObject* B);
 
 	bool Update(float dt);
 	void Draw() const;
 
-	virtual ~ComponentColliderCube();
+	virtual ~ComponentPhysics();
 	PhysBody* body;
+
+	Transform* transform;
+	OBB bounding_box;
+
+	void DrawOBB() const;
 
 	std::list<GameObject*> colliding;
 
 	void Save(JSON_Object* config);
+
+	bool is_environment = true;
 
 
 //	bool Update(float dt)override;

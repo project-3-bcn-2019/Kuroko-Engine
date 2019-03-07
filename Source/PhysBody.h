@@ -25,6 +25,8 @@ public:
 	void SetAsSensor(bool is_sensor);
 	bool IsSensor() const;
 
+	void SetSpeed(float x, float y, float z);
+
 	void SetUser(void* new_user);
 
 	btRigidBody* GetRigidBody();

@@ -15,7 +15,7 @@
 #include "ComponentTransform.h"
 #include "ComponentAudioSource.h"
 #include "ComponentAnimation.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "ComponentParticleEmitter.h"
 #include "ComponentScript.h"
 #include "Transform.h"
@@ -829,7 +829,7 @@ void GetCollisions(WrenVM* vm) {
 		return;
 	}
 
-	ComponentColliderCube* component = (ComponentColliderCube*)go->getComponent(COLLIDER_CUBE);
+	ComponentPhysics* component = (ComponentPhysics*)go->getComponent(PHYSICS);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentColliderCube", go->getName().c_str());

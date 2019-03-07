@@ -5,7 +5,7 @@
 #include "ModuleTimeManager.h"
 #include "ComponentTransform.h"
 #include "ComponentAABB.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 //#include "ComponentColliderSphere.h"
 #include "Component.h"
 #include "ModuleCamera3D.h"
@@ -87,8 +87,8 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 		int numContacts = contactManifold->getNumContacts();//TO IMPROVE A LOT
 		if (numContacts > 0)
 		{
-			ComponentColliderCube* pbodyA = (ComponentColliderCube*)obA->getUserPointer();
-			ComponentColliderCube* pbodyB = (ComponentColliderCube*)obB->getUserPointer();
+			ComponentPhysics* pbodyA = (ComponentPhysics*)obA->getUserPointer();
+			ComponentPhysics* pbodyB = (ComponentPhysics*)obB->getUserPointer();
 
 			if (pbodyA && pbodyB)
 			{
@@ -146,7 +146,7 @@ void ModulePhysics3D::UpdatePhysics()
 		float* matrix = new float[16];
 		//(*item)->GetTransform(matrix);
 
-		GameObject* obj = ((ComponentColliderCube*)(*item)->body->getUserPointer())->getParent();
+		GameObject* obj = ((ComponentPhysics*)(*item)->body->getUserPointer())->getParent();
 		if (obj != nullptr)
 		{
 
@@ -273,17 +273,22 @@ bool ModulePhysics3D::CleanUp()
 	return true;
 }
 
-PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
+
+PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment)
 {
-	ComponentAABB* box = (ComponentAABB*)parent->getComponent(C_AABB);
-	//if (box == nullptr)
-	//{
-	//	box = (ComponentAABB*)parent->addComponent(C_AABB);
-	//	box->getAABB()->maxPoint = float3(0.5, 0.5, 0.5);
-	//	box->getAABB()->minPoint = float3(-0.5, -0.5, -0.5);
-	//}
-	
-	btCollisionShape* colShape = new btBoxShape(btVector3(box->getOBB()->Size().x*0.5, box->getOBB()->Size().y*0.5, box->getOBB()->Size().z*0.5));
+	btCollisionShape* colShape = nullptr;
+	switch (shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		break;
+	}
 	shapes.push_back(colShape);
 
 	btTransform startTransform;
@@ -294,11 +299,20 @@ PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	motions.push_back(myMotionState);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
-
 	btRigidBody* body = new btRigidBody(rbInfo);
+
+	if (is_environment)
+	{
+		body->setCollisionFlags(btCollisionObject::CollisionFlags::CF_STATIC_OBJECT);
+	}
+	else
+	{
+		body->setCollisionFlags(btCollisionObject::CollisionFlags::CF_CHARACTER_OBJECT);
+	}
+
 	PhysBody* pbody = new PhysBody(body);
 
-	pbody->dimensions = box->getOBB()->Size();
+	pbody->dimensions = parent->bounding_box.Size();
 
 	world->addRigidBody(body);
 	bodies.push_back(pbody);

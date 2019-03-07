@@ -101,7 +101,7 @@
     <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="ComponentCanvas.h" />
     <ClInclude Include="ComponentCheckBoxUI.h" />
-    <ClInclude Include="ComponentColliderCube.h" />
+    <ClInclude Include="ComponentPhysics.h" />
     <ClInclude Include="ComponentImageUI.h" />
     <ClInclude Include="ComponentParticleEmitter.h" />
     <ClInclude Include="ComponentRectTransform.h" />
@@ -277,7 +277,7 @@
     <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="ComponentCanvas.cpp" />
     <ClCompile Include="ComponentCheckBoxUI.cpp" />
-    <ClCompile Include="ComponentColliderCube.cpp" />
+    <ClCompile Include="ComponentPhysics.cpp" />
     <ClCompile Include="ComponentImageUI.cpp" />
     <ClCompile Include="ComponentParticleEmitter.cpp" />
     <ClCompile Include="ComponentRectTransform.cpp" />

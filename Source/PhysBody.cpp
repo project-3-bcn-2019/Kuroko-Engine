@@ -90,6 +90,13 @@ bool PhysBody::IsSensor() const
 	return is_sensor;
 }
 
+void PhysBody::SetSpeed(float x, float y, float z)
+{
+
+	body->setAngularVelocity(btVector3(x, y, z));
+
+}
+
 void PhysBody::SetUser(void * new_user)
 {
 	body->setUserPointer(new_user);

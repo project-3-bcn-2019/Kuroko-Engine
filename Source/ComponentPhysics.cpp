@@ -1,4 +1,4 @@
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "GameObject.h"
 //#include "ComponentCamera.h"
 ////#include "ModuleSceneImGui.h"
@@ -15,14 +15,18 @@
 #include "SDL/include/SDL_opengl.h"
 
 
-ComponentColliderCube::ComponentColliderCube(GameObject * _parent) :Component(_parent, COLLIDER_CUBE)
+ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape shape, bool is_environment) :Component(_parent, PHYSICS)
 {
-	body = App->physics->AddBody(_parent);
+	transform = new Transform();
+
+	bounding_box.SetFrom(AABB(float3(-0.5, -0.5, -0.5), float3(0.5, 0.5, 0.5)));
+
+	body = App->physics->AddBody(this,shape, is_environment);
 	body->SetUser(this);
 
 }
 
-ComponentColliderCube::ComponentColliderCube(JSON_Object * deff, GameObject * parent) :Component(parent, COLLIDER_CUBE)
+ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Component(parent, PHYSICS)
 {
 	JSON_Object* j = json_object_get_object(deff, "obb");
 
@@ -31,21 +35,18 @@ ComponentColliderCube::ComponentColliderCube(JSON_Object * deff, GameObject * pa
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->SetFrom(AABB(
 		float3(-json_object_get_number(j, "sizex") / 2, -json_object_get_number(j, "sizey") / 2, -json_object_get_number(j, "sizez") / 2), 
 		float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2)));
-
+	 
 	getParent()->own_half_size = float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2);
 
 
-	body = App->physics->AddBody(parent);
-	body->SetUser(this);
-
 }
 
-void ComponentColliderCube::OnCollision(GameObject * A, GameObject * B)
+void ComponentPhysics::OnCollision(GameObject * A, GameObject * B)
 {
 	
 }
 
-bool ComponentColliderCube::Update(float dt)
+bool ComponentPhysics::Update(float dt)
 {
 	//TODO
 	//Gather the pointer with the transform matrix
@@ -90,6 +91,23 @@ bool ComponentColliderCube::Update(float dt)
 		}
 	}*/
 
+	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
+
+
+	DrawOBB();
+
+	btTransform t;
+	t = body->GetRigidBody()->getWorldTransform();
+
+	float4x4 m;
+	t.getOpenGLMatrix(m.ptr());
+
+	transform->setMatrix(m);
+
+	bounding_box.pos = transform->getPosition();
+	bounding_box.r = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
+
+
 	colliding.clear();
 	std::list<Collision> col_list;
 	App->physics->GetCollisionsFromObject(col_list, getParent());
@@ -102,7 +120,7 @@ bool ComponentColliderCube::Update(float dt)
 	return true;
 }
 
-void ComponentColliderCube::Draw() const
+void ComponentPhysics::Draw() const
 {
 	//ComponentAABB* aabb = ((ComponentAABB*)parent->getComponent(C_AABB));
 
@@ -304,9 +322,9 @@ void ComponentColliderCube::Draw() const
 //	return ret;
 //}
 //
-void ComponentColliderCube::Save(JSON_Object* config)
+void ComponentPhysics::Save(JSON_Object* config)
 {
-	json_object_set_string(config, "type", "collider_cube");
+	json_object_set_string(config, "type", "physics");
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size();
 
 	JSON_Value* obb = json_value_init_object();
@@ -319,9 +337,29 @@ void ComponentColliderCube::Save(JSON_Object* config)
 
 }
 
-ComponentColliderCube::~ComponentColliderCube()
+ComponentPhysics::~ComponentPhysics()
 {
 
 	App->physics->DeleteBody(body);
 
 };
+
+void ComponentPhysics::DrawOBB() const
+{
+	glLineWidth(1.5f);
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_LINES);
+
+	for (int i = 0; i < 12; i++)
+	{
+		glVertex3f(bounding_box.Edge(i).a.x, bounding_box.Edge(i).a.y, bounding_box.Edge(i).a.z);
+		glVertex3f(bounding_box.Edge(i).b.x, bounding_box.Edge(i).b.y, bounding_box.Edge(i).b.z);
+	}
+
+
+	glEnd();
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	glLineWidth(1.0f);
+}

@@ -14,6 +14,13 @@
 
 class GameObject;
 struct PhysBody;
+class ComponentPhysics;
+
+enum collision_shape
+{
+	COL_CUBE,
+	COL_CYLINDER
+};
 
 struct Collision
 {
@@ -55,7 +62,7 @@ public:
 	bool CleanUp();
 	void CleanUpWorld();
 
-	PhysBody* AddBody(GameObject* parent);
+	PhysBody* AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment);
 	void DeleteBody(PhysBody* body_to_delete);
 
 	std::list<Collision> collisions;

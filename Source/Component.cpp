@@ -22,7 +22,7 @@ std::string Component::TypeToString()
 	case UI_TEXT: return ("UI TEXT : " + uid);
 	case AUDIOLISTENER: return ("AUDIO LISTENER : " + uid);
 	case AUDIOSOURCE: return ("AUDIOSOURCE : " + uid);
-	case COLLIDER_CUBE: return ("COLLIDER CUBE : " + uid);
+	case PHYSICS: return ("PHYSICS : " + uid);
 	case BILLBOARD: return ("BILLBOARD : " + uid);
 	case PARTICLE_EMITTER: return ("PARTICLE EMITTER : " + uid);
 	case ANIMATION_EVENT: return ("ANIMATION EVENT : " + uid);
