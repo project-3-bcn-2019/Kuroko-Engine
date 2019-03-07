@@ -60,7 +60,7 @@ void PanelHierarchyTab::Draw()
 
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* image = new GameObject("UI_Image", parent, true);
@@ -77,7 +77,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* text = new GameObject("UI_Text", parent, true);
@@ -96,7 +96,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* button = new GameObject("UI_Button", parent, true);
@@ -115,7 +115,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
