@@ -50,6 +50,8 @@ bool ModulePhysics3D::Init()
 
 bool ModulePhysics3D::Start()
 {
+
+	
 	//CONSOLE_LOG_INFO("Creating Physics environment");
 	//World init
 	physics_debug = true;
@@ -65,8 +67,24 @@ bool ModulePhysics3D::Start()
 
 	pdebug_draw->setDebugMode(pdebug_draw->DBG_DrawWireframe);
 	world->setDebugDrawer(pdebug_draw);
+
+	world->setGravity({ 0.0f,10,0.0f });
+
 	//Big plane
 
+	btCollisionShape* colShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState();
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0f, myMotionState, colShape);
+
+	btRigidBody* body = new btRigidBody(rbInfo);
+	
+
+	btTransform t = body->getWorldTransform();
+	t.setOrigin(btVector3(0, -10, 0));
+	body->setWorldTransform(t);
+
+	world->addRigidBody(body);
 
 	return true;
 }
@@ -90,22 +108,22 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 			ComponentPhysics* pbodyA = (ComponentPhysics*)obA->getUserPointer();
 			ComponentPhysics* pbodyB = (ComponentPhysics*)obB->getUserPointer();
 
-			if (pbodyA && pbodyB)
-			{
-				pbodyA->OnCollision(pbodyA->getParent(), pbodyB->getParent());
-				pbodyB->OnCollision(pbodyB->getParent(), pbodyA->getParent());
-			}
+			//if (pbodyA && pbodyB)
+			//{
+			//	pbodyA->OnCollision(pbodyA->getParent(), pbodyB->getParent());
+			//	pbodyB->OnCollision(pbodyB->getParent(), pbodyA->getParent());
+			//}
 
-			Collision cA;
-			cA.A = pbodyA->getParent();
-			cA.B = pbodyB->getParent();
+			//Collision cA;
+			//cA.A = pbodyA->getParent();
+			//cA.B = pbodyB->getParent();
 
-			Collision cB;
-			cB.A = pbodyB->getParent();
-			cB.B = pbodyA->getParent();
+			//Collision cB;
+			//cB.A = pbodyB->getParent();
+			//cB.B = pbodyA->getParent();
 
-			collisions.push_back(cA);
-			collisions.push_back(cB);
+			//collisions.push_back(cA);
+			//collisions.push_back(cB);
 		}
 	}
 	return UPDATE_CONTINUE;
@@ -117,9 +135,10 @@ update_status ModulePhysics3D::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		physics_debug = !physics_debug;
 
-	if (App->time->getGameState() == GameState::PLAYING)
-		UpdatePhysics();
+	//if (App->time->getGameState() == GameState::PLAYING)
+	//UpdatePhysics();
 
+	world->stepSimulation(dt, 1);
 
 	return UPDATE_CONTINUE;
 }
@@ -138,64 +157,6 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 void ModulePhysics3D::UpdatePhysics()
 {
 
-	world->stepSimulation(17, 1);
-
-	////float *matrix = new float[16];
-	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	{
-		float* matrix = new float[16];
-		//(*item)->GetTransform(matrix);
-
-		GameObject* obj = ((ComponentPhysics*)(*item)->body->getUserPointer())->getParent();
-		if (obj != nullptr)
-		{
-
-
-			ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-			if (transform != nullptr)
-			{
-
-
-			//matrix = transform->global->getMatrix().ptr();
-
-			btTransform t = (*item)->body->getWorldTransform();
-
-			////t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-			//t.setRotation(t.getRotation().inverse());
-
-			////btScalar* m = new btScalar[16];
-			////t.getOpenGLMatrix(m);
-
-			float4x4 fina;
-
-			////fina[0][0] = m[0];		fina[1][0] = m[4];		fina[2][0] = m[8];		fina[3][0] = m[12];
-			////fina[0][1] = m[1];		fina[1][1] = m[5];		fina[2][1] = m[9];		fina[3][1] = m[13];
-			////fina[0][2] = m[2];		fina[1][2] = m[6];		fina[2][2] = m[10];		fina[3][2] = m[14];
-			////fina[0][3] = m[3];		fina[1][3] = m[7];		fina[2][3] = m[11];		fina[3][3] = m[15];
-
-			fina = float4x4::FromTRS(float3(0, 0, 0), Quat::identity, transform->global->getScale());
-
-			fina.Transpose();
-
-			Quat newquat = transform->global->getRotation();
-			newquat.Inverse();
-			float4x4 rot_mat = newquat.ToFloat4x4();
-
-			fina = /*fina * */rot_mat;
-
-			//fina = fina * float4x4::FromQuat(transform->global->getRotation());
-			//fina.Translate(transform->global->getPosition());
-
-			t.setFromOpenGLMatrix(fina.ptr());
-
-			t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-
-			(*item)->body->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
-
-			(*item)->body->setWorldTransform(t);
-			}
-		}
-	}
 }
 
 void ModulePhysics3D::CleanUpWorld()
@@ -280,30 +241,32 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 	switch (shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x*0.5, parent->bounding_box.Size().y*0.5, parent->bounding_box.Size().z*0.5));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btCylinderShape(btVector3(parent->bounding_box.Size().x*0.5, parent->bounding_box.Size().y*0.5, parent->bounding_box.Size().z*0.5));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x*0.5, parent->bounding_box.Size().y*0.5, parent->bounding_box.Size().z*0.5));
 		break;
 	}
 	shapes.push_back(colShape);
 
 	btTransform startTransform;
-	//startTransform.setFromOpenGLMatrix(((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr());
-
 	startTransform.setIdentity();
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	motions.push_back(myMotionState);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
+
+	btVector3 localInertia(0, 0, 0);
+	colShape->calculateLocalInertia(1.0f, localInertia);
+
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape,localInertia);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
 	btRigidBody* body = new btRigidBody(rbInfo);
 
 	if (is_environment)
 	{
-		body->setCollisionFlags(btCollisionObject::CollisionFlags::CF_STATIC_OBJECT);
+		body->setCollisionFlags(btCollisionObject::CollisionFlags::CF_KINEMATIC_OBJECT);
 	}
 	else
 	{
@@ -311,7 +274,6 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 	}
 
 	PhysBody* pbody = new PhysBody(body);
-
 	pbody->dimensions = parent->bounding_box.Size();
 
 	world->addRigidBody(body);
