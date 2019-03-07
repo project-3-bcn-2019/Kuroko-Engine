@@ -1734,9 +1734,9 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	case UI_PROGRESSBAR:
-		if (ImGui::CollapsingHeader("UI Progression Bar"))
+		if (ImGui::CollapsingHeader("UI Progress Bar"))
 		{
-			ComponentProgressBarUI* canvas = (ComponentProgressBarUI*)&component;
+			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
 			
 		}
 		break;
