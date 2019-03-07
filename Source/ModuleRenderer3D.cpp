@@ -187,7 +187,15 @@ void ModuleRenderer3D::Draw(Camera * cam)
 
 	if (App->time->getGameState() == GameState::PLAYING)
 	{
+		bool depth_test = glIsEnabled(GL_DEPTH_TEST);
+		bool lighting = glIsEnabled(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
 		App->scene->DrawInGameUI();
+
+		if (depth_test)
+			glEnable(GL_DEPTH_TEST);
+		if (lighting)
+			glEnable(GL_LIGHTING);
 	}
 
 	if (cam != App->camera->background_camera && cam->getFrameBuffer())
