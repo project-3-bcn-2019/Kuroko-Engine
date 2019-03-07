@@ -615,7 +615,13 @@
     <ClInclude Include="PanelAnimationGraph.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentProgressBarUI.h" />
+    <ClInclude Include="PanelConfiguration.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentProgressBarUI.h">
+      <Filter>Sources\Game\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelTimeControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1026,7 +1032,13 @@
     <ClCompile Include="PanelAnimationGraph.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentProgressBarUI.cpp" />
+    <ClCompile Include="PanelConfiguration.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentProgressBarUI.cpp">
+      <Filter>Sources\Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelTimeControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MathGeoLib\Math\Matrix.inl">

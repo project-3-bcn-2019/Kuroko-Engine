@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
+#include "ModuleTimeManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 
@@ -65,13 +66,12 @@ ComponentRectTransform::~ComponentRectTransform()
 
 bool ComponentRectTransform::Update(float dt)
 {
-	
 	return true;
 }
 
 void ComponentRectTransform::Draw() const
 {
-	if (debug_draw) {
+	if (debug_draw && App->time->getGameState() != GameState::PLAYING) {
 
 		glPushMatrix();
 		float4x4 globalMat;

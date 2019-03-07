@@ -14,7 +14,7 @@
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>
     <RootNamespace>SDLGame</RootNamespace>
     <ProjectName>Project-Atlas</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -215,10 +215,12 @@
     <ClInclude Include="PanelAnimationEvent.h" />
     <ClInclude Include="PanelAnimationGraph.h" />
     <ClInclude Include="PanelAssetsWin.h" />
+    <ClInclude Include="PanelConfiguration.h" />
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
     <ClInclude Include="PanelPrimitives.h" />
     <ClInclude Include="PanelSkyboxWin.h" />
+    <ClInclude Include="PanelTimeControl.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
@@ -353,10 +355,12 @@
     <ClCompile Include="PanelAnimationEvent.cpp" />
     <ClCompile Include="PanelAnimationGraph.cpp" />
     <ClCompile Include="PanelAssetsWin.cpp" />
+    <ClCompile Include="PanelConfiguration.cpp" />
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
     <ClCompile Include="PanelPrimitives.cpp" />
     <ClCompile Include="PanelSkyboxWin.cpp" />
+    <ClCompile Include="PanelTimeControl.cpp" />
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PCG Random\pcg_basic.c" />

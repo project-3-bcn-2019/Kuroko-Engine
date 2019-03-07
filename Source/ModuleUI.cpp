@@ -75,6 +75,8 @@
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
 #include "PanelAnimationGraph.h"
+#include "PanelConfiguration.h"
+#include "PanelTimeControl.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -90,6 +92,8 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
 	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
+	p_configuration = new PanelConfiguration("Configuration", true);
+	p_time_control = new PanelTimeControl("Time Control", true);
 }
 
 
@@ -201,25 +205,9 @@ update_status ModuleUI::Update(float dt) {
 		disable_keyboard_control = false;
 
 
-		if (open_tabs[CONFIGURATION])
+		if (p_configuration->isActive())
 		{
-			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
-
-			if (ImGui::CollapsingHeader("Graphics"))
-				DrawGraphicsLeaf();
-			if (ImGui::CollapsingHeader("Window"))
-				DrawWindowConfigLeaf();
-			if (ImGui::CollapsingHeader("Hardware"))
-				DrawHardwareLeaf();
-			if (ImGui::CollapsingHeader("Application"))
-				DrawApplicationLeaf();
-			if (ImGui::CollapsingHeader("Editor preferences"))
-				DrawEditorPreferencesLeaf();
-
-			if (ImGui::Button("Reset Camera"))
-				App->camera->editor_camera->Reset();
-
-			ImGui::End();
+			p_configuration->Draw();
 		}
 
 		if (p_hierarchy->isActive())
@@ -243,8 +231,8 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[LOG])
 			app_log->Draw("App log", &open_tabs[LOG]);
 
-		if (open_tabs[TIME_CONTROL])
-			DrawTimeControlWindow();
+		if (p_time_control->isActive())
+			p_time_control->Draw();
 
 		if (open_tabs[QUADTREE_CONFIG])
 			DrawQuadtreeConfigWindow();
@@ -3423,7 +3411,7 @@ void ModuleUI::DrawAboutLeaf()
 
 void ModuleUI::DrawGraphicsLeaf() const {
 	//starting values
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	/*ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool depth_test = glIsEnabled(GL_DEPTH_TEST);
 	static bool face_culling = glIsEnabled(GL_CULL_FACE);
@@ -3501,132 +3489,132 @@ void ModuleUI::DrawGraphicsLeaf() const {
 		ImGui::Checkbox("Enabled##N Enabled", &App->scene->global_normals);
 		ImGui::TreePop();
 	}
-	ImGui::PopFont();
+	ImGui::PopFont();*/
 }
 
 void ModuleUI::DrawWindowConfigLeaf() const
 {
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
 
-	Window* window = App->window->main_window;
-	if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
-		App->window->setBrightness(window->brightness);
+	//Window* window = App->window->main_window;
+	//if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
+	//	App->window->setBrightness(window->brightness);
 
-	bool width_mod, height_mod = false;
-	width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
-	height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
-	
-	if(width_mod || height_mod)
-		App->window->setSize(window->width, window->height);
+	//bool width_mod, height_mod = false;
+	//width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
+	//height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
+	//
+	//if(width_mod || height_mod)
+	//	App->window->setSize(window->width, window->height);
 
-	// Refresh rate
-	ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
-	//Bools
-	if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
-		App->window->setFullscreen(window->fullscreen);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("Resizable", &window->resizable))
-		App->window->setResizable(window->resizable);
-	if (ImGui::Checkbox("Borderless", &window->borderless))
-		App->window->setBorderless(window->borderless);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
-		App->window->setFullDesktop(window->fulldesk);
+	//// Refresh rate
+	//ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
+	////Bools
+	//if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
+	//	App->window->setFullscreen(window->fullscreen);
+	//ImGui::SameLine();
+	//if (ImGui::Checkbox("Resizable", &window->resizable))
+	//	App->window->setResizable(window->resizable);
+	//if (ImGui::Checkbox("Borderless", &window->borderless))
+	//	App->window->setBorderless(window->borderless);
+	//ImGui::SameLine();
+	//if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
+	//	App->window->setFullDesktop(window->fulldesk);
 
-	ImGui::PopFont();
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawHardwareLeaf() const 
 {
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	//CPUs
-	ImGui::Text("CPUs");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255),"%i", SDL_GetCPUCount());
+	//ImGui::PushFont(ui_fonts[REGULAR]);
+	//
+	////CPUs
+	//ImGui::Text("CPUs");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255),"%i", SDL_GetCPUCount());
 
-	// RAM
-	ImGui::Text("System RAM");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%i Gb", SDL_GetSystemRAM());
+	//// RAM
+	//ImGui::Text("System RAM");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%i Gb", SDL_GetSystemRAM());
 
-	// Caps
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	if(SDL_HasRDTSC())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "RDTSC, ");
-	ImGui::SameLine();
-	if (SDL_HasMMX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "MMX, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE2())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE2, ");
-	if (SDL_HasSSE3())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE3, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE41())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE41, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE42())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE42, ");
-	ImGui::SameLine();
-	if (SDL_HasAVX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "AVX.");
-	ImGui::SameLine();
+	//// Caps
+	//ImGui::Text("Caps:");
+	//ImGui::SameLine();
+	//if(SDL_HasRDTSC())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "RDTSC, ");
+	//ImGui::SameLine();
+	//if (SDL_HasMMX())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "MMX, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE2())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE2, ");
+	//if (SDL_HasSSE3())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE3, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE41())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE41, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE42())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE42, ");
+	//ImGui::SameLine();
+	//if (SDL_HasAVX())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "AVX.");
+	//ImGui::SameLine();
 
-	ImGui::Separator();
-	//GPU
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_VENDOR));
-	ImGui::Text("Brand:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_RENDERER));
-	ImGui::Text("VRAM Budget:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Usage:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA() - getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Avaliable:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Reserved:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
-		
-	ImGui::PopFont();
+	//ImGui::Separator();
+	////GPU
+	//ImGui::Text("Caps:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_VENDOR));
+	//ImGui::Text("Brand:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_RENDERER));
+	//ImGui::Text("VRAM Budget:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Usage:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA() - getAvaliableVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Avaliable:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getAvaliableVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Reserved:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
+	//	
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawApplicationLeaf() const 
 {
-	// HARDCODED (?)
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	ImGui::Text("App name: Kuroko Engine");
-	ImGui::Text("Organization: UPC CITM");
-	char title[25];
-	sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
-	ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
-	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	
-	ImGui::PopFont();
+	//// HARDCODED (?)
+	//ImGui::PushFont(ui_fonts[REGULAR]);
+	//
+	//ImGui::Text("App name: Kuroko Engine");
+	//ImGui::Text("Organization: UPC CITM");
+	//char title[25];
+	//sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
+	//ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	//sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
+	//ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	//
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawEditorPreferencesLeaf() const {
 
-	static float camera_speed = 2.5f;
+	/*static float camera_speed = 2.5f;
 	if (ImGui::InputFloat("Camera speed", &camera_speed))
 		App->camera->camera_speed = camera_speed;
 
 
 	static float camera_rotation_speed = 0.25f;
 	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;
+		App->camera->camera_rotation_speed = camera_rotation_speed;*/
 }
 
 void ModuleUI::DrawTimeControlWindow()
