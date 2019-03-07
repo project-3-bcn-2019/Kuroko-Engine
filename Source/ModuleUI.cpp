@@ -1497,6 +1497,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { rectTrans->setPos(position); }
 			//Width
 			ImGui::Text("Dimensions:");
+			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { rectTrans->setWidth(width); }
 			//Height

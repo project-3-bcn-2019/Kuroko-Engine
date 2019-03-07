@@ -27,10 +27,11 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * parent) : Component(parent, RECTTRANSFORM) {
 	
 	// Position
-	rect.local.x = json_object_get_number(deff, "localX");
-	rect.local.y = json_object_get_number(deff, "localY");
-	rect.global.x = json_object_get_number(deff, "globalX");
-	rect.global.y = json_object_get_number(deff, "globalY");
+	setLocalPos(float2(json_object_get_number(deff, "localX"), json_object_get_number(deff, "localY")));
+	//rect.local.x = json_object_get_number(deff, "localX");
+	//rect.local.y = json_object_get_number(deff, "localY");
+	//rect.global.x = json_object_get_number(deff, "globalX");
+	//rect.global.y = json_object_get_number(deff, "globalY");
 
 	rect.anchor.x = json_object_get_number(deff, "anchorX");
 	rect.anchor.y = json_object_get_number(deff, "anchorY");
