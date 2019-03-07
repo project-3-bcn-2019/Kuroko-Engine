@@ -34,6 +34,7 @@
 #include "ComponentCamera.h"
 #include "ComponentImageUI.h"
 #include "ComponentCheckBoxUI.h"
+#include "ComponentProgressBarUI.h"
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
@@ -1730,6 +1731,13 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Button("Idle")) { button->setState(B_IDLE); } ImGui::SameLine();
 			if (ImGui::Button("Hover")) { button->setState(B_MOUSEOVER); }ImGui::SameLine();
 			if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
+		}
+		break;
+	case UI_PROGRESSBAR:
+		if (ImGui::CollapsingHeader("UI Progression Bar"))
+		{
+			ComponentProgressBarUI* canvas = (ComponentProgressBarUI*)&component;
+			
 		}
 		break;
 	case ANIMATION:

@@ -125,6 +125,25 @@ void PanelHierarchyTab::Draw()
 				}
 
 			}
+			if (ImGui::MenuItem("UI_ProgressBar"))
+			{
+				GameObject* parent = nullptr;
+				if (!App->scene->selected_obj.empty()) {
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = *App->scene->selected_obj.begin();
+					}
+				}
+				else {
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
+				}
+				if (parent != nullptr) {
+					GameObject* pbar = new GameObject("UI_ProgressBar", parent, true);
+					pbar->addComponent(Component_type::UI_IMAGE);
+					pbar->addComponent(Component_type::UI_PROGRESSBAR);
+					parent->addChild(pbar);
+				}
+
+			}
 			ImGui::TreePop();
 		}
 		ImGui::EndPopup();

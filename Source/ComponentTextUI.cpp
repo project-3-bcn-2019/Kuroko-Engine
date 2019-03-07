@@ -34,6 +34,28 @@ ComponentTextUI::ComponentTextUI(GameObject* parent) : Component(parent, UI_TEXT
 
 ComponentTextUI::ComponentTextUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_TEXT)
 {
+	static const float uvs[] = {
+	0, 1,
+	1, 1,
+	1, 0,
+	0, 0
+	};
+
+	texCoords = new float2[4];
+	memcpy(texCoords, uvs, sizeof(float2) * 4);
+
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+
+	std::string fontName = std::string(json_object_dotget_string(deff, "fontSource"));
+	int scale = json_object_dotget_number(deff, "scale");
+	label.font = App->fontManager->LoadFont(fontName.c_str(), scale);
+	label.font->scale = scale;
+	
+	SetText(json_object_dotget_string(deff, "text"));
+	label.color = float3(json_object_dotget_number(deff, "colorX"), json_object_dotget_number(deff, "colorY"), json_object_dotget_number(deff, "colorZ"));
+
+	rectTransform->setWidth((labelFrame[3].x - labelFrame[0].x));
+	rectTransform->setHeight((labelFrame[2].y - labelFrame[3].y));
 }
 
 
@@ -213,6 +235,15 @@ void ComponentTextUI::Draw() const
 
 void ComponentTextUI::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "UItext");
+	json_object_set_string(config, "text", label.text.c_str());
+	json_object_set_number(config, "colorX", label.color.x);
+	json_object_set_number(config, "colorY", label.color.y);
+	json_object_set_number(config, "colorZ", label.color.z);
+	if (label.font) {
+		json_object_set_string(config, "fontSource", label.font->fontSrc.c_str());
+		json_object_set_number(config, "scale", label.font->scale);
+	}
 }
 
 void ComponentTextUI::CharPlane::GenBuffer(float2 size)

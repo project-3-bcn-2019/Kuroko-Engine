@@ -11,6 +11,7 @@
 #include "ComponentAudioSource.h"
 #include "ComponentImageUI.h"
 #include "ComponentButtonUI.h"
+#include "ComponentProgressBarUI.h"
 #include "ComponentCheckBoxUI.h"
 #include "ComponentTextUI.h"
 #include "ComponentBone.h"
@@ -121,6 +122,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		}
 		else if (type == "UIcheckbox") {
 			component = new ComponentCheckBoxUI(component_deff, this);
+		}
+		else if (type == "UIprogress_bar") {
+			component = new ComponentProgressBarUI(component_deff, this);
 		}
 		
 		// Set component's parent-child
@@ -360,11 +364,8 @@ Component* GameObject::addComponent(Component_type type)
 		}
 		break;
 	case UI_IMAGE:
-		if (!getComponent(UI_IMAGE))
-		{
-			new_component = new ComponentImageUI(this);
-			components.push_back(new_component);
-		}
+		new_component = new ComponentImageUI(this);
+		components.push_back(new_component);
 		break;
 	case UI_BUTTON:
 		if (!getComponent(UI_BUTTON))
@@ -384,6 +385,13 @@ Component* GameObject::addComponent(Component_type type)
 		if (!getComponent(UI_TEXT))
 		{
 			new_component = new ComponentTextUI(this);
+			components.push_back(new_component);
+		}
+		break;
+	case UI_PROGRESSBAR:
+		if (!getComponent(UI_PROGRESSBAR))
+		{
+			new_component = new ComponentProgressBarUI(this);
 			components.push_back(new_component);
 		}
 		break;
@@ -492,6 +500,9 @@ void GameObject::addComponent(Component* component)
 		components.push_back(component);
 		break;
 	case UI_IMAGE:
+		components.push_back(component);
+		break;
+	case UI_PROGRESSBAR:
 		components.push_back(component);
 		break;
 	case RECTTRANSFORM:

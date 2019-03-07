@@ -51,8 +51,6 @@ void ComponentCanvas::Draw() const
 void ComponentCanvas::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "canvas");
-	json_object_set_number(config, "resolutionX", getResolution().x);
-	json_object_set_number(config, "resolutionY", getResolution().y);
 }
 
 void ComponentCanvas::setResolution(float2 resolution)
