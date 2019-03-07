@@ -13,7 +13,7 @@ struct AnimSetB
 
 	std::map<double, std::map<uint, std::map<int, void*>>> AnimEvts;
 
-	bool selected;
+	bool selected = false;
 };
 
 

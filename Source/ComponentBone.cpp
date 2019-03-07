@@ -19,6 +19,67 @@ ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(
 		bone_resource_uuid = json_object_get_number(deff, "bone_resource_uuid");
 
 	App->resources->assignResource(bone_resource_uuid);
+
+	JSON_Value* get_val = json_object_get_value(deff, "AnimArr");
+	if (get_val != NULL)
+	{
+		JSON_Array* AnimArr = json_value_get_array(get_val);
+		for (int i = 0; i < json_array_get_count(AnimArr); ++i)
+		{
+			AnimSetB push;
+			JSON_Object* AnimSet = json_value_get_object(json_array_get_value(AnimArr, i));
+			push.linked_animation = json_object_get_number(AnimSet, "linked_animiation");
+
+			JSON_Value* key_val = json_object_get_value(AnimSet, "key_arr");
+			if (key_val != NULL)
+			{
+				JSON_Array* key_arr = json_value_get_array(key_val);
+
+				for (int j = 0; j < json_array_get_count(key_arr); ++j)
+				{
+					JSON_Object* key_obj = json_value_get_object(json_array_get_value(key_arr, j));
+					JSON_Value* comp_val = json_object_get_value(key_obj, "comp_arr");
+					if (comp_val != NULL)
+					{
+						JSON_Array* comp_arr = json_value_get_array(comp_val);
+
+						std::pair<double, std::map<uint, std::map<int, void*>>> push_key;
+						push_key.first = json_object_get_number(key_obj, "keyframe");
+						for (int k = 0; k < json_array_get_count(comp_arr); ++k)
+						{
+							JSON_Object* comp_obj = json_value_get_object(json_array_get_value(comp_arr, k));
+							JSON_Value* event_val = json_object_get_value(comp_obj, "event_arr");
+							if (event_val != NULL)
+							{
+								JSON_Array* event_arr = json_value_get_array(event_val);
+
+								std::pair<uint, std::map<int, void*>> push_comp;
+
+								push_comp.first = json_object_get_number(key_obj, "keyframe");
+
+								for (int l = 0; l < json_array_get_count(event_arr); ++l)
+								{
+									std::pair<int, void*> push_evt;
+									JSON_Object* event_obj = json_value_get_object(json_array_get_value(event_arr, l));
+									push_evt.first = json_object_get_number(event_obj, "event");
+									// Get the values for the event when available
+									push_evt.second = nullptr;
+									push_comp.second.insert(push_evt);
+								}
+								push_key.second.insert(push_comp);
+							}
+							
+						}
+						push.AnimEvts.insert(push_key);
+					}
+					
+				}
+				AnimSets.insert(std::pair<uint, AnimSetB>(push.linked_animation, push));
+			}
+			
+		}
+
+	}
 }
 
 ComponentBone::~ComponentBone()
@@ -41,6 +102,11 @@ void ComponentBone::Save(JSON_Object * config)
 		{
 			json_object_set_string(config, "bone_name", "missing reference");
 			json_object_set_string(config, "Parent3dObject", "missing reference");
+		}
+
+		if (AnimSets.size() > 0)
+		{
+
 		}
 	}
 }
