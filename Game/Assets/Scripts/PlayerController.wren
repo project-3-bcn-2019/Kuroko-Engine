@@ -25,6 +25,7 @@ class PlayerController is ObjectLinker{
     IdleState {_idle_state}
     DashState {_dash_state}
     Punch1 {_punch1_state}
+    Punch2 {_punch2_state}
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
@@ -72,6 +73,7 @@ class PlayerController is ObjectLinker{
 
         //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration)
         _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"PunchingAnimation","Punch",20,0,1000)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
@@ -328,7 +330,8 @@ class BasicAttackState is State {
         _sound_name = sound_name
         _damage = damage
         _stamina_cost = stamina_cost
-        _total_duration = total_duration
+
+        _next_state = _player.IdleState
 
         super(player,total_duration)
     }
@@ -343,15 +346,28 @@ class BasicAttackState is State {
     }
 
     HandleInput() {
+        _margin_to_chain_attack = 200
+
+
+        if (super.CurrentTime > (super.TotalDuration - _margin_to_chain_attack)) {
+            if (_tier == 1) {
+                if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _next_state = _player.Punch2
+            }
+        }
+        
+    }
     
+    GoToNextState() {
+        _player.State = _next_state
     }
 
     Update() {
         super.Update() 
 
-        if (super.IsStateFinished()) _player.State = _player.IdleState
 
-        EngineComunicator.consoleOutput("Current state: BasicAttack")
+        if (super.IsStateFinished()) this.GoToNextState()
+
+        EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
     }
 }
 
