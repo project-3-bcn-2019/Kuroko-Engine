@@ -1,8 +1,10 @@
 #include "ComponentButtonUI.h"
+#include "Application.h"
 #include "ComponentImageUI.h"
 #include "ComponentRectTransform.h"
 #include "GameObject.h"
-
+#include "ResourceTexture.h"
+#include "ModuleResourcesManager.h"
 
 ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_BUTTON)
 {
@@ -14,6 +16,26 @@ ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : 
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+
+	alpha = json_object_get_number(deff, "alpha");
+	state = ButtonState((int)json_object_get_number(deff, "state"));
+
+	const char* texPath = json_object_dotget_string(deff, "textureIdle");
+	if (texPath && strcmp(texPath, "missing reference") != 0) {
+		uint uuid = App->resources->getResourceUuid(texPath);
+		idle = (ResourceTexture*)App->resources->getResource(uuid);
+	}
+	texPath = json_object_dotget_string(deff, "textureHover");
+	if (texPath && strcmp(texPath, "missing reference") != 0) {
+		uint uuid = App->resources->getResourceUuid(texPath);
+		hover = (ResourceTexture*)App->resources->getResource(uuid);
+	}
+	texPath = json_object_dotget_string(deff, "texturePressed");
+	if (texPath && strcmp(texPath, "missing reference") != 0) {
+		uint uuid = App->resources->getResourceUuid(texPath);
+		pressed = (ResourceTexture*)App->resources->getResource(uuid);
+	}
+	ChangeGOImage();
 }
 
 ComponentButtonUI::~ComponentButtonUI()
@@ -105,6 +127,28 @@ void ComponentButtonUI::ChangeGOImage()
 
 void ComponentButtonUI::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "UIbutton");
+	json_object_set_number(config, "alpha", alpha);
+	json_object_set_number(config, "state", state);
+
+	std::string texName = std::string("missing_reference");
+	if (idle) {  //If it has a texture
+		texName = idle->asset;
+	}
+	json_object_dotset_string(config, "textureIdle", texName.c_str());
+	texName = "missing_reference";
+
+	if (hover) {  
+		texName = hover->asset;
+	}
+	json_object_dotset_string(config, "textureHover", texName.c_str());
+	texName = "missing_reference";
+
+	if (pressed) {
+		texName = pressed->asset;
+	}
+	json_object_dotset_string(config, "texturePressed", texName.c_str());
+
 }
 
 

@@ -1,10 +1,13 @@
 #include "ComponentCheckBoxUI.h"
+#include "Application.h"
 #include "ComponentImageUI.h"
 #include "ComponentRectTransform.h"
 #include "GameObject.h"
 #include "Application.h"
 #include "ModuleInput.h"
 #include "ModuleWindow.h"
+#include "ModuleResourcesManager.h"
+#include "ResourceTexture.h"
 
 ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent, UI_CHECKBOX)
 {
@@ -14,6 +17,24 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent,
 
 ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_CHECKBOX)
 {
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+
+	
+	state = CheckBoxState((int)json_object_get_number(deff, "state"));
+
+	const char* texPath = json_object_dotget_string(deff, "textureIdle");
+	if (texPath && strcmp(texPath, "missing reference") != 0) {
+		uint uuid = App->resources->getResourceUuid(texPath);
+		idle = (ResourceTexture*)App->resources->getResource(uuid);
+	}
+	
+	texPath = json_object_dotget_string(deff, "texturePressed");
+	if (texPath && strcmp(texPath, "missing reference") != 0) {
+		uint uuid = App->resources->getResourceUuid(texPath);
+		pressed = (ResourceTexture*)App->resources->getResource(uuid);
+	}
+	ChangeGOImage();
 }
 
 
@@ -35,6 +56,21 @@ bool ComponentCheckBoxUI::Update(float dt)
 
 void ComponentCheckBoxUI::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "UIcheckbox"); 
+	json_object_set_number(config, "state", state);
+
+	std::string texName = std::string("missing_reference");
+	if (idle) {  //If it has a texture
+		texName = idle->asset;
+	}
+	json_object_dotset_string(config, "textureIdle", texName.c_str());
+	
+	texName = "missing_reference";
+
+	if (pressed) {
+		texName = pressed->asset;
+	}
+	json_object_dotset_string(config, "texturePressed", texName.c_str());
 }
 
 
