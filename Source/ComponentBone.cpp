@@ -54,8 +54,7 @@ ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(
 								JSON_Array* event_arr = json_value_get_array(event_val);
 
 								std::pair<uint, std::map<int, void*>> push_comp;
-
-								push_comp.first = json_object_get_number(key_obj, "keyframe");
+								push_comp.first = json_object_get_number(comp_obj, "uuid");
 
 								for (int l = 0; l < json_array_get_count(event_arr); ++l)
 								{
@@ -106,7 +105,54 @@ void ComponentBone::Save(JSON_Object * config)
 
 		if (AnimSets.size() > 0)
 		{
+			JSON_Value* AnimList = json_value_init_array();
+			JSON_Array* AnimSetArr = json_value_get_array(AnimList);
 
+			for (auto it_sets = AnimSets.begin(); it_sets != AnimSets.end(); ++it_sets)
+			{
+				JSON_Value* AnimSetVal = json_value_init_object();
+				JSON_Object* AnimSetObj = json_value_get_object(AnimSetVal);
+				json_object_set_number(AnimSetObj, "linked_animation", it_sets->second.linked_animation);
+
+				JSON_Value* key_arr_val = json_value_init_array();
+				JSON_Array* key_arr = json_value_get_array(key_arr_val);
+				for (auto it_keys = it_sets->second.AnimEvts.begin(); it_keys != it_sets->second.AnimEvts.end(); ++it_keys)
+				{
+					JSON_Value* key_val = json_value_init_object();
+					JSON_Object* key_obj = json_value_get_object(key_val);
+					json_object_set_number(key_obj, "keyframe", it_keys->first);
+
+					JSON_Value* comp_arr_val = json_value_init_array();
+					JSON_Array* comp_arr = json_value_get_array(comp_arr_val);
+					for (auto it_comps = it_keys->second.begin(); it_comps != it_keys->second.end(); ++it_comps)
+					{
+						JSON_Value* comp_val = json_value_init_object();
+						JSON_Object* comp_obj = json_value_get_object(comp_val);
+						json_object_set_number(comp_obj, "uuid", it_comps->first);
+
+						JSON_Value* event_arr_val = json_value_init_array();
+						JSON_Array* event_arr = json_value_get_array(event_arr_val);
+						for (auto it_events = it_comps->second.begin(); it_events != it_comps->second.end(); ++it_events)
+						{
+							JSON_Value* event_val = json_value_init_object();
+							JSON_Object* event_obj = json_value_get_object(event_val);
+							json_object_set_number(event_obj, "event", it_events->first);
+							// Now the value required should be save but currently not using it
+							// When values are available for anim a switch for the value
+							// adn depending on type of event and module should be saved
+							
+							json_array_append_value(event_arr, event_val);
+						}
+						json_object_set_value(comp_obj, "event_arr", event_arr_val);
+						json_array_append_value(comp_arr, comp_val);
+					}
+					json_object_set_value(key_obj, "comp_arr", comp_arr_val);
+					json_array_append_value(key_arr, key_val);
+				}
+				json_object_set_value(AnimSetObj,"key_arr", key_arr_val);
+				json_array_append_value(AnimSetArr, AnimSetVal);
+			}
+			json_object_set_value(config, "AnimArr", AnimList);
 		}
 	}
 }

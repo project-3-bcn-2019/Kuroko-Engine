@@ -153,6 +153,7 @@ bool PanelHierarchyTab::DrawHierarchyNode(GameObject& game_object, int& id)
 	}
 
 	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)game_object.getUUID(), node_flags, game_object.getName().c_str()) && !children.empty();
+	
 	bool item_hovered = ImGui::IsItemHovered();
 
 
@@ -197,7 +198,7 @@ bool PanelHierarchyTab::DrawHierarchyNode(GameObject& game_object, int& id)
 
 	if (node_open)
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
+		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize());
 
 		for (std::list<GameObject*>::iterator it = children.begin(); it != children.end(); it++)
 			if (DrawHierarchyNode(*(*it), id))
