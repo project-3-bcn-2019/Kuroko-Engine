@@ -22,6 +22,7 @@
 #include "ComponentScript.h"
 #include "ComponentAudioListener.h"
 #include "ComponentAudioSource.h"
+#include "ComponentRectTransform.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
@@ -244,6 +245,65 @@ void ModuleScene::DrawScene(float3 camera_pos)
 		(*it)->Draw();
 
 	quadtree_ignored_obj = game_objects.size() - drawable_gameobjects.size();
+}
+
+void ModuleScene::DrawInGameUI()
+{
+	//ComponentRectTransform* rectTransform = canvas->GetComponentRectTransform();
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+
+	//float left = rectTransform->GetGlobalPos().x;
+	//float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
+	//float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
+	//float bottom = rectTransform->GetGlobalPos().y;
+
+
+
+	///*float left = rectTransform->GetGlobalPos().x;
+	//float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
+	//float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
+	//float bottom = rectTransform->GetGlobalPos().y;*/
+	//float zNear = -10.f;
+	//float zFar = 10.f;
+	//float3 min = { left, bottom, zNear };
+	//float3 max = { right, top, zFar };
+
+	//ui_render_box.minPoint = min;
+	//ui_render_box.maxPoint = max;
+
+	//glOrtho(left, right, bottom, top, zNear, zFar);
+	//float3 corners[8];
+	//ui_render_box.GetCornerPoints(corners);
+	//DebugDrawBox(corners, Red, 5.f);
+	///*glBegin(GL_TRIANGLES);
+	//glVertex2f(-1, -1);
+	//glVertex2f(1, -1);
+	//glVertex2f(1, 1);
+	//glEnd();*/
+
+	//std::vector<ComponentUI*> componentsUI; // first draw UI components
+	//root->GetComponentsUITypeIgnore(componentsUI, TRANSFORMRECT);
+	//for (int i = 0; i < componentsUI.size(); i++) {
+	//	if (componentsUI[i]->draw)
+	//		componentsUI[i]->DrawUI();
+	//}
+	//componentsUI.clear();
+
+	//root->GetComponentsUIType(componentsUI, TRANSFORMRECT); // then draw rectTransforms
+
+	//ComponentRectTransform* recTrans = nullptr;
+	//for (int i = 0; i < componentsUI.size(); i++) {
+	//	recTrans = (ComponentRectTransform *)componentsUI[i];
+	//	if (recTrans->draw)
+	//		recTrans->DrawUI();
+	//}
+	//componentsUI.clear();
+	////--------UI
+	//recTrans = nullptr;
 }
 
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }

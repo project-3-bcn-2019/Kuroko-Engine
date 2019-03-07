@@ -24,6 +24,7 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 
 	GenBuffer();
 }
+
 ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * parent) : Component(parent, RECTTRANSFORM) {
 	
 	// Position
@@ -106,8 +107,6 @@ void ComponentRectTransform::Draw() const
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glLineWidth(1.0f);
-
-
 	}
 }
 

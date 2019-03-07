@@ -42,6 +42,7 @@ public:
 	bool CleanUp();
 
 	void DrawScene(float3 camera_pos);
+	void DrawInGameUI();
 
 	void addGameObject(GameObject* gobj)	{ game_objects.push_back(gobj); };
 	GameObject* duplicateGameObject(GameObject* gobj);
