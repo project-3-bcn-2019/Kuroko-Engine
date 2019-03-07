@@ -573,6 +573,20 @@ uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, co
 	}
 	return 0;
 }
+
+uint ModuleResourcesManager::getTextureResourceUuid(const char * name) {
+
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_TEXTURE) {
+			ResourceMesh* res_tex = (ResourceMesh*)(*it).second;
+			if (res_tex->asset == name) {
+				return res_tex->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 uint ModuleResourcesManager::getAnimationResourceUuid(const char * Parent3dObject, const char * name)
 {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
