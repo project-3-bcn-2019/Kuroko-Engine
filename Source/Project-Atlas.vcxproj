@@ -14,7 +14,7 @@
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>
     <RootNamespace>SDLGame</RootNamespace>
     <ProjectName>Project-Atlas</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -82,6 +82,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ComponentAnimationEvent.h" />
+    <ClInclude Include="ComponentAnimator.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="ModuleWindow.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="PanelAnimationEvent.h" />
+    <ClInclude Include="PanelAnimationGraph.h" />
     <ClInclude Include="PanelAssetsWin.h" />
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
@@ -224,6 +226,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceAnimation.h" />
+    <ClInclude Include="ResourceAnimationGraph.h" />
     <ClInclude Include="ResourceAudio.h" />
     <ClInclude Include="ResourceBone.h" />
     <ClInclude Include="ResourceMesh.h" />
@@ -257,6 +260,7 @@
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentAnimationEvent.cpp" />
+    <ClCompile Include="ComponentAnimator.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -345,6 +349,7 @@
     <ClCompile Include="ModuleScene.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
     <ClCompile Include="PanelAnimationEvent.cpp" />
+    <ClCompile Include="PanelAnimationGraph.cpp" />
     <ClCompile Include="PanelAssetsWin.cpp" />
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
@@ -358,6 +363,7 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="ResourceAnimation.cpp" />
+    <ClCompile Include="ResourceAnimationGraph.cpp" />
     <ClCompile Include="ResourceAudio.cpp" />
     <ClCompile Include="ResourceBone.cpp" />
     <ClCompile Include="ResourceMesh.cpp" />

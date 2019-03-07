@@ -31,6 +31,7 @@ public:
 	void removeComponent(Component* component);
 
 	Component* getComponent(Component_type type) const;
+	Component* getScriptComponent(std::string script_name) const;
 	Component* getComponentByUUID(uint uuid) const;
 	Component* getChildComponent(uint uuid) const;
 	bool getComponents(Component_type type, std::list<Component*>& list_to_fill) const;

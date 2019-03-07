@@ -21,6 +21,7 @@ class ObjectComunicator{
 
 	foreign static C_GetComponentUUID(gameObject, component_type)
 	foreign static C_GetCollisions(gameObject)
+	foreign static C_GetScript(gameObject, script_name)
 
 }
 
@@ -282,5 +283,8 @@ class ObjectLinker{
 			return ComponentParticleEmitter.new(gameObject, component_uuid)
 		}
 
+	}
+	getScript(script_name){
+		return ObjectComunicator.C_GetScript(gameObject, script_name)
 	}
 }

@@ -28,6 +28,7 @@ class PanelHierarchyTab;
 class PanelObjectInspector;
 class PanelAssetsWin;
 class PanelPrimitives;
+class PanelAnimationGraph;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -35,7 +36,7 @@ enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, C
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
 					GUIZMO_SELECT, FOLDER_ICON, OBJECT_ICON, SCENE_ICON, SCRIPT_ICON, PREFAB_ICON, RETURN_ICON, CAUTION_ICON,
-					WARNING_ICON, LAST_UI_TEX};
+					WARNING_ICON, GRAPH_ICON, AUDIO_ICON, LAST_UI_TEX};
 
 enum UI_Fonts {REGULAR, REGULAR_BOLD, REGULAR_ITALIC, REGULAR_BOLDITALIC, TITLES, IMGUI_DEFAULT, LAST_UI_FONT};
 
@@ -90,6 +91,8 @@ public:
 	void SaveConfig(JSON_Object* config) const;
 	void LoadConfig(const JSON_Object* config);
 
+	bool isMouseOnUI() const;
+
 	bool disable_keyboard_control = false;
 
 	// Panels
@@ -99,6 +102,7 @@ public:
 	PanelObjectInspector* p_inspector = nullptr;
 	PanelAssetsWin* p_assetswindow = nullptr;
 	PanelPrimitives* p_primitives = nullptr;
+	PanelAnimationGraph* p_animation_graph = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW

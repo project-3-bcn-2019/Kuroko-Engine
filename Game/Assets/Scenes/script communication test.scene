@@ -1,17 +1,17 @@
 {
     "Game Objects": [
         {
-            "name": "Default Audio Listener",
-            "tag": "undefined",
+            "name": "life",
+            "tag": "life",
             "static": false,
-            "UUID": 199760641,
+            "UUID": 2804877699,
             "Components": [
                 {
                     "type": "transform",
                     "local": {
-                        "px": 0.34827518463134766,
-                        "py": 11.667210578918457,
-                        "pz": -12.189628601074219,
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
                         "sx": 1,
                         "sy": 1,
                         "sz": 1,
@@ -21,9 +21,9 @@
                         "qw": 1
                     },
                     "global": {
-                        "px": 0.34827518463134766,
-                        "py": 11.667210578918457,
-                        "pz": -12.189628601074219,
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
                         "sx": 1,
                         "sy": 1,
                         "sz": 1,
@@ -32,26 +32,33 @@
                         "qz": 0,
                         "qw": 1
                     },
-                    "uuid": 197980916
+                    "uuid": 432021338
                 },
                 {
                     "type": "AABB",
-                    "uuid": 1668360581
+                    "uuid": 3209775878
                 },
                 {
-                    "type": "audioListener",
-                    "active": true,
-                    "muted": false,
-                    "volume": 100,
-                    "uuid": 3468045413
+                    "type": "script",
+                    "script": "Assets\/Scripts\/Subsystems tests\/life.wren",
+                    "variables": [
+                        {
+                            "name": "life_var",
+                            "type": "number",
+                            "value": 3021,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 2493424549
                 }
             ]
         },
         {
-            "name": "Audio Source",
+            "name": "magician",
             "tag": "undefined",
             "static": false,
-            "UUID": 2909938367,
+            "UUID": 1859428106,
             "Components": [
                 {
                     "type": "transform",
@@ -79,29 +86,17 @@
                         "qz": 0,
                         "qw": 1
                     },
-                    "uuid": 2276213348
+                    "uuid": 220170599
                 },
                 {
                     "type": "AABB",
-                    "uuid": 2285397741
+                    "uuid": 2336274607
                 },
                 {
-                    "type": "audioSource",
-                    "active": true,
-                    "soundID": 645565787,
-                    "soundName": "Punch",
-                    "volume": 100,
-                    "pitch": 0,
-                    "uuid": 3656951655
-                },
-                {
-                    "type": "audioSource",
-                    "active": true,
-                    "soundID": 2385628198,
-                    "soundName": "Footsteps",
-                    "volume": 100,
-                    "pitch": 0,
-                    "uuid": 3927916811
+                    "type": "script",
+                    "script": "Assets\/Scripts\/Subsystems tests\/magician.wren",
+                    "variables": [],
+                    "uuid": 2671074259
                 }
             ]
         }

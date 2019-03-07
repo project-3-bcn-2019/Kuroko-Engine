@@ -20,6 +20,7 @@
 #include "ModulePhysics3D.h"
 #include "ComponentAnimationEvent.h"
 #include "ComponentColliderCube.h"
+#include "ComponentAnimator.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -175,6 +176,16 @@ Component* GameObject::getComponent(Component_type type) const
 	for (std::list<Component*>::const_iterator it = components.begin(); it != components.end(); it++)
 	{
 		if ((*it)->getType() == type)
+			return *it;
+	}
+
+	return nullptr;
+}
+
+Component * GameObject::getScriptComponent(std::string script_name) const {
+
+	for (std::list<Component*>::const_iterator it = components.begin(); it != components.end(); it++) {
+		if ((*it)->getType() == SCRIPT && ((ComponentScript*)(*it))->instance_data->class_name == script_name) // Retrun the script with the same class name
 			return *it;
 	}
 
@@ -409,6 +420,12 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentAnimationEvent(this);
 		components.push_back(new_component);
 		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+		{
+			new_component = new ComponentAnimator(this);
+			components.push_back(new_component);
+		}
 	default:
 		break;
 	}
@@ -468,6 +485,9 @@ void GameObject::addComponent(Component* component)
 	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+			components.push_back(component);
 	default:
 		break;
 	}

@@ -74,6 +74,7 @@ public:
 	uint getAnimationResourceUuid(const char* name);
 	uint getBoneResourceUuid(const char* Parent3dObject, const char* name);
 	uint getAudioResourceUuid(const char* name);
+	uint getAnimationGraphResourceUuid(const char* Parent3dObject, const char* name);
 
 	void CleanResources() { cleanResources = true; }
 
@@ -84,6 +85,7 @@ public:
 	void getMeshResourceList(std::list<resource_deff>& meshes);
 	void getScriptResourceList(std::list<resource_deff>& scripts);
 	void getAnimationResourceList(std::list<resource_deff>& animations);
+	void getAnimationGraphResourceList(std::list<resource_deff>& graphs);
 	void getSceneResourceList(std::list<resource_deff>& scenes, std::list<resource_deff> ignore);
 	void getAudioResourceList(std::list<resource_deff>& audio);
 	std::string getPrefabPath(const char* prefab_name); // Retruns the binary file for the given prefab so it can be loaded

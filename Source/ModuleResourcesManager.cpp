@@ -13,6 +13,7 @@
 #include "ResourceAnimation.h"
 #include "ResourceBone.h"
 #include "ResourceAudio.h"
+#include "ResourceAnimationGraph.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -93,18 +94,21 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 
 	switch (deff.type) {
 	case R_TEXTURE: ret = (Resource*) new ResourceTexture(deff); break;
-	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;     
-	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break; 
+	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;
+	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break;
 	case R_SCRIPT: ret = (Resource*) new ResourceScript(deff); break;
 	case R_SCENE: ret = (Resource*) new ResourceScene(deff); break;
 	case R_PREFAB: ret = (Resource*) new ResourcePrefab(deff); break;
 	case R_ANIMATION:
 		ret = (Resource*) new ResourceAnimation(deff);
 		break;
-	case R_BONE: 
+	case R_BONE:
 		ret = (Resource*) new ResourceBone(deff);
 		break;
 	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
+	case R_ANIMATIONGRAPH:
+		ret = (Resource*) new ResourceAnimationGraph(deff);
+		break;
 	}
 
 	if (ret)
@@ -315,6 +319,8 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		break;
 	case R_AUDIO:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_AUDIO, AUDIO_EXTENSION, uuid_str.c_str()); // Copy the file to the library
+	case R_ANIMATIONGRAPH:
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
 	}
 	// Meta generated and file imported, create resource in code
@@ -618,6 +624,19 @@ uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
 	return 0;
 }
 
+uint ModuleResourcesManager::getAnimationGraphResourceUuid(const char * Parent3dObject, const char * name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_ANIMATIONGRAPH) {
+			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
+			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
+				return res_anim->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 void ModuleResourcesManager::CleanMeta() {
 	using std::experimental::filesystem::recursive_directory_iterator;
 	for (auto& it : recursive_directory_iterator(ASSETS_FOLDER)) {
@@ -702,6 +721,17 @@ void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& 
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			animations.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getAnimationGraphResourceList(std::list<resource_deff>& graphs)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_ANIMATIONGRAPH) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			graphs.push_back(deff);
 		}
 	}
 }
@@ -792,7 +822,8 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "scene";
 	else if (extension == ".bnk")
 		ret = "audio";
-
+	else if (extension == GRAPH_EXTENSION)
+		ret = "graph";
 
 	return ret;
 }
@@ -813,6 +844,8 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_SCENE;
 	if (str_type == "audio")
 		ret = R_AUDIO;
+	if (str_type == "graph")
+		ret = R_ANIMATIONGRAPH;
 
 	return ret;
 }
@@ -838,6 +871,9 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 			break;
 		case R_AUDIO:
 			ret = ".bnk";
+			break;
+		case R_ANIMATIONGRAPH:
+			ret = GRAPH_EXTENSION;
 			break;
 
 	}
@@ -869,6 +905,8 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 	case R_AUDIO:
 		ret = LIBRARY_AUDIO;
 		break;
+	case R_ANIMATIONGRAPH:
+		ret = LIBRARY_GRAPHS;
 	}
 	return ret;
 }

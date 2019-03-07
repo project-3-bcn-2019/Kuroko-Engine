@@ -60,7 +60,10 @@ enum update_status
 #define WIN_BORDERLESS false
 #define WIN_FULLSCREEN_DESKTOP false
 #define VSYNC true
-#define TITLE "Kuroko Engine"
+#define TITLE "Project-Atlas"
 #define PI       3.14159265358979323846   // pi
+
+#define GRAPH_NODE_WINDOW_PADDING 10.0f
+#define GRAPH_LINK_RADIUS 5.0f
 
 #endif

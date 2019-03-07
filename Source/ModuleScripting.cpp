@@ -17,6 +17,7 @@
 #include "ComponentAnimation.h"
 #include "ComponentColliderCube.h"
 #include "ComponentParticleEmitter.h"
+#include "ComponentScript.h"
 #include "Transform.h"
 
 
@@ -37,6 +38,7 @@ void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
 void GetCollisions(WrenVM* vm);
+void GetScript(WrenVM* vm);
 
 // Engine comunicator
 void ConsoleLog(WrenVM* vm); 
@@ -496,6 +498,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_GetCollisions(_)") == 0) {
 				return GetCollisions; // C function for ObjectComunicator.C_GetCollisions
 			}
+			if (strcmp(signature, "C_GetScript(_,_)") == 0) {
+				return GetScript; // C function for ObjectComunicator.C_GetScript
+			}
 		}
 		if (strcmp(className, "Math") == 0) {
 			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
@@ -847,6 +852,27 @@ void GetCollisions(WrenVM* vm) {
 	// retrun the list in slot 0
 }
 
+void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to the parent (maybe)
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	std::string script_name = wrenGetSlotString(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+
+	ComponentScript* component =  (ComponentScript*)go->getScriptComponent(script_name);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentScript named %s", go->getName().c_str(), script_name.c_str());
+		return;
+	}
+	
+	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
+}
 // Engine comunicator
 void ConsoleLog(WrenVM* vm)
 {
@@ -1223,6 +1249,8 @@ void CreateParticles(WrenVM* vm) {
 
 	for(int i = 0; i < particles; i++)
 		component->CreateParticle();
+
+
 }
 
 

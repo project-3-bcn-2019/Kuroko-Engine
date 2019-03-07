@@ -37,6 +37,7 @@
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
+#include "ComponentAnimator.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
@@ -44,6 +45,7 @@
 #include "Resource3dObject.h"
 #include "ResourceAnimation.h"
 #include "ResourceMesh.h"
+#include "ResourceAnimationGraph.h"
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
@@ -71,6 +73,7 @@
 #include "PanelObjectInspector.h"
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
+#include "PanelAnimationGraph.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -85,7 +88,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_inspector = new PanelObjectInspector("Object Inspector", true);
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
-
+	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
 }
 
 
@@ -144,6 +147,8 @@ bool ModuleUI::Start()
 		ui_textures[RETURN_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
 		ui_textures[SCRIPT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
 		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+		ui_textures[GRAPH_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/graph_icon.png");
+		ui_textures[AUDIO_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/audio_icon.png");
 
 		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
 		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
@@ -156,6 +161,11 @@ bool ModuleUI::Start()
 		//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
 
 		open_tabs[BUILD_MENU] = false;
+
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = { 0.1f,0.1f,0.1f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = { 0.3f, 0.3f,0.3f,1.0f };
 
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -258,6 +268,9 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[SKYBOX_MENU])
 			DrawSkyboxWindow();
 
+		if (p_animation_graph->isActive())
+			p_animation_graph->Draw();
+
 		if (open_tabs[SCRIPT_EDITOR])
 			DrawScriptEditor();
 
@@ -323,6 +336,8 @@ update_status ModuleUI::Update(float dt) {
 			if (ImGui::BeginMenu("View")) {
 				if (ImGui::MenuItem("Hierarchy", NULL, p_hierarchy->isActive()))
 					p_hierarchy->toggleActive();
+				if (ImGui::MenuItem("Animation Graph", NULL, p_anim->isActive()))
+					p_animation_graph->toggleActive();
 				if (ImGui::MenuItem("Object Inspector", NULL, p_inspector->isActive()))
 					p_inspector->toggleActive();
 				if (ImGui::MenuItem("Primitive", NULL, p_primitives->isActive()))
@@ -1724,8 +1739,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	case ANIMATION:
 		if (ImGui::CollapsingHeader("Animation"))
 		{
-			//SKELETAL_TODO: missing resource info
-
 			ComponentAnimation* anim = (ComponentAnimation*)&component;
 			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
 			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
@@ -2321,6 +2334,45 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	}
+	case ANIMATOR:
+		if (ImGui::CollapsingHeader("Animator"))
+		{
+			ComponentAnimator* animator = (ComponentAnimator*)&component;
+			ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(animator->getAnimationGraphResource());
+			ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+			if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+				set_animation_menu = true;
+			}
+
+			if (set_animation_menu) {
+
+				std::list<resource_deff> graph_res;
+				App->resources->getAnimationGraphResourceList(graph_res);
+
+				ImGui::Begin("Animation selector", &set_animation_menu);
+				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+					resource_deff anim_deff = (*it);
+					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+						App->resources->deasignResource(animator->getAnimationGraphResource());
+						App->resources->assignResource(anim_deff.uuid);
+						animator->setAnimationGraphResource(anim_deff.uuid);
+						set_animation_menu = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}
+
+			static bool animator_active;
+			animator_active = animator->isActive();
+
+			if (ImGui::Checkbox("Active##active animator", &animator_active))
+				animator->setActive(animator_active);
+		}
+		break;
 	case COLLIDER_CUBE:
 	{	if (ImGui::CollapsingHeader("Collider Cube"))
 			ImGui::Text("This game object has a collider");
@@ -3858,6 +3910,11 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
 	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
+}
+
+bool ModuleUI::isMouseOnUI() const
+{
+	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
 }
 
 void ModuleUI::InvisibleDockingBegin() {
