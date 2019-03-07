@@ -139,11 +139,11 @@ public:
 		//		.
 		//		.
 		//	}
-		return "ERROR"; 
+		return "NO EVENTS"; 
 	};
 
 	virtual int getEvAmount() {	
-		return 0 /*ComponentTypeAnimEVT::ANIMEVTMAX*/; 
+		return -1 /*ComponentTypeAnimEVT::ANIMEVTMAX*/; 
 	};
 
 	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) 

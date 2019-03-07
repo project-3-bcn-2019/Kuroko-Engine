@@ -234,34 +234,34 @@ void PanelAnimation::Draw()
 		if (compAnimation->TestPause)
 		{
 			ImGui::SetCursorPos({ buttonPos,ImGui::GetCursorPosY() + 140 });
-ImGui::PushID("scrollButton");
-ImGui::Button("", { 20, 15 });
-ImGui::PopID();
+			ImGui::PushID("scrollButton");
+			ImGui::Button("", { 20, 15 });
+			ImGui::PopID();
 
-if (ImGui::IsItemClicked(0) && dragging == false)
-{
-	dragging = true;
-	offset = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - buttonPos;
-}
+			if (ImGui::IsItemClicked(0) && dragging == false)
+			{
+				dragging = true;
+				offset = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - buttonPos;
+			}
 
-if (dragging && ImGui::IsMouseDown(0))
-{
-	buttonPos = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - offset;
-	if (buttonPos < 0)
-		buttonPos = 0;
-	if (buttonPos > numFrames*zoom - 20)
-		buttonPos = numFrames * zoom - 20;
+			if (dragging && ImGui::IsMouseDown(0))
+			{
+				buttonPos = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - offset;
+				if (buttonPos < 0)
+					buttonPos = 0;
+				if (buttonPos > numFrames*zoom - 20)
+					buttonPos = numFrames * zoom - 20;
 
-	progress = buttonPos;
-	compAnimation->SetAnimTime(progress / (animation->ticksXsecond *zoom));
+				progress = buttonPos;
+				compAnimation->SetAnimTime(progress / (animation->ticksXsecond *zoom));
 
-}
-else
-{
-	dragging = false;
-}
+			}
+			else
+			{
+				dragging = false;
+			}
 
-ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec2(redbar.x + progress, redbar.y + 165), IM_COL32(255, 0, 0, 255), 1.0f);
+			ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec2(redbar.x + progress, redbar.y + 165), IM_COL32(255, 0, 0, 255), 1.0f);
 		}
 
 		ImGui::EndChild();
@@ -310,6 +310,15 @@ ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec
 				{
 					compBone->getParent()->getComponents(par_components);
 					if (ImGui::Button("+")) TryPushKey();
+					if (ImGui::IsItemHovered() && (sel_comp == nullptr || PushEvt.first == -1))
+					{
+						ImGui::BeginTooltip();
+						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+						ImGui::TextColored(ImVec4(1,0,0,1),"Complete the event or it won't be added!");
+						ImGui::PopTextWrapPos();
+						ImGui::EndTooltip();
+					}
+
 					ImGui::SameLine();
 
 					ImGui::PushItemWidth(250.f);
@@ -374,11 +383,34 @@ void PanelAnimation::TryPushKey()
 				{
 					getCompMap->second.insert(PushEvt);
 				}
+				else
+				{
+					std::map<int, void*> pushEvtMap;
+					pushEvtMap.insert(PushEvt);
+					getKeymap->second.insert(std::pair<uint,std::map<int,void*>>(sel_comp->getUUID(), pushEvtMap));
+				}
+			}
+			else
+			{
+				std::map<int, void*> pushEvtMap;
+				pushEvtMap.insert(PushEvt);
+				std::map<uint, std::map<int, void*>> pushCompMap;
+				pushCompMap.insert(std::pair<uint, std::map<int, void*>>(sel_comp->getUUID(), pushEvtMap));
+				GetAnimSet->second.AnimEvts.insert(std::pair<double, std::map<uint, std::map<int, void*>>>(frames, pushCompMap));
 			}
 		}
-	}
-	else
-	{
-		// Data not completed show warning
+		else
+		{
+			std::map<int, void*> pushEvtMap;
+			pushEvtMap.insert(PushEvt);
+			std::map<uint, std::map<int, void*>> pushCompMap;
+			pushCompMap.insert(std::pair<uint, std::map<int, void*>>(sel_comp->getUUID(), pushEvtMap));
+			AnimSetB pushAnimSet;
+			pushAnimSet.linked_animation = animation->uuid;
+			pushAnimSet.AnimEvts.insert(std::pair<double, std::map<uint, std::map<int, void*>>>(frames, pushCompMap));
+			compBone->AnimSets.insert(std::pair<uint, AnimSetB>(animation->uuid, pushAnimSet));
+		}
+		
+		ResetNewKeyValues();
 	}
 }
