@@ -116,7 +116,7 @@ void PanelAnimation::Draw()
 
 			ImGui::BeginGroup();
 			ImVec2 p = ImGui::GetCursorScreenPos();
-			ImGui::GetWindowDrawList()->AddLine(p, ImVec2(p.x + 75, p.y), IM_COL32(100, 100, 100, 255),2.f);
+			ImGui::GetWindowDrawList()->AddLine(p, ImVec2(p.x + 75, p.y), IM_COL32(100, 100, 100, 255), 2.f);
 
 			ImGui::SetCursorPosY(30);
 
@@ -134,7 +134,7 @@ void PanelAnimation::Draw()
 			if (compBone != nullptr) ImGui::Text("Components");
 
 			ImGui::EndGroup();
-			
+
 		}	ImGui::EndChild();
 		ImGui::SameLine();
 
@@ -143,15 +143,15 @@ void PanelAnimation::Draw()
 		ImGui::BeginChild("TimeLine", ImVec2(winSize, 130), true, ImGuiWindowFlags_HorizontalScrollbar);
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImVec2 redbar = ImGui::GetCursorScreenPos();
-		
-		ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y +20), ImVec2(p.x + numFrames * 25, p.y + 20), IM_COL32(100, 100, 100, 255), 2.f);
+
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(p.x, p.y + 20), ImVec2(p.x + numFrames * 25, p.y + 20), IM_COL32(100, 100, 100, 255), 2.f);
 
 
 		ImGui::InvisibleButton("scrollbar", { numFrames*zoom ,110 });
 
 		ImGui::SetCursorScreenPos(p);
 
-		
+
 		for (int i = 0; i < numFrames; i++)
 		{
 			ImGui::BeginGroup();
@@ -168,14 +168,14 @@ void PanelAnimation::Draw()
 			if (animation != nullptr && selectedBone != nullptr)
 			{
 				if (selectedBone->PosKeysTimes[i] == i)
-					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 21), ImVec2(p.x + 25, p.y + 40), ImColor(0.0f, 0.0f, 1.0f, 0.5f));	
-				
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 21), ImVec2(p.x + 25, p.y + 40), ImColor(0.0f, 0.0f, 1.0f, 0.5f));
+
 				if (selectedBone->ScaleKeysTimes[i] == i)
 					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 41), ImVec2(p.x + 25, p.y + 60), ImColor(1.0f, 0.0f, 0.0f, 0.5f));
-				
+
 				if (selectedBone->RotKeysTimes[i] == i)
 					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x, p.y + 61), ImVec2(p.x + 25, p.y + 80), ImColor(0.0f, 1.0f, 0.0f, 0.5f));
-				
+
 				// Component Keys
 				if (compBone != nullptr)
 				{
@@ -198,11 +198,11 @@ void PanelAnimation::Draw()
 		if (!(App->time->getGameState() == PLAYING) && !compAnimation->TestPlay && !compAnimation->TestPause)
 		{
 			ImGui::GetWindowDrawList()->AddLine({ redbar.x + frames * 25,redbar.y - 10 }, ImVec2(redbar.x + frames * 25, redbar.y + 100), IM_COL32(255, 255, 100, 255), 1.0f);
-			ImGui::GetWindowDrawList()->AddRectFilled({ redbar.x + frames * 25,redbar.y - 10 }, ImVec2(redbar.x + frames * 25 + 25, redbar.y + 100), IM_COL32(255, 255, 100, 50) );
+			ImGui::GetWindowDrawList()->AddRectFilled({ redbar.x + frames * 25,redbar.y - 10 }, ImVec2(redbar.x + frames * 25 + 25, redbar.y + 100), IM_COL32(255, 255, 100, 50));
 			progress = 0.0f;
 			//ImGui::SetScrollX(0);
 		}
-		
+
 		else if (!compAnimation->TestPause)
 		{
 			float auxprgbar = progress;
@@ -234,34 +234,34 @@ void PanelAnimation::Draw()
 		if (compAnimation->TestPause)
 		{
 			ImGui::SetCursorPos({ buttonPos,ImGui::GetCursorPosY() + 140 });
-			ImGui::PushID("scrollButton");
-			ImGui::Button("", { 20, 15 });
-			ImGui::PopID();
+ImGui::PushID("scrollButton");
+ImGui::Button("", { 20, 15 });
+ImGui::PopID();
 
-			if (ImGui::IsItemClicked(0) && dragging == false)
-			{
-				dragging = true;
-				offset = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - buttonPos;
-			}
+if (ImGui::IsItemClicked(0) && dragging == false)
+{
+	dragging = true;
+	offset = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - buttonPos;
+}
 
-			if (dragging && ImGui::IsMouseDown(0))
-			{
-				buttonPos = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - offset;
-				if (buttonPos < 0)
-					buttonPos = 0;
-				if (buttonPos > numFrames*zoom - 20)
-					buttonPos = numFrames * zoom - 20;
+if (dragging && ImGui::IsMouseDown(0))
+{
+	buttonPos = ImGui::GetMousePos().x - ImGui::GetWindowPos().x - offset;
+	if (buttonPos < 0)
+		buttonPos = 0;
+	if (buttonPos > numFrames*zoom - 20)
+		buttonPos = numFrames * zoom - 20;
 
-				progress = buttonPos;
-				compAnimation->SetAnimTime(progress / (animation->ticksXsecond *zoom));
+	progress = buttonPos;
+	compAnimation->SetAnimTime(progress / (animation->ticksXsecond *zoom));
 
-			}
-			else
-			{
-				dragging = false;
-			}
+}
+else
+{
+	dragging = false;
+}
 
-			ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec2(redbar.x + progress, redbar.y + 165), IM_COL32(255, 0, 0, 255), 1.0f);
+ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec2(redbar.x + progress, redbar.y + 165), IM_COL32(255, 0, 0, 255), 1.0f);
 		}
 
 		ImGui::EndChild();
@@ -270,10 +270,11 @@ void PanelAnimation::Draw()
 
 		ImGui::BeginGroup();
 
-		ImGui::BeginChild("All Animations", ImVec2(0, 130), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
 		if (animation != nullptr)
 		{
+			ImGui::BeginChild("All Animations", ImVec2(0, 95), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
 			for (int i = 0; i < animation->numBones; i++)
 			{
 				if (ImGui::Button(animation->boneTransformations[i].NodeName.c_str()))
@@ -286,20 +287,79 @@ void PanelAnimation::Draw()
 						compBone = nullptr;
 				}
 			}
-		}
+			ImGui::EndChild();
 
-		ImGui::EndChild();
+			ImGui::BeginChild("Selected Bone", ImVec2(0, 31), true, ImGuiWindowFlags_NoScrollbar);
+
+			if (compBone != nullptr)
+			{
+				ImGui::Text("Linked to: %s", compBone->getParent()->getName().c_str());
+			}
+
+			ImGui::EndChild();
+		}
 
 		ImGui::EndGroup();
 
-		ImGui::NewLine();
-
 		if (compBone != nullptr)
 		{
-			ImGui::Text("Linekd to: %s", compBone->getParent()->getName().c_str());
+			token_false = false;
+			ImGui::BeginGroup();
+			{
+				ImGui::BeginChild("Component Events", ImVec2(0, 0), true);
+				{
+					compBone->getParent()->getComponents(par_components);
+					if (ImGui::Button("+")) TryPushKey();
+					ImGui::SameLine();
+
+					ImGui::PushItemWidth(250.f);
+					if (sel_comp == nullptr)
+					{
+						if (ImGui::BeginCombo("##ComponentsToAnim", "SelectComponent"))
+						{
+							for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
+								if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
+									sel_comp = *it_comps;
+							ImGui::EndCombo();
+						}
+					}
+					else
+					{
+						if (ImGui::BeginCombo("##ComponentsToAnim", sel_comp->TypeToString().c_str()))
+						{
+							for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
+								if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
+									sel_comp = *it_comps;
+							ImGui::EndCombo();
+						}
+
+						ImGui::SameLine();
+						ImGui::PushItemWidth(250.f);
+						if (ImGui::BeginCombo("##AnimEvtsSel", sel_comp->EvTypetoString(PushEvt.first).c_str()))
+						{
+							for (int i = 0; i < sel_comp->getEvAmount(); ++i)
+								if (ImGui::Selectable(sel_comp->EvTypetoString(i).c_str(), token_false))
+									PushEvt.first = i;
+
+							ImGui::EndCombo();
+						}
+						// ImGui::SameLine();
+						// Function to continue the values for the initialization of event
+					}
+
+										
+
+				} ImGui::EndChild();
+			} ImGui::EndGroup();
 		}
-		
+		else
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "No associated GameObject, events unavailable!");
 	}
 
 	ImGui::End();
+}
+
+void PanelAnimation::TryPushKey()
+{
+
 }

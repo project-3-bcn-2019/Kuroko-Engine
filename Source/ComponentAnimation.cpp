@@ -6,7 +6,6 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
-#include "ComponentBone.h"
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {

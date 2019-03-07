@@ -3,6 +3,7 @@
 
 #include "Panel.h"
 #include <list>
+#include <map>
 
 class Component;
 class ComponentAnimation;
@@ -23,7 +24,7 @@ public:
 
 	void Draw();
 	void ComponentAnimationDraw();
-
+	void TryPushKey();
 public:
 
 	GameObject* selected_obj = nullptr;
@@ -59,16 +60,20 @@ private:
 	float winSize = 400.f;
 
 	// Component Animation
-	bool new_keyframe_win = false;
 	int ev_t = -1;
 	int new_key_frame = 0;
+
+	std::pair<int, void*> PushEvt;
+	Component* sel_comp = nullptr;
+	bool token_false;
 
 public:
 	void ResetNewKeyValues()
 	{
-		new_keyframe_win = false;
 		ev_t = -1;
 		new_key_frame = 0;
+		PushEvt.first = -1;
+		sel_comp = nullptr;
 	}
 };
 

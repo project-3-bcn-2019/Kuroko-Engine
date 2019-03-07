@@ -4,6 +4,7 @@
 #include "Component.h"
 //TMP - substitute by Animation.h
 #include "Globals.h"
+#include "ComponentBone.h"
 
 class ComponentAnimation : public Component
 {
@@ -41,6 +42,8 @@ private:
 	float animTime = 0.0f;
 	bool paused = false;
 	std::map<uint, uint> bones;
+
+	std::map<uint, AnimSetB> AnimSets;
 
 public:
 	// Panel Animation Bound
