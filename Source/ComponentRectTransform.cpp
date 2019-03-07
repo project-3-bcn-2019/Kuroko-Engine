@@ -24,26 +24,46 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 
 	GenBuffer();
 }
+ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * parent) : Component(parent, RECTTRANSFORM) {
+	
+	// Position
+	rect.local.x = json_object_get_number(deff, "localX");
+	rect.local.y = json_object_get_number(deff, "localY");
+	rect.global.x = json_object_get_number(deff, "globalX");
+	rect.global.y = json_object_get_number(deff, "globalY");
+
+	rect.anchor.x = json_object_get_number(deff, "anchorX");
+	rect.anchor.y = json_object_get_number(deff, "anchorY");
+
+	//Dimension
+	rect.width = json_object_get_number(deff, "width");
+	rect.height = json_object_get_number(deff, "height");
+
+	static const float vtx[] = {
+		rect.global.x,  rect.global.y, 0,
+		rect.global.x + rect.width, rect.global.y, 0,
+		rect.global.x + rect.width, rect.global.y + rect.height, 0,
+		rect.global.x, rect.global.y + rect.height, 0
+	};
+	   
+	rect.vertex = new float3[4];
+	memcpy(rect.vertex, vtx, sizeof(float3) * 4);
+
+	GenBuffer();
+}
 
 
 ComponentRectTransform::~ComponentRectTransform()
 {
-	//RELEASE MACRO NEEDED
-	delete[] rect.vertex;
-	rect.vertex = nullptr;
+
+	glDeleteBuffers(1, (GLuint*)&rect.vertexID);
+	RELEASE_ARRAY( rect.vertex);
+
 }
 
 bool ComponentRectTransform::Update(float dt)
 {
-	/*
-	if (getParent()->getComponent(CANVAS) != nullptr) {//it is canvas
-		setGlobalPos(getLocalPos());
-	}
-	else {
-		ComponentRectTransform* parentTrans = (ComponentRectTransform*)getParent()->getComponent(RECTTRANSFORM);
-		float2 globalTrans = parentTrans->getGlobalPos() + getLocalPos();
-		setLocalPos(globalTrans);
-	}*/
+	
 	return true;
 }
 
@@ -92,6 +112,21 @@ void ComponentRectTransform::Draw() const
 
 void ComponentRectTransform::Save(JSON_Object * config)
 {
+	// Set component type
+	json_object_set_string(config, "type", "rectTransform");
+
+	// Position
+	json_object_set_number(config, "localX", rect.local.x);
+	json_object_set_number(config, "localY", rect.local.y);
+	json_object_set_number(config, "globalX", rect.global.x);
+	json_object_set_number(config, "globalY", rect.global.y);
+
+	json_object_set_number(config, "anchorX", rect.anchor.x);
+	json_object_set_number(config, "anchorY", rect.anchor.y);
+
+	//Dimension
+	json_object_set_number(config, "width", rect.width);
+	json_object_set_number(config, "height", rect.height);
 }
 
 

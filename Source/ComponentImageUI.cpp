@@ -1,4 +1,5 @@
 #include "ComponentImageUI.h"
+#include "Application.h"
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "MathGeoLib/Math/float4x4.h"
@@ -7,6 +8,7 @@
 
 #include "ResourceTexture.h"
 #include "Material.h"
+#include "ModuleResourcesManager.h"
 
 ComponentImageUI::ComponentImageUI(GameObject* parent) : Component(parent, UI_IMAGE)
 {
@@ -24,14 +26,44 @@ ComponentImageUI::ComponentImageUI(GameObject* parent) : Component(parent, UI_IM
 	memcpy(texCoords, uvs, sizeof(float2) * 4);
 }
 
+ComponentImageUI::ComponentImageUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_IMAGE)
+{
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+
+	static const float uvs[] = {
+
+		0, 1,
+		1, 1,
+		1, 0,
+		0, 0
+	};
+
+	texCoords = new float2[4];
+	memcpy(texCoords, uvs, sizeof(float2) * 4);
+
+	alpha = json_object_get_number(deff, "alpha");
+	const char* texPath = json_object_dotget_string(deff, "textureName");
+
+	if (texPath) {
+		if (strcmp(texPath, "missing reference") != 0) {
+			uint uuid = App->resources->getResourceUuid(texPath);
+			texture = (ResourceTexture*)App->resources->getResource(uuid);
+			App->resources->assignResource(uuid);
+		}
+	}
+
+}
+
 
 ComponentImageUI::~ComponentImageUI()
 {
 	rectTransform = nullptr;
-	//RELEASE MACRO NEEDED
-	delete[] texCoords;
-	texCoords = nullptr;
-	texture = nullptr;
+	RELEASE_ARRAY(texCoords);
+	if (texture) {
+		App->resources->deasignResource(texture->uuid);
+		texture = nullptr;
+	}
+	
 }
 
 bool ComponentImageUI::Update(float dt)
@@ -87,6 +119,16 @@ void ComponentImageUI::Draw() const
 
 void ComponentImageUI::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "UIimage");
+	json_object_set_number(config, "alpha", alpha);
+
+	std::string texName = std::string("missing_reference");
+	if (texture) {  //If it has a texture
+		texName = texture->asset;		
+	}
+	json_object_dotset_string(config, "textureName",texName.c_str());
+
+
 }
 void ComponentImageUI::FadeIn()
 {

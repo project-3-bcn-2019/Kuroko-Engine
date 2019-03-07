@@ -54,6 +54,7 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 	name = json_object_get_string(deff, "name");
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");
+	is_UI = json_object_get_boolean(deff, "isUI");
 
 	// Create components
 	JSON_Array* json_components = json_object_get_array(deff, "Components");
@@ -66,6 +67,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		Component* component = nullptr;
 		if (type == "transform") {
 			component = new ComponentTransform(component_deff, this);
+		}
+		else if (type == "rectTransform") {
+			component = new ComponentRectTransform(component_deff, this);
 		}
 		else if (type == "AABB") {
 			component = new ComponentAABB(this);
@@ -100,10 +104,25 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "animation_event") {
 			component = new ComponentAnimationEvent(component_deff, this);
 		}
-
 		else if (type == "collider_cube") {
 			component = new ComponentColliderCube(component_deff, this);
 		}
+		else if (type == "canvas") {
+			component = new ComponentCanvas(component_deff, this);
+		}
+		else if (type == "UIimage") {
+			component = new ComponentImageUI(component_deff, this);
+		}
+		else if (type == "UItext") {
+			component = new ComponentTextUI(component_deff, this);
+		}
+		else if (type == "UIbutton") {
+			component = new ComponentButtonUI(component_deff, this);
+		}
+		else if (type == "UIcheckbox") {
+			component = new ComponentCheckBoxUI(component_deff, this);
+		}
+		
 		// Set component's parent-child
 		if (!component){
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
@@ -463,6 +482,24 @@ void GameObject::addComponent(Component* component)
 	case ANIMATION_EVENT:
 		components.push_back(component);
 		break;
+	case UI_BUTTON:
+		components.push_back(component);
+		break;
+	case UI_CHECKBOX:
+		components.push_back(component);
+		break;
+	case UI_TEXT:
+		components.push_back(component);
+		break;
+	case UI_IMAGE:
+		components.push_back(component);
+		break;
+	case RECTTRANSFORM:
+		components.push_back(component);
+		break;
+	case CANVAS:
+		components.push_back(component);
+		break;
 	case ANIMATOR:
 		if (!getComponent(ANIMATOR))
 			components.push_back(component);
@@ -506,6 +543,7 @@ void GameObject::Save(JSON_Object * config) {
 	json_object_set_string(config, "tag", tag.c_str());
 	json_object_set_boolean(config, "static", is_static);
 	json_object_set_number(config, "UUID", uuid);
+	json_object_set_boolean(config, "isUI", is_UI);
 
 	if (parent) json_object_set_number(config, "Parent", parent->uuid);
 

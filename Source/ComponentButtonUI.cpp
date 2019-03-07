@@ -10,6 +10,11 @@ ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
 }
 
+ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_BUTTON)
+{
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+}
 
 ComponentButtonUI::~ComponentButtonUI()
 {

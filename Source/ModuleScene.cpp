@@ -274,6 +274,7 @@ GameObject* ModuleScene::MousePicking(GameObject* ignore)
 		return ret;
 
 	std::list<RayHit> ray_hits;
+
 	
 	for (auto it = intersected_objs.begin(); it != intersected_objs.end(); it++)
 	{

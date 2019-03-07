@@ -22,6 +22,7 @@ class ComponentRectTransform :	public Component
 {
 public:
 	ComponentRectTransform(GameObject* parent);
+	ComponentRectTransform(JSON_Object * deff, GameObject * parent);
 	~ComponentRectTransform();
 	
 	bool Update(float dt) override;

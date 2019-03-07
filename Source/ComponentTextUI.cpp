@@ -32,6 +32,10 @@ ComponentTextUI::ComponentTextUI(GameObject* parent) : Component(parent, UI_TEXT
 
 }
 
+ComponentTextUI::ComponentTextUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_TEXT)
+{
+}
+
 
 ComponentTextUI::~ComponentTextUI()
 {

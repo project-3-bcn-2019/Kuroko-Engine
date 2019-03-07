@@ -18,6 +18,7 @@ class ComponentButtonUI :public Component
 {
 public:
 	ComponentButtonUI(GameObject* parent);
+	ComponentButtonUI(JSON_Object * deff, GameObject * parent);
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;

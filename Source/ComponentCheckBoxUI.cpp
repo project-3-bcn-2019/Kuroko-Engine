@@ -12,6 +12,10 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent,
 	image = (ComponentImageUI*) parent->getComponent(UI_IMAGE);
 }
 
+ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_CHECKBOX)
+{
+}
+
 
 ComponentCheckBoxUI::~ComponentCheckBoxUI()
 {
