@@ -40,6 +40,7 @@ class PlayerController is ObjectLinker{
 
     // Setters
     State = (new_state) {
+        if (_player_state)  _player_state.EndState() //the first time player_state is null
         _player_state = new_state   
         _player_state.BeginState()
     }
@@ -67,9 +68,11 @@ class PlayerController is ObjectLinker{
         _component_audio_source.setSound("Footsteps") //This should not be here -Pol
 
         //Initialize all the states
-        //the arguments are: (player, total_duration)
         _idle_state = IdleState.new(this)
-        _punch1_state = BasicAttackState.new(this,700)
+
+        //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700)
+
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
 
@@ -164,6 +167,10 @@ class State {
         _current_time_in = 0
 
         if (_player.ShowDebugLogs) EngineComunicator.consoleOutput("new state began")
+    }
+
+    EndState() {
+
     }
 
     //Here are all the functions that all the states will do in update, remember to call super.Update() -p
@@ -307,35 +314,32 @@ class DashState is State {
     }
 }
 
-class AttackState is State {
-    construct new(player) {
-        super(player)
-    }
-
-    construct new(player,total_duration) {
-        super(player,total_duration)
-    }
-}
-
-class BasicAttackState is AttackState {
+class BasicAttackState is State {
     construct new(player) {
         super(player)
         _player = player
     }
 
-    construct new(player,total_duration) {
+    construct new(player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration) {
         _player = player
+        _type = type
+        _tier = tier
+        _animation_name = animation_name
+        _sound_name = sound_name
+        _damage = damage
+        _stamina_cost = stamina_cost
+        _total_duration = total_duration
+
         super(player,total_duration)
     }
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("PunchingAnimation")
+        _player.ComponentAnimation.setAnimation(_animation_name)
         _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
-        _player.ComponentAudioSource.setSound("Punch")
+        _player.ComponentAudioSource.setSound(_sound_name)
         _player.ComponentAudioSource.Play()
-        _player.ComponentAudioSource.setSound("Footsteps")
     }
 
     HandleInput() {
@@ -351,7 +355,7 @@ class BasicAttackState is AttackState {
     }
 }
 
-class SpecialAttackState is AttackState {
+class SpecialAttackState is State {
     construct new(player) {
         super(player)
     }
