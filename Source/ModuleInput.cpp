@@ -5,6 +5,7 @@
 #include "ModuleImporter.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleUI.h"
 #include "FileSystem.h"
 
 #include "ImGui/imgui.h"
@@ -314,4 +315,12 @@ float ModuleInput::getFirstControllerAxis(SDL_GameControllerAxis axis) {
 			break;
 	}
 	return ret;
+}
+
+KEY_STATE ModuleInput::GetMouseButton(int id) const
+{
+	if (App->gui->isMouseOnUI())
+		return KEY_IDLE;
+	else
+		return mouse_buttons[id];
 }

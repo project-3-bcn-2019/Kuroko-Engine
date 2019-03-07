@@ -287,7 +287,7 @@ void PanelAnimationGraph::drawAnimationBox(Node* node) const
 	draw_list->AddRectFilled(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(25, 25, 25, 255), 1.0f);
 	draw_list->AddRect(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(150, 150, 150, 255), 1.0f, 15, 2.0f);
 
-	ImGui::SetCursorScreenPos({ pos.x + GRAPH_NODE_WINDOW_PADDING, pos.y + GRAPH_NODE_WINDOW_PADDING / 2 });
+	ImGui::SetCursorScreenPos({ pos.x + GRAPH_NODE_WINDOW_PADDING/2, pos.y + GRAPH_NODE_WINDOW_PADDING / 4 });
 
 	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(node->animationUID);
 	ImGui::Text((anim == nullptr) ? "No Animation" : anim->asset.c_str());

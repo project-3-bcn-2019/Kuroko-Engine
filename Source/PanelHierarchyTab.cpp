@@ -30,9 +30,9 @@ void PanelHierarchyTab::Draw()
 
 	if (ImGui::IsWindowHovered())
 	{
-		if (!item_hovered && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+		if (!item_hovered && ImGui::IsMouseClicked(0))
 			App->scene->selected_obj.clear();
-		else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
+		else if (ImGui::IsMouseClicked(1) && !item_hovered)
 			ImGui::OpenPopup("##hierarchy context menu");
 	}
 

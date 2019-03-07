@@ -2,9 +2,7 @@
 #include "Application.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
-/*#include "ModuleUI.h
-#include "ModuleResource.h"
-#include "PanelAnimationGraph.h"*/
+#include "PanelAnimationGraph.h"
 
 inline static float GetSquaredDistanceToBezierCurve(const ImVec2& point, const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4);
 inline bool containPoint(ImVec2 A, ImVec2 B, ImVec2 point);
@@ -95,7 +93,21 @@ bool ResourceAnimationGraph::LoadGraph()
 				NodeLink* linked = getLink((*it_l)->connectedNodeLink);
 				if (linked != nullptr)
 				{
+					int ranges[2];
+					bytes = sizeof(ranges);
+					memcpy(ranges, cursor, bytes);
+					cursor += bytes;
+
+					char* letter = new char[ranges[0]];
+					bytes = sizeof(char)*ranges[0];
+					memcpy(letter, cursor, bytes);
+					cursor += bytes;
+
 					node->transitions.push_back(new Transition((*it_l), linked, uuid));
+					node->transitions.back()->sdlKeyValue = ranges[1];
+					node->transitions.back()->usingLetter = letter;
+
+					RELEASE_ARRAY(letter);
 				}
 			}
 		}
@@ -127,6 +139,10 @@ bool ResourceAnimationGraph::saveGraph() const
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
 			size += sizeof(int) + 2 * sizeof(uint);
+		}
+		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
+		{
+			size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
 		}
 	}
 	//Links: type, UID, connected node
@@ -170,9 +186,22 @@ bool ResourceAnimationGraph::saveGraph() const
 			memcpy(cursor, links, bytes);
 			cursor += bytes;
 		}
+
+		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
+		{
+			int ranges[2] = { (*it_t)->usingLetter.size() , (*it_t)->sdlKeyValue };
+			bytes = sizeof(ranges);
+			memcpy(cursor, &ranges[0], bytes);
+			cursor += bytes;
+
+			bytes = sizeof(char)*ranges[0];
+			memcpy(cursor, (*it_t)->usingLetter.c_str(), bytes);
+			cursor += bytes;
+		}
 	}
 
-	App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);
+	//App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);
+	App->fs.ExportBuffer(buffer, size, asset.c_str());
 	RELEASE_ARRAY(buffer);
 
 	return true;
@@ -391,12 +420,12 @@ bool Transition::drawLine(bool selected, float2 offset)
 	draw_list->AddTriangleFilled(destinationPos, { destinationPos.x - triangleSize, destinationPos.y + triangleSize / 2 }, { destinationPos.x - triangleSize, destinationPos.y - triangleSize / 2 }, color);
 	draw_list->ChannelsSetCurrent(0);
 
-	/*if (ImGui::IsMouseDown(0) && App->gui->animationGraph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+	if (ImGui::IsMouseDown(0) && App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
 	{
 		float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
 		if (distance <= 15.0f)
 			ret = true;
-	}*/
+	}
 
 	return ret;
 }

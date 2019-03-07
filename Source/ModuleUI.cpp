@@ -162,6 +162,11 @@ bool ModuleUI::Start()
 
 		open_tabs[BUILD_MENU] = false;
 
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = { 0.1f,0.1f,0.1f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = { 0.3f, 0.3f,0.3f,1.0f };
+
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io->IniFilename = "Settings\\imgui.ini";
@@ -3905,6 +3910,11 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
 	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
+}
+
+bool ModuleUI::isMouseOnUI() const
+{
+	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
 }
 
 void ModuleUI::InvisibleDockingBegin() {
