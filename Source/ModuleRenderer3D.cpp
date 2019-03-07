@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "ModuleScene.h"
 #include "ModuleShaders.h"
+#include "ModuleTimeManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -183,6 +184,11 @@ void ModuleRenderer3D::Draw(Camera * cam)
 		lights[i].Render();
 
 	App->scene->DrawScene(cam->getFrustum()->pos);
+
+	if (App->time->getGameState() == GameState::PLAYING)
+	{
+		App->scene->DrawInGameUI();
+	}
 
 	if (cam != App->camera->background_camera && cam->getFrameBuffer())
 	{
