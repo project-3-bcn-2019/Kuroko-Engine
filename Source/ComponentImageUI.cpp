@@ -131,6 +131,7 @@ void ComponentImageUI::Save(JSON_Object * config)
 
 
 }
+
 void ComponentImageUI::FadeIn()
 {
 	alpha += DELTA_ALPHA;
