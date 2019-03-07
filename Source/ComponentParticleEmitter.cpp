@@ -417,8 +417,6 @@ std::string ComponentParticleEmitter::EvTypetoString(int evt)
 	{
 	case ParticleAnimEvents::PARTICLE_CREATE:
 		return "CREATE";
-	case ParticleAnimEvents::PARTICLE_NONE:
-		return "NONE";
 	}
 	return "ERROR";
 }

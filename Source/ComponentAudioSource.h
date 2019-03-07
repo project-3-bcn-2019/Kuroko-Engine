@@ -8,7 +8,6 @@
 class WwiseGameObject;
 
 enum AudioAnimEvents {
-	AUDIO_NONE,
 	AUDIO_PLAY,
 	AUDIO_STOP,
 	AUDIO_PAUSE,

@@ -124,7 +124,10 @@ public:
 	// based struct but for now should not be needed
 
 	// You have to create each ComponentTypeAnimEVT enum, which holds the evt
-	// types for the type of componetn you want to be animated
+	// types for the type of component you want to be animated
+	// please don't make a case ERROR/NONE or put it with value -1
+	// makes no sense as designers will not be able to actually go below or above
+	// the event numbers
 
 	virtual std::string EvTypetoString(int evt) { 
 		//	Template for virtual EvTypetoString
@@ -136,7 +139,7 @@ public:
 		//		.
 		//		.
 		//	}
-		return "Change Active"; 
+		return "ERROR"; 
 	};
 
 	virtual int getEvAmount() {	

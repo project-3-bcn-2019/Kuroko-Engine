@@ -65,7 +65,7 @@ private:
 
 	std::pair<int, void*> PushEvt;
 	Component* sel_comp = nullptr;
-	bool token_false;
+	bool token_false = false;
 
 public:
 	void ResetNewKeyValues()

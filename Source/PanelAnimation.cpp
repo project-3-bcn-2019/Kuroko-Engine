@@ -361,5 +361,24 @@ ImGui::GetWindowDrawList()->AddLine({ redbar.x + progress,redbar.y - 10 }, ImVec
 
 void PanelAnimation::TryPushKey()
 {
-
+	if (sel_comp != nullptr && PushEvt.first != -1)
+	{
+		auto GetAnimSet = compBone->AnimSets.find(animation->uuid);
+		if(GetAnimSet != compBone->AnimSets.end())
+		{
+			auto getKeymap = GetAnimSet->second.AnimEvts.find(frames);
+			if (getKeymap != GetAnimSet->second.AnimEvts.end())
+			{
+				auto getCompMap = getKeymap->second.find(sel_comp->getUUID());
+				if (getCompMap != getKeymap->second.end())
+				{
+					getCompMap->second.insert(PushEvt);
+				}
+			}
+		}
+	}
+	else
+	{
+		// Data not completed show warning
+	}
 }
