@@ -39,6 +39,9 @@ public:
 
 	bool is_environment = true;
 
+	float3 scale;
+
+	void SetSpeed(float x, float y, float z);
 
 //	bool Update(float dt)override;
 //

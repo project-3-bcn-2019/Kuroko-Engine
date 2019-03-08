@@ -94,19 +94,18 @@ bool ComponentPhysics::Update(float dt)
 
 	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
 
+	bounding_box.pos = ((ComponentTransform*)getParent()->getComponent(TRANSFORM))->local->getPosition();
 
 	DrawOBB();
 
-	btTransform t;
-	t = body->GetRigidBody()->getWorldTransform();
+	//btTransform t;
+	//t = body->GetRigidBody()->getWorldTransform();
 
-	float4x4 m;
-	t.getOpenGLMatrix(m.ptr());
+	//float4x4 m;
+	//t.getOpenGLMatrix(m.ptr());
 
-	transform->setMatrix(m);
 
-	bounding_box.pos = transform->getPosition();
-	bounding_box.r = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
+	//bounding_box. = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
 
 
 	colliding.clear();
@@ -343,6 +342,11 @@ void ComponentPhysics::Save(JSON_Object* config)
 	json_object_set_value(config, "obb", obb);
 
 
+}
+
+void ComponentPhysics::SetSpeed(float x, float y, float z)//@LUCAS ESTA ES LA FUNCION QUE TIENES QUE LLAMAR PARA PONERLE LA VELOCIDAD!!
+{
+	body->SetSpeed(x, y, z);
 }
 
 ComponentPhysics::~ComponentPhysics()

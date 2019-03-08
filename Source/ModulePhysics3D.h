@@ -59,6 +59,9 @@ public:
 
 	void UpdatePhysics();
 
+	void UpdateTransformsFromPhysics();
+	void UpdatePhysicsFromTransforms();
+
 	bool CleanUp();
 	void CleanUpWorld();
 
