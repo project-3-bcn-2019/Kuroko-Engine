@@ -14,7 +14,7 @@
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>
     <RootNamespace>SDLGame</RootNamespace>
     <ProjectName>Project-Atlas</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -217,6 +217,7 @@
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
     <ClInclude Include="PanelPrimitives.h" />
+    <ClInclude Include="PanelShader.h" />
     <ClInclude Include="PanelSkyboxWin.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="Particle.h" />
@@ -354,6 +355,7 @@
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
     <ClCompile Include="PanelPrimitives.cpp" />
+    <ClCompile Include="PanelShader.cpp" />
     <ClCompile Include="PanelSkyboxWin.cpp" />
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="Particle.cpp" />

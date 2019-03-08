@@ -29,6 +29,7 @@ class PanelObjectInspector;
 class PanelAssetsWin;
 class PanelPrimitives;
 class PanelAnimationGraph;
+class PanelShader;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -103,6 +104,7 @@ public:
 	PanelAssetsWin* p_assetswindow = nullptr;
 	PanelPrimitives* p_primitives = nullptr;
 	PanelAnimationGraph* p_animation_graph = nullptr;
+	PanelShader* p_shader_editor = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -111,6 +113,8 @@ public:
 	bool open_tabs[LAST_UI_TAB];  // _serializable_var
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
+	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
+
 
 private:
 	
@@ -121,7 +125,6 @@ private:
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
-	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
 
 	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
 	std::string selected_asset; //NOT IN USE I GUESS---------------
