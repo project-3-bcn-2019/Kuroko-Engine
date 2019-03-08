@@ -33,9 +33,14 @@ void PanelObjectInspector::Draw()
 		{
 			ImGui::Text("Name: %s", selected_obj->getName().c_str());
 
+			if (selected_obj->is_UI){//if is UI
+				ImGui::SameLine(0.f, 10.0f);
+				ImGui::TextColored(ImVec4(0.25f, 0.25f, 0.25f, 1), "UI GameObject");
+			}
+
 			ImGui::Checkbox("Active", &selected_obj->is_active);
 			
-			if (!selected_obj->is_UI) {
+			if (!selected_obj->is_UI) { // if it is not UI
 				ImGui::SameLine();
 				if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
 					App->scene->quadtree_reload = true;
@@ -50,6 +55,7 @@ void PanelObjectInspector::Draw()
 
 				}
 			}
+			
 			if (ImGui::CollapsingHeader("Add component"))
 			{
 				if (ImGui::Button("Add Script")) select_script = true;
