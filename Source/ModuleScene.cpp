@@ -178,8 +178,16 @@ update_status ModuleScene::Update(float dt)
 		if (picked != nullptr) {
 			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
 				App->scene->selected_obj.clear();
+				selected_obj.push_back(picked);
 			}
-			selected_obj.push_back(picked);
+			else {
+				if ((*selected_obj.begin())->is_UI == !picked->is_UI) {
+					app_log->AddLog("Cannot select UI GameObject and scene GameObject at the same time!");
+				}
+				else {
+					selected_obj.push_back(picked);
+				}
+			}			
 		}
 		else {
 			App->scene->selected_obj.clear();
