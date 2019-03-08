@@ -338,6 +338,9 @@ class BasicAttackState is State {
 
     BeginState() {
         super.BeginState()
+
+        _next_state = _player.IdleState
+
         _player.ComponentAnimation.setAnimation(_animation_name)
         _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
