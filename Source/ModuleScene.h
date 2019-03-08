@@ -1,6 +1,7 @@
 #ifndef __MODULE_SCENE
 #define __MODULE_SCENE
 #include "Module.h"
+#include "MathGeoLib\Geometry\Polygon.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Math\float3.h"
@@ -76,6 +77,7 @@ public:
 
 	GameObject* MousePicking(GameObject* ignore = nullptr);
 	float3 MousePickingHit(GameObject* ignore = nullptr);
+	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
 private:
@@ -96,6 +98,10 @@ private:
 	std::list<GameObject*>	game_objs_to_delete;
 
 	Quadtree * quadtree		= nullptr;
+
+	bool dragging = false;
+	Frustum* dragging_frustum = nullptr;
+	float2 initial_drag;
 
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
