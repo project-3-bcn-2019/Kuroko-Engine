@@ -108,6 +108,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "collider_cube") {
 			component = new ComponentColliderCube(component_deff, this);
 		}
+		else if (type == "animator") {
+			component = new ComponentAnimator(component_deff, this);
+		}
 		else if (type == "canvas") {
 			component = new ComponentCanvas(component_deff, this);
 		}
@@ -136,8 +139,6 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 
 		addComponent(component);
 	}
-
-	
 }
 
 GameObject::~GameObject()
@@ -146,8 +147,6 @@ GameObject::~GameObject()
 		delete *it;
 
 }
-
-
 
 bool GameObject::Update(float dt)
 {

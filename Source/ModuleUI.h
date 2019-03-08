@@ -93,6 +93,8 @@ public:
 	void SaveConfig(JSON_Object* config) const;
 	void LoadConfig(const JSON_Object* config);
 
+	bool isMouseOnUI() const;
+
 	bool disable_keyboard_control = false;
 
 	// Panels

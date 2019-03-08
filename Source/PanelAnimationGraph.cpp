@@ -63,6 +63,12 @@ void PanelAnimationGraph::Draw()
 	if (!hasGraph)
 		bckgColor = IM_COL32(25, 25, 25, 200);
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, bckgColor);
+
+	float posY = ImGui::GetCursorPosY();
+
+	drawBlackboard();
+
+	ImGui::SetCursorPos({ BLACKBOARD_WIDTH+10, posY });
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PushItemWidth(120.0f);
 
@@ -287,7 +293,7 @@ void PanelAnimationGraph::drawAnimationBox(Node* node) const
 	draw_list->AddRectFilled(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(25, 25, 25, 255), 1.0f);
 	draw_list->AddRect(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(150, 150, 150, 255), 1.0f, 15, 2.0f);
 
-	ImGui::SetCursorScreenPos({ pos.x + GRAPH_NODE_WINDOW_PADDING, pos.y + GRAPH_NODE_WINDOW_PADDING / 2 });
+	ImGui::SetCursorScreenPos({ pos.x + GRAPH_NODE_WINDOW_PADDING/2, pos.y + GRAPH_NODE_WINDOW_PADDING / 4 });
 
 	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(node->animationUID);
 	ImGui::Text((anim == nullptr) ? "No Animation" : anim->asset.c_str());
@@ -319,4 +325,94 @@ void PanelAnimationGraph::drawAnimationBox(Node* node) const
 		}
 		ImGui::End();
 	}
+}
+
+void PanelAnimationGraph::drawBlackboard()
+{
+	ImGui::BeginChild("Blackboard Panel", { BLACKBOARD_WIDTH,0 }, true);
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
+	ImGui::SetCursorPos({ 5,5 });
+	ImGui::Text("Blackboard");
+
+	if (graph != nullptr)
+	{
+		ImGui::SetCursorPosX(5);
+		static bool addVar = false;
+		if (ImGui::Button("Add Variable"))
+		{
+			ImGui::OpenPopup("##choose type");
+			addVar = true;
+		}
+
+		if (addVar && ImGui::BeginPopup("##choose type", ImGuiWindowFlags_NoMove))
+		{
+			if (ImGui::Button("INT"))
+			{
+				graph->blackboard.push_back(new Variable(VAR_INT, ""));
+				component->setInt(graph->blackboard.back()->uuid, 0);
+				addVar = false;
+			}
+			if (ImGui::Button("FLOAT"))
+			{
+				graph->blackboard.push_back(new Variable(VAR_FLOAT, ""));
+				component->setFloat(graph->blackboard.back()->uuid, 0.0f);
+				addVar = false;
+			}
+			if (ImGui::Button("STRING"))
+			{
+				graph->blackboard.push_back(new Variable(VAR_STRING, ""));
+				component->setString(graph->blackboard.back()->uuid, "");
+				addVar = false;
+			}
+			if (ImGui::Button("BOOL"))
+			{
+				graph->blackboard.push_back(new Variable(VAR_BOOL, ""));
+				component->setBool(graph->blackboard.back()->uuid, false);
+				addVar = false;
+			}
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::BeginChild("variables", { 0,0 }, true);
+
+		static const char* types[LAST_TYPE] = { "INT:", "FLOAT:", "STRING:", "BOOL:" };
+		int count = 0;
+		for (std::list<Variable*>::iterator it = graph->blackboard.begin(); it != graph->blackboard.end(); ++it)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
+			ImGui::BeginChildFrame(count+1, { 0, 45 });
+			ImGui::PopStyleVar();
+			char name[15] = "";
+			strcpy(name, (*it)->name.c_str());
+			if (ImGui::InputText("Name", name, sizeof(name)))
+			{
+				(*it)->name = name;
+			}
+
+			ImGui::Text(types[(*it)->type]);
+
+			ImGui::SameLine(50);
+			ImGui::PushItemWidth(100);
+			switch ((*it)->type)
+			{
+			case VAR_INT:
+				int* var = component->getInt((*it)->uuid);
+				if (var != nullptr)
+				{
+					ImGui::InputInt(("##VALUE" + std::to_string(count)).c_str(), var);
+				}
+				break;
+			}
+			ImGui::PopItemWidth();
+
+			count++;
+			ImGui::EndChildFrame();
+		}
+
+		ImGui::EndChild();
+	}
+
+	ImGui::PopStyleVar();
+	ImGui::EndChild();
 }

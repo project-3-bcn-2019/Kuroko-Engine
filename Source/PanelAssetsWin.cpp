@@ -272,9 +272,9 @@ void PanelAssetsWin::Draw()
 
 	if (ImGui::IsWindowHovered())
 	{
-		if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+		if (ImGui::IsMouseClicked(0))
 			selected_asset = "";
-		else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
+		else if (ImGui::IsMouseClicked(1) && !item_hovered)
 			ImGui::OpenPopup("##asset window context menu");
 	}
 	item_hovered = false;

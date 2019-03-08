@@ -5,9 +5,29 @@
 #include <map>
 #include <list>
 #include "MathGeoLib\MathGeoLib.h"
+#include "Random.h"
 
 struct Node;
 struct NodeLink;
+
+enum variableType
+{
+	VAR_INT,
+	VAR_FLOAT,
+	VAR_STRING,
+	VAR_BOOL,
+
+	LAST_TYPE
+};
+
+struct Variable
+{
+	Variable(variableType type, const char* name): type(type), name(name), uuid(random32bits()) {}
+
+	uint uuid = 0;
+	variableType type = VAR_INT;
+	std::string name = "";
+};
 
 enum linkType
 {
@@ -102,6 +122,8 @@ public:
 
 	std::map<uint, Node*> nodes;
 	std::map<uint, NodeLink*> links;
+
+	std::list<Variable*> blackboard;
 };
 
 #endif // !_RESOURCE_ANIMATIONGRAPH

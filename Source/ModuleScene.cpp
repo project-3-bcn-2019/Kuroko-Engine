@@ -126,7 +126,8 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-		if (!selected_obj.empty() && current == *selected_obj.begin()) 
+
+		if (!selected_obj.empty() && current == *selected_obj.begin())
 			selected_obj.clear();
 		game_objects.remove(current);
 
@@ -166,19 +167,28 @@ update_status ModuleScene::Update(float dt)
 		obj->addComponent(COLLIDER_CUBE);
 
 	}
-
+	
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
-		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
-		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
-
+		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);  //is it used?
+		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);//is it used?
 		
+		
+
 		GameObject* picked = MousePicking();
 		if (picked != nullptr) {
 			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
 				App->scene->selected_obj.clear();
+				selected_obj.push_back(picked);
 			}
-			selected_obj.push_back(picked);
+			else {
+				if ((*selected_obj.begin())->is_UI == !picked->is_UI) {
+					app_log->AddLog("Cannot select UI GameObject and scene GameObject at the same time!");
+				}
+				else {
+					selected_obj.push_back(picked);
+				}
+			}			
 		}
 		else {
 			App->scene->selected_obj.clear();
@@ -420,6 +430,7 @@ float3 ModuleScene::MousePickingHit(GameObject* ignore)
 		return ray_hits.front().intersection_point;
 	}
 }
+
 
 GameObject* ModuleScene::duplicateGameObject(GameObject * gobj) {
 

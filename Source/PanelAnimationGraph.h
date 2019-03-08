@@ -4,6 +4,8 @@
 #include "Panel.h"
 #include <map>
 
+#define BLACKBOARD_WIDTH 250.0f
+
 struct Node;
 struct Transition;
 class ResourceAnimationGraph;
@@ -17,6 +19,7 @@ public:
 
 	void Draw();
 	void drawAnimationBox(Node* node) const;
+	void drawBlackboard();
 
 	void selectNode(Node* node);
 

@@ -167,6 +167,11 @@ bool ModuleUI::Start()
 
 		open_tabs[BUILD_MENU] = false;
 
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = { 0.1f,0.1f,0.1f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = { 0.3f, 0.3f,0.3f,1.0f };
+
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io->IniFilename = "Settings\\imgui.ini";
@@ -3772,62 +3777,80 @@ void ModuleUI::DrawGuizmo()
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
+		/*
 		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
 		Transform* trans = transform->global;
+*/
+		float3 guizmoPos = float3::zero;
+		float3 guizmoScale = float3::zero;
+		//float3 guizmoRot = float3::zero;
 
-		Transform aux_transform;
-		switch (gizmo_operation)
-		{
-		case ImGuizmo::OPERATION::TRANSLATE:
-			aux_transform.setRotation(trans->getRotation());
-			aux_transform.setPosition(trans->getPosition()); break;
-		case ImGuizmo::OPERATION::ROTATE:
-			aux_transform.setPosition(trans->getPosition());
-			aux_transform.setRotation(trans->getRotation()); break;
-		case ImGuizmo::OPERATION::SCALE:
-			aux_transform.setPosition(trans->getPosition());
-			aux_transform.setRotation(trans->getRotation());
-			aux_transform.setScale(trans->getScale()); break;
-		default:
-			break;
+		for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo in average of their positions
+			ComponentTransform* transform = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+			Transform* trans = transform->global;
+			guizmoPos += trans->getPosition();
+			guizmoScale += trans->getScale();
+			//guizmoRot += trans->getRotationEuler();
 		}
-		
-		aux_transform.CalculateMatrix();
-		float4x4 mat = float4x4(aux_transform.getMatrix());
-		mat.Transpose();
-		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)mat.v);
+		guizmoPos /= App->scene->selected_obj.size();
+		guizmoScale /= App->scene->selected_obj.size();
+		//guizmoRot /= App->scene->selected_obj.size();
+
+		Transform guizmoTrans = Transform();
+
+		guizmoTrans.setPosition(guizmoPos);
+		guizmoTrans.setScale(guizmoScale);
+
+
+
+
+
+		guizmoTrans.CalculateMatrix();
+		float4x4 newGzmTrans = float4x4(guizmoTrans.getMatrix());
+		newGzmTrans.Transpose();
+		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)newGzmTrans.v);
 		if (ImGuizmo::IsUsing())
 		{
+
 			float3 new_pos = float3::zero;
 			float3 new_rot = float3::zero;
 			float3 new_scale = float3::zero;
-			mat.Transpose();
-			switch (gizmo_operation)
-			{
-			case ImGuizmo::OPERATION::TRANSLATE:
-				new_pos.x = transform->constraints[0][0] ? trans->getPosition().x : (mat.TranslatePart().x);
-				new_pos.y = transform->constraints[0][1] ? trans->getPosition().y : (mat.TranslatePart().y);
-				new_pos.z = transform->constraints[0][2] ? trans->getPosition().z : (mat.TranslatePart().z);
-				trans->setPosition(new_pos);
-				break;
-			case ImGuizmo::OPERATION::ROTATE:
-				new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
-				new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
-				new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
-				trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
-				break;
-			case ImGuizmo::OPERATION::SCALE:
-				new_scale.x = transform->constraints[2][0] ? trans->getScale().x : mat.GetScale().x;
-				new_scale.y = transform->constraints[2][1] ? trans->getScale().y : mat.GetScale().y;
-				new_scale.z = transform->constraints[2][2] ? trans->getScale().z : mat.GetScale().z;
-				trans->setScale(new_scale);
-				break;
-			default:
-				break;
+			newGzmTrans.Transpose();
+
+			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
+
+
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
+				ComponentTransform* selectedTrans = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+				Transform* trans = selectedTrans->global;
+				switch (gizmo_operation)
+				{
+				case ImGuizmo::OPERATION::TRANSLATE:
+					new_pos.x = selectedTrans->constraints[0][0] ? trans->getPosition().x : (trans->getPosition().x + displacement.x);
+					new_pos.y = selectedTrans->constraints[0][1] ? trans->getPosition().y : (trans->getPosition().y + displacement.y);
+					new_pos.z = selectedTrans->constraints[0][2] ? trans->getPosition().z : (trans->getPosition().z + displacement.z);
+					trans->setPosition(new_pos);
+					break;
+				case ImGuizmo::OPERATION::ROTATE:
+					new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : (newGzmTrans.RotatePart().ToEulerXYZ().x);
+					new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
+					new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
+					new_rot += trans->getRotation().ToEulerXYZ();
+					trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
+					break;
+				case ImGuizmo::OPERATION::SCALE:
+					new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
+					new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
+					new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+					trans->setScale(new_scale);
+					break;
+				default:
+					break;
+				}
+				trans->CalculateMatrix();
+				selectedTrans->GlobalToLocal();
 			}
-			trans->CalculateMatrix();
-			transform->GlobalToLocal();
+
 		}
 	}
 }
@@ -3902,6 +3925,11 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
 	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
+}
+
+bool ModuleUI::isMouseOnUI() const
+{
+	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
 }
 
 void ModuleUI::InvisibleDockingBegin() {
