@@ -359,7 +359,7 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 	case R_TEXTURE:
 		name = "Textures";
 		path = TEXTURES_FOLDER;
-		extension = OWN_MESH_EXTENSION;
+		extension = DDS_EXTENSION;
 		break;
 	case R_SCENE:
 		name = "Scenes";
