@@ -94,7 +94,6 @@ void PhysBody::SetSpeed(float x, float y, float z)
 {
 
 	body->setAngularVelocity(btVector3(x, y, z));
-	//body->setGravity(btVector3(0,10,0));
 
 }
 

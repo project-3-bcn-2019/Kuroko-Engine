@@ -11,7 +11,6 @@
 #include "ComponentAABB.h"
 #include "Application.h"
 #include "ModulePhysics3D.h"
-#include "ModuleInput.h"
 
 #include "SDL/include/SDL_opengl.h"
 
@@ -24,10 +23,6 @@ ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape shape, 
 
 	body = App->physics->AddBody(this,shape, is_environment);
 	body->SetUser(this);
-
-
-	body->SetPos(0, 10, 0);
-	body->GetRigidBody()->setActivationState(DISABLE_DEACTIVATION);
 
 }
 
@@ -98,35 +93,28 @@ bool ComponentPhysics::Update(float dt)
 
 	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
 
+
 	DrawOBB();
 
-	//btTransform t;
-	//t = body->GetRigidBody()->getWorldTransform();
+	btTransform t;
+	t = body->GetRigidBody()->getWorldTransform();
 
-	//float4x4 m;
-	//t.getOpenGLMatrix(m.ptr());
+	float4x4 m;
+	t.getOpenGLMatrix(m.ptr());
 
-	//transform->setMatrix(m);
+	transform->setMatrix(m);
 
-	//bounding_box.pos = transform->getPosition();
-	//bounding_box.r = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
-
-
-	//colliding.clear();
-	//std::list<Collision> col_list;
-	//App->physics->GetCollisionsFromObject(col_list, getParent());
-
-	//for (std::list<Collision>::iterator item = col_list.begin(); item != col_list.end(); ++item)
-	//{
-	//	colliding.push_back((*item).B);
-	//}
+	bounding_box.pos = transform->getPosition();
+	bounding_box.r = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
 
 
-	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
+	colliding.clear();
+	std::list<Collision> col_list;
+	App->physics->GetCollisionsFromObject(col_list, getParent());
+
+	for (std::list<Collision>::iterator item = col_list.begin(); item != col_list.end(); ++item)
 	{
-		//body->SetSpeed(10,0,0);
-		//body->Push(10, 0, 0);
-		body->SetPos(0, 10, 0);
+		colliding.push_back((*item).B);
 	}
 
 	return true;
