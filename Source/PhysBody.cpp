@@ -10,6 +10,8 @@
 PhysBody::PhysBody(btRigidBody* body) : body(body)
 {
 	body->setUserPointer(this);
+	body->setFlags(DISABLE_DEACTIVATION);
+
 }
 
 PhysBody::PhysBody()
@@ -93,7 +95,7 @@ bool PhysBody::IsSensor() const
 void PhysBody::SetSpeed(float x, float y, float z)
 {
 
-	body->setAngularVelocity(btVector3(x, y, z));
+	body->setLinearVelocity(btVector3(x, y, z));
 
 }
 

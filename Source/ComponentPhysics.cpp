@@ -11,6 +11,7 @@
 #include "ComponentAABB.h"
 #include "Application.h"
 #include "ModulePhysics3D.h"
+#include "ModuleInput.h"
 
 #include "SDL/include/SDL_opengl.h"
 
@@ -115,6 +116,13 @@ bool ComponentPhysics::Update(float dt)
 	for (std::list<Collision>::iterator item = col_list.begin(); item != col_list.end(); ++item)
 	{
 		colliding.push_back((*item).B);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
+	{
+		//body->GetRigidBody()->ap(btVector3(10,0,0));
+		body->SetSpeed(10, 0, 0);
+
 	}
 
 	return true;
