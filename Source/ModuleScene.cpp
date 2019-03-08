@@ -149,19 +149,7 @@ update_status ModuleScene::Update(float dt)
 		obj->addComponent(COLLIDER_CUBE);
 
 	}
-	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_UP && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
-
-		if (dragging) {
-			dragging = false;
-		}
-		//App->debug->addFrustum()
-	}
-	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_REPEAT && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera) {
-
-		int i = 0;
-		MouseDragging();
-		//App->debug->addFrustum()
-	}
+	
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{
 		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);  //is it used?
@@ -244,84 +232,6 @@ void ModuleScene::DrawScene(float3 camera_pos)
 
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }
 
-void ModuleScene::MouseDragging()
-{
-	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
-	float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
-	if (dragging == false) 
-	{ 
-		dragging = true;
-		dragging_frustum = new Frustum(*App->camera->selected_camera->getFrustum());
-		
-		initial_drag = float2(x, y);
-		//dragging_frustum->UnProjectLineSegment(x, y).ToRay();	
-		//dragging_frustum->horizontalFov = 1000;
-		//dragging_frustum->verticalFov = 1000;
-		//dragging_frustum->front
-	}
-
-	Ray final_ray = dragging_frustum->UnProjectLineSegment(x, y).ToRay();
-	Ray initial_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, initial_drag.y).ToRay();
-	Ray corner_ray = dragging_frustum->UnProjectLineSegment(x, initial_drag.y).ToRay();
-	Ray corner2_ray = dragging_frustum->UnProjectLineSegment(initial_drag.x, y).ToRay();
-
-	
-
-	math::Polygon polygon;
-	polygon.p.push_back(final_ray.pos); polygon.p.push_back(corner_ray.pos); polygon.p.push_back(initial_ray.pos); polygon.p.push_back(corner2_ray.pos);
-	polygon.p.push_back(final_ray.dir); polygon.p.push_back(corner_ray.dir); polygon.p.push_back(initial_ray.dir); polygon.p.push_back(corner2_ray.dir);
-
-	if (abs(initial_drag.x - x) > 0.5 && abs(initial_drag.y - y)>0.5) {
-		for (auto it = game_objects.begin(); it != game_objects.end(); it++)
-		{
-			if ((*it)->getComponent(MESH))
-			{
-				OBB* obb = ((ComponentAABB*)(*it)->getComponent(C_AABB))->getOBB();
-				if (polygon.Intersects(*obb))
-					selected_obj.push_back(*it);
-			}
-		}
-	}
-
-	App->debug->directDrawFrustum(*dragging_frustum);
-
-	glColor4f(0.0f,0.0f, 0.75f, 0.1f);	
-
-	bool face_cull_enabled = glIsEnabled(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
-
-	
-	glBegin(GL_LINES);
-	glVertex3f(initial_ray.pos.x, initial_ray.pos.y, initial_ray.pos.z);
-	glVertex3f(initial_ray.dir.x, initial_ray.dir.y, initial_ray.dir.z);
-	glVertex3f(corner2_ray.pos.x, corner2_ray.pos.y, corner2_ray.pos.z);
-	glVertex3f(corner2_ray.dir.x, corner2_ray.dir.y, corner2_ray.dir.z);
-	glVertex3f(final_ray.pos.x, final_ray.pos.y, final_ray.pos.z);
-	glVertex3f(final_ray.dir.x, final_ray.dir.y, final_ray.dir.z);
-	glVertex3f(corner_ray.pos.x, corner_ray.pos.y, corner_ray.pos.z);
-	glVertex3f(corner_ray.dir.x, corner_ray.dir.y, corner_ray.dir.z);
-
-
-
-	glEnd();
-	glBegin(GL_QUADS);
-	glVertex3f(initial_ray.pos.x, initial_ray.pos.y, initial_ray.pos.z);
-	glVertex3f(corner2_ray.pos.x, corner2_ray.pos.y, corner2_ray.pos.z);
-	glVertex3f(final_ray.pos.x, final_ray.pos.y, final_ray.pos.z);
-	glVertex3f(corner_ray.pos.x, corner_ray.pos.y, corner_ray.pos.z);
-
-	glColor4f(0.0f, 0.75f,0.0f,  1.0f);
-	
-	glVertex3f(initial_ray.dir.x, initial_ray.dir.y, initial_ray.dir.z);
-	glVertex3f(corner2_ray.dir.x, corner2_ray.dir.y, corner2_ray.dir.z);
-	glVertex3f(final_ray.dir.x, final_ray.dir.y, final_ray.dir.z);
-	glVertex3f(corner_ray.dir.x, corner_ray.dir.y, corner_ray.dir.z);
-
-	glEnd();
-	glColor3f(1.0f, 1.0f, 1.0f);
-	face_cull_enabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-	//dragging_frustum.pos
-}
 GameObject* ModuleScene::MousePicking(GameObject* ignore)
 {
 	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
