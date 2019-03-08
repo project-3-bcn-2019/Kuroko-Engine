@@ -42,7 +42,9 @@ public:
 	// to that file.	
 	resource_deff ManageAsset(std::string path, std::string name, std::string extension);
 		
-
+	// To be executed on start if in game mode
+	void GenerateResources();
+	void GenerateFromMapFile(JSON_Value* file, ResourceType type);
 
 	// Regenerate resources if the file is modified (for the moment)
 	void ManageAssetModification();
@@ -66,10 +68,14 @@ public:
 	// and showcased in the resources debug UI
 	void Load3dObjectToScene(const char* file);
 	uint getResourceUuid(const char* file); // Will not assign the resource 
+	uint getResourceUuid(const char* name, ResourceType type);
 	uint getMeshResourceUuid(const char* Parent3dObject, const char* name);
+	uint getTextureResourceUuid(const char* name);
 	uint getAnimationResourceUuid(const char* Parent3dObject, const char* name);
 	uint getAnimationResourceUuid(const char* name);
 	uint getBoneResourceUuid(const char* Parent3dObject, const char* name);
+	uint getAudioResourceUuid(const char* name);
+	uint getAnimationGraphResourceUuid(const char* Parent3dObject, const char* name);
 
 	void CleanResources() { cleanResources = true; }
 
@@ -80,8 +86,11 @@ public:
 	void getMeshResourceList(std::list<resource_deff>& meshes);
 	void getScriptResourceList(std::list<resource_deff>& scripts);
 	void getAnimationResourceList(std::list<resource_deff>& animations);
-	void getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore);
+	void getAnimationGraphResourceList(std::list<resource_deff>& graphs);
+	void getSceneResourceList(std::list<resource_deff>& scenes, std::list<resource_deff> ignore);
+	void getAudioResourceList(std::list<resource_deff>& audio);
 	std::string getPrefabPath(const char* prefab_name); // Retruns the binary file for the given prefab so it can be loaded
+	std::string getScenePath(const char* scene_name); // Retruns the binary file for the given scene so it can be loaded
 	// get texture list
 	// get scene list
 	// To put in UI remember

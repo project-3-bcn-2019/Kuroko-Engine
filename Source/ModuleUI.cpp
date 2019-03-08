@@ -37,16 +37,19 @@
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
+#include "ComponentAnimator.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
 #include "ResourceTexture.h"
 #include "Resource3dObject.h"
 #include "ResourceAnimation.h"
+#include "ResourceMesh.h"
+#include "ResourceAnimationGraph.h"
 #include "Skybox.h"
 #include "FileSystem.h"
 #include "Include_Wwise.h"
-
+#include "ComponentAnimationEvent.h"
 
 #include "Random.h"
 #include "VRAM.h"
@@ -65,6 +68,12 @@
 // Include Panels
 #include "Panel.h"
 #include "PanelAnimation.h"
+#include "PanelAnimationEvent.h"
+#include "PanelHierarchyTab.h"
+#include "PanelObjectInspector.h"
+#include "PanelAssetsWin.h"
+#include "PanelPrimitives.h"
+#include "PanelAnimationGraph.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -74,6 +83,12 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	name = "gui";
 
 	p_anim = new PanelAnimation("AnimEditor");
+	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
+	p_hierarchy = new PanelHierarchyTab("Hierarchy", true);
+	p_inspector = new PanelObjectInspector("Object Inspector", true);
+	p_assetswindow = new PanelAssetsWin("Assets", true);
+	p_primitives = new PanelPrimitives("Primitives", true);
+	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
 }
 
 
@@ -91,7 +106,7 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 	ImGui_ImplSDL2_InitForOpenGL(App->window->main_window->window, App->renderer3D->getContext());
 	ImGui_ImplOpenGL2_Init();
-
+	
 	// Setup style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
@@ -108,45 +123,55 @@ bool ModuleUI::Init(const JSON_Object* config) {
 
 bool ModuleUI::Start()
 {
-	io = &ImGui::GetIO();
+	if (!App->is_game)
+	{
+		io = &ImGui::GetIO();
 
-	ui_textures[PLAY]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
-	ui_textures[PAUSE]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
-	ui_textures[STOP]				= (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
-	ui_textures[ADVANCE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
+		ui_textures[PLAY] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Play.png");
+		ui_textures[PAUSE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Pause.png");
+		ui_textures[STOP] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Stop.png");
+		ui_textures[ADVANCE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Advance.png");
 
-	ui_textures[GUIZMO_TRANSLATE]	= (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
-	ui_textures[GUIZMO_ROTATE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
-	ui_textures[GUIZMO_SCALE]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
-	ui_textures[GUIZMO_LOCAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
-	ui_textures[GUIZMO_GLOBAL]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
-	ui_textures[GUIZMO_SELECT]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
+		ui_textures[GUIZMO_TRANSLATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/translate.png");
+		ui_textures[GUIZMO_ROTATE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/rotate.png");
+		ui_textures[GUIZMO_SCALE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scale.png");
+		ui_textures[GUIZMO_LOCAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_local.png");
+		ui_textures[GUIZMO_GLOBAL] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_global.png");
+		ui_textures[GUIZMO_SELECT] = (Texture*)App->importer->ImportTexturePointer("Editor textures/Guizmo_select.png");
 
-	ui_textures[NO_TEXTURE]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
+		ui_textures[NO_TEXTURE] = (Texture*)App->importer->ImportTexturePointer("Editor textures/no_texture.png");
 
-	ui_textures[FOLDER_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
-	ui_textures[OBJECT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
-	ui_textures[SCENE_ICON]			= (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
-	ui_textures[RETURN_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
-	ui_textures[SCRIPT_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
-	ui_textures[PREFAB_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+		ui_textures[FOLDER_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/folder_icon.png");
+		ui_textures[OBJECT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/object_icon.png");
+		ui_textures[SCENE_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/scene_icon.png");
+		ui_textures[RETURN_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/return_icon.png");
+		ui_textures[SCRIPT_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/script_icon.png");
+		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
+		ui_textures[GRAPH_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/graph_icon.png");
+		ui_textures[AUDIO_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/audio_icon.png");
 
-	ui_textures[CAUTION_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
-	ui_textures[WARNING_ICON]		= (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
+		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
+		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");
 
-	ui_fonts[TITLES]				= io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
-	ui_fonts[REGULAR]				= io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
-	ui_fonts[IMGUI_DEFAULT]			= io->Fonts->AddFontDefault();
-	//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
-	//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
-	//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
-	
-	open_tabs[BUILD_MENU] = false;
+		ui_fonts[TITLES] = io->Fonts->AddFontFromFileTTF("Fonts/title.ttf", 16.0f);
+		ui_fonts[REGULAR] = io->Fonts->AddFontFromFileTTF("Fonts/regular.ttf", 18.0f);
+		ui_fonts[IMGUI_DEFAULT] = io->Fonts->AddFontDefault();
+		//ui_fonts[REGULAR_BOLD]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold.ttf", 18.0f);
+		//ui_fonts[REGULAR_ITALIC]		= io->Fonts->AddFontFromFileTTF("Fonts/regular_italic.ttf", 18.0f);
+		//ui_fonts[REGULAR_BOLDITALIC]	= io->Fonts->AddFontFromFileTTF("Fonts/regular_bold_italic.ttf", 18.0f);
 
-	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io->IniFilename = "Settings\\imgui.ini";
-	docking_background = true;
+		open_tabs[BUILD_MENU] = false;
+
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = { 0.1f,0.1f,0.1f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = { 0.3f, 0.3f,0.3f,1.0f };
+
+		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io->IniFilename = "Settings\\imgui.ini";
+		docking_background = true;
+	}
 
 
 	// HARDCODE
@@ -157,12 +182,14 @@ bool ModuleUI::Start()
 
 update_status ModuleUI::PreUpdate(float dt) {
 
-	// Start the ImGui frame
-	ImGui_ImplOpenGL2_NewFrame();
+	if (!App->is_game)
+	{
+		// Start the ImGui frame
+		ImGui_ImplOpenGL2_NewFrame();
 
-	ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
-	ImGui::NewFrame();
-
+		ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
+		ImGui::NewFrame();
+	}
 	
 
 	//ImGui::ShowDemoWindow();
@@ -171,245 +198,258 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 update_status ModuleUI::Update(float dt) {
 
-
-	InvisibleDockingBegin();
-	static bool file_save = false;
-	disable_keyboard_control = false;
-
-
-	if (open_tabs[CONFIGURATION]) 
+	if (!App->is_game)
 	{
-		ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
+		InvisibleDockingBegin();
+		static bool file_save = false;
+		disable_keyboard_control = false;
 
-		if (ImGui::CollapsingHeader("Graphics")) 
-			DrawGraphicsLeaf();
-		if (ImGui::CollapsingHeader("Window"))
-			DrawWindowConfigLeaf();
-		if (ImGui::CollapsingHeader("Hardware"))
-			DrawHardwareLeaf();
-		if (ImGui::CollapsingHeader("Application"))
-			DrawApplicationLeaf();
-		if (ImGui::CollapsingHeader("Editor preferences"))
-			DrawEditorPreferencesLeaf();
 
-		if (ImGui::Button("Reset Camera"))
-			App->camera->editor_camera->Reset();
+		if (open_tabs[CONFIGURATION])
+		{
+			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
 
-		ImGui::End();
-	}
+			if (ImGui::CollapsingHeader("Graphics"))
+				DrawGraphicsLeaf();
+			if (ImGui::CollapsingHeader("Window"))
+				DrawWindowConfigLeaf();
+			if (ImGui::CollapsingHeader("Hardware"))
+				DrawHardwareLeaf();
+			if (ImGui::CollapsingHeader("Application"))
+				DrawApplicationLeaf();
+			if (ImGui::CollapsingHeader("Editor preferences"))
+				DrawEditorPreferencesLeaf();
 
-	if (open_tabs[HIERARCHY])
-		DrawHierarchyTab();
+			if (ImGui::Button("Reset Camera"))
+				App->camera->editor_camera->Reset();
 
-	Camera* prev_selected = App->camera->background_camera;
-	App->camera->selected_camera = nullptr;
+			ImGui::End();
+		}
 
-	if (open_tabs[OBJ_INSPECTOR])
-		DrawObjectInspectorTab();
+		if (p_hierarchy->isActive())
+			p_hierarchy->Draw();
 
-	if (!App->camera->selected_camera)
-		App->camera->selected_camera = prev_selected;
+		Camera* prev_selected = App->camera->background_camera;
+		App->camera->selected_camera = nullptr;
 
-	if (open_tabs[PRIMITIVE])
-		DrawPrimitivesTab();
+		if (p_inspector->isActive())
+			p_inspector->Draw();
 
-	if (open_tabs[ABOUT])
-		DrawAboutLeaf();
-	
-	if (open_tabs[LOG])
-		app_log->Draw("App log",&open_tabs[LOG]);
+		if (!App->camera->selected_camera)
+			App->camera->selected_camera = prev_selected;
 
-	if (open_tabs[TIME_CONTROL])
-		DrawTimeControlWindow();
+		if (p_primitives->isActive())
+			p_primitives->Draw();
 
-	if (open_tabs[QUADTREE_CONFIG])
-		DrawQuadtreeConfigWindow();
+		if (open_tabs[ABOUT])
+			DrawAboutLeaf();
 
-	if (open_tabs[CAMERA_MENU])
-		DrawCameraMenuWindow();
+		if (open_tabs[LOG])
+			app_log->Draw("App log", &open_tabs[LOG]);
 
-	if (open_tabs[VIEWPORT_MENU])
-		DrawViewportsWindow();
+		if (open_tabs[TIME_CONTROL])
+			DrawTimeControlWindow();
 
-	if (open_tabs[ASSET_WINDOW])
-		DrawAssetsWindow();
+		if (open_tabs[QUADTREE_CONFIG])
+			DrawQuadtreeConfigWindow();
 
-	if (open_tabs[RESOURCES_TAB]) 
-		DrawResourcesWindow();
-	
-	if (open_tabs[SKYBOX_MENU])
-		DrawSkyboxWindow();
+		if (open_tabs[CAMERA_MENU])
+			DrawCameraMenuWindow();
 
-	if (open_tabs[SCRIPT_EDITOR])
-		DrawScriptEditor();
+		if (open_tabs[VIEWPORT_MENU])
+			DrawViewportsWindow();
 
-	if (open_tabs[BUILD_MENU])
-		DrawBuildMenu();
+		if (p_assetswindow->isActive())
+			p_assetswindow->Draw();
 
-	if (!App->scene->selected_obj.empty() && !(*App->scene->selected_obj.begin())->is_static && !(*App->scene->selected_obj.begin())->is_UI) // Not draw guizmo if it is static
-		App->gui->DrawGuizmo();
+		if (open_tabs[RESOURCES_TAB])
+			DrawResourcesWindow();
 
-	for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
-	{
-		if ((*it)->draw_in_UI)
-			DrawCameraViewWindow(*(*it));
-	}
+		if (open_tabs[SKYBOX_MENU])
+			DrawSkyboxWindow();
 
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Quit"))
-				App->CLOSE_APP();
-			if (ImGui::MenuItem("Import file"))
-			{
-				std::string file_path = openFileWID();
-				std::string extension = file_path;
-				App->fs.getExtension(extension);
-				App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
-				app_log->AddLog("%s copied to Assets folder", file_path.c_str());
-			}
-			if (ImGui::MenuItem("Save scene")) {
-				if (App->scene->existingScene())
-					App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
-				else{
+		if (p_animation_graph->isActive())
+			p_animation_graph->Draw();
+
+		if (open_tabs[SCRIPT_EDITOR])
+			DrawScriptEditor();
+
+		if (open_tabs[BUILD_MENU])
+			DrawBuildMenu();
+
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+			App->gui->DrawGuizmo();
+
+		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
+		{
+			if ((*it)->draw_in_UI)
+				DrawCameraViewWindow(*(*it));
+		}
+
+		if (ImGui::BeginMainMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Quit"))
+					App->CLOSE_APP();
+				if (ImGui::MenuItem("Import file"))
+				{
+					std::string file_path = openFileWID();
+					std::string extension = file_path;
+					App->fs.getExtension(extension);
+					App->fs.copyFileTo(file_path.c_str(), ASSETS, extension.c_str());
+					app_log->AddLog("%s copied to Assets folder", file_path.c_str());
+				}
+				if (ImGui::MenuItem("Save scene")) {
+					if (App->scene->existingScene())
+						App->scene->AskSceneSaveFile((char*)App->scene->getWorkigSceneName().c_str());
+					else {
+						file_save = true;
+					}
+
+				}
+				if (ImGui::MenuItem("Save scene as...")) {
 					file_save = true;
 				}
-				
+				if (ImGui::MenuItem("Load scene")) {
+					std::string file_path = openFileWID();
+					App->scene->AskSceneLoadFile((char*)file_path.c_str());
+				}
+				if (ImGui::BeginMenu("Configuration")) {
+					if (ImGui::MenuItem("Save Configuration"))
+						App->SaveConfig();
+					if (ImGui::MenuItem("Delete Configuration"))
+						App->DeleteConfig();
+					if (ImGui::MenuItem("Load Default Configuration"))
+						App->LoadDefaultConfig();
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::MenuItem("Clean library (App will shut down)"))
+					App->resources->CleanResources();
+
+				if (ImGui::MenuItem("Make Build"))
+				{
+					open_tabs[BUILD_MENU] = true;
+				}
+
+				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Save scene as...")){
-				file_save = true;
+			if (ImGui::BeginMenu("View")) {
+				if (ImGui::MenuItem("Hierarchy", NULL, p_hierarchy->isActive()))
+					p_hierarchy->toggleActive();
+				if (ImGui::MenuItem("Animation Graph", NULL, p_anim->isActive()))
+					p_animation_graph->toggleActive();
+				if (ImGui::MenuItem("Object Inspector", NULL, p_inspector->isActive()))
+					p_inspector->toggleActive();
+				if (ImGui::MenuItem("Primitive", NULL, p_primitives->isActive()))
+					p_primitives->toggleActive();
+				ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
+				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
+				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
+				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
+				ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
+				if (ImGui::MenuItem("Assets", NULL, p_assetswindow->isActive()))
+					p_assetswindow->toggleActive();
+				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
+				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
+				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Load scene")){
-				std::string file_path = openFileWID();
-				App->scene->AskSceneLoadFile((char*)file_path.c_str());
-			}
-			if(ImGui::BeginMenu("Configuration")){
-				if (ImGui::MenuItem("Save Configuration"))
-					App->SaveConfig();
-				if (ImGui::MenuItem("Delete Configuration"))
-					App->DeleteConfig();
-				if (ImGui::MenuItem("Load Default Configuration"))
-					App->LoadDefaultConfig();
+			if (ImGui::BeginMenu("Help")) {
+				ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
+				if (ImGui::MenuItem("Documentation"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
+				if (ImGui::MenuItem("Download latest"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
+				if (ImGui::MenuItem("Report a bug"))
+					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Clean library (App will shut down)"))
-				App->resources->CleanResources();
+			std::string current_viewport = "Viewport: Free camera";
 
-			if (ImGui::MenuItem("Make Build"))
+			switch (App->camera->selected_camera->getViewportDir())
 			{
-				open_tabs[BUILD_MENU] = true;
+			case VP_RIGHT: current_viewport = "Viewport: Right"; break;
+			case VP_LEFT: current_viewport = "Viewport: Left"; break;
+			case VP_UP: current_viewport = "Viewport: Up"; break;
+			case VP_DOWN: current_viewport = "Viewport: Down"; break;
+			case VP_FRONT: current_viewport = "Viewport: Front"; break;
+			case VP_BACK: current_viewport = "Viewport: Back"; break;
+			default: break;
 			}
 
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("View")) {
-			ImGui::MenuItem("Hierarchy", NULL, &open_tabs[HIERARCHY]);
-			ImGui::MenuItem("Object Inspector", NULL, &open_tabs[OBJ_INSPECTOR]);
-			ImGui::MenuItem("Primitive", NULL, &open_tabs[PRIMITIVE]);
-			ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
-			ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
-			ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
-			ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
-			ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
-			ImGui::MenuItem("Assets", NULL, &open_tabs[ASSET_WINDOW]);
-			ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
-			ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
-			ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Help")) {
-			ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
-			if(ImGui::MenuItem("Documentation"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
-			if(ImGui::MenuItem("Download latest"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
-			if(ImGui::MenuItem("Report a bug"))
-				App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
-			ImGui::EndMenu();
-		}
-
-		std::string current_viewport = "Viewport: Free camera";
-
-		switch (App->camera->selected_camera->getViewportDir())
-		{
-		case VP_RIGHT: current_viewport = "Viewport: Right"; break;
-		case VP_LEFT: current_viewport	= "Viewport: Left"; break;
-		case VP_UP: current_viewport	= "Viewport: Up"; break;
-		case VP_DOWN: current_viewport	= "Viewport: Down"; break;
-		case VP_FRONT: current_viewport = "Viewport: Front"; break;
-		case VP_BACK: current_viewport	= "Viewport: Back"; break;
-		default: break;
-		}
-			
-		if (ImGui::BeginMenu(current_viewport.c_str())) 
-		{
-			if (App->camera->selected_camera != App->camera->editor_camera)
+			if (ImGui::BeginMenu(current_viewport.c_str()))
 			{
-				if (ImGui::MenuItem("Free Camera"))
+				if (App->camera->selected_camera != App->camera->editor_camera)
 				{
-					App->camera->selected_camera->active = false;
-					App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
-					App->camera->selected_camera->active = true;
-				}
-			}
-
-			std::string viewport_name;
-			for (int i = 0; i < 6; i++)
-			{
-				if (App->camera->selected_camera != App->camera->viewports[i])
-				{
-					if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
+					if (ImGui::MenuItem("Free Camera"))
 					{
-						App->camera->background_camera->active = false;
-						App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
-						App->camera->background_camera->active = true;
+						App->camera->selected_camera->active = false;
+						App->camera->selected_camera = App->camera->background_camera = App->camera->editor_camera;
+						App->camera->selected_camera->active = true;
 					}
 				}
+
+				std::string viewport_name;
+				for (int i = 0; i < 6; i++)
+				{
+					if (App->camera->selected_camera != App->camera->viewports[i])
+					{
+						if (ImGui::MenuItem(App->camera->viewports[i]->getViewportDirString().c_str()))
+						{
+							App->camera->background_camera->active = false;
+							App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
+							App->camera->background_camera->active = true;
+						}
+					}
+				}
+
+				ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
+
+				ImGui::EndMenu();
 			}
 
-			ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
-			
-			ImGui::EndMenu();
 		}
-	
-	}
-	ImGui::EndMainMenuBar();
+		ImGui::EndMainMenuBar();
 
-	if (file_save) {
-		disable_keyboard_control = true;
-		ImGui::Begin("Scene Name", &file_save);
-		ImGui::PushFont(ui_fonts[REGULAR]);
+		if (file_save) {
+			disable_keyboard_control = true;
+			ImGui::Begin("Scene Name", &file_save);
+			ImGui::PushFont(ui_fonts[REGULAR]);
 
-		static char rename_buffer[64];
-		ImGui::InputText("Save as...", rename_buffer, 64);
-		ImGui::SameLine();
-		if (ImGui::Button("Save")) {
-			App->scene->AskSceneSaveFile(rename_buffer);
-			for (int i = 0; i < 64; i++)
-				rename_buffer[i] = '\0';
-			file_save = false;
+			static char rename_buffer[64];
+			ImGui::InputText("Save as...", rename_buffer, 64);
+			ImGui::SameLine();
+			if (ImGui::Button("Save")) {
+				App->scene->AskSceneSaveFile(rename_buffer);
+				for (int i = 0; i < 64; i++)
+					rename_buffer[i] = '\0';
+				file_save = false;
+			}
+			ImGui::PopFont();
+			ImGui::End();
 		}
-		ImGui::PopFont();
-		ImGui::End();
-	}
 
-	if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
-		open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
-		for (int i = 0; i < 6; i++)
-			App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+		if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
+			open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
+			for (int i = 0; i < 6; i++)
+				App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
+		}
+		InvisibleDockingEnd();
 	}
-	InvisibleDockingEnd();
 	return UPDATE_CONTINUE;
-
 }
 
 update_status ModuleUI::PostUpdate(float dt) {
 	// Rendering
-	ImGui::Render();
-	
-	glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
+	if (!App->is_game)
+	{
+		ImGui::Render();
 
-	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+		glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
+
+		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+	}
 
 	return UPDATE_CONTINUE;
 
@@ -453,304 +493,329 @@ void ModuleUI::InitializeScriptEditor()
 
 void ModuleUI::DrawHierarchyTab()
 {
-	ImGui::Begin("Hierarchy Tab", &open_tabs[HIERARCHY]);
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	//ImGui::Begin("Hierarchy Tab", &open_tabs[HIERARCHY]);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
 
-	int id = 0;
-	std::list<GameObject*> root_objs;
-	App->scene->getRootObjs(root_objs);
+	//int id = 0;
+	//std::list<GameObject*> root_objs;
+	//App->scene->getRootObjs(root_objs);
 
-	bool item_hovered = false;
+	//bool item_hovered = false;
 
-	for (auto it = root_objs.begin(); it != root_objs.end(); it++)
-		if (DrawHierarchyNode(*(*it), id)) 
-			item_hovered = true;
-		
-	if (ImGui::IsWindowHovered())
-	{
-		if (!item_hovered&&App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-			App->scene->selected_obj.clear();
-		else if(App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
-			ImGui::OpenPopup("##hierarchy context menu");
-	}
+	//for (auto it = root_objs.begin(); it != root_objs.end(); it++)
+	//	if (DrawHierarchyNode(*(*it), id)) 
+	//		item_hovered = true;
+	//	
+	//if (ImGui::IsWindowHovered())
+	//{
+	//	if (!item_hovered&&App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+	//		App->scene->selected_obj.clear();
+	//	else if(App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
+	//		ImGui::OpenPopup("##hierarchy context menu");
+	//}
 
-	if (ImGui::BeginPopup("##hierarchy context menu"))
-	{
-		if (ImGui::MenuItem("Empty gameobject"))
-		{
-			GameObject* parent = nullptr;
-			if (!App->scene->selected_obj.empty())
-				parent = *App->scene->selected_obj.begin();
-			
-			GameObject* go = new GameObject("Empty", parent);
-			if (!App->scene->selected_obj.empty())
-				(*App->scene->selected_obj.begin())->addChild(go);
-		}
-		if (ImGui::TreeNode("UI"))
-		{
-			if (ImGui::MenuItem("UI_Image"))
-			{
-				GameObject* parent = nullptr;
-				if (!App->scene->selected_obj.empty() ) {
-					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = *(App->scene->selected_obj.begin());						
-					}
+	//if (ImGui::BeginPopup("##hierarchy context menu"))
+	//{
+	//	if (ImGui::MenuItem("Empty gameobject"))
+	//	{
+	//		GameObject* parent = nullptr;
+	//		if (!App->scene->selected_obj.empty())
+	//			parent = *App->scene->selected_obj.begin();
+	//		
+	//		GameObject* go = new GameObject("Empty", parent);
+	//		if (!App->scene->selected_obj.empty())
+	//			(*App->scene->selected_obj.begin())->addChild(go);
+	//	}
+	//	if (ImGui::TreeNode("UI"))
+	//	{
+	//		if (ImGui::MenuItem("UI_Image"))
+	//		{
+	//			GameObject* parent = nullptr;
+	//			if (!App->scene->selected_obj.empty() ) {
+	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+	//					parent = *(App->scene->selected_obj.begin());						
+	//				}
 
-				}
-				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-				}
-				if (parent != nullptr) {
-					GameObject* image = new GameObject("UI_Image", parent, true);
-					image->addComponent(Component_type::UI_IMAGE);
-					parent->addChild(image);
-				}
-			}
-			if (ImGui::MenuItem("UI_Text"))
-			{
-				GameObject* parent = nullptr;
-				if (!App->scene->selected_obj.empty()) {
-					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = *App->scene->selected_obj.begin();
-					}
-				}
-				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-				}
-				if (parent != nullptr) {
-					GameObject* text = new GameObject("UI_Text", parent, true);
-					text->addComponent(Component_type::UI_TEXT);
-					parent->addChild(text);
-				}
-				
-			}
-			
-			if (ImGui::MenuItem("UI_Button"))
-			{
-				GameObject* parent = nullptr;
-				if (!App->scene->selected_obj.empty()) {
-					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = (*App->scene->selected_obj.begin());
-					}
-				}
-				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-				}
-				if (parent != nullptr) {
-					GameObject* button = new GameObject("UI_Button", parent, true);
-					button->addComponent(Component_type::UI_IMAGE);
-					button->addComponent(Component_type::UI_BUTTON);
-					parent->addChild(button);
-				}
-				
-			}
-			if (ImGui::MenuItem("UI_CheckBox"))
-			{
-				GameObject* parent = nullptr;
-				if (!App->scene->selected_obj.empty()) {
-					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-						parent = *App->scene->selected_obj.begin();
-					}
-				}
-				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-				}
-				if (parent != nullptr) {
-					GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
-					chbox->addComponent(Component_type::UI_IMAGE);
-					chbox->addComponent(Component_type::UI_CHECKBOX);
-					parent->addChild(chbox);
-				}
-				
-			}
-			ImGui::TreePop();
-		}
-		ImGui::EndPopup();
-	}
+	//			}
+	//			else {
+	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+	//			}
+	//			if (parent != nullptr) {
+	//				GameObject* image = new GameObject("UI_Image", parent, true);
+	//				image->addComponent(Component_type::UI_IMAGE);
+	//				parent->addChild(image);
+	//			}
+	//		}
+	//		if (ImGui::MenuItem("UI_Text"))
+	//		{
+	//			GameObject* parent = nullptr;
+	//			if (!App->scene->selected_obj.empty()) {
+	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+	//					parent = *App->scene->selected_obj.begin();
+	//				}
+	//			}
+	//			else {
+	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+	//			}
+	//			if (parent != nullptr) {
+	//				GameObject* text = new GameObject("UI_Text", parent, true);
+	//				text->addComponent(Component_type::UI_TEXT);
+	//				parent->addChild(text);
+	//			}
+	//			
+	//		}
+	//		
+	//		if (ImGui::MenuItem("UI_Button"))
+	//		{
+	//			GameObject* parent = nullptr;
+	//			if (!App->scene->selected_obj.empty()) {
+	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+	//					parent = (*App->scene->selected_obj.begin());
+	//				}
+	//			}
+	//			else {
+	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+	//			}
+	//			if (parent != nullptr) {
+	//				GameObject* button = new GameObject("UI_Button", parent, true);
+	//				button->addComponent(Component_type::UI_IMAGE);
+	//				button->addComponent(Component_type::UI_BUTTON);
+	//				parent->addChild(button);
+	//			}
+	//			
+	//		}
+	//		if (ImGui::MenuItem("UI_CheckBox"))
+	//		{
+	//			GameObject* parent = nullptr;
+	//			if (!App->scene->selected_obj.empty()) {
+	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+	//					parent = *App->scene->selected_obj.begin();
+	//				}
+	//			}
+	//			else {
+	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+	//			}
+	//			if (parent != nullptr) {
+	//				GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
+	//				chbox->addComponent(Component_type::UI_IMAGE);
+	//				chbox->addComponent(Component_type::UI_CHECKBOX);
+	//				parent->addChild(chbox);
+	//			}
+	//			
+	//		}
+	//		ImGui::TreePop();
+	//	}
+	//	ImGui::EndPopup();
+	//}
 
-	ImGui::PopFont();
-	ImGui::End();
+	//ImGui::PopFont();
+	//ImGui::End();
 }
 
 bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id) 
 {
-	id++;
-	static int selection_mask = (1 << 2);
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick; 
+	//id++;
+	//static int selection_mask = (1 << 2);
+	//ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick; 
 
-	std::list<GameObject*> children;
-	game_object.getChildren(children);
+	//std::list<GameObject*> children;
+	//game_object.getChildren(children);
 
-	if(children.empty())
-		node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; 
-	for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
-		if (*it == &game_object) {
-			node_flags |= ImGuiTreeNodeFlags_Selected;
-			break;
-		}
-	}
+	//if(children.empty())
+	//	node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; 
+	//for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
+	//	if (*it == &game_object) {
+	//		node_flags |= ImGuiTreeNodeFlags_Selected;
+	//		break;
+	//	}
+	//}
 
-	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)game_object.getUUID(), node_flags, game_object.getName().c_str()) && !children.empty();
-	bool item_hovered = ImGui::IsItemHovered();
+	//bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)game_object.getUUID(), node_flags, game_object.getName().c_str()) && !children.empty();
+	//bool item_hovered = ImGui::IsItemHovered();
 
-	
-	if(!App->scene->selected_obj.empty() && (*App->scene->selected_obj.begin()) == &game_object)
-		selection_mask = (1 << id);
-	else if (App->scene->selected_obj.empty())
-		selection_mask = (1 >> id);
+	//
+	//if(!App->scene->selected_obj.empty() && (*App->scene->selected_obj.begin()) == &game_object)
+	//	selection_mask = (1 << id);
+	//else if (App->scene->selected_obj.empty())
+	//	selection_mask = (1 >> id);
 
 
-	if (ImGui::IsItemClicked()) {
-		if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
-			App->scene->selected_obj.clear();
-		}
-		int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it
-		App->scene->selected_obj.remove(&game_object);
-		if(lastSize == App->scene->selected_obj.size())
-		{
-			App->scene->selected_obj.push_back(&game_object);
-		}
-		
-	}
-	else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
-		ImGui::OpenPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str());
+	//if (ImGui::IsItemClicked()) {
+	//	if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
+	//		App->scene->selected_obj.clear();
+	//	}
+	//	int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it
+	//	App->scene->selected_obj.remove(&game_object);
+	//	if(lastSize == App->scene->selected_obj.size())
+	//	{
+	//		App->scene->selected_obj.push_back(&game_object);
+	//	}
+	//	
+	//}
+	//else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
+	//	ImGui::OpenPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str());
 
-	static int show_rename = -1;
-	if (ImGui::BeginPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str()))
-	{
-		if (ImGui::Button(("Duplicate##" + game_object.getName() + std::to_string(id) + "Duplicate gobj button").c_str()))
-			App->scene->duplicateGameObject(&game_object);
+	//static int show_rename = -1;
+	//if (ImGui::BeginPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str()))
+	//{
+	//	if (ImGui::Button(("Duplicate##" + game_object.getName() + std::to_string(id) + "Duplicate gobj button").c_str()))
+	//		App->scene->duplicateGameObject(&game_object);
 
-		if (ImGui::Button(("Rename##" + game_object.getName() + std::to_string(id) + "Rename gobj button").c_str()))
-			show_rename = id;
+	//	if (ImGui::Button(("Rename##" + game_object.getName() + std::to_string(id) + "Rename gobj button").c_str()))
+	//		show_rename = id;
 
-		if (ImGui::Button(("Delete##" + game_object.getName() + std::to_string(id) + "Delete gobj button").c_str()))
-			App->scene->deleteGameObjectRecursive(&game_object);
+	//	if (ImGui::Button(("Delete##" + game_object.getName() + std::to_string(id) + "Delete gobj button").c_str()))
+	//		App->scene->deleteGameObjectRecursive(&game_object);
 
-		if (ImGui::Button(("Save to prefab##" + game_object.getName() + std::to_string(id) + "prefab save gobj button").c_str()))
-			App->scene->SavePrefab(&game_object, (game_object.getName()).c_str());
+	//	if (ImGui::Button(("Save to prefab##" + game_object.getName() + std::to_string(id) + "prefab save gobj button").c_str()))
+	//		App->scene->SavePrefab(&game_object, (game_object.getName()).c_str());
 
-		ImGui::EndPopup();
-	}
+	//	ImGui::EndPopup();
+	//}
 
-	if (node_open)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
+	//if (node_open)
+	//{
+	//	ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
 
-		for (std::list<GameObject*>::iterator it = children.begin(); it != children.end(); it++)
-			if (DrawHierarchyNode(*(*it), id))
-				item_hovered = true;
+	//	for (std::list<GameObject*>::iterator it = children.begin(); it != children.end(); it++)
+	//		if (DrawHierarchyNode(*(*it), id))
+	//			item_hovered = true;
 
-		ImGui::PopStyleVar();
-		ImGui::TreePop();
-	}
+	//	ImGui::PopStyleVar();
+	//	ImGui::TreePop();
+	//}
 
-	if (show_rename == id)
-	{
-		static bool rename_open = true;
-		disable_keyboard_control = true;
-		ImGui::SetNextWindowPos(ImVec2(700, 320), ImGuiCond_FirstUseEver);
-		ImGui::Begin("Rename object", &rename_open);
-		ImGui::PushFont(ui_fonts[REGULAR]);
+	//if (show_rename == id)
+	//{
+	//	static bool rename_open = true;
+	//	disable_keyboard_control = true;
+	//	ImGui::SetNextWindowPos(ImVec2(700, 320), ImGuiCond_FirstUseEver);
+	//	ImGui::Begin("Rename object", &rename_open);
+	//	ImGui::PushFont(ui_fonts[REGULAR]);
 
-		static char rename_buffer[64];
-		ImGui::PushItemWidth(ImGui::GetWindowSize().x - 60);
-		ImGui::InputText("##Rename to", rename_buffer, 64);
+	//	static char rename_buffer[64];
+	//	ImGui::PushItemWidth(ImGui::GetWindowSize().x - 60);
+	//	ImGui::InputText("##Rename to", rename_buffer, 64);
 
-		ImGui::SameLine();
-		if (ImGui::Button("OK##Change name"))
-		{
-			game_object.Rename(rename_buffer);
-			show_rename = -1;
-		}
+	//	ImGui::SameLine();
+	//	if (ImGui::Button("OK##Change name"))
+	//	{
+	//		game_object.Rename(rename_buffer);
+	//		show_rename = -1;
+	//	}
 
-		ImGui::PopFont();
-		ImGui::End();
+	//	ImGui::PopFont();
+	//	ImGui::End();
 
-		if(!rename_open)
-			show_rename = -1;
-	}
+	//	if(!rename_open)
+	//		show_rename = -1;
+	//}
 
-	return item_hovered;
+	//return item_hovered;
+	return false;
 }
 
 void ModuleUI::DrawObjectInspectorTab()
 {
-	ImGui::Begin("Object inspector", &open_tabs[OBJ_INSPECTOR]);
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	//ImGui::Begin("Object inspector", &open_tabs[OBJ_INSPECTOR]);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
 
-	static bool select_script = false;
-	if (App->scene->selected_obj.size() == 1) {
-		GameObject* selected_obj = (*App->scene->selected_obj.begin());
+	//static bool select_script = false;
+	//static bool select_audio = false;
+	//if (App->scene->selected_obj.size() == 1) {
+	//	GameObject* selected_obj = (*App->scene->selected_obj.begin());
 
-		if (selected_obj)
-		{
-			ImGui::Text("Name: %s", selected_obj->getName().c_str());
+	//	if (selected_obj)
+	//	{
+	//		ImGui::Text("Name: %s", selected_obj->getName().c_str());
 
-			ImGui::Checkbox("Active", &selected_obj->is_active);
-			ImGui::SameLine();
-			if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
-				App->scene->quadtree_reload = true;
+	//		ImGui::Checkbox("Active", &selected_obj->is_active);
+	//		ImGui::SameLine();
+	//		if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
+	//			App->scene->quadtree_reload = true;
 
-			DrawTagSelection(selected_obj);
-			// Add a new tag
-			static char new_tag[64];
-			ImGui::InputText("New Tag", new_tag, 64);
-			if (ImGui::Button("Add Tag")) {
-				App->scripting->tags.push_back(new_tag);
-				for (int i = 0; i < 64; i++)
-					new_tag[i] = '\0';
+	//		DrawTagSelection(selected_obj);
+	//		// Add a new tag
+	//		static char new_tag[64];
+	//		ImGui::InputText("New Tag", new_tag, 64);
+	//		if (ImGui::Button("Add Tag")) {
+	//			App->scripting->tags.push_back(new_tag);
+	//			for (int i = 0; i < 64; i++)
+	//				new_tag[i] = '\0';
 
-			}
+	//		}
 
-			if (ImGui::CollapsingHeader("Add component"))
-			{
-				if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
-				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
-				if (ImGui::Button("Add Script")) select_script = true;
-				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Audio Source")) selected_obj->addComponent(AUDIOSOURCE);
-				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
-				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
-				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-			}
+	//		if (ImGui::CollapsingHeader("Add component"))
+	//		{
+	//			if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
+	//			if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
+	//			if (ImGui::Button("Add Script")) select_script = true;
+	//			if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
+	//			if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
+	//			if (ImGui::Button("Add Audio Source")) select_audio = true;
+	//			if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
+	//			if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
+	//			if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
+	//			if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
+	//		}
 
-			std::list<Component*> components;
-			selected_obj->getComponents(components);
+	//		std::list<Component*> components;
+	//		selected_obj->getComponents(components);
 
-			std::list<Component*> components_to_erase;
-			int id = 0;
-			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-				if (!DrawComponent(*(*it), id))
-					components_to_erase.push_back(*it);
-				id++;
-			}
+	//		std::list<Component*> components_to_erase;
+	//		int id = 0;
+	//		for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
+	//			if (!DrawComponent(*(*it), id))
+	//				components_to_erase.push_back(*it);
+	//			id++;
+	//		}
 
-			for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
-				selected_obj->removeComponent(*it);
+	//		for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
+	//			selected_obj->removeComponent(*it);
 
-			if (select_script) {
-				std::list<resource_deff> script_res;
-				App->resources->getScriptResourceList(script_res);
+	//		if (select_script) {
+	//			std::list<resource_deff> script_res;
+	//			App->resources->getScriptResourceList(script_res);
 
-				ImGui::Begin("Script selector", &select_script);
-				for (auto it = script_res.begin(); it != script_res.end(); it++) {
-					resource_deff script_deff = (*it);
-					if (ImGui::MenuItem(script_deff.asset.c_str())) {
-						ComponentScript* c_script = (ComponentScript*)selected_obj->addComponent(SCRIPT);
-						c_script->assignScriptResource(script_deff.uuid);
-						select_script = false;
-						break;
-					}
-				}
+	//			ImGui::Begin("Script selector", &select_script);
+	//			for (auto it = script_res.begin(); it != script_res.end(); it++) {
+	//				resource_deff script_deff = (*it);
+	//				if (ImGui::MenuItem(script_deff.asset.c_str())) {
+	//					ComponentScript* c_script = (ComponentScript*)selected_obj->addComponent(SCRIPT);
+	//					c_script->assignScriptResource(script_deff.uuid);
+	//					select_script = false;
+	//					break;
+	//				}
+	//			}
 
-				ImGui::End();
-			}
-		}
-	}
+	//			ImGui::End();
+	//		}
 
-	ImGui::PopFont();
-	ImGui::End();
+	//		if (select_audio)
+	//		{
+	//			ImGui::Begin("Select Audio Event", &select_audio);
+	//			if (ImGui::MenuItem("NONE"))
+	//			{
+	//				selected_obj->addComponent(AUDIOSOURCE);
+	//				select_audio = false;
+	//			}
+	//			for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+	//				if (ImGui::MenuItem((*it).c_str())) {
+	//					ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
+	//					c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+	//					c_source->SetSoundName((*it).c_str());
+	//					select_audio = false;
+	//					break;
+	//				}
+	//			}
+	//			ImGui::End();
+	//		}
+	//	}
+	//}
+
+	//ImGui::PopFont();
+	//ImGui::End();
 
 }
 
@@ -783,6 +848,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			if (mesh_active)
 			{
+				ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(c_mesh->getMeshResource());
+				ImGui::Text("Resource: %s", (R_mesh != nullptr) ? R_mesh->asset.c_str() : "None");
 
 				if (ImGui::Checkbox("Wireframe", &wireframe_enabled))
 					c_mesh->setWireframe(wireframe_enabled);
@@ -978,7 +1045,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 					ImGui::TreePop();
 				}
 
-				if (c_mesh->components_bones.size() > 0 && ImGui::TreeNode("Connected Bones"))
+				if (ImGui::TreeNode("Connected Bones"))
 				{
 					ImGui::Text("Num Bones: %d", c_mesh->components_bones.size());
 					ImGui::TreePop();
@@ -1385,6 +1452,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (select_audio)
 			{
 				ImGui::Begin("Select Audio Event", &select_audio);
+				if (ImGui::MenuItem("NONE"))
+				{
+					((ComponentAudioSource*)&component)->SetSoundID(0);
+					((ComponentAudioSource*)&component)->SetSoundName("Sound");
+					select_audio = false;
+				}
 				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 					
 					if (ImGui::MenuItem((*it).c_str())) {
@@ -1666,8 +1739,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	case ANIMATION:
 		if (ImGui::CollapsingHeader("Animation"))
 		{
-			//SKELETAL_TODO: missing resource info
-
 			ComponentAnimation* anim = (ComponentAnimation*)&component;
 			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
 			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
@@ -1880,6 +1951,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 
 			ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
+			ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
 
 
 			//Area of spawn
@@ -1932,6 +2004,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
 				ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
 
+				static bool local_particles = false;
+				local_particles = c_emitter->transform_mode == LOCAL;
+
+				if (ImGui::Checkbox("Local", &local_particles))
+					c_emitter->transform_mode = local_particles ? LOCAL : GLOBAL;
 
 				//LifeTime
 				float minlife = c_emitter->particleLifetime.min;
@@ -2081,7 +2158,226 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	}
-	
+	case ANIMATION_EVENT:
+	{
+		if (ImGui::CollapsingHeader("Animation Events"))
+		{
+
+			ComponentAnimationEvent* anim_evt = nullptr;
+			anim_evt = (ComponentAnimationEvent*)&component;
+			//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+			//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+
+			
+			if (ImGui::Button("Create Animation"))
+				p_anim_evt->new_anim_set_win = true;
+			if (p_anim_evt->new_anim_set_win)
+			{
+				ImGui::Begin("Name", &p_anim_evt->new_anim_set_win);
+
+				ImGui::InputText("#SetName", p_anim_evt->prov, 50);
+				if (ImGui::Button("Create"))
+				{
+					AnimSet push;
+					push.name = p_anim_evt->prov;
+					p_anim_evt->new_anim_set_win = false;
+
+
+					anim_evt->AnimEvts.push_back(push);
+					if(anim_evt->curr != nullptr)
+						anim_evt->curr->selected = false;
+					anim_evt->curr = &anim_evt->AnimEvts.back();
+					p_anim_evt->curr = --anim_evt->AnimEvts.end();
+					//p_anim_evt->prov = "\0";
+				}
+
+				ImGui::End();
+			}
+			
+			if (anim_evt->curr == nullptr && anim_evt->AnimEvts.size() > 0)
+			{
+				if (ImGui::BeginCombo("Animation Sets", anim_evt->curr->name.c_str()))
+				{
+
+					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+						if (ImGui::Selectable(it->name.c_str(), &it->selected))
+						{
+							anim_evt->curr->selected = false;
+							anim_evt->curr = &it._Ptr->_Myval;
+							anim_evt->curr->selected = true;
+
+							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+								if (&it._Ptr->_Myval == anim_evt->curr)
+								{
+									p_anim_evt->curr = it;
+									break;
+								}
+						}
+					ImGui::EndCombo();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("Delete"))
+				{
+					anim_evt->AnimEvts.erase(p_anim_evt->curr);
+					anim_evt->curr = nullptr;
+					p_anim_evt->curr = anim_evt->AnimEvts.end();
+				}
+			}
+
+			if (anim_evt->curr != nullptr)
+			{
+				if (ImGui::BeginCombo("Animation Sets##12", anim_evt->curr->name.c_str()))
+				{
+
+					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+						if (ImGui::Selectable(it->name.c_str(), &it->selected))
+						{
+							anim_evt->curr->selected = false;
+							anim_evt->curr = &it._Ptr->_Myval;
+							anim_evt->curr->selected = true;
+
+							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+								if (&it._Ptr->_Myval == anim_evt->curr)
+								{
+									p_anim_evt->curr = it;
+									break;
+								}
+						}
+					ImGui::EndCombo();
+				}
+				
+				if (ImGui::Button("Link Animation")) p_anim_evt->copy_specs_win = true;
+
+				p_anim_evt->CopySpecs();
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+					auto get = component.getParent()->getComponent(Component_type::ANIMATION);
+					if (get != nullptr)
+						ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
+					else
+						ImGui::TextUnformatted(("No Animation to link to"));
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+				}
+
+				static bool animation_active;
+				animation_active = anim_evt->isActive();
+
+				if (ImGui::Checkbox("Active##active animation evt", &animation_active))
+					anim_evt->setActive(animation_active);
+
+				ImGui::Checkbox("Loop", &anim_evt->curr->loop);
+
+
+				ImGui::InputInt("Duration", &anim_evt->curr->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+					ImGui::TextUnformatted("In Frames");
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+				}
+				ImGui::InputInt("FrameRate", &anim_evt->curr->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+
+				ImGui::InputFloat("Speed", &anim_evt->curr->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+					ImGui::TextUnformatted("Animation Speed Multiplier");
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+				}
+				//if (R_anim != nullptr)
+				{
+					if (App->time->getGameState() != GameState::PLAYING)
+					{
+						ImGui::Text("Play");
+						ImGui::SameLine();
+						ImGui::Text("Pause");
+					}
+					else if (anim_evt->isPaused())
+					{
+						if (ImGui::Button("Play"))
+							anim_evt->Play();
+						ImGui::SameLine();
+						ImGui::Text("Pause");
+					}
+					else
+					{
+						ImGui::Text("Play");
+						ImGui::SameLine();
+						if (ImGui::Button("Pause"))
+							anim_evt->Pause();
+					}
+
+					ImGui::Text("Animation info:");
+					if(anim_evt->curr->ticksXsecond != 0)
+						ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
+					//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+				}
+
+				if (ImGui::Button("AnimEditor"))
+					p_anim_evt->toggleActive();
+				if (p_anim_evt->isActive())
+					p_anim_evt->Draw();
+			}
+
+			if (ImGui::Button("Remove Component##Remove animation"))
+				ret = false;			
+		}
+		break;
+	}
+	case ANIMATOR:
+		if (ImGui::CollapsingHeader("Animator"))
+		{
+			ComponentAnimator* animator = (ComponentAnimator*)&component;
+			ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(animator->getAnimationGraphResource());
+			ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+			static bool set_animation_menu = false;
+			if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+				set_animation_menu = true;
+			}
+
+			if (set_animation_menu) {
+
+				std::list<resource_deff> graph_res;
+				App->resources->getAnimationGraphResourceList(graph_res);
+
+				ImGui::Begin("Animation selector", &set_animation_menu);
+				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+					resource_deff anim_deff = (*it);
+					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+						App->resources->deasignResource(animator->getAnimationGraphResource());
+						App->resources->assignResource(anim_deff.uuid);
+						animator->setAnimationGraphResource(anim_deff.uuid);
+						set_animation_menu = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}
+
+			static bool animator_active;
+			animator_active = animator->isActive();
+
+			if (ImGui::Checkbox("Active##active animator", &animator_active))
+				animator->setActive(animator_active);
+		}
+		break;
+	case COLLIDER_CUBE:
+	{	if (ImGui::CollapsingHeader("Collider Cube"))
+			ImGui::Text("This game object has a collider");
+	}
+	break;
 	default:
 		break;
 	}
@@ -2094,6 +2390,14 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 {
 	if (FrameBuffer* frame_buffer = camera.getFrameBuffer())
 	{
+		if (camera.getParent())
+		{
+			if (!camera.getParent()->getParent())
+				return;
+		}
+		else
+			return;
+
 		std::string window_name;
 
 		if (camera.getParent())
@@ -2119,7 +2423,8 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		}
 		ImGui::End();
 	}
-	else camera.initFrameBuffer();
+	else 
+		camera.initFrameBuffer();
 }
 
 void ModuleUI::DrawViewportsWindow()
@@ -2260,401 +2565,401 @@ void ModuleUI::DrawCameraMenuWindow()
 
 void ModuleUI::DrawAssetsWindow()
 {
-	ImGui::Begin("Assets Window", &open_tabs[ASSET_WINDOW]);
-	int element_size = 64;
-	std::string path, name, extension;
-	
-	int column_num = (int)trunc(ImGui::GetWindowSize().x / (element_size + 20));
-	static bool item_hovered = false;
+	//ImGui::Begin("Assets Window", &open_tabs[ASSET_WINDOW]);
+	//int element_size = 64;
+	//std::string path, name, extension;
+	//
+	//int column_num = (int)trunc(ImGui::GetWindowSize().x / (element_size + 20));
+	//static bool item_hovered = false;
 
-	if (column_num != 0)
-	{
-		int count = 0;
-		int iteration = 0;
+	//if (column_num != 0)
+	//{
+	//	int count = 0;
+	//	int iteration = 0;
 
-		if (ImGui::ImageButton((void*)ui_textures[RETURN_ICON]->getGLid(), ImVec2(24, 17)))
-		{
-			if (!App->fs.getPath(asset_window_path))
-				asset_window_path = ASSETS_FOLDER;
-		}
+	//	if (ImGui::ImageButton((void*)ui_textures[RETURN_ICON]->getGLid(), ImVec2(24, 17)))
+	//	{
+	//		if (!App->fs.getPath(asset_window_path))
+	//			asset_window_path = ASSETS_FOLDER;
+	//	}
 
-		ImGui::SameLine();
-		ImGui::Text(asset_window_path.c_str());
+	//	ImGui::SameLine();
+	//	ImGui::Text(asset_window_path.c_str());
 
-		using std::experimental::filesystem::directory_iterator;
-		for (auto& it : directory_iterator(asset_window_path))
-		{
-			extension = it.path().generic_string();
-			App->fs.getExtension(extension);
-			if(extension != ".meta")
-				count++;
-		}
+	//	using std::experimental::filesystem::directory_iterator;
+	//	for (auto& it : directory_iterator(asset_window_path))
+	//	{
+	//		extension = it.path().generic_string();
+	//		App->fs.getExtension(extension);
+	//		if(extension != ".meta")
+	//			count++;
+	//	}
 
-		if (count == 0)
-		{
-			ImGui::End();
-			DrawAssetInspector();
-			return;
-		}
+	//	if (count == 0)
+	//	{
+	//		ImGui::End();
+	//		DrawAssetInspector();
+	//		return;
+	//	}
 
-		else if (count < column_num) column_num = count;
-		count = 0;
+	//	else if (count < column_num) column_num = count;
+	//	count = 0;
 
-		ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
+	//	ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
 
-		for (auto& it : directory_iterator(asset_window_path)) {
+	//	for (auto& it : directory_iterator(asset_window_path)) {
 
-			path = name = extension = it.path().generic_string();	// Separate path, name and extension	
-			App->fs.getExtension(extension);
-			App->fs.getPath(path);
-			App->fs.getFileNameFromPath(name);
+	//		path = name = extension = it.path().generic_string();	// Separate path, name and extension	
+	//		App->fs.getExtension(extension);
+	//		App->fs.getPath(path);
+	//		App->fs.getFileNameFromPath(name);
 
-			if (extension == ".meta")
-				continue;
+	//		if (extension == ".meta")
+	//			continue;
 
-			if (count == column_num)
-			{
-				ImGui::NewLine();
-				iteration++;
-				count = 0;
-				ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
-			}
-			count++;
+	//		if (count == column_num)
+	//		{
+	//			ImGui::NewLine();
+	//			iteration++;
+	//			count = 0;
+	//			ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
+	//		}
+	//		count++;
 
-			if(column_num > 1)
-				ImGui::SetColumnWidth(ImGui::GetColumnIndex(), element_size + 20);
+	//		if(column_num > 1)
+	//			ImGui::SetColumnWidth(ImGui::GetColumnIndex(), element_size + 20);
 
-			bool draw_caution = false;
-			bool draw_warning = false;
-			std::string error_message;
+	//		bool draw_caution = false;
+	//		bool draw_warning = false;
+	//		std::string error_message;
 
-			if (it.status().type() == std::experimental::filesystem::v1::file_type::directory)
-			{
+	//		if (it.status().type() == std::experimental::filesystem::v1::file_type::directory)
+	//		{
 
-				if (ImGui::IsMouseDoubleClicked(0))
-				{
-					ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-					if (ImGui::IsItemHovered())
-						asset_window_path = it.path().generic_string();
-				}
-				else {
-					if (ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-						selected_asset = it.path().generic_string();
-					else if (ImGui::IsItemHovered())
-						item_hovered = true;
-				}
-			}
-			else
-			{
-				const char* type = App->resources->assetExtension2type(extension.c_str());
+	//			if (ImGui::IsMouseDoubleClicked(0))
+	//			{
+	//				ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+	//				if (ImGui::IsItemHovered())
+	//					asset_window_path = it.path().generic_string();
+	//			}
+	//			else {
+	//				if (ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//					selected_asset = it.path().generic_string();
+	//				else if (ImGui::IsItemHovered())
+	//					item_hovered = true;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			const char* type = App->resources->assetExtension2type(extension.c_str());
 
-				if (type == "3dobject")
-				{
+	//			if (type == "3dobject")
+	//			{
 
-					if (ImGui::IsMouseDoubleClicked(0)) {
-						ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-						if (ImGui::IsItemHovered())
-							App->resources->Load3dObjectToScene(it.path().generic_string().c_str());
-					}
-					else{
-						if (ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-							selected_asset = it.path().generic_string();
-						else if (ImGui::IsItemHovered())
-							item_hovered = true;
-					}
-				}
-				else if (type == "texture")
-				{
-					ResourceTexture* res_tex = (ResourceTexture*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
-					if(res_tex){
-						res_tex->drawn_in_UI = true;
-						if (!res_tex->IsLoaded())
-							res_tex->LoadToMemory();
-						if (ImGui::ImageButton((void*)res_tex->texture->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-							selected_asset = it.path().generic_string();
-						else if (ImGui::IsItemHovered())
-							item_hovered = true;
-					}
+	//				if (ImGui::IsMouseDoubleClicked(0)) {
+	//					ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+	//					if (ImGui::IsItemHovered())
+	//						App->resources->Load3dObjectToScene(it.path().generic_string().c_str());
+	//				}
+	//				else{
+	//					if (ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//						selected_asset = it.path().generic_string();
+	//					else if (ImGui::IsItemHovered())
+	//						item_hovered = true;
+	//				}
+	//			}
+	//			else if (type == "texture")
+	//			{
+	//				ResourceTexture* res_tex = (ResourceTexture*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
+	//				if(res_tex){
+	//					res_tex->drawn_in_UI = true;
+	//					if (!res_tex->IsLoaded())
+	//						res_tex->LoadToMemory();
+	//					if (ImGui::ImageButton((void*)res_tex->texture->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//						selected_asset = it.path().generic_string();
+	//					else if (ImGui::IsItemHovered())
+	//						item_hovered = true;
+	//				}
 
 
-				}
-				else if (type == "prefab") {
+	//			}
+	//			else if (type == "prefab") {
 
-					if (ImGui::IsMouseDoubleClicked(0)) {
-						ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-						if (ImGui::IsItemHovered())
-							App->scene->AskPrefabLoadFile((char*)it.path().generic_string().c_str(), float3(0,0,0), float3(0, 0, 0));
-					}
-					else {
-						if (ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-							selected_asset = it.path().generic_string();
-						else if (ImGui::IsItemHovered())
-							item_hovered = true;
-					}
-				}
+	//				if (ImGui::IsMouseDoubleClicked(0)) {
+	//					ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+	//					if (ImGui::IsItemHovered())
+	//						App->scene->AskPrefabLoadFile((char*)it.path().generic_string().c_str(), float3(0,0,0), float3(0, 0, 0));
+	//				}
+	//				else {
+	//					if (ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//						selected_asset = it.path().generic_string();
+	//					else if (ImGui::IsItemHovered())
+	//						item_hovered = true;
+	//				}
+	//			}
 
-				else if(type == "scene")
-				{
-					if (ImGui::IsMouseDoubleClicked(0)) {
-						ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-						if (ImGui::IsItemHovered())
-							App->scene->AskSceneLoadFile((char*)it.path().generic_string().c_str());
-					}
-					else {
-						if (ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-							selected_asset = it.path().generic_string();
-						else if (ImGui::IsItemHovered())
-							item_hovered = true;
-					}
-				}
+	//			else if(type == "scene")
+	//			{
+	//				if (ImGui::IsMouseDoubleClicked(0)) {
+	//					ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+	//					if (ImGui::IsItemHovered())
+	//						App->scene->AskSceneLoadFile((char*)it.path().generic_string().c_str());
+	//				}
+	//				else {
+	//					if (ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//						selected_asset = it.path().generic_string();
+	//					else if (ImGui::IsItemHovered())
+	//						item_hovered = true;
+	//				}
+	//			}
 
-				else if (type == "script")
-				{
-					ResourceScript* res = (ResourceScript*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
+	//			else if (type == "script")
+	//			{
+	//				ResourceScript* res = (ResourceScript*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
 
-					if (res && res->IsInvalid())
-					{
-						draw_warning = true;
-						error_message += "Compile error in imported script";
-					}
+	//				if (res && res->IsInvalid())
+	//				{
+	//					draw_warning = true;
+	//					error_message += "Compile error in imported script";
+	//				}
 
-					if (ImGui::IsMouseDoubleClicked(0)) {
-						ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-						if (ImGui::IsItemHovered())
-						{
-							open_script_path = it.path().generic_string();
-							open_tabs[SCRIPT_EDITOR] = true;
+	//				if (ImGui::IsMouseDoubleClicked(0)) {
+	//					ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+	//					if (ImGui::IsItemHovered())
+	//					{
+	//						open_script_path = it.path().generic_string();
+	//						open_tabs[SCRIPT_EDITOR] = true;
 
-							if (App->scripting->edited_scripts.find(open_script_path) != App->scripting->edited_scripts.end())
-								script_editor.SetText(App->scripting->edited_scripts.at(open_script_path));
-							else
-							{
-								std::ifstream t(open_script_path.c_str());
-								if (t.good())
-								{
-									std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-									script_editor.SetText(str);
-								}
-							}
-						}
-					}
-					else {
-						if (ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-							selected_asset = it.path().generic_string();
-						else if (ImGui::IsItemHovered())
-							item_hovered = true;
-					}
-				}
-			}
-			
-			if (draw_warning || draw_caution)
-			{
-				ImGui::Image((void*)ui_textures[draw_warning ? WARNING_ICON : CAUTION_ICON]->getGLid(), ImVec2(16, 16));
+	//						if (App->scripting->edited_scripts.find(open_script_path) != App->scripting->edited_scripts.end())
+	//							script_editor.SetText(App->scripting->edited_scripts.at(open_script_path));
+	//						else
+	//						{
+	//							std::ifstream t(open_script_path.c_str());
+	//							if (t.good())
+	//							{
+	//								std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	//								script_editor.SetText(str);
+	//							}
+	//						}
+	//					}
+	//				}
+	//				else {
+	//					if (ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+	//						selected_asset = it.path().generic_string();
+	//					else if (ImGui::IsItemHovered())
+	//						item_hovered = true;
+	//				}
+	//			}
+	//		}
+	//		
+	//		if (draw_warning || draw_caution)
+	//		{
+	//			ImGui::Image((void*)ui_textures[draw_warning ? WARNING_ICON : CAUTION_ICON]->getGLid(), ImVec2(16, 16));
 
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					ImGui::Text(error_message.c_str());
-					ImGui::EndTooltip();
-				}
+	//			if (ImGui::IsItemHovered())
+	//			{
+	//				ImGui::BeginTooltip();
+	//				ImGui::Text(error_message.c_str());
+	//				ImGui::EndTooltip();
+	//			}
 
-				ImGui::SameLine();
-			}
+	//			ImGui::SameLine();
+	//		}
 
-			ImGui::TextWrapped(name.c_str());
-			ImGui::NextColumn();
-		}
-		ImGui::Columns(1);
-	}
+	//		ImGui::TextWrapped(name.c_str());
+	//		ImGui::NextColumn();
+	//	}
+	//	ImGui::Columns(1);
+	//}
 
-	if (ImGui::IsWindowHovered())
-	{
-		if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-			selected_asset = "";
-		else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
-			ImGui::OpenPopup("##asset window context menu");
-	}
-	item_hovered = false;
+	//if (ImGui::IsWindowHovered())
+	//{
+	//	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+	//		selected_asset = "";
+	//	else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
+	//		ImGui::OpenPopup("##asset window context menu");
+	//}
+	//item_hovered = false;
 
-	static bool name_script = false;
-	if (ImGui::BeginPopup("##asset window context menu"))
-	{
-		if (ImGui::Button("Add script")) 
-			name_script = true;
+	//static bool name_script = false;
+	//if (ImGui::BeginPopup("##asset window context menu"))
+	//{
+	//	if (ImGui::Button("Add script")) 
+	//		name_script = true;
 
-		ImGui::EndPopup();
-	}
+	//	ImGui::EndPopup();
+	//}
 
-	ImGui::End();
+	//ImGui::End();
 
-	if (name_script) {
-		disable_keyboard_control = true;
-		ImGui::Begin("Script Name", &name_script);
-		ImGui::PushFont(ui_fonts[REGULAR]);
+	//if (name_script) {
+	//	disable_keyboard_control = true;
+	//	ImGui::Begin("Script Name", &name_script);
+	//	ImGui::PushFont(ui_fonts[REGULAR]);
 
-		static char rename_buffer[64];
-		ImGui::InputText("Create as...", rename_buffer, 64);
-		ImGui::SameLine();
-		if (ImGui::Button("Create")) {
-			std::string script_name = rename_buffer;
-			std::string full_path = asset_window_path + "/" + script_name + ".wren";
-			App->fs.CreateEmptyFile(full_path.c_str());
-			open_script_path = full_path;
-			std::string file_initial_text;
-			file_initial_text = 
-				"\nimport \"ObjectLinker\" for ObjectLinker,\nEngineComunicator,\nInputComunicator\n"
-				"\n//For each var you declare, remember to create" 
-				"\n//		setters [varname=(v) { __varname = v }]" 
-				"\n//		and getters [varname { __varname }]" 
-				"\n//The construct method is mandatory, do not erase!"
-				"\n//The import statement at the top og the cript is mandatory, do not erase!"
-				"\n//Be careful not to overwrite the methods declared in Game/ScriptingAPI/ObjectLinker.wren"
-				"\n//[gameObject] is a reserved identifier for the engine, don't use it for your own variables"
-				"\n\nclass " + script_name + " is ObjectLinker{"
-				"\n\nconstruct new(){}"
-				"\n\n Start() {}"
-				"\n\n Update() {}"
-				"\n}";
-			script_editor.SetText(file_initial_text);
-			App->fs.SetFileString(open_script_path.c_str(), file_initial_text.c_str());
-			open_tabs[SCRIPT_EDITOR] = true;
-			for (int i = 0; i < 64; i++)
-				rename_buffer[i] = '\0';
-			name_script = false;
-		}
-		ImGui::PopFont();
-		ImGui::End();
-	}
+	//	static char rename_buffer[64];
+	//	ImGui::InputText("Create as...", rename_buffer, 64);
+	//	ImGui::SameLine();
+	//	if (ImGui::Button("Create")) {
+	//		std::string script_name = rename_buffer;
+	//		std::string full_path = asset_window_path + "/" + script_name + ".wren";
+	//		App->fs.CreateEmptyFile(full_path.c_str());
+	//		open_script_path = full_path;
+	//		std::string file_initial_text;
+	//		file_initial_text = 
+	//			"\nimport \"ObjectLinker\" for ObjectLinker,\nEngineComunicator,\nInputComunicator\n"
+	//			"\n//For each var you declare, remember to create" 
+	//			"\n//		setters [varname=(v) { __varname = v }]" 
+	//			"\n//		and getters [varname { __varname }]" 
+	//			"\n//The construct method is mandatory, do not erase!"
+	//			"\n//The import statement at the top og the cript is mandatory, do not erase!"
+	//			"\n//Be careful not to overwrite the methods declared in Game/ScriptingAPI/ObjectLinker.wren"
+	//			"\n//[gameObject] is a reserved identifier for the engine, don't use it for your own variables"
+	//			"\n\nclass " + script_name + " is ObjectLinker{"
+	//			"\n\nconstruct new(){}"
+	//			"\n\n Start() {}"
+	//			"\n\n Update() {}"
+	//			"\n}";
+	//		script_editor.SetText(file_initial_text);
+	//		App->fs.SetFileString(open_script_path.c_str(), file_initial_text.c_str());
+	//		open_tabs[SCRIPT_EDITOR] = true;
+	//		for (int i = 0; i < 64; i++)
+	//			rename_buffer[i] = '\0';
+	//		name_script = false;
+	//	}
+	//	ImGui::PopFont();
+	//	ImGui::End();
+	//}
 
-	DrawAssetInspector();
+	//DrawAssetInspector();
 }
 
 void ModuleUI::DrawAssetInspector()
 {
-	ImGui::Begin("Asset inspector", nullptr);
+	//ImGui::Begin("Asset inspector", nullptr);
 
-	if (!selected_asset.empty())
-	{
-		std::string name, extension;
-		extension = name = selected_asset;
-		App->fs.getExtension(extension);
-		App->fs.getFileNameFromPath(name);
+	//if (!selected_asset.empty())
+	//{
+	//	std::string name, extension;
+	//	extension = name = selected_asset;
+	//	App->fs.getExtension(extension);
+	//	App->fs.getFileNameFromPath(name);
 
-		ImGui::Text(name.c_str());
-		
-		if (extension.empty())  // is directory
-		{
-			ImGui::Text("type: directory");
-			ImGui::End();
-			return;
-		}
-		else if (extension == ".scene")
-		{
-			ImGui::Text("type: scene");
-			ImGui::End();
-			return;
-		}
+	//	ImGui::Text(name.c_str());
+	//	
+	//	if (extension.empty())  // is directory
+	//	{
+	//		ImGui::Text("type: directory");
+	//		ImGui::End();
+	//		return;
+	//	}
+	//	else if (extension == ".scene")
+	//	{
+	//		ImGui::Text("type: scene");
+	//		ImGui::End();
+	//		return;
+	//	}
 
-		const char* type = App->resources->assetExtension2type(extension.c_str());
-		if(type == "3dobject")
-			ImGui::Text("type: 3D object");
-		else
-			ImGui::Text("type: %s", type);
+	//	const char* type = App->resources->assetExtension2type(extension.c_str());
+	//	if(type == "3dobject")
+	//		ImGui::Text("type: 3D object");
+	//	else
+	//		ImGui::Text("type: %s", type);
 
-		Resource* res = App->resources->getResource(App->resources->getResourceUuid(selected_asset.c_str()));
-		if (res) {
-			ImGui::Text("Used by %s components", std::to_string(res->components_used_by).c_str());
-			if (res->IsLoaded())		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Loaded");
-			else					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unloaded");
-		}
-		else
-			return;
+	//	Resource* res = App->resources->getResource(App->resources->getResourceUuid(selected_asset.c_str()));
+	//	if (res) {
+	//		ImGui::Text("Used by %s components", std::to_string(res->components_used_by).c_str());
+	//		if (res->IsLoaded())		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Loaded");
+	//		else					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unloaded");
+	//	}
+	//	else
+	//		return;
 
-		if (type == "texture")
-		{
-			ResourceTexture* res_tex = (ResourceTexture*)res;
-			if(res_tex){
-				res_tex->drawn_in_UI = true;
-				if (!res_tex->IsLoaded())
-					res_tex->LoadToMemory();
+	//	if (type == "texture")
+	//	{
+	//		ResourceTexture* res_tex = (ResourceTexture*)res;
+	//		if(res_tex){
+	//			res_tex->drawn_in_UI = true;
+	//			if (!res_tex->IsLoaded())
+	//				res_tex->LoadToMemory();
 
-				int size_x, size_y;
-				res_tex->texture->getSize(size_x, size_y);
-				ImGui::Image((void*)res_tex->texture->getGLid(), ImVec2((float)size_x, (float)size_y));
+	//			int size_x, size_y;
+	//			res_tex->texture->getSize(size_x, size_y);
+	//			ImGui::Image((void*)res_tex->texture->getGLid(), ImVec2((float)size_x, (float)size_y));
 
-				ImGui::Scrollbar(ImGuiLayoutType_::ImGuiLayoutType_Horizontal);
-			}
-		}
-		else if (type == "script")
-		{
-			
-			ScriptData* script_data = ((ResourceScript*)res)->getData();
+	//			ImGui::Scrollbar(ImGuiLayoutType_::ImGuiLayoutType_Horizontal);
+	//		}
+	//	}
+	//	else if (type == "script")
+	//	{
+	//		
+	//		ScriptData* script_data = ((ResourceScript*)res)->getData();
 
-			bool updated = false;
+	//		bool updated = false;
 
-			if (!script_data) {
-				ImGui::Text("Script can't be compiled!");
-			}
-			else {
-				for (auto it = script_data->vars.begin(); it != script_data->vars.end(); it++) {
+	//		if (!script_data) {
+	//			ImGui::Text("Script can't be compiled!");
+	//		}
+	//		else {
+	//			for (auto it = script_data->vars.begin(); it != script_data->vars.end(); it++) {
 
-					ImportedVariable* curr = &(*it);
-					std::string unique_tag = "##" + curr->getName();
+	//				ImportedVariable* curr = &(*it);
+	//				std::string unique_tag = "##" + curr->getName();
 
-					ImGui::Text(curr->getName().c_str());
-					static int type = 0;
-					type = curr->getType();
-					if (ImGui::Combo((unique_tag + "type").c_str(), &type, "None\0Bool\0String\0Numeral\0"))
-					{
-						if(type != 0)
-							curr->setType((ImportedVariable::WrenDataType)(type));
+	//				ImGui::Text(curr->getName().c_str());
+	//				static int type = 0;
+	//				type = curr->getType();
+	//				if (ImGui::Combo((unique_tag + "type").c_str(), &type, "None\0Bool\0String\0Numeral\0"))
+	//				{
+	//					if(type != 0)
+	//						curr->setType((ImportedVariable::WrenDataType)(type));
 
-						updated = true;
-					}
+	//					updated = true;
+	//				}
 
-					ImGui::SameLine();
+	//				ImGui::SameLine();
 
-					static bool forced_type = false;
-					forced_type = curr->isTypeForced();
-					if (ImGui::Checkbox(("Forced" + unique_tag + "forced").c_str(), &forced_type))
-					{
-						if (type != 0)
-						{
-							curr->setForcedType(forced_type);
-							updated = true;
-						}
-					}
+	//				static bool forced_type = false;
+	//				forced_type = curr->isTypeForced();
+	//				if (ImGui::Checkbox(("Forced" + unique_tag + "forced").c_str(), &forced_type))
+	//				{
+	//					if (type != 0)
+	//					{
+	//						curr->setForcedType(forced_type);
+	//						updated = true;
+	//					}
+	//				}
 
-					static bool _public = true;
-					_public = curr->isPublic();
-					if (ImGui::Checkbox(("Public" + unique_tag + "public").c_str(), &_public))
-					{
-						curr->setPublic(_public);
-						updated = true;
-					}
-				}
+	//				static bool _public = true;
+	//				_public = curr->isPublic();
+	//				if (ImGui::Checkbox(("Public" + unique_tag + "public").c_str(), &_public))
+	//				{
+	//					curr->setPublic(_public);
+	//					updated = true;
+	//				}
+	//			}
 
-				if (updated)
-				{
-					for (auto instance = App->scripting->loaded_instances.begin(); instance != App->scripting->loaded_instances.end(); instance++)
-					{
-						if ((*instance)->class_name == script_data->class_name)
-						{
-							if ((*instance)->vars.size() == script_data->vars.size());   // should always be true, but to be safe
-							for (int i = 0; i < (*instance)->vars.size(); i++)
-							{
-								(*instance)->vars[i].setType(script_data->vars[i].getType());
-								(*instance)->vars[i].setPublic(script_data->vars[i].isPublic());
-								(*instance)->vars[i].setForcedType(script_data->vars[i].isTypeForced());
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	//			if (updated)
+	//			{
+	//				for (auto instance = App->scripting->loaded_instances.begin(); instance != App->scripting->loaded_instances.end(); instance++)
+	//				{
+	//					if ((*instance)->class_name == script_data->class_name)
+	//					{
+	//						if ((*instance)->vars.size() == script_data->vars.size());   // should always be true, but to be safe
+	//						for (int i = 0; i < (*instance)->vars.size(); i++)
+	//						{
+	//							(*instance)->vars[i].setType(script_data->vars[i].getType());
+	//							(*instance)->vars[i].setPublic(script_data->vars[i].isPublic());
+	//							(*instance)->vars[i].setForcedType(script_data->vars[i].isTypeForced());
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	ImGui::End();
+	//ImGui::End();
 }
 
 void ModuleUI::DrawResourcesWindow()
@@ -2695,7 +3000,7 @@ void ModuleUI::DrawResourcesWindow()
 
 void ModuleUI::DrawPrimitivesTab() 
 {
-	ImGui::Begin("Primitives", &open_tabs[PRIMITIVE]);
+	/*ImGui::Begin("Primitives", &open_tabs[PRIMITIVE]);
 	ImGui::PushFont(ui_fonts[REGULAR]);
 
 	if (ImGui::Button("Add cube")){
@@ -2722,7 +3027,7 @@ void ModuleUI::DrawPrimitivesTab()
 	}
 
 	ImGui::PopFont();
-	ImGui::End();
+	ImGui::End();*/
 }
 
 void ModuleUI::DrawSkyboxWindow()
@@ -2936,7 +3241,7 @@ void ModuleUI::DrawBuildMenu()
 	int i = 0;
 	bool remove = false;
 	int removeIndex = 0;
-	for (std::list<std::string>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
+	for (std::list<resource_deff>::iterator it_s = build_scenes.begin(); it_s != build_scenes.end(); ++it_s)
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
 		bool tick = main_scene[i];
@@ -2953,7 +3258,7 @@ void ModuleUI::DrawBuildMenu()
 		main_scene[i] = (main_scene[i] && !tick) ? true : tick;
 		ImGui::SameLine(57);
 
-		ImGui::Text((*it_s).c_str());
+		ImGui::Text((*it_s).asset.c_str());
 
 		ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
 		ImGui::PushID("Remove" + i);
@@ -2990,7 +3295,7 @@ void ModuleUI::DrawBuildMenu()
 		for (auto it = scene_res.begin(); it != scene_res.end(); it++) {
 			resource_deff scene_deff = (*it);
 			if (ImGui::MenuItem(scene_deff.asset.c_str())) {
-				build_scenes.push_back((*it).asset);
+				build_scenes.push_back((*it));
 				main_scene.push_back(build_scenes.size() == 1);
 				pickScene = false;
 				break;
@@ -3000,15 +3305,52 @@ void ModuleUI::DrawBuildMenu()
 	}
 	ImGui::EndChild();
 
+	static bool building = false;
+	static bool errorBuilding = false;
+	if (building)
+	{
+		building = false;
+		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		if (!errorBuilding)
+			open_tabs[BUILD_MENU] = false;
+	}
 	ImGui::NewLine();
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 35);
 	if (ImGui::Button("Create Build") && buildPath != "" && strlen(buildName) > 0)
 	{
-		App->exporter->CreateBuild(buildPath.c_str(), buildName);
-		open_tabs[BUILD_MENU] = false;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 20);
+		ImGui::Text("Creating...");
+		building = true;
+		errorBuilding = false;
+	}
+	if (errorBuilding)
+	{
+		ImGui::NewLine();
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() / 2) - 60);
+		ImGui::TextColored({ 1, 0, 0, 1 }, "Error: No release file!");
+	}
+	ImGui::End();
+}
+
+uint ModuleUI::getMainScene() const
+{
+	uint index = 0;
+	uint ret = 0;
+
+	for (int i = 0; i < main_scene.size(); ++i)
+	{
+		if (main_scene[i])
+		{
+			index = i;
+			break;
+		}
+	}
+	if (build_scenes.size() > 0)
+	{
+		ret = (*std::next(build_scenes.begin(), index)).uuid;
 	}
 
-	ImGui::End();
+	return ret;
 }
 
 void ModuleUI::DrawAboutLeaf()
@@ -3586,6 +3928,11 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
 	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
+}
+
+bool ModuleUI::isMouseOnUI() const
+{
+	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
 }
 
 void ModuleUI::InvisibleDockingBegin() {

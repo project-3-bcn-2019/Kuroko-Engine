@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __PANELANIMATION_H__
+#define __PANELANIMATION_H__
 
 #include "Panel.h"
 #include <list>
@@ -66,3 +67,5 @@ public:
 		new_key_frame = 0;
 	}
 };
+
+#endif // !__PANELANIMATION_H__

@@ -2,11 +2,13 @@
 #define _FILE_SYSTEM_
 
 #include "Resource.h"
+#include <list>
 
 
 #define OWN_MESH_EXTENSION ".kr"
 #define OWN_ANIMATION_EXTENSION ".krAn"
 #define OWN_BONE_EXTENSION ".krOne"
+#define GRAPH_EXTENSION ".krGph"
 #define JSON_EXTENSION ".json"
 #define DDS_EXTENSION ".dds"
 #define META_EXTENSION ".meta"
@@ -14,14 +16,17 @@
 #define PREFAB_EXTENSION ".prefab"
 #define VERTEXSHADER_EXTENSION ".vex"
 #define FRAGMENTSHADER_EXTENSION ".frag"
+#define AUDIO_EXTENSION ".bnk"
 
 #define LIBRARY_FOLDER "Library\\"
 #define MESHES_FOLDER "Library\\Meshes\\"
 #define ANIMATIONS_FOLDER "Library\\Animations\\"
 #define BONES_FOLDER "Library\\Animations\\Bones\\"
+#define GRAPHS_FOLDER "Library\\Animations\\Graphs\\"
 #define TEXTURES_FOLDER "Library\\Textures\\"
 #define OBJECTS_FOLDER "Library\\3dObjects\\"
 #define SCRIPTS_FOLDER "Library\\Scripts\\"
+#define AUDIO_FOLDER "Library\\Audio\\"
 #define MATERIALS_FOLDER "Library\\Materials\\"
 
 
@@ -32,7 +37,9 @@
 #define SETTINGS_FOLDER "Settings\\"
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
+#define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define ASSETS_FOLDER "Assets\\"
+#define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 
 enum lib_dir {
 	LIBRARY_MESHES,
@@ -44,6 +51,8 @@ enum lib_dir {
 	LIBRARY_ANIMATIONS,
 	LIBRARY_BONES,
 	LIBRARY_MATERIALS,
+	LIBRARY_AUDIO,
+	LIBRARY_GRAPHS,
 	SETTINGS,
 	ASSETS,
 	ASSETS_SCENES,
@@ -71,6 +80,7 @@ public:
 	bool FindInDirectory(const char* directory, const char* file_name, std::string& final_path); // File name with extension
 	std::string getPathFromLibDir(lib_dir r_type);
 
+	void createMainDirectories();
 
 	void getFileNameFromPath(std::string& str);
 	bool getPath(std::string & str);
@@ -81,7 +91,7 @@ public:
 
 
 	void makeBuild(const char* buildPath);
-	void CopyFolderRecursively(const char* src, const char* dst);
+	void CopyFolder(const char* src, const char* dst, bool recursive = false, std::list<const char*>* excludedFiles = nullptr);
 
 };
 

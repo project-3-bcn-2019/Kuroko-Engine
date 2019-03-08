@@ -1,9 +1,11 @@
 import "Audio" for ComponentAudioSource
 import "Animation" for ComponentAnimation
+import "Particles" for ComponentParticleEmitter
 
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
+        foreign static C_rotate(gameObject, x, y, z)
 	foreign static C_lookAt(gameObject, x, y, z)
 
 	foreign static C_getPosX(gameObject, mode)
@@ -19,6 +21,7 @@ class ObjectComunicator{
 
 	foreign static C_GetComponentUUID(gameObject, component_type)
 	foreign static C_GetCollisions(gameObject)
+	foreign static C_GetScript(gameObject, script_name)
 
 }
 
@@ -47,6 +50,8 @@ class Math{
 
 		return value
 	}
+
+      foreign static C_angleBetween(x_1,y_1,z_1,x_2,y_2,z_2)
 
 
 }
@@ -107,17 +112,18 @@ class Vec3{
 class EngineComunicator{
 	// Foreigners User usable
 	foreign static consoleOutput(message)
-	foreign static C_Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
 	foreign static getTime()
 	foreign static BreakPoint(message, variable, variable_name)
+	foreign static LoadScene(scene_name)
 
 	// Foreigners Intermediate
 	foreign static C_FindGameObjectsByTag(tag)
+	foreign static C_Instantiate(prefab_name, x, y, z, pitch, yaw, roll)
 
 
 	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
-		EngineComunicator.Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
 	}
 
 	static FindGameObjectsByTag(tag){
@@ -140,6 +146,7 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
+        static J {13}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}
@@ -188,6 +195,7 @@ class InputComunicator{
 class ComponentType{
 	static AUDIO_SOURCE {15}
 	static ANIMATION {7}
+	static PARTICLES {18}
 }
 
 class ObjectLinker{
@@ -202,7 +210,9 @@ class ObjectLinker{
 	modPos(x,y,z){
 		ObjectComunicator.C_modPos(gameObject, x, y, z)
 	}
-
+        rotate(x,y,z){
+                ObjectComunicator.C_rotate(gameObject, x, y, z)
+        }
 	lookAt(x,y,z){
 		ObjectComunicator.C_lookAt(gameObject, x, y, z)
 	}
@@ -269,6 +279,12 @@ class ObjectLinker{
 		if(type == ComponentType.ANIMATION){
 			return ComponentAnimation.new(gameObject, component_uuid)
 		}
+		if(type == ComponentType.PARTICLES){
+			return ComponentParticleEmitter.new(gameObject, component_uuid)
+		}
 
+	}
+	getScript(script_name){
+		return ObjectComunicator.C_GetScript(gameObject, script_name)
 	}
 }

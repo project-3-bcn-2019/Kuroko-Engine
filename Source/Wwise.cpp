@@ -1,24 +1,27 @@
 #include "Wwise.h"
+#include "Application.h"
 #include <assert.h>
 #include "Globals.h"
 #include "Applog.h"
+#include "ModuleResourcesManager.h"
 #include "Include_Wwise.h"
 #include "Wwise/IO/Win32/AkFilePackageLowLevelIOBlocking.h"
 #include "Wwise/IO/Win32/AkDefaultIOHookBlocking.h"
 #include "Wwise/SDK/include/AkDefaultIOHookBlocking.h"
 #include "Wwise/SDK/include/AkFileHelpers.h"
-//#include "Game/Assets/Sounds/Wwise_IDs.h"
+//#include "Wwise_IDs.h"
 #include <AK/Plugin/AkRoomVerbFXFactory.h>
 
 //CAkDefaultIOHookBlocking g_defaultIO;
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
-#define BANKNAME_INIT "Library/Sounds/Init.bnk"
+#define BANKNAME_INIT "Init"
 
 //Initialize all Wwise modules. Receives the base path for soundbanks and the current language
 bool Wwise::InitWwise()
 {
 	bool ret = true;
+	app_log->AddLog("Initializing Wwise");
 
 	ret = InitMemoryManager();
 	ret = InitStreamManager();
@@ -43,7 +46,10 @@ bool Wwise::InitWwise()
 		assert(!"Error setting language!");
 	}*/
 	
-	LoadBank(BANKNAME_INIT);
+	std::string initBank_path = AUDIO_FOLDER;
+	initBank_path += std::to_string(App->resources->getAudioResourceUuid(BANKNAME_INIT));
+	initBank_path += AUDIO_EXTENSION;
+	LoadBank(initBank_path.c_str());
 
 	return ret;
 }

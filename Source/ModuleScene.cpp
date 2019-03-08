@@ -25,15 +25,13 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
-
 #include "ModulePhysics3D.h"
-
 #include "ModuleImporter.h" // TODO: remove this include and set skybox creation in another module (Importer?, delayed until user input?)
+#include "Wwise_IDs.h"
 #include "MathGeoLib\Geometry\LineSegment.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "Random.h"
 
-#include "../Game/Assets/Sounds/Wwise_IDs.h"
 #include "ImGui\imgui.h"
 
 #include <array>
@@ -54,15 +52,33 @@ bool ModuleScene::Start()
 	want_load_scene_file = false;
 
 	std::array<Texture*, 6> skybox_texs;
-	skybox_texs[LEFT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_left.png");
-	skybox_texs[RIGHT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_right.png");
-	skybox_texs[UP]		= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_up.png");
-	skybox_texs[DOWN]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_down.png");
-	skybox_texs[FRONT]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_front.png");
-	skybox_texs[BACK]	= (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
+	if (!App->is_game || App->debug_game)
+	{
+		skybox_texs[LEFT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_left.png");
+		skybox_texs[RIGHT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_right.png");
+		skybox_texs[UP] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_up.png");
+		skybox_texs[DOWN] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_down.png");
+		skybox_texs[FRONT] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_front.png");
+		skybox_texs[BACK] = (Texture*)App->importer->ImportTexturePointer("Assets/Textures/skybox_default_back.png");
+	}
+	else
+	{
+		skybox_texs[LEFT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_left", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[RIGHT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_right", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[UP] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_up", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[DOWN] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_down", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[FRONT] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_front", R_TEXTURE)) + DDS_EXTENSION).c_str());
+		skybox_texs[BACK] = (Texture*)App->importer->ImportTexturePointer((TEXTURES_FOLDER + std::to_string(App->resources->getResourceUuid("skybox_default_back", R_TEXTURE)) + DDS_EXTENSION).c_str());
+	}
 	skybox->setAllTextures(skybox_texs);
 
 	quadtree = new Quadtree(AABB(float3(-50, -10, -50), float3(50, 10, 50)));
+
+	if (App->is_game && !App->debug_game && main_scene != 0)
+	{
+		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
+	}
+	//LoadScene("Assets/Scenes/MainScene.scene");
 
 	return true;
 }
@@ -90,7 +106,7 @@ bool ModuleScene::CleanUp()
 update_status ModuleScene::PostUpdate(float dt)
 {
 	// Quadtree management
-	if(draw_quadtree)
+	if(draw_quadtree && !App->is_game)
 		quadtree->DebugDraw();
 
 	if (quadtree_reload) {
@@ -109,6 +125,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
+
 		if (!selected_obj.empty() && current == *selected_obj.begin())
 			selected_obj.clear();
 		game_objects.remove(current);
@@ -172,24 +189,24 @@ update_status ModuleScene::Update(float dt)
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		(*it)->Update(App->time->getGameDeltaTime()/1000);
 
-	if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
-	{
-		// Create audio listener
-		audiolistenerdefault = new GameObject("Default Audio Listener");
-		audiolistenerdefault->addComponent(AUDIOLISTENER);
-	}
+	//if (!audiolistenerdefault && App->input->GetKey(SDL_SCANCODE_X) == KEY_DOWN)
+	//{
+	//	// Create audio listener
+	//	audiolistenerdefault = new GameObject("Default Audio Listener");
+	//	audiolistenerdefault->addComponent(AUDIOLISTENER);
+	//}
 
-	if (App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
-	{
-		// Create audio source
-		GameObject* audiosource = new GameObject("Audio Source");
-		ComponentAudioSource* component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
-		component->SetSoundID(AK::EVENTS::PUNCH);
-		component->SetSoundName("Punch");
-		component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
-		component->SetSoundID(AK::EVENTS::FOOTSTEPS);
-		component->SetSoundName("Footsteps");
-	}
+	//if (App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
+	//{
+	//	// Create audio source
+	//	GameObject* audiosource = new GameObject("Audio Source");
+	//	ComponentAudioSource* component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
+	//	component->SetSoundID(AK::EVENTS::PUNCH);
+	//	component->SetSoundName("Punch");
+	//	component = (ComponentAudioSource*)audiosource->addComponent(AUDIOSOURCE);
+	//	component->SetSoundID(AK::EVENTS::FOOTSTEPS);
+	//	component->SetSoundName("Footsteps");
+	//}
 
 	//App->physics->UpdatePhysics();
 
@@ -204,7 +221,8 @@ void ModuleScene::DrawScene(float3 camera_pos)
 		skybox->Draw();
 	}
 
-	App->debug->DrawShapes();
+	if (!App->is_game)
+		App->debug->DrawShapes();
 
 	std::list<GameObject*> drawable_gameobjects;
 
@@ -669,6 +687,7 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 		GameObject* obj = new GameObject(obj_deff);
 		child_parent[obj_uuid] = parent;
 		loaded_gameobjects[obj_uuid] = obj;
+		game_objects.push_back(obj);
 	}
 
 
@@ -688,9 +707,9 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 	}
 
 	// Push all gameobjects with handled parenting in the scene
-	for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
+	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
 		game_objects.push_back((*it).second);			
-	}
+	}*/
 }
 
 void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
@@ -708,6 +727,7 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 		GameObject* obj = new GameObject(obj_deff);
 		child_parent[obj_uuid] = parent;
 		loaded_gameobjects[obj_uuid] = obj;
+		game_objects.push_back(obj);
 	}
 
 	GameObject* father_of_all = nullptr; //Store this for setting prefab spawn position
@@ -735,9 +755,9 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 	*c_trans->local = prefab_load_spawn;
 
 	// Push all gameobjects with handled parenting in the scene
-	for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
+	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
 		game_objects.push_back((*it).second);
-	}
+	}*/
 }
 
 

@@ -11,25 +11,15 @@ InputComunicator
 //Be careful not to overwrite the methods declared in Game/ScriptingAPI/ObjectLinker.wren
 //[gameObject] is a reserved identifier for the engine, don't use it for your own variables
 
-class Shoot is ObjectLinker{
+class scene_load_test is ObjectLinker{
 
 construct new(){}
+scene_name { _scene_name}
+scene_name=(v) { _scene_name = v}
 
- bullet { _bullet}
- bullet=(v) { _bullet = v}
-
- Start() {}
-
- Update() {
-   if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_DOWN)){
-      EngineComunicator.Instantiate(bullet, getPos("global"),getEuler())
+  Update() {
+   if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_REPEAT)){
+     EngineComunicator.LoadScene(scene_name)
    }
-   
-   
-   if(InputComunicator.getButton(1, InputComunicator.C_A, InputComunicator.KEY_DOWN)){
-      EngineComunicator.Instantiate(bullet, getPos("global"),getEuler())
-   }
-
-
- }
+  }
 }

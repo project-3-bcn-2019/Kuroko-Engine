@@ -30,7 +30,7 @@ ModuleCamera3D::~ModuleCamera3D()
 bool ModuleCamera3D::Init(const JSON_Object* config)
 {
 	app_log->AddLog("Setting up the camera");
-	background_camera = selected_camera = editor_camera = new Camera(float3(-2.0, 2.0f, -5.0f), float3::zero);
+	background_camera = selected_camera = editor_camera = new Camera(float3(-2.0, 67.0f, -70.0f), float3::zero);
 	editor_camera->active = true;
 
 	viewports[VP_RIGHT] = new Camera(float3(10.0, 0.0f, 0.0f ), float3::zero);
@@ -51,7 +51,7 @@ bool ModuleCamera3D::Start()
 	for (int i = 0; i < 6; i++)
 		viewports[i]->initFrameBuffer();
 
-	editor_camera->frustum->pos = float3(1, 50, -100);
+	editor_camera->frustum->pos = float3(2, 67, -70);
 	editor_camera->LookAt(float3(0, 0, 0));
 
 
@@ -81,7 +81,7 @@ update_status ModuleCamera3D::Update(float dt)
 	updateFOVfromWindow();
 
 	// Not allow camera to be modified if UI is being operated
-	if (selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
+	if (true && selected_camera && (!ImGui::IsMouseHoveringAnyWindow() || (ImGui::IsMouseHoveringAnyWindow() && selected_camera->draw_in_UI)) && !App->gui->disable_keyboard_control)
 	{
 		// Movement
 		float3 displacement = float3::zero;

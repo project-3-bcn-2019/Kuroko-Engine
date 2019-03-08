@@ -81,6 +81,26 @@ void ComponentAudioSource::Save(JSON_Object* config)
 	json_object_set_number(config, "pitch", pitch);
 }
 
+void ComponentAudioSource::Play()
+{
+	sound_go->PlayEvent(sound_ID);
+}
+
+void ComponentAudioSource::Stop()
+{
+	sound_go->StopEvent(sound_ID);
+}
+
+void ComponentAudioSource::Pause()
+{
+	sound_go->PauseEvent(sound_ID);
+}
+
+void ComponentAudioSource::Resume()
+{
+	sound_go->ResumeEvent(sound_ID);
+}
+
 void ComponentAudioSource::SetSoundID(AkUniqueID ID)
 {
 	sound_ID = ID;
@@ -89,4 +109,52 @@ void ComponentAudioSource::SetSoundID(AkUniqueID ID)
 void ComponentAudioSource::SetSoundName(const char* newName)
 {
 	name = newName;
+}
+
+// --------------------------------------------------------------
+// Animation events functions
+
+std::string ComponentAudioSource::EvTypetoString(int evt)
+{
+	switch (evt)
+	{
+	case AudioAnimEvents::AUDIO_PLAY:
+		return "PLAY";
+	case AudioAnimEvents::AUDIO_STOP:
+		return "STOP";
+	case AudioAnimEvents::AUDIO_PAUSE:
+		return "PAUSE";
+	case AudioAnimEvents::AUDIO_RESUME:
+		return "RESUME";
+	}
+	return "ERROR";
+}
+
+int ComponentAudioSource::getEvAmount()
+{
+	return AudioAnimEvents::AUDIO_AMOUNT_OF_EVENTS;
+}
+
+void ComponentAudioSource::ProcessAnimationEvents(std::map<int, void*>& evts)
+{
+	for(auto it_evt = evts.begin(); it_evt != evts.end(); ++it_evt)
+	{
+		switch(it_evt->first)
+		{
+		case AudioAnimEvents::AUDIO_PLAY:
+			Play();
+			break;
+		case AudioAnimEvents::AUDIO_STOP:
+			Stop();
+			break;
+		case AudioAnimEvents::AUDIO_PAUSE:
+			Pause();
+			break;
+		case AudioAnimEvents::AUDIO_RESUME:
+			Resume();
+			break;
+		default:
+			break;
+		}
+	}
 }

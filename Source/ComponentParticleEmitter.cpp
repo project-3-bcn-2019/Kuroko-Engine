@@ -88,14 +88,15 @@ ComponentParticleEmitter::ComponentParticleEmitter(JSON_Object* deff, GameObject
 	transform = ((ComponentTransform*)parent->getComponent(TRANSFORM));
 
 	//Emitter Info
-	emisionTime = json_object_dotget_number(deff, "Emision Time");
+	emisionTime = json_object_dotget_number(deff, "Emmision Time");
 	period = json_object_dotget_number(deff, "Period");
 	maxParticles = json_object_dotget_number(deff, "Max Particles");
-	
+	emitterLifetime = json_object_dotget_number(deff, "EmitterLifetime");
+	script_controlled = json_object_get_boolean(deff, "Script Controlled");
 	
 	//Particle Info
 	speed = LoadRange(deff, "Speed");
-	particleLifetime = LoadRange(deff, "Life");
+	particleLifetime = LoadRange(deff, "ParticleLifetime");
 	startSize = LoadRange(deff, "StartSize");
 	endSize = LoadRange(deff, "EndSize");
 	
@@ -176,12 +177,12 @@ void ComponentParticleEmitter::Save(JSON_Object * json)
 	json_object_dotset_number(json, "Emmision Time", emisionTime);
 	json_object_dotset_number(json, "Period", period);
 	json_object_dotset_number(json, "Max Particles", maxParticles);
+	json_object_dotset_number(json, "EmitterLifetime", emitterLifetime);
+	json_object_set_boolean(json, "Script Controlled", script_controlled);
 
 	//Particle Info
 	SaveRange(json, "Speed", speed);
-
-	SaveRange(json, "Life", particleLifetime);
-
+	SaveRange(json, "ParticleLifetime", particleLifetime);
 	SaveRange(json, "StartSize", startSize);
 	SaveRange(json, "EndSize", endSize);
 
@@ -219,19 +220,26 @@ void ComponentParticleEmitter::CreateParticle()
 	vartiation.y = vartiation.y * dirVartiation * DEGTORAD;
 	vartiation.z = vartiation.z * dirVartiation * DEGTORAD;
 
-	float3 dir = direction + vartiation;
+	float3 dir = float3::zero;
+	if (transform_mode == GLOBAL)
+		dir = direction + vartiation;
+	else
+		dir = (transform->global->getRotation() * direction) + vartiation;
 
 	//Create New Particle
 	Particle* newParticle = new Particle();
 	newParticle->info.Set(GetRandom(startSize), GetRandom(endSize), GetRandom(startSpin), GetRandom(endSpin), GetRandom(speed), GetRandom(particleLifetime), GetRandomPosition(), dir, gravity, GetRandom(startColor), GetRandom(endColor));
 	newParticle->Reset();
 	particles.push_back(newParticle);
+	currentParticles++;
 
 
 }
 
 void ComponentParticleEmitter::SpawnParticles(float dt)
 {
+	if (script_controlled)
+		return;
 	uint particlesToSpawn = 1;
 
 	if (period < dt)
@@ -244,7 +252,6 @@ void ComponentParticleEmitter::SpawnParticles(float dt)
 		for (uint i = 0; i < particlesToSpawn; i++)
 		{
 			CreateParticle();
-			currentParticles++;
 		}
 
 		emisionTimer.Start();
@@ -401,4 +408,37 @@ void ComponentParticleEmitter::UpdateSpawnAreaPos()
 void ComponentParticleEmitter::SetArea(AreaType type)
 {
 	area.type = type;
+}
+
+
+std::string ComponentParticleEmitter::EvTypetoString(int evt)
+{
+	switch (evt)
+	{
+	case ParticleAnimEvents::PARTICLE_CREATE:
+		return "CREATE";
+	case ParticleAnimEvents::PARTICLE_NONE:
+		return "NONE";
+	}
+	return "ERROR";
+}
+
+int ComponentParticleEmitter::getEvAmount()
+{
+	return ParticleAnimEvents::PARTICLE_AMOUNT_OF_EVENTS;
+}
+
+void ComponentParticleEmitter::ProcessAnimationEvents(std::map<int, void*>& evts)
+{
+	for (auto it_evt = evts.begin(); it_evt != evts.end(); ++it_evt)
+	{
+		switch (it_evt->first)
+		{
+		case ParticleAnimEvents::PARTICLE_CREATE:
+			CreateParticle();
+			break;
+		default:
+			break;
+		}
+	}
 }

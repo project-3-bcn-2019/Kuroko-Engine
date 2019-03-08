@@ -16,7 +16,8 @@
 class GameObject;
 
 enum Component_type { NONE, MESH, TRANSFORM, C_AABB, CAMERA, SCRIPT, BONE, ANIMATION, CANVAS, RECTTRANSFORM,
-UI_IMAGE, UI_CHECKBOX, UI_BUTTON, UI_TEXT, AUDIOLISTENER, AUDIOSOURCE, COLLIDER_CUBE, BILLBOARD, PARTICLE_EMITTER
+UI_IMAGE, UI_CHECKBOX, UI_BUTTON, UI_TEXT, AUDIOLISTENER, AUDIOSOURCE, COLLIDER_CUBE, BILLBOARD, PARTICLE_EMITTER,
+ANIMATION_EVENT, ANIMATOR
 };
 
 class Component
@@ -42,49 +43,49 @@ public:
 
 	void SaveRange(JSON_Object* json, const char* name, const range<float>& range)
 	{
-		json_object_dotset_number(json, name, range.min);
-		json_object_dotset_number(json, name, range.max);
+		json_object_dotset_number(json, (std::string(name) + "_min").c_str(), range.min);
+		json_object_dotset_number(json, (std::string(name) + "_max").c_str(), range.max);
 	}
 
 	void SaveColor(JSON_Object* json, const char* name, const Color& color)
-	{
-		json_object_dotset_number(json, name, color.r);
-		json_object_dotset_number(json, name, color.g);
-		json_object_dotset_number(json, name, color.b);
-		json_object_dotset_number(json, name, color.a);
+	{														  
+		json_object_dotset_number(json, (std::string(name) + "_r").c_str(), color.r);
+		json_object_dotset_number(json, (std::string(name) + "_g").c_str(), color.g);
+		json_object_dotset_number(json, (std::string(name) + "_b").c_str(), color.b);
+		json_object_dotset_number(json, (std::string(name) + "_a").c_str(), color.a);
 	}
 
 	void SaveFloat3(JSON_Object* json, const char* name, const float3& vector)
 	{
-		json_object_dotset_number(json, name, vector.x);
-		json_object_dotset_number(json, name, vector.y);
-		json_object_dotset_number(json, name, vector.z);
-	}
+		json_object_dotset_number(json, (std::string(name) + "_x").c_str(), vector.x);
+		json_object_dotset_number(json, (std::string(name) + "_y").c_str(), vector.y);
+		json_object_dotset_number(json, (std::string(name) + "_z").c_str(), vector.z);
+	}									
 
 	range<float> LoadRange(JSON_Object* json, const char* name)
 	{
 		range<float> range;
-		range.min = json_object_dotget_number(json, name);
-		range.max = json_object_dotget_number(json, name);
+		range.min = json_object_dotget_number(json, (std::string(name) + "_min").c_str());
+		range.max = json_object_dotget_number(json, (std::string(name) + "_max").c_str());
 		return range;
 	}
 
 	Color LoadColor(JSON_Object* json, const char* name)
 	{
 		Color color;
-		color.r = json_object_dotget_number(json, name);
-		color.g = json_object_dotget_number(json, name);
-		color.b = json_object_dotget_number(json, name);
-		color.a = json_object_dotget_number(json, name);
+		color.r = json_object_dotget_number(json, (std::string(name) + "_r").c_str());
+		color.g = json_object_dotget_number(json, (std::string(name) + "_g").c_str());
+		color.b = json_object_dotget_number(json, (std::string(name) + "_b").c_str());
+		color.a = json_object_dotget_number(json, (std::string(name) + "_a").c_str());
 		return color;
 	}
 
 	float3 LoadFloat3(JSON_Object* json, const char* name)
 	{
 		float3 vector;
-		vector.x = json_object_dotget_number(json, name);
-		vector.y = json_object_dotget_number(json, name);
-		vector.z = json_object_dotget_number(json, name);
+		vector.x = json_object_dotget_number(json, (std::string(name) + "_x").c_str());
+		vector.y = json_object_dotget_number(json, (std::string(name) + "_y").c_str());
+		vector.z = json_object_dotget_number(json, (std::string(name) + "_z").c_str());
 		return vector;
 	}
 
@@ -102,11 +103,18 @@ public:
 	// Helper Functions
 	std::string TypeToString();
 
+	void SaveCompUUID(JSON_Object* config);
+	void LoadCompUUID(JSON_Object* deff);
+
 	// When Creating animations for components all of these functions
 	// are required in order to process the events for the panel and 
 	// for the actual play of animations for components
 	// Each Animation event should have its own function, similar to a
 	// callback system but by type
+
+	// You have to create these function in each component, the virtual will
+	// only be used when it fails to get animations from component and return
+	// an invalid result.
 
 	// Currently no values can be used in animations, only call function
 	// certain keyframe, if really needed for vertical slice I will
@@ -114,6 +122,9 @@ public:
 	// a cast system should be added to every component so that it gets the
 	// value wanted (similar to a union usage) maybe will create new union
 	// based struct but for now should not be needed
+
+	// You have to create each ComponentTypeAnimEVT enum, which holds the evt
+	// types for the type of componetn you want to be animated
 
 	virtual std::string EvTypetoString(int evt) { 
 		//	Template for virtual EvTypetoString

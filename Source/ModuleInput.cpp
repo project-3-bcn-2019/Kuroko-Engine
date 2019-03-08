@@ -5,6 +5,7 @@
 #include "ModuleImporter.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleUI.h"
 #include "FileSystem.h"
 
 #include "ImGui/imgui.h"
@@ -174,8 +175,7 @@ update_status ModuleInput::PreUpdate(float dt)
 		case SDL_DROPFILE:
 		{
 			std::string extension = e.drop.file;
-			App->fs.getExtension(extension);
-			App->fs.copyFileTo(e.drop.file, ASSETS, extension.c_str());
+			App->fs.copyFileTo(e.drop.file, ASSETS);
 			app_log->AddLog("%s copied to Assets folder", e.drop.file);
 			break;
 		}
@@ -315,4 +315,12 @@ float ModuleInput::getFirstControllerAxis(SDL_GameControllerAxis axis) {
 			break;
 	}
 	return ret;
+}
+
+KEY_STATE ModuleInput::GetMouseButton(int id) const
+{
+	if (App->gui->isMouseOnUI())
+		return KEY_IDLE;
+	else
+		return mouse_buttons[id];
 }

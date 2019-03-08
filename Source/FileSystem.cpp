@@ -119,6 +119,12 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 	case LIBRARY_MATERIALS:
 		path = MATERIALS_FOLDER;
 		break;
+	case LIBRARY_AUDIO:
+		path = AUDIO_FOLDER;
+		break;
+	case LIBRARY_GRAPHS:
+		path = GRAPHS_FOLDER;
+		break;
 	case SETTINGS:
 		path = SETTINGS_FOLDER;
 		break;
@@ -150,7 +156,7 @@ bool FileSystem::copyFileTo(const char * full_path_src, lib_dir dest_lib, const 
 	// Form destination path
 	std::string dest_path;
 
-	FormFullPath(dest_path, file_new_name.c_str(), dest_lib, nullptr);
+	FormFullPath(dest_path, file_new_name.c_str(), dest_lib, extension);
 
 	if (dest_path.compare(full_path_src) == 0) {
 		app_log->AddLog("Trying to copy/paste same file in same location, avoiding operation");
@@ -221,6 +227,9 @@ std::string FileSystem::getPathFromLibDir(lib_dir lib_dir) {
 	case LIBRARY_SCRIPTS:
 		ret = SCRIPTS_FOLDER;
 		break;
+	case LIBRARY_GRAPHS:
+		ret = GRAPHS_FOLDER;
+		break;
 	case SETTINGS:
 		ret = SETTINGS_FOLDER;
 		break;
@@ -235,6 +244,27 @@ std::string FileSystem::getPathFromLibDir(lib_dir lib_dir) {
 		break;
 	}
 	return ret;
+}
+
+void FileSystem::createMainDirectories()
+{
+	CreateDirectory(LIBRARY_FOLDER, NULL);
+	CreateDirectory(MESHES_FOLDER, NULL);
+	CreateDirectory(ANIMATIONS_FOLDER, NULL);
+	CreateDirectory(BONES_FOLDER, NULL);
+	CreateDirectory(TEXTURES_FOLDER, NULL);
+	CreateDirectory(OBJECTS_FOLDER, NULL);
+	CreateDirectory(SCRIPTS_FOLDER, NULL);
+	CreateDirectory(AUDIO_FOLDER, NULL);
+	CreateDirectory(MATERIALS_FOLDER, NULL);
+	CreateDirectory(GRAPHS_FOLDER, NULL);
+
+	CreateDirectory(PREFABS_FOLDER, NULL);
+	CreateDirectory(SCENES_FOLDER, NULL);
+
+	CreateDirectory(ASSETS_FOLDER, NULL);
+	CreateDirectory(USER_SCENES_FOLDER, NULL);
+	CreateDirectory(USER_SCRIPTS_FOLDER, NULL);
 }
 
 bool FileSystem::removeExtension(std::string& str) {
@@ -279,10 +309,11 @@ void FileSystem::getExtension(std::string & str) {
 	str = PathFindExtensionA(str.c_str());
 }
 
-void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
+void FileSystem::CopyFolder(const char* src, const char* dst, bool recursive, std::list<const char*>* excludedFiles)
 {
 	WIN32_FIND_DATA file;
 	HANDLE search_handle = FindFirstFile(src, &file);
+	bool exclude = false;
 	if (search_handle)
 	{
 		do
@@ -292,19 +323,25 @@ void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
 			if (name == "" || name == "." || name == "..")
 				continue;
 
+			if (excludedFiles)
+			{
+				for (auto it = excludedFiles->begin(); it != excludedFiles->end(); ++it)
+				{
+					if ((*it) == name)
+						exclude = true;
+				}
+			}
+			if (exclude)
+			{
+				exclude = false;
+				continue;
+			}
+
 			fullPath.pop_back();
 			fullPath += file.cFileName;
 			getExtension(extension);
 
-			if (file.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
-			{
-				fullPath += "\\*";
-				std::string destiny = dst;
-				destiny += name + "\\";
-				CreateDirectory(destiny.c_str(), NULL);
-				CopyFolderRecursively(fullPath.c_str(), destiny.c_str());// Recursive function to get all subfloders
-			}
-			else
+			if (file.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
 			{
 				std::string destiny = dst;
 				destiny += name;
@@ -312,6 +349,14 @@ void FileSystem::CopyFolderRecursively(const char* src, const char* dst)
 				std::ifstream  src_path(fullPath, std::ios::binary);
 				std::ofstream  dst_path(destiny, std::ios::binary);
 				dst_path << src_path.rdbuf();
+			}
+			else if (recursive)
+			{
+				fullPath += "\\*";
+				std::string destiny = dst;
+				destiny += name + "\\";
+				CreateDirectory(destiny.c_str(), NULL);
+				CopyFolder(fullPath.c_str(), destiny.c_str(), recursive);// Recursive function to get all subfloders
 			}
 
 		} while (FindNextFile(search_handle, &file));

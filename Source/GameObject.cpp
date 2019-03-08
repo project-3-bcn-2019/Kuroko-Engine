@@ -18,8 +18,9 @@
 #include "ComponentParticleEmitter.h"
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
-
+#include "ComponentAnimationEvent.h"
 #include "ComponentColliderCube.h"
+#include "ComponentAnimator.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -96,12 +97,20 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "particle_emitter") {
 			component = new ComponentParticleEmitter(component_deff, this);
 		}
+		else if (type == "animation_event") {
+			component = new ComponentAnimationEvent(component_deff, this);
+		}
 
+		else if (type == "collider_cube") {
+			component = new ComponentColliderCube(component_deff, this);
+		}
 		// Set component's parent-child
 		if (!component){
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
 			continue;
 		}
+		component->LoadCompUUID(component_deff);
+
 		addComponent(component);
 	}
 
@@ -173,6 +182,16 @@ Component* GameObject::getComponent(Component_type type) const
 	return nullptr;
 }
 
+Component * GameObject::getScriptComponent(std::string script_name) const {
+
+	for (std::list<Component*>::const_iterator it = components.begin(); it != components.end(); it++) {
+		if ((*it)->getType() == SCRIPT && ((ComponentScript*)(*it))->instance_data->class_name == script_name) // Retrun the script with the same class name
+			return *it;
+	}
+
+	return nullptr;
+}
+
 Component * GameObject::getComponentByUUID(uint uuid) const {
 
 	for (std::list<Component*>::const_iterator it = components.begin(); it != components.end(); it++) {
@@ -218,20 +237,20 @@ bool GameObject::getComponents(Component_type type, std::list<Component*>& list_
 	return !list_to_fill.empty();
 }
 
-GameObject* GameObject::getChild(const char* name) const
+GameObject* GameObject::getChild(const char* name, bool  ignoreAssimpNodes) const
 {
 	GameObject* child = nullptr;
 
 	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
 	{
-		if ((*it)->getName().find(name) != -1)
+		if ((*it)->getName().find(name) != -1 && (!ignoreAssimpNodes || (*it)->getName().find("$AssimpFbx$") == std::string::npos))
 		{
 			child = (*it);
 			break;
 		}
 		else
 		{
-			child = (*it)->getChild(name);
+			child = (*it)->getChild(name, ignoreAssimpNodes);
 			if (child != nullptr)
 				break;
 		}
@@ -249,6 +268,14 @@ void GameObject::getAllDescendants(std::list<GameObject*>& list_to_fill) const
 		(*it)->getAllDescendants(list_to_fill);
 
 	return;
+}
+
+GameObject* GameObject::getAbsoluteParent()
+{
+	if (parent == nullptr)
+		return this;
+	else
+		return parent->getAbsoluteParent();
 }
 
 Component* GameObject::addComponent(Component_type type)
@@ -355,10 +382,8 @@ Component* GameObject::addComponent(Component_type type)
 	case COLLIDER_CUBE:
 		if (!getComponent(COLLIDER_CUBE))
 		{
-			PhysBody* bod = App->physics->AddBody(this);
-			new_component = new ComponentColliderCube(this,bod);
+			new_component = new ComponentColliderCube(this);
 			components.push_back(new_component);
-
 		}
 		break;
 	case BILLBOARD:
@@ -369,6 +394,16 @@ Component* GameObject::addComponent(Component_type type)
 		new_component = new ComponentParticleEmitter(this);
 		components.push_back(new_component);
 		break;
+	case ANIMATION_EVENT:
+		new_component = new ComponentAnimationEvent(this);
+		components.push_back(new_component);
+		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+		{
+			new_component = new ComponentAnimator(this);
+			components.push_back(new_component);
+		}
 	default:
 		break;
 	}
@@ -422,6 +457,15 @@ void GameObject::addComponent(Component* component)
 	case PARTICLE_EMITTER:
 		components.push_back(component);
 		break;
+	case COLLIDER_CUBE:
+		components.push_back(component);
+		break;
+	case ANIMATION_EVENT:
+		components.push_back(component);
+		break;
+	case ANIMATOR:
+		if (!getComponent(ANIMATOR))
+			components.push_back(component);
 	default:
 		break;
 	}
@@ -471,6 +515,7 @@ void GameObject::Save(JSON_Object * config) {
 	for (auto it = components.begin(); it != components.end(); it++) {
 		JSON_Value* curr_component = json_value_init_object(); // Create new components 
 		(*it)->Save(json_object(curr_component));			   // Save component
+		(*it)->SaveCompUUID(json_object(curr_component));
 		json_array_append_value(json_array(component_array), curr_component); // Add them to array
 	}
 

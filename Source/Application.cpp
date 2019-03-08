@@ -29,26 +29,6 @@ Application::Application()
 {
 	randomizeSeed();
 
-	// Create library directory if it does not exist
-	CreateDirectory("Library", NULL);
-	CreateDirectory("Library\\Meshes", NULL);
-	CreateDirectory("Library\\Animations", NULL);
-	CreateDirectory("Library\\Animations\\Bones", NULL);
-	CreateDirectory("Library\\Textures", NULL);
-	CreateDirectory("Library\\3dObjects", NULL);
-	CreateDirectory("Library\\Scripts", NULL);
-	CreateDirectory("Library\\Sounds", NULL);
-	CreateDirectory("Library\\Materials", NULL);
-
-
-	CreateDirectory("Library\\Prefabs", NULL);
-	CreateDirectory("Library\\Scenes", NULL);
-
-
-	CreateDirectory("Assets", NULL);
-	CreateDirectory("Assets\\Scenes", NULL);
-	CreateDirectory("Assets\\Scripts", NULL);
-
 	window = new ModuleWindow(this);
 	input = new ModuleInput(this);
 	audio = new ModuleAudio(this);
@@ -81,18 +61,18 @@ Application::Application()
 	list_modules.push_back(importer);
 	list_modules.push_back(exporter);
 
-	
+	list_modules.push_back(resources);
 	
 	// Scenes
-	list_modules.push_back(scene);	
+	list_modules.push_back(audio);
+	list_modules.push_back(scene);
+	
 	
 	list_modules.push_back(physics);
 
-	list_modules.push_back(audio);
 	list_modules.push_back(debug);
 
 	// Renderer last!
-	list_modules.push_back(resources);
 	list_modules.push_back(scripting);
 	list_modules.push_back(shaders);
 	list_modules.push_back(gui);
@@ -132,7 +112,20 @@ bool Application::Init()
 
 	config = json_value_get_object(config_value);
 
+	engine_title =	json_object_get_string(config, "engine_title");
+	game_title =	json_object_get_string(config, "game_title");
+
 	is_game = json_object_get_boolean(config, "is_game");
+	debug_game = json_object_get_boolean(config, "debug_game");
+	if (!is_game)
+	{
+		// Create library directory if it does not exist
+		App->fs.createMainDirectories();
+	}
+	else
+	{
+		App->scene->main_scene = json_object_get_number(config, "main_scene");
+	}
 
 	app_log->AddLog("Application Init --------------\n");
 	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret; it++)
@@ -213,7 +206,7 @@ bool Application::CleanUp()
 {
 	bool ret = true;
 	
-	for (std::list<Module*>::iterator it = list_modules.begin(); it != list_modules.end() && ret; it++) {
+	for (std::list<Module*>::reverse_iterator it = list_modules.rbegin(); it != list_modules.rend() && ret; it++) {
 		ret = (*it)->CleanUp();
 		delete (*it);
 	}

@@ -139,5 +139,6 @@ public:
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
 
+	uint main_scene = 0;
 };
 #endif

@@ -12,11 +12,12 @@ public:
 	bool Init(const JSON_Object* config);
 	bool CleanUp();
 
-	void CreateBuild(const char* path, const char* name);
+	bool CreateBuild(const char* path, const char* name);
+	void AssetsToLibraryJSON();
 
 private:
-	void AssetsToLibraryJSON();
 	JSON_Value* GetAssetFolderUUIDs(const char* path);
+	void Get3dObjectsUUIDs(const char* path, JSON_Value* json);
 	
 public:
 

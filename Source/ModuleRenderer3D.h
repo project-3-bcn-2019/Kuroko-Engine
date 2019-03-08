@@ -11,6 +11,8 @@
 
 #define MAX_LIGHTS 8
 
+class Camera;
+
 class ModuleRenderer3D : public Module
 {
 public:
@@ -22,6 +24,7 @@ public:
 	update_status PreUpdate(float dt);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
+	void Draw(Camera* cam);
 
 	void OnResize(int width, int height);
 

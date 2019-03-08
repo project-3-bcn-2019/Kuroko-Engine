@@ -4,12 +4,19 @@
 #include "Component.h"
 #include "Particle.h"
 #include "Timer.h"
+#include "ComponentTransform.h"
 #include <list>
 #include <queue>
 
 #include "MathGeoLib/MathGeoLib.h"
 
 #define MINSPAWNRATE 0.01f
+
+enum ParticleAnimEvents {
+	PARTICLE_NONE,
+	PARTICLE_CREATE,
+	PARTICLE_AMOUNT_OF_EVENTS
+};
 
 enum AreaType
 {
@@ -76,6 +83,11 @@ public:
 
 	void SetArea(AreaType type);
 
+	// Animation Events
+	std::string EvTypetoString(int evt) override;
+	int getEvAmount() override;
+	void ProcessAnimationEvents(std::map<int, void*>& evts) override;
+
 private:
 
 
@@ -104,11 +116,13 @@ private:
 
 	std::list<Particle*> particles;
 
+	bool script_controlled = false;
 	float emitterLifetime = 0;
 	float time = 0;
 	ComponentTransform* transform = nullptr;
 	Mesh* mesh = nullptr;
 	Billboard* billboard = nullptr;
+	TransformMode transform_mode = GLOBAL;
 
 	LCG lcg;
 

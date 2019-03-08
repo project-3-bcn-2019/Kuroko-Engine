@@ -30,7 +30,11 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	if(primitive_type == Primitive_None){			// TODO: Store the color of the meshes
 		// ASSIGNING RESOURCE
 		const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
-		if (parent3dobject) // Means that is being loaded from a scene
+		if (App->is_game && !App->debug_game)
+		{
+			setMeshResourceId(App->resources->getResourceUuid(json_object_get_string(deff, "mesh_name"), R_MESH));		
+		}
+		else if (parent3dobject) // Means that is being loaded from a scene
 			mesh_resource_uuid = App->resources->getMeshResourceUuid(parent3dobject, json_object_get_string(deff, "mesh_name"));
 		else // Means it is being loaded from a 3dObject binary
 			mesh_resource_uuid = json_object_get_number(deff, "mesh_resource_uuid");
@@ -102,7 +106,7 @@ void ComponentMesh::Draw() const
 			if (wireframe || App->scene->global_wireframe)	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			//Skining();
+			Skining();
 			mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
@@ -159,7 +163,7 @@ void ComponentMesh::DrawSelected() const
 
 bool ComponentMesh::Update(float dt)
 {
-	if (components_bones.size() == 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION))
+	if (components_bones.size() == 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{
 		setMeshResourceId(mesh_resource_uuid);
 	}
@@ -184,13 +188,15 @@ Mesh* ComponentMesh::getMesh() const {
 }
 void ComponentMesh::setMeshResourceId(uint _mesh_resource_uuid) {
 
+	App->resources->deasignResource(mesh_resource_uuid);
 	mesh_resource_uuid = _mesh_resource_uuid;
+	App->resources->assignResource(mesh_resource_uuid);
 	((ComponentAABB*)getParent()->getComponent(C_AABB))->Reload();
 
 	components_bones.clear();
 	for (int i = 0; i < bones_names.size(); ++i)
 	{
-		GameObject* GO = parent->getParent()->getChild(bones_names[i].c_str());
+		GameObject* GO = parent->getAbsoluteParent()->getChild(bones_names[i].c_str(), true);
 		if (GO != nullptr)
 		{
 			Component* bone = GO->getComponent(BONE);
@@ -240,7 +246,7 @@ std::string ComponentMesh::PrimitiveType2primitiveString(PrimitiveTypes type) {
 void ComponentMesh::Skining() const
 {
 	ResourceMesh* mesh = (ResourceMesh*)App->resources->getResource(mesh_resource_uuid);
-	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && parent->getParent()->getComponent(ANIMATION) != nullptr)
+	if (mesh != nullptr && components_bones.size() > 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{		
 		float3* vertices = new float3[mesh->mesh->getNumVertices()];
 		memset(vertices, 0, sizeof(float)*mesh->mesh->getNumVertices() * 3);
@@ -248,14 +254,15 @@ void ComponentMesh::Skining() const
 		bool hasBones = false;
 		for (int i = 0; i < components_bones.size(); i++)
 		{
-			GameObject* pare = parent->getParent();
-			ComponentBone* bone = (ComponentBone*)pare->getChildComponent(components_bones[i]);
+			GameObject* absoluteParent = parent->getAbsoluteParent();
+			ComponentBone* bone = (ComponentBone*)absoluteParent->getChildComponent(components_bones[i]);
 			if (bone != nullptr)
 			{
 				ResourceBone* rBone = (ResourceBone*)App->resources->getResource(bone->getBoneResource());
 				if (rBone != nullptr)
 				{
 					hasBones = true;
+					//float4x4 boneTransform = ((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 					float4x4 boneTransform = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().Inverted()*((ComponentTransform*)bone->getParent()->getComponent(TRANSFORM))->global->getMatrix()*rBone->Offset;
 
 					for (int j = 0; j < rBone->numWeights; j++)
@@ -265,7 +272,8 @@ void ComponentMesh::Skining() const
 
 						if (VertexIndex >= mesh->mesh->getNumVertices())
 							continue;
-						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex]);
+						float3 startingVertex(mesh->mesh->getVertices()[VertexIndex]);
+						float3 movementWeight = boneTransform.TransformPos(mesh->mesh->getVertices()[VertexIndex] + mesh->mesh->getCentroid());
 
 						/*vertices[VertexIndex].x += movementWeight.x*rBone->weights[j].weight;
 						vertices[VertexIndex].y += movementWeight.y*rBone->weights[j].weight;

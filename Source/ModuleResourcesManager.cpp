@@ -12,6 +12,8 @@
 #include "ResourcePrefab.h"
 #include "ResourceAnimation.h"
 #include "ResourceBone.h"
+#include "ResourceAudio.h"
+#include "ResourceAnimationGraph.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -40,7 +42,12 @@ bool ModuleResourcesManager::Init(const JSON_Object * config)
 bool ModuleResourcesManager::Start()
 {
 	GeneratePrimitiveResources();
-	GenerateLibraryAndMeta();
+
+	if (!App->is_game || App->debug_game)
+		GenerateLibraryAndMeta();
+	else
+		GenerateResources();
+
 	CompileAndGenerateScripts();
 	update_timer.Start();
 	return true;
@@ -48,17 +55,19 @@ bool ModuleResourcesManager::Start()
 
 update_status ModuleResourcesManager::Update(float dt)
 {
-	ManageUITextures();
-	if(update_timer.Read() > update_ratio){
-		ManageAssetModification();
+	if (!App->is_game)
+	{
+		ManageUITextures();
+		if (update_timer.Read() > update_ratio) {
+			ManageAssetModification();
 
-		if (reloadVM) {
-			ReloadVM();
-			reloadVM = false;
+			if (reloadVM) {
+				ReloadVM();
+				reloadVM = false;
+			}
+			update_timer.Start();
 		}
-		update_timer.Start();
 	}
-
 
 	return UPDATE_CONTINUE;
 }
@@ -85,18 +94,22 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 
 	switch (deff.type) {
 	case R_TEXTURE: ret = (Resource*) new ResourceTexture(deff); break;
-	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;     
-	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break; 
+	case R_MESH: ret = (Resource*) new ResourceMesh(deff); break;
+	case R_3DOBJECT: ret = (Resource*) new Resource3dObject(deff); break;
 	case R_SCRIPT: ret = (Resource*) new ResourceScript(deff); break;
 	case R_SCENE: ret = (Resource*) new ResourceScene(deff); break;
 	case R_PREFAB: ret = (Resource*) new ResourcePrefab(deff); break;
 	case R_ANIMATION:
 		ret = (Resource*) new ResourceAnimation(deff);
 		break;
-	case R_BONE: 
+	case R_BONE:
 		ret = (Resource*) new ResourceBone(deff);
 		break;
-	} 
+	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
+	case R_ANIMATIONGRAPH:
+		ret = (Resource*) new ResourceAnimationGraph(deff);
+		break;
+	}
 
 	if (ret)
 		resources[deff.uuid] = ret;
@@ -304,11 +317,94 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 	case R_SCENE:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_SCENES, SCENE_EXTENSION, uuid_str.c_str()); // Copy the file to the library
 		break;
+	case R_AUDIO:
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_AUDIO, AUDIO_EXTENSION, uuid_str.c_str()); // Copy the file to the library
+	case R_ANIMATIONGRAPH:
+		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION, uuid_str.c_str()); // Copy the file to the library
+		break;
 	}
 	// Meta generated and file imported, create resource in code
 	deff.set(uuid_number, enum_type, binary_path, full_asset_path);
 
 	return deff;
+}
+
+void ModuleResourcesManager::GenerateResources()
+{
+	JSON_Value* assets = json_parse_file("Library/assetsUUIDs.json");
+
+	GenerateFromMapFile(assets, R_MESH);
+	GenerateFromMapFile(assets, R_TEXTURE);
+	GenerateFromMapFile(assets, R_SCENE);
+	GenerateFromMapFile(assets, R_PREFAB);
+	GenerateFromMapFile(assets, R_SCRIPT);
+	GenerateFromMapFile(assets, R_ANIMATION);
+	GenerateFromMapFile(assets, R_BONE);
+	GenerateFromMapFile(assets, R_AUDIO);
+	//R_UI?
+}
+
+void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType type)
+{
+	std::string name;
+	std::string path;
+	std::string extension;
+	switch (type)
+	{
+	case R_MESH:
+		name = "Meshes";
+		path = MESHES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_TEXTURE:
+		name = "Textures";
+		path = TEXTURES_FOLDER;
+		extension = OWN_MESH_EXTENSION;
+		break;
+	case R_SCENE:
+		name = "Scenes";
+		path = SCENES_FOLDER;
+		extension = SCENE_EXTENSION;
+		break;
+	case R_PREFAB:
+		name = "Prefabs";
+		path = PREFABS_FOLDER;
+		extension = PREFAB_EXTENSION;
+		break;
+	case R_SCRIPT:
+		name = "Scripts";
+		path = SCRIPTS_FOLDER;
+		extension = JSON_EXTENSION;
+		break;
+	case R_ANIMATION:
+		name = "Animations";
+		path = ANIMATIONS_FOLDER;
+		extension = OWN_ANIMATION_EXTENSION;
+		break;
+	case R_BONE:
+		name = "Bones";
+		path = BONES_FOLDER;
+		extension = OWN_BONE_EXTENSION;
+		break;
+	case R_AUDIO:
+		name = "Audio";
+		path = AUDIO_FOLDER;
+		extension = AUDIO_EXTENSION;
+		break;
+	}
+
+	//Generate resources
+	JSON_Array* meshes = json_object_get_array(json_object(file), name.c_str());
+	for (int i = 0; i < json_array_get_count(meshes); i++) {
+		JSON_Object* meshMap = json_array_get_object(meshes, i);
+		resource_deff deff;
+		deff.asset = json_object_get_string(meshMap, "name");
+		deff.uuid = json_object_get_number(meshMap, "uuid");
+		deff.type = type;
+		deff.binary = path + std::to_string(deff.uuid) + extension;
+
+		newResource(deff);
+	}
 }
 
 
@@ -378,8 +474,8 @@ Resource * ModuleResourcesManager::getResource(uint uuid) {
 	if (it != resources.end()) {
 		ret = resources[uuid];
 	}
-	else
-		app_log->AddLog("WARNING: Asking for non existing resource");
+	//else
+	//	app_log->AddLog("WARNING: Asking for non existing resource");
 
 	return ret;
 }
@@ -454,6 +550,17 @@ uint ModuleResourcesManager::getResourceUuid(const char * file) {
 	return ret;
 }
 
+uint ModuleResourcesManager::getResourceUuid(const char* name, ResourceType type)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++)
+	{
+		if ((*it).second->type == type && (*it).second->asset == name)
+			return (*it).second->uuid;
+	}
+
+	return 0;
+}
+
 uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, const char * name) {
 
 	for (auto it = resources.begin(); it != resources.end(); it++) {
@@ -466,6 +573,20 @@ uint ModuleResourcesManager::getMeshResourceUuid(const char * Parent3dObject, co
 	}
 	return 0;
 }
+
+uint ModuleResourcesManager::getTextureResourceUuid(const char * name) {
+
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_TEXTURE) {
+			ResourceMesh* res_tex = (ResourceMesh*)(*it).second;
+			if (res_tex->asset == name) {
+				return res_tex->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 uint ModuleResourcesManager::getAnimationResourceUuid(const char * Parent3dObject, const char * name)
 {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
@@ -498,6 +619,32 @@ uint ModuleResourcesManager::getBoneResourceUuid(const char * Parent3dObject, co
 			ResourceBone* res_bone = (ResourceBone*)(*it).second;
 			if (res_bone->Parent3dObject == Parent3dObject && res_bone->asset == name) {
 				return res_bone->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_AUDIO) {
+			ResourceAudio* res_audio = (ResourceAudio*)(*it).second;
+			if (res_audio->asset == name) {
+				return res_audio->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getAnimationGraphResourceUuid(const char * Parent3dObject, const char * name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_ANIMATIONGRAPH) {
+			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
+			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
+				return res_anim->uuid;
 			}
 		}
 	}
@@ -592,14 +739,25 @@ void ModuleResourcesManager::getAnimationResourceList(std::list<resource_deff>& 
 	}
 }
 
-void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<std::string> ignore)
+void ModuleResourcesManager::getAnimationGraphResourceList(std::list<resource_deff>& graphs)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_ANIMATIONGRAPH) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			graphs.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scenes, std::list<resource_deff> ignore)
 {
 	for (auto it = resources.begin(); it != resources.end(); ++it)
 	{
 		bool exist = false;
 		for (auto it_s = ignore.begin(); it_s != ignore.end(); ++it_s)
 		{
-			if ((*it).second->asset == (*it_s))
+			if ((*it).second->asset == (*it_s).asset)
 			{
 				exist = true;
 				break;
@@ -609,6 +767,17 @@ void ModuleResourcesManager::getSceneResourceList(std::list<resource_deff>& scen
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			scenes.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getAudioResourceList(std::list<resource_deff>& audio)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_AUDIO) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			audio.push_back(deff);
 		}
 	}
 }
@@ -623,6 +792,19 @@ std::string ModuleResourcesManager::getPrefabPath(const char * prefab_name) {
 	}
 
 	app_log->AddLog("%s prefab could not be found", prefab_name);
+	return std::string();
+}
+
+std::string ModuleResourcesManager::getScenePath(const char * scene_name) {
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SCENE) {
+			ResourceScene* curr = (ResourceScene*)(*it).second;
+			if (curr->scene_name == scene_name)
+				return curr->asset;
+		}
+	}
+
+	app_log->AddLog("%s scene could not be found", scene_name);
 	return std::string();
 }
 
@@ -652,7 +834,10 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "prefab";
 	else if (extension == ".scene")
 		ret = "scene";
-
+	else if (extension == ".bnk")
+		ret = "audio";
+	else if (extension == GRAPH_EXTENSION)
+		ret = "graph";
 
 	return ret;
 }
@@ -671,6 +856,10 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_PREFAB;
 	if (str_type == "scene")
 		ret = R_SCENE;
+	if (str_type == "audio")
+		ret = R_AUDIO;
+	if (str_type == "graph")
+		ret = R_ANIMATIONGRAPH;
 
 	return ret;
 }
@@ -693,6 +882,12 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_3DOBJECT:
 		case R_SCRIPT:
 			ret = ".json";
+			break;
+		case R_AUDIO:
+			ret = ".bnk";
+			break;
+		case R_ANIMATIONGRAPH:
+			ret = GRAPH_EXTENSION;
 			break;
 
 	}
@@ -721,6 +916,11 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 	case R_SCENE:
 		ret = LIBRARY_SCENES;
 		break;
+	case R_AUDIO:
+		ret = LIBRARY_AUDIO;
+		break;
+	case R_ANIMATIONGRAPH:
+		ret = LIBRARY_GRAPHS;
 	}
 	return ret;
 }
