@@ -106,6 +106,25 @@ bool* ComponentAnimator::getBool(uint uuid)
 	return nullptr;
 }
 
+void ComponentAnimator::removeValue(variableType type, uint uuid)
+{
+	switch (type)
+	{
+	case VAR_INT:
+		ints.erase(uuid);
+		break;
+	case VAR_FLOAT:
+		floats.erase(uuid);
+		break;
+	case VAR_STRING:
+		strings.erase(uuid);
+		break;
+	case VAR_BOOL:
+		bools.erase(uuid);
+		break;
+	}
+}
+
 void ComponentAnimator::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "animator");

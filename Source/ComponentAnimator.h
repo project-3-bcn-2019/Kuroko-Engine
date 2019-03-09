@@ -4,6 +4,8 @@
 #include "Component.h"
 #include <map>
 
+enum variableType;
+
 class ComponentAnimator :
 	public Component
 {
@@ -23,6 +25,8 @@ public:
 	std::string* getString(uint uuid);
 	void setBool(uint uuid, bool value);
 	bool* getBool(uint uuid);
+
+	void removeValue(variableType type, uint uuid);
 
 	void Save(JSON_Object* config);
 
