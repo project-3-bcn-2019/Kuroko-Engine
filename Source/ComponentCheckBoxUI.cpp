@@ -52,8 +52,6 @@ bool ComponentCheckBoxUI::Update(float dt)
 	return true;
 }
 
-
-
 void ComponentCheckBoxUI::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "UIcheckbox"); 

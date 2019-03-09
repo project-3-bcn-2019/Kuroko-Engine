@@ -134,11 +134,10 @@ void ComponentRectTransform::setPos(float2 pos)
 {
 	float2 dist = pos - rect.local;
 	rect.local = pos;
-	rect.global +=dist;
-
-	UpdateAnchorPos();
+	rect.global +=dist;	
 
 	UpdateGlobalMatrixRecursive(this);
+	UpdateAnchorPos();
 }
 
 void ComponentRectTransform::setWidth(float width)
@@ -177,6 +176,8 @@ void ComponentRectTransform::UpdateGlobalMatrixRecursive(ComponentRectTransform*
 	for (auto it = childs.begin(); it != childs.end(); it++) {
 		ComponentRectTransform* childRect = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
 		childRect->setGlobalPos(rect->getGlobalPos() + childRect->getLocalPos());
+
+		childRect->UpdateAnchorPos();
 		UpdateGlobalMatrixRecursive(childRect);
 	}
 }

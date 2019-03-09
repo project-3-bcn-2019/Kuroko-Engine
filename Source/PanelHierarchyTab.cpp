@@ -140,10 +140,12 @@ void PanelHierarchyTab::Draw()
 				if (parent != nullptr) {
 					GameObject* pbar = new GameObject("UI_ProgressBar", parent, true);
 					pbar->addComponent(Component_type::UI_IMAGE);
-					pbar->addComponent(Component_type::UI_PROGRESSBAR);
 					parent->addChild(pbar);
+					GameObject* pbarInterior = new GameObject("UI_ProgressBar_interior", pbar, true);
+					pbarInterior->addComponent(Component_type::UI_IMAGE);
+					pbarInterior->addComponent(Component_type::UI_PROGRESSBAR);
+					pbar->addChild(pbarInterior);					
 				}
-
 			}
 			ImGui::TreePop();
 		}

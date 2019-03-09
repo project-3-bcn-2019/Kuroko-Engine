@@ -4,6 +4,8 @@
 
 
 class ComponentRectTransform;
+class ComponentImageUI;
+class ResourceTexture;
 
 class ComponentProgressBarUI :
 	public Component
@@ -21,7 +23,14 @@ public:
 private:
 
 
-	ComponentRectTransform * rectTransform = nullptr;
+	ComponentRectTransform * barTransform = nullptr;
+	ComponentRectTransform * intBarTransform = nullptr;
+
+	ComponentImageUI* bar = nullptr;
+	ComponentImageUI* intBar = nullptr;
+
+	ResourceTexture* texBar = nullptr;
+	ResourceTexture* intTexBar = nullptr;
 };
 
 
