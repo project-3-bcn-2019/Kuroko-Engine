@@ -3831,7 +3831,7 @@ void ModuleUI::DrawGuizmo()
 			newGzmTrans.Transpose();
 
 			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
-			float MAX_SCALE = 20.f;
+			static const float max_graduated_scale = 20.f;
 
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
 
@@ -3855,8 +3855,8 @@ void ModuleUI::DrawGuizmo()
 						new_scale.x = newGzmTrans.GetScale().x;
 						new_scale.y = newGzmTrans.GetScale().y;
 						new_scale.z = 0;
-						if(abs(selectedPos->getHeight()- new_scale.y) < MAX_SCALE){selectedPos->setHeight(new_scale.y);}
-						if (abs(selectedPos->getWidth() - new_scale.x) < MAX_SCALE) { selectedPos->setWidth(new_scale.x); }
+						if(abs(selectedPos->getHeight()- new_scale.y) < max_graduated_scale){selectedPos->setHeight(new_scale.y);}
+						if (abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale) { selectedPos->setWidth(new_scale.x); }
 						
 						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
 						break;
