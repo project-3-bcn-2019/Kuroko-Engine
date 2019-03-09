@@ -3790,7 +3790,7 @@ void ModuleUI::DrawGuizmo()
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo UI in average of their positions
 				ComponentRectTransform* transform = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
 				guizmoPos += float3(transform->getAnchor().x , transform->getAnchor().y ,0);
-				guizmoScale += float3(0.5f*transform->getWidth(), 0.5f*transform->getHeight(),0);
+				guizmoScale += float3(transform->getWidth(), transform->getHeight(),0);
 			}
 		}
 		//------------guizmo (3d)
@@ -3804,6 +3804,7 @@ void ModuleUI::DrawGuizmo()
 				//guizmoRot += trans->getRotationEuler();
 			}
 		}
+
 		guizmoPos /= App->scene->selected_obj.size();
 		guizmoScale /= App->scene->selected_obj.size();
 		//guizmoRot /= App->scene->selected_obj.size();
@@ -3830,7 +3831,7 @@ void ModuleUI::DrawGuizmo()
 			newGzmTrans.Transpose();
 
 			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
-
+			float MAX_SCALE = 20.f;
 
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
 
@@ -3850,13 +3851,15 @@ void ModuleUI::DrawGuizmo()
 						selectedPos->setPos(float2(new_pos.x, new_pos.y));
 						break;
 					
-					/*case ImGuizmo::OPERATION::SCALE:
-						new_scale.x = dim.x + 0.1*  newGzmTrans.GetScale().x;
-						new_scale.y = dim.y + 0.1* newGzmTrans.GetScale().y;
+					case ImGuizmo::OPERATION::SCALE:
+						new_scale.x = newGzmTrans.GetScale().x;
+						new_scale.y = newGzmTrans.GetScale().y;
 						new_scale.z = 0;
-						selectedPos->setWidth(new_scale.x);
-						selectedPos->setHeight(new_scale.y);
-						break;*/
+						if(abs(selectedPos->getHeight()- new_scale.y) < MAX_SCALE){selectedPos->setHeight(new_scale.y);}
+						if (abs(selectedPos->getWidth() - new_scale.x) < MAX_SCALE) { selectedPos->setWidth(new_scale.x); }
+						
+						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
+						break;
 					default:
 						break;
 					}
