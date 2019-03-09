@@ -615,6 +615,9 @@
     <ClInclude Include="PanelAnimationGraph.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
+    <ClInclude Include="PanelShader.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1023,6 +1026,9 @@
       <Filter>Sources\Game</Filter>
     </ClCompile>
     <ClCompile Include="PanelAnimationGraph.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelShader.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>

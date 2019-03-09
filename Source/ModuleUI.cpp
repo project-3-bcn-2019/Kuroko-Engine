@@ -74,6 +74,7 @@
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
 #include "PanelAnimationGraph.h"
+#include "PanelShader.h"
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -89,6 +90,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
 	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
+	p_shader_editor = new PanelShader("Shader Editor", false);
 }
 
 
@@ -277,6 +279,9 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[BUILD_MENU])
 			DrawBuildMenu();
 
+		if (p_shader_editor->isActive())
+			p_shader_editor->Draw();
+
 		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
 			App->gui->DrawGuizmo();
 
@@ -352,6 +357,8 @@ update_status ModuleUI::Update(float dt) {
 				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
 				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
 				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+				if (ImGui::MenuItem("Shader Editor", NULL, p_shader_editor->isActive()))
+					p_shader_editor->toggleActive();
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Help")) {

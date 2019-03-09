@@ -638,6 +638,19 @@ uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
 	return 0;
 }
 
+uint ModuleResourcesManager::getScriptResourceUuid(const char* name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SCRIPT) {
+			ResourceScript* res_script = (ResourceScript*)(*it).second;
+			if (res_script->asset == name) {
+				return res_script->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 uint ModuleResourcesManager::getAnimationGraphResourceUuid(const char * Parent3dObject, const char * name)
 {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
