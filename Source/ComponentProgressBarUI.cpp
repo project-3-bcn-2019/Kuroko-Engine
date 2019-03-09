@@ -19,6 +19,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	intBarTransform->setWidth(4.0f);
 	intBarTransform->setHeight(1.f);
 
+	percent = 100.f;
 }
 
 
@@ -39,9 +40,6 @@ bool ComponentProgressBarUI::Update(float dt)
 	return true;
 }
 
-void ComponentProgressBarUI::Draw() const
-{
-}
 
 void ComponentProgressBarUI::Save(JSON_Object * config)
 {

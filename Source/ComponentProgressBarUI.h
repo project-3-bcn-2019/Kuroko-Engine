@@ -16,12 +16,15 @@ public:
 	~ComponentProgressBarUI();
 
 	bool Update(float dt)override;
-	void Draw() const override;
+
+	inline void setPercent(float _percent) { percent = _percent; }
+	inline const float getPercent() { return percent; }
 
 	void Save(JSON_Object* config) override;
 
 private:
 
+	float percent;
 
 	ComponentRectTransform * barTransform = nullptr;
 	ComponentRectTransform * intBarTransform = nullptr;
