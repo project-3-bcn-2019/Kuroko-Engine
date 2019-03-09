@@ -9,10 +9,16 @@ enum ShaderType
 	FRAGMENT
 };
 
+enum UniformType
+{
+
+};
+
 struct Shader
 {
 	Shader(ShaderType type) :type(type) {};
 
+	std::string name = "";
 	char* script = nullptr;
 	ShaderType type;
 	uint shaderId=0;
@@ -22,6 +28,20 @@ struct ShaderProgram
 {
 	uint programID = 0;
 	std::vector<uint> shaders;
+};
+
+struct Uniform 
+{
+	Uniform(std::string _name, UniformType _type, int size)
+	{
+		name = _name;
+		type = _type;
+		data = new float[size];
+	}
+
+	UniformType type;
+	std::string name;
+	float* data;
 };
 
 class ModuleShaders : public Module
@@ -45,6 +65,11 @@ public:
 	ShaderProgram* GetDefaultShaderProgram()const;
 	ShaderProgram* GetAnimationShaderProgram()const;
 
+public:
+
+	std::vector<Shader*> shaders;
+	std::vector<ShaderProgram*> shader_programs;
+
 private:
 
 	std::string defaultVertexFile = "DefaultVertexShader.vex";
@@ -56,6 +81,7 @@ private:
 	
 	ShaderProgram* defShaderProgram=nullptr;
 	ShaderProgram* animationShaderProgram = nullptr;
+
 	
 };
 

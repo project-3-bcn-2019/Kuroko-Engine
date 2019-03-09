@@ -3,6 +3,7 @@
 #include "PanelShader.h"
 #include "ModuleScripting.h"
 #include "ModuleInput.h"
+#include "ModuleShaders.h"
 
 #include <fstream>
 
@@ -18,6 +19,8 @@ PanelShader::PanelShader(const char* name, bool _active): Panel(name,_active)
 		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 		shader_editor.SetText(str);
 	}
+
+	current_shader = nullptr;
 }
 
 
@@ -27,10 +30,10 @@ PanelShader::~PanelShader()
 
 void PanelShader::Draw()
 {
-	if (App->scripting->edited_scripts.find(open_shader_path) != App->scripting->edited_scripts.end())
-		App->scripting->edited_scripts.at(open_shader_path) = shader_editor.GetText();
-	else
-		App->scripting->edited_scripts.insert(std::make_pair(open_shader_path, shader_editor.GetText()));
+	//if (App->scripting->edited_scripts.find(open_shader_path) != App->scripting->edited_scripts.end())
+	//	App->scripting->edited_scripts.at(open_shader_path) = shader_editor.GetText();
+	//else
+		/*App->scripting->edited_scripts.insert(std::make_pair(open_shader_path, shader_editor.GetText()));*/
 
 	App->gui->disable_keyboard_control = true; // Will disable keybord control forever
 	ImGui::PushFont(App->gui->ui_fonts[IMGUI_DEFAULT]);
@@ -121,25 +124,122 @@ void PanelShader::Draw()
 	ImGui::BeginGroup();
 	ImGui::Text("Shader Options");
 	ImVec2 windowPos = ImGui::GetWindowPos();
-	ImVec2 optionsPos = { 515, 65};
+	ImVec2 optionsPos = { 515 - ImGui::GetScrollX(), 65 - ImGui::GetScrollY() };
 	ImGui::GetWindowDrawList()->AddLine({ windowPos.x + optionsPos.x,windowPos.y+ optionsPos.y }, ImVec2(windowPos.x+1000, windowPos.y + optionsPos.y), IM_COL32(100, 100, 100, 255), 2.0f);
 
 	ImGui::NewLine();
 
+	//Shader selector-------------------------------------
+	std::string shader_name;
+	if (current_shader)
+	{
+		shader_name = current_shader->name;
+	}
+	else
+	{
+		shader_name = "New Shader";
+	}
+
+
+	ImGui::Text("Current Shader:");
+	ImGui::SameLine();
+	if (ImGui::BeginCombo("", shader_name.c_str()))
+	{
+		for (int i=0;i<App->shaders->shaders.size()+1;++i)
+		{
+			bool selected = false;
+			if (i < App->shaders->shaders.size())
+			{
+				if (ImGui::Selectable(App->shaders->shaders[i]->name.c_str(), &selected))
+				{
+					current_shader = App->shaders->shaders[i];
+					shader_editor.SetText(current_shader->script);
+				}
+			}
+			else
+			{
+				if (ImGui::Selectable("New Shader", &selected))
+				{
+					current_shader = nullptr;
+					std::string str=" ";
+					shader_editor.SetText(str);
+				}
+			}
+		}
+		ImGui::EndCombo();
+	}
+
+
+
+	bool vertex, fragmen;
+	vertex = fragmen = false;
+
+	if (current_shader != nullptr)
+	{
+		if (current_shader->type == VERTEX)
+		{
+			vertex = true;
+			fragmen = false;
+		}
+		else
+		{
+			vertex = false;
+			fragmen = true;
+		}
+	}
+	else
+	{
+		vertex = fragmen = false;
+	}
+
+
 	ImGui::Text("Shader Type:");
 	ImGui::SameLine();
-	ImGui::Button("Vertex");
+	if (ImGui::Checkbox("Vertex",&vertex))
+	{
+		fragmen = false;
+	}
 	ImGui::SameLine();
-	ImGui::Button("Fragment");
+	if (ImGui::Checkbox("Fragment", &fragmen))
+	{
+		vertex = false;
+	}
 
-	ImGui::Text("Set Uniform variables");
-	ImVec2 uniformPos = { 515,200 };
+	ImGui::Dummy(ImVec2(0.0f, 52.0f));
+
+	ImGui::Text("Uniform variables");
+	ImVec2 uniformPos = { 515 - ImGui::GetScrollX(),200 - ImGui::GetScrollY() };
 	ImGui::GetWindowDrawList()->AddLine({ windowPos.x + uniformPos.x,windowPos.y + uniformPos.y }, ImVec2(windowPos.x + 1000, windowPos.y + uniformPos.y), IM_COL32(100, 100, 100, 255), 2.0f);
 
+	ImGui::NewLine();
+	
+	//Uniform Creator
+	char uniform_name[256];
+	int uniform_size = 0;
+	ImGui::Button("Uniform ++");
+	ImGui::SameLine();
+	ImGui::InputText("Name", uniform_name, 256);
+	ImGui::SameLine();
+	ImGui::InputInt("Size", &uniform_size);
+
+	ImGui::BeginChild("Uniform Variables", ImVec2(400, 300), true);
+
+	ImGui::EndChild();
+
+	if (ImGui::Button("Save"))
+	{
+		SaveShader(current_shader);
+	}
+	
 	ImGui::EndGroup();
 
-
+	
 
 	ImGui::PopFont();
 	ImGui::End();
+}
+
+void PanelShader::SaveShader(Shader* shader)
+{
+
 }

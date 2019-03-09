@@ -6,6 +6,8 @@
 #include <string>
 
 class TextEditor;
+struct Shader;
+struct Uniform;
 
 class PanelShader :
 	public Panel
@@ -16,11 +18,16 @@ public:
 	~PanelShader();
 
 	void Draw();
+	void SaveShader(Shader* shader);
 
 private:
 
 	TextEditor shader_editor;		//USED IN SHADER EDITOR
 	std::string open_shader_path;	//USED IN SHADER EDITOR
+
+	Shader* current_shader = nullptr;
+	
+	std::vector<Uniform*> shader_uniforms;
 
 };
 

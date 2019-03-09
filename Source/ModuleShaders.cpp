@@ -78,6 +78,15 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileShader(animationShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
 
+	shaders.push_back(defVertexShader);
+	shaders.push_back(defFragmentShader);
+	shaders.push_back(animationShader);
+
+	shader_programs.push_back(defShaderProgram);
+	shader_programs.push_back(animationShaderProgram);
+
+
+
 	return true;
 }
 
@@ -108,6 +117,8 @@ void ModuleShaders::CreateDefVertexShader()
 		"TexCoord = texCoord;\n"
 		"ret_normal = normal;\n"
 	"}\n";
+
+	defVertexShader->name = "Defaul Vertex Shader";
 
 	animationShader->script =
 	"#version 330\n"
@@ -142,6 +153,8 @@ void ModuleShaders::CreateDefVertexShader()
 	"	Normal0 = (view * NormalL).xyz;\n"
 	"	WorldPos0 = (view * PosL).xyz;\n"
 	"}\n";
+
+	animationShader->name = "Defaul Animation Vertex Shader";
 }
 
 void ModuleShaders::CreateDefFragmentShader()
@@ -184,6 +197,9 @@ void ModuleShaders::CreateDefFragmentShader()
 			"color=vec4(result, 1.0);\n"
 		"}\n"
 	"}\n";
+
+	defFragmentShader->name = "Defaul Fragment Shader";
+
 }
 
 void ModuleShaders::CompileShader(Shader* shader)
