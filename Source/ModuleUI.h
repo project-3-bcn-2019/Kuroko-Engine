@@ -93,6 +93,7 @@ public:
 	void LoadConfig(const JSON_Object* config);
 
 	bool isMouseOnUI() const;
+	bool keepKeyboard() const;
 
 	bool disable_keyboard_control = false;
 

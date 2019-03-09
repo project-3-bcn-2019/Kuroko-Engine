@@ -55,7 +55,8 @@ struct Transition
 
 struct NodeLink
 {
-	NodeLink(linkType type, uint nodeUID);
+	NodeLink(linkType type, uint nodeUID, uint resourceUID);
+	~NodeLink();
 
 	void connect(uint nodeLinkUID) { connectedNodeLink = nodeLinkUID; }
 
@@ -63,6 +64,7 @@ struct NodeLink
 
 	uint UID = 0;
 	uint nodeUID = 0;
+	uint resourceUID = 0;
 	uint connectedNodeLink = 0;
 
 	linkType type = INPUT_LINK;
@@ -78,6 +80,7 @@ struct Node
 	~Node();
 
 	NodeLink* addLink(linkType type, bool addToList = true, uint forced_uid = 0);
+	void removeLink(NodeLink* link);
 	//Return true if any node is clicked
 	uint drawLinks() const;
 
@@ -122,6 +125,8 @@ public:
 
 	std::map<uint, Node*> nodes;
 	std::map<uint, NodeLink*> links;
+
+	Node* start = nullptr;
 
 	std::list<Variable*> blackboard;
 };

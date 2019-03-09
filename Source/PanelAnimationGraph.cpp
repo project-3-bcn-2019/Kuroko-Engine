@@ -100,12 +100,6 @@ void PanelAnimationGraph::Draw()
 		return;
 	}
 
-	//Click to add nodes
-	if (ImGui::IsMouseClicked(1))
-	{
-		graph->addNode("Test", { ImGui::GetMousePos().x - offset.x, ImGui::GetMousePos().y - offset.y });
-	}
-
 	//Draw content
 	draw_list->ChannelsSplit(2); //Split current channel into layers
 	draw_list->ChannelsSetCurrent(0);
@@ -130,9 +124,24 @@ void PanelAnimationGraph::Draw()
 			borderColor = IM_COL32(255, 255, 75, 255);
 			backgroundColor = IM_COL32(55, 55, 55, 245);
 		}
+		if (graph->start == node)
+		{
+			borderColor = IM_COL32(75, 75, 255, 255);
+			if (hovered_node == node)
+			{
+				borderColor = IM_COL32(150, 150, 255, 255);
+			}
+		}
 
 		draw_list->AddRectFilled({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, backgroundColor, 4.0f);
 		draw_list->AddRect({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, borderColor, 4.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+		if (graph->start == node)
+		{
+			draw_list->AddRectFilled({ node->gridPos.x+node->size.x/3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, backgroundColor, 1.0f);
+			draw_list->AddRect({ node->gridPos.x + node->size.x / 3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, borderColor, 1.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+			ImGui::SetCursorScreenPos({ node->gridPos.x + node->size.x / 3 + 10, node->gridPos.y - 18 });
+			ImGui::Text("Start");
+		}
 
 		//Node content
 		ImGui::SetCursorScreenPos({ node->gridPos.x + GRAPH_NODE_WINDOW_PADDING, node->gridPos.y + GRAPH_NODE_WINDOW_PADDING });
@@ -177,7 +186,42 @@ void PanelAnimationGraph::Draw()
 				}
 				linkingNode = 0;
 			}
+			if (ImGui::IsMouseClicked(1))
+			{
+				ImGui::OpenPopup("##node info");
+			}
 		}
+		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
+		if (ImGui::BeginPopup("##node info"))
+		{
+			if (graph->start == node && graph->nodes.size() > 1)
+				ImGui::Text("Cannot remove starting node");
+			else
+			{
+				if (graph->nodes.size() > 1 && ImGui::Selectable("Set Start"))
+					graph->start = node;
+				if (ImGui::Selectable("Remove"))
+				{
+					Node* removed = (*it_n).second;
+					bool last = false;
+					if (++it_n == graph->nodes.end())
+						last = true;
+					graph->nodes.erase(removed->UID);
+					//TODO remove transition and link pointers
+					RELEASE(removed);
+					if (last)
+					{
+						ImGui::EndPopup();
+						ImGui::PopStyleVar();
+						ImGui::EndGroup();
+						ImGui::PopID();
+						break;
+					}
+				}
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleVar();
 		if (linkingNode == 0 && ImGui::IsItemClicked())
 		{
 			selectNode(node);
@@ -190,6 +234,25 @@ void PanelAnimationGraph::Draw()
 
 		ImGui::PopID();
 	}
+
+	//Click to add nodes
+	static ImVec2 pos = { 0,0 };
+	if (!ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(1))
+	{
+		ImGui::OpenPopup("##addNode");
+		pos = ImGui::GetMousePos();
+	}
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
+	if (ImGui::BeginPopup("##addNode"))
+	{
+		if (ImGui::Selectable("Add Node"))
+		{
+			graph->addNode("Node", { pos.x - offset.x, pos.y - offset.y });
+		}
+
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar();
 
 	//Draw transition window
 	if (selected_transition != nullptr)
@@ -346,25 +409,25 @@ void PanelAnimationGraph::drawBlackboard()
 
 		if (addVar && ImGui::BeginPopup("##choose type", ImGuiWindowFlags_NoMove))
 		{
-			if (ImGui::Button("INT"))
+			if (ImGui::Selectable("INT"))
 			{
 				graph->blackboard.push_back(new Variable(VAR_INT, ""));
 				component->setInt(graph->blackboard.back()->uuid, 0);
 				addVar = false;
 			}
-			if (ImGui::Button("FLOAT"))
+			if (ImGui::Selectable("FLOAT"))
 			{
 				graph->blackboard.push_back(new Variable(VAR_FLOAT, ""));
 				component->setFloat(graph->blackboard.back()->uuid, 0.0f);
 				addVar = false;
 			}
-			if (ImGui::Button("STRING"))
+			if (ImGui::Selectable("STRING"))
 			{
 				graph->blackboard.push_back(new Variable(VAR_STRING, ""));
 				component->setString(graph->blackboard.back()->uuid, "");
 				addVar = false;
 			}
-			if (ImGui::Button("BOOL"))
+			if (ImGui::Selectable("BOOL"))
 			{
 				graph->blackboard.push_back(new Variable(VAR_BOOL, ""));
 				component->setBool(graph->blackboard.back()->uuid, false);
@@ -381,27 +444,55 @@ void PanelAnimationGraph::drawBlackboard()
 		for (std::list<Variable*>::iterator it = graph->blackboard.begin(); it != graph->blackboard.end(); ++it)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-			ImGui::BeginChildFrame(count+1, { 0, 45 });
+			ImGui::BeginChildFrame(count+1, { 0, 45 }, ImGuiWindowFlags_NoScrollbar);
 			ImGui::PopStyleVar();
-			char name[15] = "";
+			char name[25] = "";
 			strcpy(name, (*it)->name.c_str());
 			if (ImGui::InputText("Name", name, sizeof(name)))
 			{
 				(*it)->name = name;
 			}
+			ImGui::SameLine();
+			if (ImGui::Button("X", { 20,20 }))
+			{
+				Variable* removed = (*it);
+				bool last = false;
+				if (++it == graph->blackboard.end())
+					last = true;
+				graph->blackboard.remove(removed);
+				component->removeValue(removed->type, removed->uuid);
+				RELEASE(removed);
+				if (last)
+				{
+					ImGui::EndChildFrame();
+					break;
+				}
+			}
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("Remove");
+			}
 
 			ImGui::Text(types[(*it)->type]);
 
 			ImGui::SameLine(50);
-			ImGui::PushItemWidth(100);
+			ImGui::PushItemWidth(125);
 			switch ((*it)->type)
 			{
 			case VAR_INT:
-				int* var = component->getInt((*it)->uuid);
-				if (var != nullptr)
-				{
-					ImGui::InputInt(("##VALUE" + std::to_string(count)).c_str(), var);
-				}
+				ImGui::InputInt(("##INT" + std::to_string(count)).c_str(), component->getInt((*it)->uuid));
+				break;
+			case VAR_FLOAT:
+				ImGui::InputFloat(("##FLOAT" + std::to_string(count)).c_str(), component->getFloat((*it)->uuid));
+				break;
+			case VAR_BOOL:
+				ImGui::Checkbox(("##BOOL" + std::to_string(count)).c_str(), component->getBool((*it)->uuid));
+				break;
+			case VAR_STRING: //Has to be the last to avoid error of text initialization
+				char text[25] = "";
+				strcpy(text, component->getString((*it)->uuid)->c_str());
+				if (ImGui::InputText(("##STRING" + std::to_string(count)).c_str(), text, sizeof(text)))
+					component->setString((*it)->uuid, text);
 				break;
 			}
 			ImGui::PopItemWidth();

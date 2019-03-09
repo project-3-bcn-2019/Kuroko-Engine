@@ -4,7 +4,7 @@
             "name": "Empty",
             "tag": "undefined",
             "static": false,
-            "UUID": 3448394119,
+            "UUID": 668901311,
             "Components": [
                 {
                     "type": "transform",
@@ -40,7 +40,7 @@
                 },
                 {
                     "type": "animator",
-                    "graph_name": "Assets\/ret.krGph",
+                    "graph_name": "Assets\/testAnimationGraph.krGph",
                     "Parent3dObject": "",
                     "uuid": 2468275039
                 }

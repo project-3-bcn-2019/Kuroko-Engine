@@ -3942,6 +3942,11 @@ bool ModuleUI::isMouseOnUI() const
 	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
 }
 
+bool ModuleUI::keepKeyboard() const
+{
+	return ImGui::GetIO().WantCaptureKeyboard;
+}
+
 void ModuleUI::InvisibleDockingBegin() {
 	ImGuiWindowFlags window = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
