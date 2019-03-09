@@ -59,7 +59,7 @@
 #include "Assimp/include/version.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "SDL\include\SDL_opengl.h"
+#include "SDL\include\SDL_opengl.h"""
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
@@ -77,6 +77,8 @@
 #include "PanelAnimationGraph.h"
 #include "PanelConfiguration.h"
 #include "PanelTimeControl.h"
+#include "PanelShader.h"
+
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -94,6 +96,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
 	p_configuration = new PanelConfiguration("Configuration", true);
 	p_time_control = new PanelTimeControl("Time Control", true);
+	p_shader_editor = new PanelShader("Shader Editor", false);
 }
 
 
@@ -266,7 +269,10 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[BUILD_MENU])
 			DrawBuildMenu();
 
-		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())// && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+		if (p_shader_editor->isActive())
+			p_shader_editor->Draw();
+
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())
 			App->gui->DrawGuizmo();
 
 		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
@@ -341,6 +347,8 @@ update_status ModuleUI::Update(float dt) {
 				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
 				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
 				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+				if (ImGui::MenuItem("Shader Editor", NULL, p_shader_editor->isActive()))
+					p_shader_editor->toggleActive();
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Help")) {
@@ -1730,7 +1738,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		if (ImGui::CollapsingHeader("UI Progress Bar"))
 		{
 			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
-			
+			ImGui::Text("WIP");
 		}
 		break;
 	case ANIMATION:
@@ -2352,8 +2360,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
 					resource_deff anim_deff = (*it);
 					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						App->resources->deasignResource(animator->getAnimationGraphResource());
-						App->resources->assignResource(anim_deff.uuid);
 						animator->setAnimationGraphResource(anim_deff.uuid);
 						set_animation_menu = false;
 						break;
@@ -3979,6 +3985,11 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 bool ModuleUI::isMouseOnUI() const
 {
 	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
+}
+
+bool ModuleUI::keepKeyboard() const
+{
+	return ImGui::GetIO().WantCaptureKeyboard;
 }
 
 void ModuleUI::InvisibleDockingBegin() {

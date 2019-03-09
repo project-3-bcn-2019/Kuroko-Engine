@@ -31,6 +31,7 @@ class PanelPrimitives;
 class PanelAnimationGraph;
 class PanelConfiguration;
 class PanelTimeControl;
+class PanelShader;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -83,6 +84,7 @@ public:
 	void DrawBuildMenu();
 
 	uint getMainScene() const;
+	std::list<resource_deff> GetBuildScenes() { return build_scenes; }
 
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
@@ -94,6 +96,7 @@ public:
 	void LoadConfig(const JSON_Object* config);
 
 	bool isMouseOnUI() const;
+	bool keepKeyboard() const;
 
 	bool disable_keyboard_control = false;
 
@@ -107,6 +110,8 @@ public:
 	PanelAnimationGraph* p_animation_graph = nullptr;
 	PanelConfiguration* p_configuration = nullptr;
 	PanelTimeControl* p_time_control = nullptr;
+	PanelShader* p_shader_editor = nullptr;
+
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -115,6 +120,8 @@ public:
 	bool open_tabs[LAST_UI_TAB];  // _serializable_var
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
+	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
+
 
 
 private:
@@ -126,7 +133,6 @@ private:
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
-	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
 
 	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
 	std::string selected_asset; //NOT IN USE I GUESS---------------

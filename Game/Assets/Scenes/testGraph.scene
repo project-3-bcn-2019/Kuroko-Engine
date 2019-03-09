@@ -4,7 +4,7 @@
             "name": "Empty",
             "tag": "undefined",
             "static": false,
-            "UUID": 3448394119,
+            "UUID": 327927284,
             "Components": [
                 {
                     "type": "transform",
@@ -32,17 +32,31 @@
                         "qz": 0,
                         "qw": 1
                     },
-                    "uuid": 1780971166
+                    "uuid": 186387782
                 },
                 {
                     "type": "AABB",
-                    "uuid": 1625637814
+                    "uuid": 607319508
                 },
                 {
                     "type": "animator",
-                    "graph_name": "Assets\/ret.krGph",
+                    "graph_name": "Assets\/AnimationGraphs\/test.krGph",
                     "Parent3dObject": "",
-                    "uuid": 2468275039
+                    "ints": [],
+                    "floats": [
+                        {
+                            "uuid": 963063288,
+                            "value": 3.1414999961853027
+                        }
+                    ],
+                    "strings": [],
+                    "bools": [
+                        {
+                            "uuid": 498324491,
+                            "value": true
+                        }
+                    ],
+                    "uuid": 465108529
                 }
             ]
         }

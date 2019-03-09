@@ -219,6 +219,7 @@
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
     <ClInclude Include="PanelPrimitives.h" />
+    <ClInclude Include="PanelShader.h" />
     <ClInclude Include="PanelSkyboxWin.h" />
     <ClInclude Include="PanelTimeControl.h" />
     <ClInclude Include="Parson\parson.h" />
@@ -359,6 +360,7 @@
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
     <ClCompile Include="PanelPrimitives.cpp" />
+    <ClCompile Include="PanelShader.cpp" />
     <ClCompile Include="PanelSkyboxWin.cpp" />
     <ClCompile Include="PanelTimeControl.cpp" />
     <ClCompile Include="Parson\parson.c" />

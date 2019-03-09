@@ -4,7 +4,7 @@
 #include "Panel.h"
 #include <map>
 
-#define BLACKBOARD_WIDTH 250.0f
+#define BLACKBOARD_WIDTH 200.0f
 
 struct Node;
 struct Transition;

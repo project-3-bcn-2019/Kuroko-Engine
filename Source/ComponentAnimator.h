@@ -4,6 +4,8 @@
 #include "Component.h"
 #include <map>
 
+enum variableType;
+
 class ComponentAnimator :
 	public Component
 {
@@ -15,6 +17,8 @@ public:
 	uint getAnimationGraphResource() const { return graph_resource_uuid; }
 	void setAnimationGraphResource(uint uuid);
 
+	void loadValues(JSON_Object* deff);
+
 	void setInt(uint uuid, int value);
 	int* getInt(uint uuid);
 	void setFloat(uint uuid, float value);
@@ -23,6 +27,8 @@ public:
 	std::string* getString(uint uuid);
 	void setBool(uint uuid, bool value);
 	bool* getBool(uint uuid);
+
+	void removeValue(variableType type, uint uuid);
 
 	void Save(JSON_Object* config);
 

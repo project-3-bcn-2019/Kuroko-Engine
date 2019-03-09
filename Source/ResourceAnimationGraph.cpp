@@ -37,6 +37,10 @@ bool ResourceAnimationGraph::LoadGraph()
 	memcpy(&nodeAmount, cursor, sizeof(int));
 	cursor += sizeof(int);
 
+	uint startUUID;
+	memcpy(&startUUID, cursor, sizeof(uint));
+	cursor += sizeof(uint);
+
 	for (int i = 0; i < nodeAmount; ++i)
 	{
 		uint nameLength;
@@ -45,7 +49,7 @@ bool ResourceAnimationGraph::LoadGraph()
 
 		bytes = nameLength;
 		char* auxName = new char[bytes];
-		memcpy(auxName, cursor, bytes);
+		memcpy(auxName, cursor, sizeof(char)*bytes);
 		std::string name = auxName;
 		name = name.substr(0, bytes);
 		RELEASE_ARRAY(auxName);
@@ -112,6 +116,30 @@ bool ResourceAnimationGraph::LoadGraph()
 			}
 		}
 	}
+	start = getNode(startUUID);
+
+	int variableAmount;
+	memcpy(&variableAmount, cursor, sizeof(int));
+	cursor += sizeof(int);
+	for (int i = 0; i < variableAmount; ++i)
+	{
+		uint ranges[3];
+		bytes = sizeof(ranges);
+		memcpy(ranges, cursor, bytes);
+		cursor += bytes;
+
+		bytes = ranges[2];
+		char* auxName = new char[bytes];
+		memcpy(auxName, cursor, bytes);
+		std::string name = auxName;
+		name = name.substr(0, bytes);
+		RELEASE_ARRAY(auxName);
+		cursor += bytes;
+
+		Variable* var = new Variable((variableType)ranges[1], name.c_str());
+		var->uuid = ranges[0];
+		blackboard.push_back(var);
+	}
 
 	RELEASE_ARRAY(buffer);
 	return true;
@@ -125,6 +153,11 @@ void ResourceAnimationGraph::UnloadFromMemory()
 	}
 	nodes.clear();
 	links.clear(); //Links are deleted from node destructor
+	for (std::list<Variable*>::iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		RELEASE((*it_v));
+	}
+	blackboard.clear();
 }
 
 bool ResourceAnimationGraph::saveGraph() const
@@ -134,7 +167,7 @@ bool ResourceAnimationGraph::saveGraph() const
 	size += sizeof(int);
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
-		size += (*it_n).second->name.length() + 2 * sizeof(float) + 4 * sizeof(uint);
+		size += (*it_n).second->name.length() + 2 * sizeof(float) + 5 * sizeof(uint);
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
@@ -145,8 +178,11 @@ bool ResourceAnimationGraph::saveGraph() const
 			size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
 		}
 	}
-	//Links: type, UID, connected node
-	//Transitions: originNode, destinationNode, output, input
+	size += sizeof(int);
+	for (std::list<Variable*>::const_iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		size += 3 * sizeof(uint) + (*it_v)->name.size() * sizeof(char);
+	}
 
 	char* buffer = new char[size];
 	char* cursor = buffer;
@@ -156,6 +192,11 @@ bool ResourceAnimationGraph::saveGraph() const
 	int nodeAmount = nodes.size();
 	memcpy(cursor, &nodeAmount, sizeof(int));
 	cursor += sizeof(int);
+
+	uint uuid = (nodeAmount > 0) ? start->UID : 0;
+	memcpy(cursor, &uuid, sizeof(uint));
+	cursor += sizeof(uint);
+
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
 		bytes = (*it_n).second->name.length();
@@ -199,6 +240,19 @@ bool ResourceAnimationGraph::saveGraph() const
 			cursor += bytes;
 		}
 	}
+	int variableAmount = blackboard.size();
+	memcpy(cursor, &variableAmount, sizeof(int));
+	cursor += sizeof(int);
+	for (std::list<Variable*>::const_iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		uint ranges[3] = { (*it_v)->uuid, (*it_v)->type, (*it_v)->name.size() };
+		bytes = sizeof(ranges);
+		memcpy(cursor, ranges, bytes);
+		cursor += bytes;
+
+		memcpy(cursor, (*it_v)->name.c_str(), sizeof(char)*ranges[2]);
+		cursor += sizeof(char)*ranges[2];
+	}
 
 	//App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);
 	App->fs.ExportBuffer(buffer, size, asset.c_str());
@@ -210,6 +264,9 @@ bool ResourceAnimationGraph::saveGraph() const
 Node* ResourceAnimationGraph::addNode(const char* name, float2 pos)
 {
 	Node* node = new Node(name, uuid, pos);
+
+	if (nodes.size() == 0)
+		start = node;
 
 	nodes.insert(std::pair<uint, Node*>(node->UID, node));
 
@@ -262,7 +319,7 @@ Node::~Node()
 
 NodeLink* Node::addLink(linkType type, bool addToList, uint forced_uid)
 {
-	NodeLink* ret = new NodeLink(type, UID);
+	NodeLink* ret = new NodeLink(type, UID, graphUID);
 	if (forced_uid != 0)
 		ret->UID = forced_uid;
 
@@ -286,6 +343,65 @@ NodeLink* Node::addLink(linkType type, bool addToList, uint forced_uid)
 		size.y = height;
 
 	return ret;
+}
+
+void Node::removeLink(NodeLink* link)
+{
+	if (link->type == OUTPUT_LINK)
+	{
+		NodeLink* prev = nullptr;
+		for (std::list<NodeLink*>::iterator it_l = links.begin(); it_l != links.end(); ++it_l)
+		{
+			if ((*it_l)->UID == link->UID)
+			{
+				break;
+			}
+			prev = (*it_l);
+		}
+		switch (prev->type)
+		{
+		case INPUT_LINK:
+			--inputCount;
+			break;
+		case OUTPUT_LINK:
+			--outputCount;
+			break;
+		}
+		links.remove(prev);
+		RELEASE(prev);
+
+		//Remove transition
+		for (std::list<Transition*>::iterator it = transitions.begin(); it != transitions.end(); ++it)
+		{
+			if ((*it)->output == link)
+			{
+				Transition* trans = (*it);
+				transitions.erase(it);
+				RELEASE(trans);
+				break;
+			}
+		}
+	}
+
+	switch (link->type)
+	{
+	case INPUT_LINK:
+		--inputCount;
+		break;
+	case OUTPUT_LINK:
+		--outputCount;
+		break;
+	}
+	links.remove(link);
+	RELEASE(link);
+
+	//Recalculate height
+	int maxCount = (inputCount > outputCount) ? inputCount : outputCount;
+	int height = GRAPH_NODE_WINDOW_PADDING * 2 + GRAPH_LINK_RADIUS * 3 * maxCount;
+	if (height > 80)
+		size.y = height;
+	else
+		size.y = 80;
 }
 
 uint Node::drawLinks() const
@@ -385,8 +501,20 @@ void Node::connectLink(uint linkUID)
 	}
 }
 
-NodeLink::NodeLink(linkType type, uint nodeUID) : type(type), nodeUID(nodeUID), UID(random32bits())
+NodeLink::NodeLink(linkType type, uint nodeUID, uint resourceUID) : type(type), nodeUID(nodeUID), resourceUID(resourceUID), UID(random32bits())
 {
+}
+
+NodeLink::~NodeLink()
+{
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(resourceUID);
+
+	NodeLink* link = graph->getLink(connectedNodeLink);
+	if (link != nullptr)
+	{
+		link->connectedNodeLink = 0;
+		graph->getNode(link->nodeUID)->removeLink(link);
+	}
 }
 
 Transition::Transition(NodeLink* output, NodeLink* input, uint graphUID) : output(output), input(input), graphUID(graphUID)
@@ -420,7 +548,7 @@ bool Transition::drawLine(bool selected, float2 offset)
 	draw_list->AddTriangleFilled(destinationPos, { destinationPos.x - triangleSize, destinationPos.y + triangleSize / 2 }, { destinationPos.x - triangleSize, destinationPos.y - triangleSize / 2 }, color);
 	draw_list->ChannelsSetCurrent(0);
 
-	if (ImGui::IsMouseDown(0) && App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+	if (ImGui::IsMouseClicked(0) && App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
 	{
 		float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
 		if (distance <= 15.0f)
