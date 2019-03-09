@@ -12,32 +12,48 @@
 #include "Application.h"
 #include "ModulePhysics3D.h"
 #include "ModuleInput.h"
+#include "ModuleTimeManager.h"
 
 #include "SDL/include/SDL_opengl.h"
 
 
-ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape shape, bool is_environment) :Component(_parent, PHYSICS)
+ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape _shape, bool _is_environment) :Component(_parent, PHYSICS)
 {
-	transform = new Transform();
-
-	bounding_box.SetFrom(AABB(float3(-0.5, -0.5, -0.5), float3(0.5, 0.5, 0.5)));
-
-	body = App->physics->AddBody(this,shape, is_environment);
+	body = App->physics->AddBody(this,_shape, _is_environment);
 	body->SetUser(this);
+
+	shape = _shape;
+	is_environment = _is_environment;
 
 }
 
 ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Component(parent, PHYSICS)
 {
-	JSON_Object* j = json_object_get_object(deff, "obb");
+	JSON_Object* p = json_object_get_object(deff, "pos");
+	JSON_Object* r = json_object_get_object(deff, "rot");
+	JSON_Object* s = json_object_get_object(deff, "scale");
+	JSON_Object* data = json_object_get_object(deff, "data");
 
-	int i = json_object_get_number(j, "sizex");
 
-	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->SetFrom(AABB(
-		float3(-json_object_get_number(j, "sizex") / 2, -json_object_get_number(j, "sizey") / 2, -json_object_get_number(j, "sizez") / 2), 
-		float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2)));
-	 
-	getParent()->own_half_size = float3(json_object_get_number(j, "sizex") / 2, json_object_get_number(j, "sizey") / 2, json_object_get_number(j, "sizez") / 2);
+	offset_pos = float3(json_object_get_number(p, "offset_pos_x"), json_object_get_number(p, "offset_pos_y"), json_object_get_number(p, "offset_pos_z"));
+	offset_rot = float3(json_object_get_number(r, "offset_rot_x"), json_object_get_number(r, "offset_rot_y"), json_object_get_number(r, "offset_rot_z"));
+	offset_scale = float3(json_object_get_number(s, "offset_scale_x"), json_object_get_number(s, "offset_scale_y"), json_object_get_number(s, "offset_scale_z"));
+
+	shape = (collision_shape)(int)json_object_get_number(data, "shape");
+	is_environment = json_object_get_boolean(data, "is_environment");
+
+	body = App->physics->AddBody(this, shape, is_environment);
+	body->SetUser(this);
+
+	if (is_environment)
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+	}
+	else
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
+	}
+
 
 
 }
@@ -94,9 +110,22 @@ bool ComponentPhysics::Update(float dt)
 
 	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
 
-	bounding_box.pos = ((ComponentTransform*)getParent()->getComponent(TRANSFORM))->local->getPosition();
+	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
+	{
+		//body->GetRigidBody()->ap(btVector3(10,0,0));
+		body->SetSpeed(10, 0, 0);
 
-	DrawOBB();
+	}
+
+	if (App->time->getGameState() == GameState::PLAYING)
+	{
+		UpdateTransformsFromPhysics();
+	}
+	else
+	{
+		UpdatePhysicsFromTransforms();
+		body->SetSpeed(0, 0, 0);
+	}
 
 	//btTransform t;
 	//t = body->GetRigidBody()->getWorldTransform();
@@ -117,231 +146,102 @@ bool ComponentPhysics::Update(float dt)
 		colliding.push_back((*item).B);
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
-	{
-		//body->GetRigidBody()->ap(btVector3(10,0,0));
-		body->SetSpeed(10, 0, 0);
-
-	}
 
 	return true;
 }
 
 void ComponentPhysics::Draw() const
 {
-	//ComponentAABB* aabb = ((ComponentAABB*)parent->getComponent(C_AABB));
 
-	//float sx = aabb-> * scale.x * 0.25f;
-	//float sy = dimensions.y * scale.y * 0.25f;
-	//float sz = dimensions.z * scale.z * 0.25f;
-
-	//glLineWidth(5.0f);
-	//glBegin(GL_QUADS);
-
-	//glNormal3f(0.0f, 0.0f, 1.0f);
-	//glVertex3f(-sx, -sy, sz);
-	//glVertex3f(sx, -sy, sz);
-	//glVertex3f(sx, sy, sz);
-	//glVertex3f(-sx, sy, sz);
-
-	//glNormal3f(0.0f, 0.0f, -1.0f);
-	//glVertex3f(sx, -sy, -sz);
-	//glVertex3f(-sx, -sy, -sz);
-	//glVertex3f(-sx, sy, -sz);
-	//glVertex3f(sx, sy, -sz);
-
-	//glNormal3f(1.0f, 0.0f, 0.0f);
-	//glVertex3f(sx, -sy, sz);
-	//glVertex3f(sx, -sy, -sz);
-	//glVertex3f(sx, sy, -sz);
-	//glVertex3f(sx, sy, sz);
-
-	//glNormal3f(-1.0f, 0.0f, 0.0f);
-	//glVertex3f(-sx, -sy, -sz);
-	//glVertex3f(-sx, -sy, sz);
-	//glVertex3f(-sx, sy, sz);
-	//glVertex3f(-sx, sy, -sz);
-
-	//glNormal3f(0.0f, 1.0f, 0.0f);
-	//glVertex3f(-sx, sy, sz);
-	//glVertex3f(sx, sy, sz);
-	//glVertex3f(sx, sy, -sz);
-	//glVertex3f(-sx, sy, -sz);
-
-	//glNormal3f(0.0f, -1.0f, 0.0f);
-	//glVertex3f(-sx, -sy, -sz);
-	//glVertex3f(sx, -sy, -sz);
-	//glVertex3f(sx, -sy, sz);
-	//glVertex3f(-sx, -sy, sz);
-
-	//glEnd();
 
 }
 
-//{
-//	this->SetOwner(owner);
-//	this->SetActive(true);
-//	SetName("Component Collider");
-//	type = ComponentType::COLLIDERCUBE;
-//	PCube* aux_cube = new PCube();
-//
-//	float3 diagonal_aabb = { 5,5,5 };
-//	float3 position = { 0,0,0 };
-//
-//
-//	if (owner->HasMesh())
-//	{
-//		aux_cube->has_primitive_render = false;				
-//		AABB aux_bb = owner->GetBB();
-//		position = aux_bb.CenterPoint();
-//		diagonal_aabb = aux_bb.Diagonal();
-//		
-//		
-//	}
-//		 
-//	aux_cube->dimensions = diagonal_aabb;
-//	aux_cube->SetPos(position.x, position.y, position.z);
-//
-//	if (owner->physbody == nullptr)
-//	{
-//		new PhysBody(owner, aux_cube);		
-//	}
-//	if (owner->HasMesh())
-//	{
-//		owner->physbody->mesh_ptr = owner->GetMesh();
-//	}
-//	Update();
-//}
-//
-//ComponentColliderCube::ComponentColliderCube(GameObject * owner, PCube * pcube)
-//{
-//	this->SetOwner(owner);
-//	this->SetActive(true);
-//	SetName("Component Collider");
-//	type = ComponentType::COLLIDERCUBE;
-//	if (owner->physbody == nullptr)
-//	{
-//		new PhysBody(owner, pcube);
-//	}
-//
-//}
-//
-//ComponentColliderCube::~ComponentColliderCube()
-//{
-//}
-//
-//bool ComponentColliderCube::Update()
-//{	
-//
-//	//Gather the pointer with the transform matrix
-//	float* transform_matrix = new float[16];
-//	transform_matrix = owner->comp_transform->trans_matrix_g.ptr();
-//
-//	//Get the identity of the body
-//	float current_pmatrix[16];
-//	owner->physbody->GetTransform(current_pmatrix);
-//
-//	//Creating the final matrix where we will create the new base
-//	for (int i = 0; i < 16; i++)
-//	{
-//		final_pmatrix[i] = current_pmatrix[i];
-//	}
-//
-//	float3x3 rot = {
-//		transform_matrix[0],transform_matrix[1],transform_matrix[2],
-//		transform_matrix[4],transform_matrix[5],transform_matrix[6],
-//		transform_matrix[8],transform_matrix[9],transform_matrix[10]
-//	};
-//
-//	rot.Transpose();
-//
-//	//Relate both matrix rotation and inverting the rotation
-//	final_pmatrix[0] = rot[0][0];		final_pmatrix[1] = rot[0][1];			final_pmatrix[2] = rot[0][2];
-//	final_pmatrix[4] = rot[1][0];		final_pmatrix[5] = rot[1][1];			final_pmatrix[6] = rot[1][2];
-//	final_pmatrix[8] = rot[2][0];		final_pmatrix[9] = rot[2][1];			final_pmatrix[10] = rot[2][2];
-//	float3 position = { 0,0,0 };
-//	if (owner->HasMesh())
-//	{
-//		//Relate both matrix translation
-//		position = owner->GetBB().CenterPoint();
-//		final_pmatrix[12] = position.x + center_offset[0];
-//		final_pmatrix[13] = position.y + center_offset[1];
-//		final_pmatrix[14] = position.z + center_offset[2];
-//	}
-//	else
-//	{
-//		//Relate both matrix translation
-//		final_pmatrix[12] = transform_matrix[3] + center_offset[0];
-//		final_pmatrix[13] = transform_matrix[7] + center_offset[1];
-//		final_pmatrix[14] = transform_matrix[11] + center_offset[2];
-//	}
-//
-//	//Add the result on the object
-//	owner->physbody->SetTransform(final_pmatrix);
-//	
-//
-//	return false;
-//}
-//
-//void ComponentColliderCube::DrawInspectorInfo()
-//{
-//
-//	
-//	
-//	if (ImGui::DragFloat3("Center##collider", center_offset, 0.1f, -INFINITY, INFINITY)) 
-//	{
-//		Update();
-//	}
-//
-//
-//	if (ImGui::DragFloat3("Dimensions##collider", dimensions_component.ptr(), 0.01f, 1, 10))
-//	{
-//		btVector3 scaling = { dimensions_component.x,dimensions_component.y,dimensions_component.z };
-//		owner->physbody->GetRigidBody()->getCollisionShape()->setLocalScaling(scaling);
-//		owner->physbody->primitive_ptr->scale = dimensions_component;
-//		
-//	}
-//}
-//
-//void ComponentColliderCube::UpdateTransform()
-//{
-//	if (HasOwner())
-//	{
-//		GameObject* owner = GetOwner();
-//		owner->physbody->SetTransform((float*)&owner->comp_transform->trans_matrix_g);			
-//	}
-//}
-//
-//bool ComponentColliderCube::HasMoved()
-//{
-//	bool ret = false;
-//
-//	if (!IsBulletStatic())
-//	{
-//		//PAU WiP
-//	}
-//
-//	return ret;
-//}
-//bool ComponentColliderCube::IsBulletStatic()
-//{
-//	bool ret = owner->physbody->GetRigidBody()->isStaticObject();
-//	return ret;
-//}
-//
 void ComponentPhysics::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "physics");
-	((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size();
 
-	JSON_Value* obb = json_value_init_object();
-	json_object_set_number(json_object(obb), "sizex", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().x);
-	json_object_set_number(json_object(obb), "sizey", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().y);
-	json_object_set_number(json_object(obb), "sizez", ((ComponentAABB*)getParent()->getComponent(C_AABB))->getOBB()->Size().z);
+	JSON_Value* data = json_value_init_object();
+	json_object_set_number(json_object(data), "shape", shape);
+	json_object_set_boolean(json_object(data), "is_environment", is_environment);
 
-	json_object_set_value(config, "obb", obb);
+	json_object_set_value(config, "data", data);
+
+	JSON_Value* pos = json_value_init_object();
+	json_object_set_number(json_object(pos), "offset_pos_x", offset_pos.x);
+	json_object_set_number(json_object(pos), "offset_pos_y", offset_pos.y);
+	json_object_set_number(json_object(pos), "offset_pos_z", offset_pos.z);
+
+	json_object_set_value(config, "pos", pos);
+
+	JSON_Value* rot = json_value_init_object();
+	json_object_set_number(json_object(rot), "offset_rot_x", offset_rot.x);
+	json_object_set_number(json_object(rot), "offset_rot_y", offset_rot.y);
+	json_object_set_number(json_object(rot), "offset_rot_z", offset_rot.z);
+
+	json_object_set_value(config, "rot", rot);
+
+	JSON_Value* scale = json_value_init_object();
+	json_object_set_number(json_object(scale), "offset_scale_x", offset_scale.x);
+	json_object_set_number(json_object(scale), "offset_scale_y", offset_scale.y);
+	json_object_set_number(json_object(scale), "offset_scale_z", offset_scale.z);
+
+	json_object_set_value(config, "scale", scale);
 
 
+
+}
+
+void ComponentPhysics::UpdateTransformsFromPhysics()
+{
+	GameObject* obj = getParent();
+	if (obj != nullptr)
+	{
+		ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
+		if (transform != nullptr)
+		{
+
+			btTransform t = body->GetRigidBody()->getWorldTransform();
+
+			body->GetRigidBody()->getCollisionShape()->setLocalScaling(btVector3(offset_scale.x, offset_scale.y, offset_scale.z));
+
+			float3 obj_pos = float3(t.getOrigin().getX() - offset_pos.x, t.getOrigin().getY() - offset_pos.y, t.getOrigin().getZ() - offset_pos.z);
+
+			Quat q = Quat::FromEulerXYZ(offset_rot.x,offset_rot.y,offset_rot.z);
+			Quat obj_rot = Quat(t.getRotation().getX()-q.x, t.getRotation().getY()-q.y, t.getRotation().getZ()-q.z, t.getRotation().getW()-q.w);
+
+			transform->local->setPosition(obj_pos);
+			transform->local->setRotation(obj_rot);
+
+		}
+	}
+}
+
+void ComponentPhysics::UpdatePhysicsFromTransforms()
+{
+
+	GameObject* obj = getParent();
+	if (obj != nullptr)
+	{
+		ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
+		if (transform != nullptr)
+		{
+
+			btTransform t;
+			t.setIdentity();
+			
+			body->GetRigidBody()->getCollisionShape()->setLocalScaling(btVector3(offset_scale.x,offset_scale.y,offset_scale.z));
+
+			btVector3 obj_pos = btVector3(transform->local->getPosition().x + offset_pos.x, transform->local->getPosition().y + offset_pos.y, transform->local->getPosition().z + offset_pos.z);
+			Quat q = Quat::FromEulerXYZ(offset_rot.x, offset_rot.y, offset_rot.z);
+			btQuaternion obj_rot = btQuaternion(transform->local->getRotation().x + q.x, transform->local->getRotation().y+q.y, transform->local->getRotation().z+q.z, transform->local->getRotation().w+q.w);
+
+			t.setOrigin(obj_pos);
+			t.setRotation(obj_rot);
+
+			body->GetRigidBody()->setWorldTransform(t);
+
+		}
+	}
 }
 
 void ComponentPhysics::SetSpeed(float x, float y, float z)//@LUCAS ESTA ES LA FUNCION QUE TIENES QUE LLAMAR PARA PONERLE LA VELOCIDAD!!
@@ -349,29 +249,43 @@ void ComponentPhysics::SetSpeed(float x, float y, float z)//@LUCAS ESTA ES LA FU
 	body->SetSpeed(x, y, z);
 }
 
+void ComponentPhysics::SetPosition(float x, float y, float z)
+{
+	body->SetPos(x, y, z);
+
+}
+
+void ComponentPhysics::SetStatic(bool is_static)
+{
+	if (is_static)
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+		is_environment = true;
+	}
+	else
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
+		is_environment = false;
+	}
+}
+
+//void ComponentPhysics::ToggleStatic()
+//{
+//	if (is_environment)
+//	{
+//		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_KINEMATIC_OBJECT);
+//		is_environment = false;
+//	}
+//	else
+//	{
+//		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+//		is_environment = true;
+//	}
+//}
+
 ComponentPhysics::~ComponentPhysics()
 {
 
 	App->physics->DeleteBody(body);
 
 };
-
-void ComponentPhysics::DrawOBB() const
-{
-	glLineWidth(1.5f);
-
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glBegin(GL_LINES);
-
-	for (int i = 0; i < 12; i++)
-	{
-		glVertex3f(bounding_box.Edge(i).a.x, bounding_box.Edge(i).a.y, bounding_box.Edge(i).a.z);
-		glVertex3f(bounding_box.Edge(i).b.x, bounding_box.Edge(i).b.y, bounding_box.Edge(i).b.z);
-	}
-
-
-	glEnd();
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	glLineWidth(1.0f);
-}

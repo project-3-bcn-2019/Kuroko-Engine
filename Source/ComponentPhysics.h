@@ -20,6 +20,8 @@ public:
 	ComponentPhysics(GameObject* parent, collision_shape shape, bool is_environment = true);
 	ComponentPhysics(JSON_Object* deff, GameObject* parent);
 
+	collision_shape shape;
+
 	void OnCollision(GameObject* A, GameObject* B);
 
 	bool Update(float dt);
@@ -28,20 +30,22 @@ public:
 	virtual ~ComponentPhysics();
 	PhysBody* body;
 
-	Transform* transform;
-	OBB bounding_box;
-
-	void DrawOBB() const;
-
 	std::list<GameObject*> colliding;
 
 	void Save(JSON_Object* config);
 
 	bool is_environment = true;
+	void UpdateTransformsFromPhysics();
+	void UpdatePhysicsFromTransforms();
 
-	float3 scale;
+	float3 offset_scale = float3(1,1,1);
+	float3 offset_pos = float3(0,0,0);
+	float3 offset_rot = float3(0,0,0);
 
 	void SetSpeed(float x, float y, float z);
+	void SetPosition(float x, float y, float z);
+
+	void SetStatic(bool is_static);
 
 //	bool Update(float dt)override;
 //

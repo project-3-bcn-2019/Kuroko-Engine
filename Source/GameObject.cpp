@@ -382,7 +382,7 @@ Component* GameObject::addComponent(Component_type type)
 	case PHYSICS:
 		if (!getComponent(PHYSICS))
 		{
-			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, true);
+			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, false);
 			components.push_back(new_component);
 		}
 		break;

@@ -118,14 +118,14 @@ update_status ModulePhysics3D::Update(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		physics_debug = !physics_debug;
-	if (App->time->getGameState() == GameState::PLAYING)
-	{
-		UpdateTransformsFromPhysics();
-	}
-	else
-	{
-		UpdatePhysicsFromTransforms();
-	}
+	//if (App->time->getGameState() == GameState::PLAYING)
+	//{
+	//	UpdateTransformsFromPhysics();
+	//}
+	//else
+	//{
+	//	UpdatePhysicsFromTransforms();
+	//}
 
 	world->stepSimulation(dt, 1);
 
@@ -285,13 +285,13 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 	switch (shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btBoxShape(btVector3(1, 1, 1));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(parent->bounding_box.Size().x, parent->bounding_box.Size().y, parent->bounding_box.Size().z));
+		colShape = new btBoxShape(btVector3(1, 1, 1));
 		break;
 	}
 	shapes.push_back(colShape);
@@ -306,13 +306,13 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-
-	if (!is_environment)
-		body->setFlags(DISABLE_DEACTIVATION);
-
+	body->setFlags(DISABLE_DEACTIVATION);
+	body->setActivationState(DISABLE_DEACTIVATION);
+	//body->setCollisionFlags(btRigidBody::CollisionFlags::CF_KINEMATIC_OBJECT);
+	
 	PhysBody* pbody = new PhysBody(body);
 
-	pbody->dimensions = parent->bounding_box.Size();
+	pbody->dimensions = float3(1,1,1);
 
 	world->addRigidBody(body);
 	bodies.push_back(pbody);
