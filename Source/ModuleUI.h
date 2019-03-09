@@ -82,6 +82,7 @@ public:
 	void DrawBuildMenu();
 
 	uint getMainScene() const;
+	std::list<resource_deff> GetBuildScenes() { return build_scenes; }
 
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
