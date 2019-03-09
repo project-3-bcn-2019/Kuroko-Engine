@@ -75,6 +75,7 @@ public:
 	uint getAnimationResourceUuid(const char* name);
 	uint getBoneResourceUuid(const char* Parent3dObject, const char* name);
 	uint getAudioResourceUuid(const char* name);
+	uint getScriptResourceUuid(const char* name);
 	uint getAnimationGraphResourceUuid(const char* Parent3dObject, const char* name);
 
 	void CleanResources() { cleanResources = true; }
