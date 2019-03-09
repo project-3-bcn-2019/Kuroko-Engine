@@ -14,7 +14,7 @@ public:
 	float2 anchor = float2(0.f, 0.f);
 	int vertexID = -1;
 	float3* vertex = nullptr;
-
+	float2 initOffset = float2(0, 0);
 	
 };
 
@@ -40,12 +40,13 @@ public:
 	inline const float getWidth() { return rect.width; }
 	inline const float getHeight() { return rect.height; }
 	inline const int GetVertexID() { return rect.vertexID; }
+	
+	inline void setGlobalPos(float2 pos) { rect.global = pos; }
 
 	bool debug_draw = false;
 
 private:
 	inline void setLocalPos(float2 pos) { rect.local = pos; }
-	inline void setGlobalPos(float2 pos) { rect.global = pos; }
 	void GenBuffer();
 	void UpdateGlobalMatrixRecursive(ComponentRectTransform * rect);
 	void UpdateAnchorPos();

@@ -7,8 +7,8 @@
 
 ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(parent, UI_PROGRESSBAR)
 {
-	barTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
-	intBarTransform = (ComponentRectTransform*)parent->getParent()->getComponent(RECTTRANSFORM);
+	intBarTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+	barTransform = (ComponentRectTransform*)parent->getParent()->getComponent(RECTTRANSFORM);
 	
 	intBar = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
 	bar = (ComponentImageUI*)parent->getParent()->getComponent(UI_IMAGE);
@@ -19,7 +19,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	intBarTransform->setWidth(4.0f);
 	intBarTransform->setHeight(1.f);
 
-	percent = 100.f;
+	initWidth = intBarTransform->getWidth();
 }
 
 
@@ -40,6 +40,25 @@ bool ComponentProgressBarUI::Update(float dt)
 	return true;
 }
 
+ void ComponentProgressBarUI::setPercent(float _percent)
+ {
+	 percent = _percent;
+	 intBarTransform->setWidth(initWidth*percent / 100);
+}
+
+
+void ComponentProgressBarUI::setPos(float2 _pos)
+{
+	pos = _pos;
+	barTransform->setPos(pos);
+
+}
+
+void ComponentProgressBarUI::setOffset(float2 _offset) 
+{
+	offset = _offset;
+	intBarTransform->setPos(intBarTransform->getLocalPos() + offset);
+}
 
 void ComponentProgressBarUI::Save(JSON_Object * config)
 {

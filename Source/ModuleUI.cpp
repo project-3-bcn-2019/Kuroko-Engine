@@ -1738,7 +1738,21 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		if (ImGui::CollapsingHeader("UI Progress Bar"))
 		{
 			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
-			ImGui::Text("WIP");
+			static float2 position = pbar->getPos();
+			static float2 offset = pbar->getOffset();
+			static float percent= pbar->getPercent();
+
+			ImGui::Text("Percent:");
+			ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
+			ImGui::Text("Position:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { pbar->setPos(position); }
+			ImGui::Text("Offset:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::InputFloat2("##off", (float*)&offset, 0.01f)) { pbar->setOffset(offset); }
+		
 		}
 		break;
 	case ANIMATION:
