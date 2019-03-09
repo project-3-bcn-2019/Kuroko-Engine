@@ -17,6 +17,7 @@ class ComponentCheckBoxUI :
 {
 public:
 	ComponentCheckBoxUI(GameObject* parent);
+	ComponentCheckBoxUI(JSON_Object* deff, GameObject* parent);
 	~ComponentCheckBoxUI();
 
 	bool Update(float dt)override;

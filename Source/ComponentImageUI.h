@@ -10,6 +10,7 @@ class ComponentImageUI : public Component
 {
 public:
 	ComponentImageUI(GameObject* parent);
+	ComponentImageUI(JSON_Object* deff, GameObject* parent);
 	~ComponentImageUI();
 
 	bool Update(float dt)override;

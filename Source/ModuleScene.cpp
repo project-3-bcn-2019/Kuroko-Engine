@@ -22,6 +22,7 @@
 #include "ComponentScript.h"
 #include "ComponentAudioListener.h"
 #include "ComponentAudioSource.h"
+#include "ComponentRectTransform.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
@@ -256,6 +257,53 @@ void ModuleScene::DrawScene(float3 camera_pos)
 	quadtree_ignored_obj = game_objects.size() - drawable_gameobjects.size();
 }
 
+void ModuleScene::DrawInGameUI()
+{
+	GameObject* canvas = getCanvasGameObject();
+	if (canvas != nullptr)
+	{
+		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		float left = rectTransform->getGlobalPos().x;
+		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
+		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
+		float bottom = rectTransform->getGlobalPos().y;
+
+		/*float left = rectTransform->GetGlobalPos().x;
+		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
+		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
+		float bottom = rectTransform->GetGlobalPos().y;*/
+		float zNear = -10.f;
+		float zFar = 10.f;
+		float3 min = { left, bottom, zNear };
+		float3 max = { right, top, zFar };
+
+		ui_render_box.minPoint = min;
+		ui_render_box.maxPoint = max;
+
+		glOrtho(left, right, bottom, top, zNear, zFar);
+		float3 corners[8];
+		ui_render_box.GetCornerPoints(corners);
+		App->renderer3D->DrawDirectAABB(ui_render_box);
+		/*glBegin(GL_TRIANGLES);
+		glVertex2f(-1, -1);
+		glVertex2f(1, -1);
+		glVertex2f(1, 1);
+		glEnd();*/
+
+		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
+		for (auto it : UIGameObjects)
+		{
+			it->Draw();
+		}
+	}
+}
+
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }
 
 GameObject* ModuleScene::MousePicking(GameObject* ignore)
@@ -284,6 +332,7 @@ GameObject* ModuleScene::MousePicking(GameObject* ignore)
 		return ret;
 
 	std::list<RayHit> ray_hits;
+
 	
 	for (auto it = intersected_objs.begin(); it != intersected_objs.end(); it++)
 	{
@@ -437,7 +486,6 @@ void ModuleScene::getGameObjectsByComponent(Component_type type, std::list<GameO
 	}
 }
 
-
 void ModuleScene::ClearScene()
 {
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
@@ -493,22 +541,34 @@ void ModuleScene::LoadScriptComponents() {
 	}
 }
 
-GameObject* ModuleScene::getCanvasGameObject()
+std::list<GameObject*> ModuleScene::getUIGameObjects()
+{
+	std::list<GameObject*>UIGameObjects;
+	for (auto it : game_objects)
+	{
+		if (it->is_UI)
+			UIGameObjects.push_back(it);
+	}
+	return UIGameObjects;
+}
+
+GameObject* ModuleScene::getCanvasGameObject(bool createCanvas)
 {
 	std::list<GameObject*> GOs = std::list<GameObject*>();
 	getGameObjectsByComponent(Component_type::CANVAS, GOs);
-	if (GOs.empty()) { //check if canvas already exists
+	if (GOs.empty() && createCanvas) { //check if canvas already exists
 		GameObject* canvas = new GameObject("Canvas",nullptr, true);
 		canvas->addComponent(Component_type::CANVAS);
 		return canvas;
 	}
+	else if (GOs.empty())
+	{
+		return nullptr;
+	}
 	else {
 		return *GOs.begin();
-	}
-	
+	}	
 }
-
-
 
 void ModuleScene::deleteGameObjectRecursive(GameObject* gobj)
 {

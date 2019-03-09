@@ -22,6 +22,7 @@ class ComponentRectTransform :	public Component
 {
 public:
 	ComponentRectTransform(GameObject* parent);
+	ComponentRectTransform(JSON_Object * deff, GameObject * parent);
 	~ComponentRectTransform();
 	
 	bool Update(float dt) override;
@@ -30,9 +31,10 @@ public:
 
 	
 	void setPos(float2 pos);
-	inline void setWidth(float width) { rect.width = width; }
-	inline void setHeight(float height) { rect.height = height; }
+	void setWidth(float width);
+	void setHeight(float height);
 
+	inline const float2 getAnchor() { return rect.anchor; }
 	inline const float2 getLocalPos() { return rect.local; }
 	inline const float2 getGlobalPos() { return rect.global; }
 	inline const float getWidth() { return rect.width; }
@@ -46,6 +48,7 @@ private:
 	inline void setGlobalPos(float2 pos) { rect.global = pos; }
 	void GenBuffer();
 	void UpdateGlobalMatrixRecursive(ComponentRectTransform * rect);
+	void UpdateAnchorPos();
 	RectTransform rect;
 };
 

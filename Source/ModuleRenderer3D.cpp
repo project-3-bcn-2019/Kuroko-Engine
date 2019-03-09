@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "ModuleScene.h"
 #include "ModuleShaders.h"
+#include "ModuleTimeManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -183,6 +184,19 @@ void ModuleRenderer3D::Draw(Camera * cam)
 		lights[i].Render();
 
 	App->scene->DrawScene(cam->getFrustum()->pos);
+
+	if (App->time->getGameState() == GameState::PLAYING)
+	{
+		bool depth_test = glIsEnabled(GL_DEPTH_TEST);
+		bool lighting = glIsEnabled(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		App->scene->DrawInGameUI();
+
+		if (depth_test)
+			glEnable(GL_DEPTH_TEST);
+		if (lighting)
+			glEnable(GL_LIGHTING);
+	}
 
 	if (cam != App->camera->background_camera && cam->getFrameBuffer())
 	{

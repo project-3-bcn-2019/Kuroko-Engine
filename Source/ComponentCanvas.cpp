@@ -13,6 +13,13 @@ ComponentCanvas::ComponentCanvas(GameObject* parent) : Component(parent, CANVAS)
 
 	draw_cross = true;
 }
+ComponentCanvas::ComponentCanvas(JSON_Object * deff, GameObject * parent) : Component(parent, CANVAS) {
+	   
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+	   
+	
+	setResolution(float2(rectTransform->getWidth(), rectTransform->getHeight()));
+}
 
 
 ComponentCanvas::~ComponentCanvas()
@@ -43,6 +50,7 @@ void ComponentCanvas::Draw() const
 
 void ComponentCanvas::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "canvas");
 }
 
 void ComponentCanvas::setResolution(float2 resolution)

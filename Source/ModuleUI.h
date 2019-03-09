@@ -29,6 +29,8 @@ class PanelObjectInspector;
 class PanelAssetsWin;
 class PanelPrimitives;
 class PanelAnimationGraph;
+class PanelConfiguration;
+class PanelTimeControl;
 class PanelShader;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
@@ -61,13 +63,13 @@ public:
 	bool DrawComponent(Component& component, int id);
 	//void DrawAudioTab();
 	void DrawPrimitivesTab();									//PANEL DONE
-	void DrawGraphicsLeaf() const;
-	void DrawAboutLeaf();
-	void DrawWindowConfigLeaf() const;
-	void DrawHardwareLeaf() const;
-	void DrawApplicationLeaf() const;
-	void DrawEditorPreferencesLeaf() const;
-	void DrawTimeControlWindow();
+	void DrawGraphicsLeaf() const;								//PANEL DONE
+	void DrawAboutLeaf();											
+	void DrawWindowConfigLeaf() const;							//PANEL DONE
+	void DrawHardwareLeaf() const;								//PANEL DONE
+	void DrawApplicationLeaf() const;							//PANEL DONE
+	void DrawEditorPreferencesLeaf() const;						//PANEL DONE
+	void DrawTimeControlWindow();								//PANEL DONE
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
 	void DrawQuadtreeConfigWindow();
@@ -106,7 +108,10 @@ public:
 	PanelAssetsWin* p_assetswindow = nullptr;
 	PanelPrimitives* p_primitives = nullptr;
 	PanelAnimationGraph* p_animation_graph = nullptr;
+	PanelConfiguration* p_configuration = nullptr;
+	PanelTimeControl* p_time_control = nullptr;
 	PanelShader* p_shader_editor = nullptr;
+
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -116,6 +121,7 @@ public:
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
 	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
+
 
 
 private:

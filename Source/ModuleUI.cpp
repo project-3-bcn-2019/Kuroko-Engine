@@ -34,6 +34,7 @@
 #include "ComponentCamera.h"
 #include "ComponentImageUI.h"
 #include "ComponentCheckBoxUI.h"
+#include "ComponentProgressBarUI.h"
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
@@ -58,7 +59,7 @@
 #include "Assimp/include/version.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "SDL\include\SDL_opengl.h"
+#include "SDL\include\SDL_opengl.h"""
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
@@ -74,7 +75,10 @@
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
 #include "PanelAnimationGraph.h"
+#include "PanelConfiguration.h"
+#include "PanelTimeControl.h"
 #include "PanelShader.h"
+
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -90,6 +94,8 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
 	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
+	p_configuration = new PanelConfiguration("Configuration", true);
+	p_time_control = new PanelTimeControl("Time Control", true);
 	p_shader_editor = new PanelShader("Shader Editor", false);
 }
 
@@ -207,25 +213,9 @@ update_status ModuleUI::Update(float dt) {
 		disable_keyboard_control = false;
 
 
-		if (open_tabs[CONFIGURATION])
+		if (p_configuration->isActive())
 		{
-			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
-
-			if (ImGui::CollapsingHeader("Graphics"))
-				DrawGraphicsLeaf();
-			if (ImGui::CollapsingHeader("Window"))
-				DrawWindowConfigLeaf();
-			if (ImGui::CollapsingHeader("Hardware"))
-				DrawHardwareLeaf();
-			if (ImGui::CollapsingHeader("Application"))
-				DrawApplicationLeaf();
-			if (ImGui::CollapsingHeader("Editor preferences"))
-				DrawEditorPreferencesLeaf();
-
-			if (ImGui::Button("Reset Camera"))
-				App->camera->editor_camera->Reset();
-
-			ImGui::End();
+			p_configuration->Draw();
 		}
 
 		if (p_hierarchy->isActive())
@@ -249,8 +239,8 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[LOG])
 			app_log->Draw("App log", &open_tabs[LOG]);
 
-		if (open_tabs[TIME_CONTROL])
-			DrawTimeControlWindow();
+		if (p_time_control->isActive())
+			p_time_control->Draw();
 
 		if (open_tabs[QUADTREE_CONFIG])
 			DrawQuadtreeConfigWindow();
@@ -282,7 +272,7 @@ update_status ModuleUI::Update(float dt) {
 		if (p_shader_editor->isActive())
 			p_shader_editor->Draw();
 
-		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())
 			App->gui->DrawGuizmo();
 
 		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
@@ -1505,9 +1495,10 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			//position
 			ImGui::Text("Position:");
 			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
 			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { rectTrans->setPos(position); }
 			//Width
+			ImGui::Text("Dimensions:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { rectTrans->setWidth(width); }
@@ -1741,6 +1732,13 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Button("Idle")) { button->setState(B_IDLE); } ImGui::SameLine();
 			if (ImGui::Button("Hover")) { button->setState(B_MOUSEOVER); }ImGui::SameLine();
 			if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
+		}
+		break;
+	case UI_PROGRESSBAR:
+		if (ImGui::CollapsingHeader("UI Progress Bar"))
+		{
+			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
+			ImGui::Text("WIP");
 		}
 		break;
 	case ANIMATION:
@@ -3424,7 +3422,7 @@ void ModuleUI::DrawAboutLeaf()
 
 void ModuleUI::DrawGraphicsLeaf() const {
 	//starting values
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	/*ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool depth_test = glIsEnabled(GL_DEPTH_TEST);
 	static bool face_culling = glIsEnabled(GL_CULL_FACE);
@@ -3502,132 +3500,132 @@ void ModuleUI::DrawGraphicsLeaf() const {
 		ImGui::Checkbox("Enabled##N Enabled", &App->scene->global_normals);
 		ImGui::TreePop();
 	}
-	ImGui::PopFont();
+	ImGui::PopFont();*/
 }
 
 void ModuleUI::DrawWindowConfigLeaf() const
 {
-	ImGui::PushFont(ui_fonts[REGULAR]);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
 
-	Window* window = App->window->main_window;
-	if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
-		App->window->setBrightness(window->brightness);
+	//Window* window = App->window->main_window;
+	//if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
+	//	App->window->setBrightness(window->brightness);
 
-	bool width_mod, height_mod = false;
-	width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
-	height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
-	
-	if(width_mod || height_mod)
-		App->window->setSize(window->width, window->height);
+	//bool width_mod, height_mod = false;
+	//width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
+	//height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
+	//
+	//if(width_mod || height_mod)
+	//	App->window->setSize(window->width, window->height);
 
-	// Refresh rate
-	ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
-	//Bools
-	if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
-		App->window->setFullscreen(window->fullscreen);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("Resizable", &window->resizable))
-		App->window->setResizable(window->resizable);
-	if (ImGui::Checkbox("Borderless", &window->borderless))
-		App->window->setBorderless(window->borderless);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
-		App->window->setFullDesktop(window->fulldesk);
+	//// Refresh rate
+	//ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
+	////Bools
+	//if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
+	//	App->window->setFullscreen(window->fullscreen);
+	//ImGui::SameLine();
+	//if (ImGui::Checkbox("Resizable", &window->resizable))
+	//	App->window->setResizable(window->resizable);
+	//if (ImGui::Checkbox("Borderless", &window->borderless))
+	//	App->window->setBorderless(window->borderless);
+	//ImGui::SameLine();
+	//if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
+	//	App->window->setFullDesktop(window->fulldesk);
 
-	ImGui::PopFont();
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawHardwareLeaf() const 
 {
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	//CPUs
-	ImGui::Text("CPUs");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255),"%i", SDL_GetCPUCount());
+	//ImGui::PushFont(ui_fonts[REGULAR]);
+	//
+	////CPUs
+	//ImGui::Text("CPUs");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255),"%i", SDL_GetCPUCount());
 
-	// RAM
-	ImGui::Text("System RAM");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%i Gb", SDL_GetSystemRAM());
+	//// RAM
+	//ImGui::Text("System RAM");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%i Gb", SDL_GetSystemRAM());
 
-	// Caps
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	if(SDL_HasRDTSC())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "RDTSC, ");
-	ImGui::SameLine();
-	if (SDL_HasMMX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "MMX, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE2())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE2, ");
-	if (SDL_HasSSE3())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE3, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE41())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE41, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE42())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE42, ");
-	ImGui::SameLine();
-	if (SDL_HasAVX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "AVX.");
-	ImGui::SameLine();
+	//// Caps
+	//ImGui::Text("Caps:");
+	//ImGui::SameLine();
+	//if(SDL_HasRDTSC())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "RDTSC, ");
+	//ImGui::SameLine();
+	//if (SDL_HasMMX())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "MMX, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE2())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE2, ");
+	//if (SDL_HasSSE3())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE3, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE41())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE41, ");
+	//ImGui::SameLine();
+	//if (SDL_HasSSE42())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE42, ");
+	//ImGui::SameLine();
+	//if (SDL_HasAVX())
+	//	ImGui::TextColored(ImVec4(0, 255, 0, 255), "AVX.");
+	//ImGui::SameLine();
 
-	ImGui::Separator();
-	//GPU
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_VENDOR));
-	ImGui::Text("Brand:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_RENDERER));
-	ImGui::Text("VRAM Budget:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Usage:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA() - getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Avaliable:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Reserved:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
-		
-	ImGui::PopFont();
+	//ImGui::Separator();
+	////GPU
+	//ImGui::Text("Caps:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_VENDOR));
+	//ImGui::Text("Brand:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_RENDERER));
+	//ImGui::Text("VRAM Budget:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Usage:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA() - getAvaliableVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Avaliable:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getAvaliableVRAMMb_NVIDIA());
+	//ImGui::Text("VRAM Reserved:");
+	//ImGui::SameLine();
+	//ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
+	//	
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawApplicationLeaf() const 
 {
-	// HARDCODED (?)
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	ImGui::Text("App name: Kuroko Engine");
-	ImGui::Text("Organization: UPC CITM");
-	char title[25];
-	sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
-	ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
-	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	
-	ImGui::PopFont();
+	//// HARDCODED (?)
+	//ImGui::PushFont(ui_fonts[REGULAR]);
+	//
+	//ImGui::Text("App name: Kuroko Engine");
+	//ImGui::Text("Organization: UPC CITM");
+	//char title[25];
+	//sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
+	//ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	//sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
+	//ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	//
+	//ImGui::PopFont();
 }
 
 void ModuleUI::DrawEditorPreferencesLeaf() const {
 
-	static float camera_speed = 2.5f;
+	/*static float camera_speed = 2.5f;
 	if (ImGui::InputFloat("Camera speed", &camera_speed))
 		App->camera->camera_speed = camera_speed;
 
 
 	static float camera_rotation_speed = 0.25f;
 	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;
+		App->camera->camera_rotation_speed = camera_rotation_speed;*/
 }
 
 void ModuleUI::DrawTimeControlWindow()
@@ -3793,13 +3791,26 @@ void ModuleUI::DrawGuizmo()
 		float3 guizmoScale = float3::zero;
 		//float3 guizmoRot = float3::zero;
 
-		for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo in average of their positions
-			ComponentTransform* transform = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
-			Transform* trans = transform->global;
-			guizmoPos += trans->getPosition();
-			guizmoScale += trans->getScale();
-			//guizmoRot += trans->getRotationEuler();
+		//-------------guizmoUI (2d)
+		if ((*App->scene->selected_obj.begin())->is_UI) {
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo UI in average of their positions
+				ComponentRectTransform* transform = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
+				guizmoPos += float3(transform->getAnchor().x , transform->getAnchor().y ,0);
+				guizmoScale += float3(transform->getWidth(), transform->getHeight(),0);
+			}
 		}
+		//------------guizmo (3d)
+
+		else {
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo in average of their positions
+				ComponentTransform* transform = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+				Transform* trans = transform->global;
+				guizmoPos += trans->getPosition();
+				guizmoScale += trans->getScale();
+				//guizmoRot += trans->getRotationEuler();
+			}
+		}
+
 		guizmoPos /= App->scene->selected_obj.size();
 		guizmoScale /= App->scene->selected_obj.size();
 		//guizmoRot /= App->scene->selected_obj.size();
@@ -3826,37 +3837,73 @@ void ModuleUI::DrawGuizmo()
 			newGzmTrans.Transpose();
 
 			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
-
+			static const float max_graduated_scale = 20.f;
 
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
-				ComponentTransform* selectedTrans = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
-				Transform* trans = selectedTrans->global;
-				switch (gizmo_operation)
-				{
-				case ImGuizmo::OPERATION::TRANSLATE:
-					new_pos.x = selectedTrans->constraints[0][0] ? trans->getPosition().x : (trans->getPosition().x + displacement.x);
-					new_pos.y = selectedTrans->constraints[0][1] ? trans->getPosition().y : (trans->getPosition().y + displacement.y);
-					new_pos.z = selectedTrans->constraints[0][2] ? trans->getPosition().z : (trans->getPosition().z + displacement.z);
-					trans->setPosition(new_pos);
-					break;
-				case ImGuizmo::OPERATION::ROTATE:
-					new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : (newGzmTrans.RotatePart().ToEulerXYZ().x);
-					new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
-					new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
-					new_rot += trans->getRotation().ToEulerXYZ();
-					trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
-					break;
-				case ImGuizmo::OPERATION::SCALE:
-					new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
-					new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
-					new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
-					trans->setScale(new_scale);
-					break;
-				default:
-					break;
+
+				//------- UI
+				if ((*App->scene->selected_obj.begin())->is_UI) {
+					ComponentRectTransform* selectedPos = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
+					float2 pos = selectedPos->getLocalPos();
+					float2 dim = float2(selectedPos->getWidth(), selectedPos->getHeight());
+					float2 anchor = selectedPos->getAnchor();
+
+					switch (gizmo_operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						new_pos.x = pos.x +displacement.x ;
+						new_pos.y = pos.y +displacement.y ;
+						new_pos.z = 0;
+						selectedPos->setPos(float2(new_pos.x, new_pos.y));
+						break;
+					
+					case ImGuizmo::OPERATION::SCALE:
+						new_scale.x = newGzmTrans.GetScale().x;
+						new_scale.y = newGzmTrans.GetScale().y;
+						new_scale.z = 0;
+						if(abs(selectedPos->getHeight()- new_scale.y) < max_graduated_scale){selectedPos->setHeight(new_scale.y);}
+						if (abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale) { selectedPos->setWidth(new_scale.x); }
+						
+						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
+						break;
+					default:
+						break;
+					}
 				}
-				trans->CalculateMatrix();
-				selectedTrans->GlobalToLocal();
+				//--------not UI
+				else {
+					ComponentTransform* selectedTrans = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+					Transform* trans = selectedTrans->global;
+					switch (gizmo_operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						new_pos.x = selectedTrans->constraints[0][0] ? trans->getPosition().x : (trans->getPosition().x + displacement.x);
+						new_pos.y = selectedTrans->constraints[0][1] ? trans->getPosition().y : (trans->getPosition().y + displacement.y);
+						new_pos.z = selectedTrans->constraints[0][2] ? trans->getPosition().z : (trans->getPosition().z + displacement.z);
+						trans->setPosition(new_pos);
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : (newGzmTrans.RotatePart().ToEulerXYZ().x);
+						new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
+						new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
+						new_rot += trans->getRotation().ToEulerXYZ();
+						trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
+						new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
+						new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+						trans->setScale(new_scale);
+						break;
+					default:
+						break;
+					}
+					trans->CalculateMatrix();
+					selectedTrans->GlobalToLocal();
+				}
+				//-----
+				
+				
 			}
 
 		}

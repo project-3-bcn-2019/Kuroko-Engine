@@ -18,6 +18,7 @@ class ComponentButtonUI :public Component
 {
 public:
 	ComponentButtonUI(GameObject* parent);
+	ComponentButtonUI(JSON_Object * deff, GameObject * parent);
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;
@@ -27,7 +28,7 @@ public:
 	void setResourceTexture(ResourceTexture* tex, ButtonState state); 
 	void DeassignTexture(ButtonState state);
 	inline void setState(ButtonState _state) { state = _state; ChangeGOImage(); };// for debug, may be obsolete
-	void ChangeGOImage();	
+	void ChangeGOImage();
 
 	ButtonState state = B_IDLE;
 

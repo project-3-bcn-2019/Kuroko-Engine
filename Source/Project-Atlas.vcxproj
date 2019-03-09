@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClInclude Include="ComponentAnimationEvent.h" />
     <ClInclude Include="ComponentAnimator.h" />
+    <ClInclude Include="ComponentProgressBarUI.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
@@ -214,11 +215,13 @@
     <ClInclude Include="PanelAnimationEvent.h" />
     <ClInclude Include="PanelAnimationGraph.h" />
     <ClInclude Include="PanelAssetsWin.h" />
+    <ClInclude Include="PanelConfiguration.h" />
     <ClInclude Include="PanelHierarchyTab.h" />
     <ClInclude Include="PanelObjectInspector.h" />
     <ClInclude Include="PanelPrimitives.h" />
     <ClInclude Include="PanelShader.h" />
     <ClInclude Include="PanelSkyboxWin.h" />
+    <ClInclude Include="PanelTimeControl.h" />
     <ClInclude Include="Parson\parson.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PCG Random\pcg_basic.h" />
@@ -262,6 +265,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentAnimationEvent.cpp" />
     <ClCompile Include="ComponentAnimator.cpp" />
+    <ClCompile Include="ComponentProgressBarUI.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -352,11 +356,13 @@
     <ClCompile Include="PanelAnimationEvent.cpp" />
     <ClCompile Include="PanelAnimationGraph.cpp" />
     <ClCompile Include="PanelAssetsWin.cpp" />
+    <ClCompile Include="PanelConfiguration.cpp" />
     <ClCompile Include="PanelHierarchyTab.cpp" />
     <ClCompile Include="PanelObjectInspector.cpp" />
     <ClCompile Include="PanelPrimitives.cpp" />
     <ClCompile Include="PanelShader.cpp" />
     <ClCompile Include="PanelSkyboxWin.cpp" />
+    <ClCompile Include="PanelTimeControl.cpp" />
     <ClCompile Include="Parson\parson.c" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PCG Random\pcg_basic.c" />

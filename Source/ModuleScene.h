@@ -43,6 +43,7 @@ public:
 	bool CleanUp();
 
 	void DrawScene(float3 camera_pos);
+	void DrawInGameUI();
 
 	void addGameObject(GameObject* gobj)	{ game_objects.push_back(gobj); };
 	GameObject* duplicateGameObject(GameObject* gobj);
@@ -64,7 +65,8 @@ public:
 	void CleanScriptComponents();
 	void LoadScriptComponents();
 
-	GameObject* getCanvasGameObject();//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
+	std::list<GameObject*>getUIGameObjects();
+	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
 	void AskPrefabLoadFile(const char* path, float3 pos, float3 eulerang);
@@ -120,6 +122,9 @@ private:
 	std::string path_to_load_prefab;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
+
+	//TESTING GLORTHO AABB:
+	AABB ui_render_box;
 
 public:
 
