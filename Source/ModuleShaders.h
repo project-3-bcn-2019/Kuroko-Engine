@@ -11,7 +11,7 @@ enum ShaderType
 
 enum UniformType
 {
-
+	U_INT, U_BOOL, U_FLOAT, U_VEC2, U_VEC3, U_VEC4, U_MAT2, U_MAT3, U_MAT4
 };
 
 struct Shader
@@ -32,16 +32,15 @@ struct ShaderProgram
 
 struct Uniform 
 {
-	Uniform(std::string _name, UniformType _type, int size)
-	{
-		name = _name;
-		type = _type;
-		data = new float[size];
-	}
+	Uniform(std::string _name, std::string _type, int size);	
+	
+	UniformType GetTypefromChar(std::string _type);
 
 	UniformType type;
 	std::string name;
+	std::string stringType;
 	float* data;
+
 };
 
 class ModuleShaders : public Module

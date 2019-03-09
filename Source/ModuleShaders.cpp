@@ -271,4 +271,36 @@ ShaderProgram * ModuleShaders::GetAnimationShaderProgram() const
 	return animationShaderProgram;
 }
 
+Uniform::Uniform(std::string _name, std::string _type, int size)
+{
+	name = _name;
+	data = new float[size];
+	type = GetTypefromChar(_type);
+	stringType = _type;
+}
 
+UniformType Uniform::GetTypefromChar(std::string _type)
+{
+	UniformType ret= U_INT;
+
+	if (_type == "int")
+		ret = U_INT;
+	if (_type == "bool")
+		ret = U_BOOL;
+	if (_type == "float")
+		ret = U_FLOAT;
+	if (_type == "vec2")
+		ret = U_VEC2;
+	if (_type == "vec3")
+		ret = U_VEC3;
+	if (_type == "vec4")
+		ret = U_VEC4;
+	if (_type == "mat2")
+		ret = U_MAT2;
+	if (_type == "mat3")
+		ret = U_MAT3;
+	if (_type == "mat4")
+		ret = U_MAT4;
+	
+	return ret;
+}

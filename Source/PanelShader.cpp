@@ -21,6 +21,7 @@ PanelShader::PanelShader(const char* name, bool _active): Panel(name,_active)
 	}
 
 	current_shader = nullptr;
+	selected_type = uniform_types[0];
 }
 
 
@@ -98,7 +99,7 @@ void PanelShader::Draw()
 		ImGui::EndMenuBar();
 	}
 
-	ImGui::BeginChild("Editor",ImVec2(500,600),true);
+	ImGui::BeginChild("Editor",ImVec2(500,600),true, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, shader_editor.GetTotalLines(),
 		shader_editor.IsOverwrite() ? "Ovr" : "Ins",
 		shader_editor.CanUndo() ? "*" : " ",
@@ -143,6 +144,8 @@ void PanelShader::Draw()
 
 	ImGui::Text("Current Shader:");
 	ImGui::SameLine();
+	ImGui::PushItemWidth(200.0f);
+	ImGui::PushID("Shader name");
 	if (ImGui::BeginCombo("", shader_name.c_str()))
 	{
 		for (int i=0;i<App->shaders->shaders.size()+1;++i)
@@ -163,44 +166,40 @@ void PanelShader::Draw()
 					current_shader = nullptr;
 					std::string str=" ";
 					shader_editor.SetText(str);
+					fragment = vertex = false;
 				}
 			}
 		}
 		ImGui::EndCombo();
 	}
+	ImGui::PopID();
+	ImGui::PopItemWidth();
 
-
-
-	bool vertex, fragmen;
-	vertex = fragmen = false;
 
 	if (current_shader != nullptr)
 	{
 		if (current_shader->type == VERTEX)
 		{
 			vertex = true;
-			fragmen = false;
+			fragment = false;
 		}
 		else
 		{
 			vertex = false;
-			fragmen = true;
+			fragment = true;
 		}
 	}
-	else
-	{
-		vertex = fragmen = false;
-	}
+	
 
 
 	ImGui::Text("Shader Type:");
 	ImGui::SameLine();
 	if (ImGui::Checkbox("Vertex",&vertex))
 	{
-		fragmen = false;
+		fragment = false;
 	}
 	ImGui::SameLine();
-	if (ImGui::Checkbox("Fragment", &fragmen))
+	if (ImGui::Checkbox("Fragment", &fragment))
 	{
 		vertex = false;
 	}
@@ -214,15 +213,59 @@ void PanelShader::Draw()
 	ImGui::NewLine();
 	
 	//Uniform Creator
-	char uniform_name[256];
-	int uniform_size = 0;
-	ImGui::Button("Uniform ++");
+		
+	ImGui::Text("Name:");
 	ImGui::SameLine();
-	ImGui::InputText("Name", uniform_name, 256);
+	
+	ImGui::PushID("name");
+	ImGui::PushItemWidth(150.0f);
+	ImGui::InputText("", uniform_name, 256);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
 	ImGui::SameLine();
-	ImGui::InputInt("Size", &uniform_size);
+	
+	ImGui::Text("Size:");
+	ImGui::SameLine();
 
-	ImGui::BeginChild("Uniform Variables", ImVec2(400, 300), true);
+	ImGui::PushID("size");
+	ImGui::PushItemWidth(75.0f);
+	ImGui::InputInt("", &uniform_size,1,100,ImGuiInputTextFlags_AlwaysInsertMode);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+	ImGui::SameLine();
+
+	ImGui::PushItemWidth(50.0f);
+	ImGui::PushID("UniformTypes");
+	if (ImGui::BeginCombo("", selected_type))
+	{
+		for (int i = 0; i < uniform_types.size(); ++i)
+		{
+			bool selected = false;
+			
+			if (ImGui::Selectable(uniform_types[i], &selected))
+			{
+				selected_type = uniform_types[i];
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::PopID();
+	ImGui::PopItemWidth();
+
+	if (ImGui::Button("Uniform ++"))
+	{
+		AddUniform();
+	}
+	
+
+	ImGui::BeginChild("Uniform Var", ImVec2(400, 300), true);
+	for (int i = 0; i < shader_uniforms.size(); ++i)
+	{
+		std::string uniform_info = shader_uniforms[i]->name + " " + shader_uniforms[i]->stringType;
+		ImGui::Text(uniform_info.c_str());
+	}
+
+
 
 	ImGui::EndChild();
 
@@ -242,4 +285,13 @@ void PanelShader::Draw()
 void PanelShader::SaveShader(Shader* shader)
 {
 
+}
+
+void PanelShader::AddUniform()
+{
+	Uniform* aux_uniform = new Uniform(uniform_name, selected_type, uniform_size);
+	shader_uniforms.push_back(aux_uniform);
+
+	selected_type = uniform_types[0];
+	uniform_size = 1;
 }
