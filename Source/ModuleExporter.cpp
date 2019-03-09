@@ -76,6 +76,7 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts\\*"));
 	json_object_set_value(json_object(json), "Audio", GetAssetFolderUUIDs("\\Assets\\Audio\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
+	json_object_set_value(json_object(json), "AnimationGraphs", GetAssetFolderUUIDs("\\Assets\\AnimationGraphs\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	Get3dObjectsUUIDs("\\Assets\\Meshes\\*", json); // Get UUIDs for Meshes, Animations and Bones from 3dObjets
 	//Sounds and UI resources?
