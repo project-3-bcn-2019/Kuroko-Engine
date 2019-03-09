@@ -49,7 +49,7 @@ bool ResourceAnimationGraph::LoadGraph()
 
 		bytes = nameLength;
 		char* auxName = new char[bytes];
-		memcpy(auxName, cursor, bytes);
+		memcpy(auxName, cursor, sizeof(char)*bytes);
 		std::string name = auxName;
 		name = name.substr(0, bytes);
 		RELEASE_ARRAY(auxName);
@@ -116,8 +116,30 @@ bool ResourceAnimationGraph::LoadGraph()
 			}
 		}
 	}
-
 	start = getNode(startUUID);
+
+	int variableAmount;
+	memcpy(&variableAmount, cursor, sizeof(int));
+	cursor += sizeof(int);
+	for (int i = 0; i < variableAmount; ++i)
+	{
+		uint ranges[3];
+		bytes = sizeof(ranges);
+		memcpy(ranges, cursor, bytes);
+		cursor += bytes;
+
+		bytes = ranges[2];
+		char* auxName = new char[bytes];
+		memcpy(auxName, cursor, bytes);
+		std::string name = auxName;
+		name = name.substr(0, bytes);
+		RELEASE_ARRAY(auxName);
+		cursor += bytes;
+
+		Variable* var = new Variable((variableType)ranges[1], name.c_str());
+		var->uuid = ranges[0];
+		blackboard.push_back(var);
+	}
 
 	RELEASE_ARRAY(buffer);
 	return true;
@@ -131,6 +153,11 @@ void ResourceAnimationGraph::UnloadFromMemory()
 	}
 	nodes.clear();
 	links.clear(); //Links are deleted from node destructor
+	for (std::list<Variable*>::iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		RELEASE((*it_v));
+	}
+	blackboard.clear();
 }
 
 bool ResourceAnimationGraph::saveGraph() const
@@ -151,8 +178,11 @@ bool ResourceAnimationGraph::saveGraph() const
 			size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
 		}
 	}
-	//Links: type, UID, connected node
-	//Transitions: originNode, destinationNode, output, input
+	size += sizeof(int);
+	for (std::list<Variable*>::const_iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		size += 3 * sizeof(uint) + (*it_v)->name.size() * sizeof(char);
+	}
 
 	char* buffer = new char[size];
 	char* cursor = buffer;
@@ -209,6 +239,19 @@ bool ResourceAnimationGraph::saveGraph() const
 			memcpy(cursor, (*it_t)->usingLetter.c_str(), bytes);
 			cursor += bytes;
 		}
+	}
+	int variableAmount = blackboard.size();
+	memcpy(cursor, &variableAmount, sizeof(int));
+	cursor += sizeof(int);
+	for (std::list<Variable*>::const_iterator it_v = blackboard.begin(); it_v != blackboard.end(); ++it_v)
+	{
+		uint ranges[3] = { (*it_v)->uuid, (*it_v)->type, (*it_v)->name.size() };
+		bytes = sizeof(ranges);
+		memcpy(cursor, ranges, bytes);
+		cursor += bytes;
+
+		memcpy(cursor, (*it_v)->name.c_str(), sizeof(char)*ranges[2]);
+		cursor += sizeof(char)*ranges[2];
 	}
 
 	//App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);

@@ -2362,8 +2362,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
 					resource_deff anim_deff = (*it);
 					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						App->resources->deasignResource(animator->getAnimationGraphResource());
-						App->resources->assignResource(anim_deff.uuid);
 						animator->setAnimationGraphResource(anim_deff.uuid);
 						set_animation_menu = false;
 						break;

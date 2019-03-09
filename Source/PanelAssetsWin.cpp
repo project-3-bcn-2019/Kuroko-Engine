@@ -343,7 +343,14 @@ void PanelAssetsWin::Draw()
 		{
 			std::string graph_name = rename_buffer;
 			std::string full_path = asset_window_path + "/" + graph_name + GRAPH_EXTENSION;
-			App->fs.CreateEmptyFile(full_path.c_str());
+
+			//Save empty graph
+			uint size = 3 * sizeof(uint);
+			char* buffer = new char[size];
+			uint ranges[3] = { 0, 0, 0 }; // 0 nodes | start node uuid | 0 variables
+			memcpy(buffer, ranges, size);
+			App->fs.ExportBuffer(buffer, size, full_path.c_str());
+			RELEASE_ARRAY(buffer);
 
 			name_graph = false;
 		}
