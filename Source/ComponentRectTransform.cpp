@@ -136,10 +136,27 @@ void ComponentRectTransform::setPos(float2 pos)
 	rect.local = pos;
 	rect.global +=dist;
 
-	rect.anchor.x = rect.global.x + rect.width / 2;
-	rect.anchor.y = rect.global.y + rect.height / 2;
+	UpdateAnchorPos();
 
 	UpdateGlobalMatrixRecursive(this);
+}
+
+void ComponentRectTransform::setWidth(float width)
+{
+	float dif = width + rect.width;
+	rect.width = width;
+	rect.anchor.x += dif;
+
+	UpdateAnchorPos();
+}
+
+void ComponentRectTransform::setHeight(float height)
+{
+	float dif = height + rect.height;
+	rect.height = height;
+	rect.anchor.y += dif;
+
+	UpdateAnchorPos();
 }
 
 
@@ -162,4 +179,10 @@ void ComponentRectTransform::UpdateGlobalMatrixRecursive(ComponentRectTransform*
 		childRect->setGlobalPos(rect->getGlobalPos() + childRect->getLocalPos());
 		UpdateGlobalMatrixRecursive(childRect);
 	}
+}
+
+void ComponentRectTransform::UpdateAnchorPos()
+{
+	rect.anchor.x = rect.global.x + rect.width / 2;
+	rect.anchor.y = rect.global.y + rect.height / 2;
 }
