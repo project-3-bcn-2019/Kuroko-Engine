@@ -84,7 +84,7 @@ void ComponentImageUI::Draw() const
 {
 	glPushMatrix();
 	float4x4 globalMat;
-	globalMat = float4x4::FromTRS(float3(rectTransform->getGlobalPos().x, rectTransform->getGlobalPos().y, 0), Quat(0, 0, 0, 0), float3(rectTransform->getWidth(), rectTransform->getHeight(), 0));
+	globalMat = float4x4::FromTRS(float3(rectTransform->getGlobalPos().x, rectTransform->getGlobalPos().y, rectTransform->getDepth()), Quat(0, 0, 0, 0), float3(rectTransform->getWidth(), rectTransform->getHeight(), 0));
 	glMultMatrixf(globalMat.Transposed().ptr());
 
 	glEnableClientState(GL_VERTEX_ARRAY);
