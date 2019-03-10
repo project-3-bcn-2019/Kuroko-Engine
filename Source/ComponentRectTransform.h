@@ -14,7 +14,7 @@ public:
 	float2 anchor = float2(0.f, 0.f);
 	int vertexID = -1;
 	float3* vertex = nullptr;
-	float2 initOffset = float2(0, 0);
+	float depth = 0.0f;
 	
 };
 
@@ -38,10 +38,12 @@ public:
 	inline const float2 getLocalPos() { return rect.local; }
 	inline const float2 getGlobalPos() { return rect.global; }
 	inline const float getWidth() { return rect.width; }
-	inline const float getHeight() { return rect.height; }
+	inline const float getHeight() { return rect.height; 
+	inline const float getDepth() { return rect.depth; }
 	inline const int GetVertexID() { return rect.vertexID; }
 	
 	inline void setGlobalPos(float2 pos) { rect.global = pos; }
+	inline void setDepth(float _depth) {depth = _depth;}
 
 	bool debug_draw = false;
 

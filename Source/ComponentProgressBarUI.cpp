@@ -7,11 +7,11 @@
 
 ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(parent, UI_PROGRESSBAR)
 {
-	intBarTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
-	barTransform = (ComponentRectTransform*)parent->getParent()->getComponent(RECTTRANSFORM);
+	intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM);
+	barTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	
-	intBar = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
-	bar = (ComponentImageUI*)parent->getParent()->getComponent(UI_IMAGE);
+	intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE);
+	bar = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
 
 	barTransform->setWidth(5.0f);
 	barTransform->setHeight(1.2f);
@@ -54,10 +54,24 @@ void ComponentProgressBarUI::setPos(float2 _pos)
 
 }
 
-void ComponentProgressBarUI::setOffset(float2 _offset) 
+void ComponentProgressBarUI::setInteriorWidth(float width)
 {
-	offset = _offset;
-	intBarTransform->setPos(intBarTransform->getLocalPos() + offset);
+	initWidth = width;
+	intBarTransform->setWidth(initWidth*percent / 100);
+}
+
+
+
+void ComponentProgressBarUI::setResourceTexture(ResourceTexture * tex)
+{
+	texBar = tex; 
+	bar->setResourceTexture(texBar);
+}
+
+void ComponentProgressBarUI::setResourceTextureInterior(ResourceTexture * tex)
+{
+	intTexBar = tex; 
+	intBar->setResourceTexture(intTexBar);
 }
 
 void ComponentProgressBarUI::Save(JSON_Object * config)
