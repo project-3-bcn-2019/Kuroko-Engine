@@ -97,21 +97,45 @@ bool ResourceAnimationGraph::LoadGraph()
 				NodeLink* linked = getLink((*it_l)->connectedNodeLink);
 				if (linked != nullptr)
 				{
-					/*int ranges[2];
-					bytes = sizeof(ranges);
-					memcpy(ranges, cursor, bytes);
-					cursor += bytes;
+					float duration;
+					memcpy(&duration, cursor, sizeof(float));
+					cursor += sizeof(float);
 
-					char* letter = new char[ranges[0]];
-					bytes = sizeof(char)*ranges[0];
-					memcpy(letter, cursor, bytes);
-					cursor += bytes;*/
+					uint numConditions;
+					memcpy(&numConditions, cursor, sizeof(uint));
+					cursor += sizeof(uint);
 
-					node->transitions.push_back(new Transition((*it_l), linked, uuid));
-					/*node->transitions.back()->sdlKeyValue = ranges[1];
-					node->transitions.back()->usingLetter = letter;
+					Transition* trans = new Transition((*it_l), linked, uuid);
+					node->transitions.push_back(trans);
+					trans->duration = duration;
+					for (int k = 0; k < numConditions; ++k)
+					{
+						Condition* cond = new Condition();
 
-					RELEASE_ARRAY(letter);*/
+						uint ranges[3];
+						memcpy(ranges, cursor, sizeof(uint) * 3);
+						cursor += sizeof(uint) * 3;
+
+						memcpy(&cond->conditionant, cursor, sizeof(float));
+						cursor += sizeof(float);
+
+						bytes = ranges[2];
+						if (bytes > 0)
+						{
+							char* auxName = new char[bytes];
+							memcpy(auxName, cursor, sizeof(char)*bytes);
+							std::string name = auxName;
+							name = name.substr(0, bytes);
+							RELEASE_ARRAY(auxName);
+							cond->string_conditionant = name;
+						}
+						cursor += bytes;
+
+						cond->type = (conditionType)ranges[0];
+						cond->variable_uuid = ranges[1];
+
+						trans->conditions.push_back(cond);
+					}
 				}
 			}
 		}
@@ -175,7 +199,11 @@ bool ResourceAnimationGraph::saveGraph() const
 		}
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			//size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
+			size += sizeof(float)+sizeof(uint);
+			for (std::list<Condition*>::iterator it_c = (*it_t)->conditions.begin(); it_c != (*it_t)->conditions.end(); ++it_c)
+			{
+				size += 3 * sizeof(uint) + sizeof(float) + (*it_c)->string_conditionant.size()*sizeof(char);
+			}
 		}
 	}
 	size += sizeof(int);
@@ -230,14 +258,26 @@ bool ResourceAnimationGraph::saveGraph() const
 
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			/*int ranges[2] = { (*it_t)->usingLetter.size() , (*it_t)->sdlKeyValue };
-			bytes = sizeof(ranges);
-			memcpy(cursor, &ranges[0], bytes);
-			cursor += bytes;
+			memcpy(cursor, &(*it_t)->duration, sizeof(float));
+			cursor += sizeof(float);
 
-			bytes = sizeof(char)*ranges[0];
-			memcpy(cursor, (*it_t)->usingLetter.c_str(), bytes);
-			cursor += bytes;*/
+			uint numConditions = (*it_t)->conditions.size();
+			memcpy(cursor, &numConditions, sizeof(uint));
+			cursor += sizeof(uint);
+
+			for (std::list<Condition*>::iterator it_c = (*it_t)->conditions.begin(); it_c != (*it_t)->conditions.end(); ++it_c)
+			{
+				uint ranges[3] = { (*it_c)->type, (*it_c)->variable_uuid, (*it_c)->string_conditionant.size() };
+				bytes = sizeof(ranges);
+				memcpy(cursor, ranges, bytes);
+				cursor += bytes;
+
+				memcpy(cursor, &(*it_c)->conditionant, sizeof(float));
+				cursor += sizeof(float);
+
+				memcpy(cursor, (*it_c)->string_conditionant.c_str(), ranges[2] * sizeof(char));
+				cursor += ranges[2] * sizeof(char);
+			}
 		}
 	}
 	int variableAmount = blackboard.size();
@@ -539,6 +579,15 @@ Transition::Transition(NodeLink* output, NodeLink* input, uint graphUID) : outpu
 
 	origin = graph->getNode(output->nodeUID);
 	destination = graph->getNode(input->nodeUID);
+}
+
+Transition::~Transition()
+{
+	for (std::list<Condition*>::iterator it = conditions.begin(); it != conditions.end(); ++it)
+	{
+		RELEASE((*it));
+	}
+	conditions.clear();
 }
 
 bool Transition::drawLine(bool selected, float2 offset)

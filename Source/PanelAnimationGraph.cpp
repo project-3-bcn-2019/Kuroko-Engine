@@ -52,6 +52,11 @@ void PanelAnimationGraph::Draw()
 	if (ImGui::Button("Save Graph") && graph != nullptr)
 	{
 		graph->saveGraph();
+		selected_node = nullptr;
+		selected_transition = nullptr;
+		hovered_node = nullptr;
+		dragging_node = nullptr;
+		clickedLine = false;
 	}
 	ImGui::SameLine();
 	ImGui::Text("Hold middle mouse button to scroll (%.2f,%.2f)", scrolling.x, scrolling.y);
@@ -466,7 +471,7 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	draw_list->ChannelsSetCurrent(2);
 	//Draw box
-	float2 boxSize = { 190,300 };
+	float2 boxSize = { 200,300 };
 	ImVec2 posA = { ImGui::GetWindowPos().x + ImGui::GetWindowWidth() - boxSize.x - 5, ImGui::GetWindowPos().y + 5 };
 	ImVec2 posB = { ImGui::GetWindowPos().x + ImGui::GetWindowWidth() - 5, ImGui::GetWindowPos().y + boxSize.y + 5 };
 	draw_list->AddRectFilled(posA, posB, IM_COL32(55, 55, 60, 255), 5.0f);
@@ -475,6 +480,7 @@ void PanelAnimationGraph::drawTransitionMenu()
 	//Draw box content
 	ImGui::SetCursorScreenPos({ posA.x, posA.y });
 	ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ChildBg, { 0,0,0,0 });
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
 	ImGui::BeginChild("transtion menu title", { boxSize.x, boxSize.y }, false, ImGuiWindowFlags_NoScrollbar);
 	if (ImGui::IsWindowHovered())
 		hoveringTransitionMenu = true;
@@ -488,11 +494,16 @@ void PanelAnimationGraph::drawTransitionMenu()
 	{
 		selected_transition->conditions.push_back(new Condition());
 	}
+	draw_list->AddLine({ posA.x, posA.y + 70 }, { posB.x, posA.y + 70 }, IM_COL32(150, 150, 150, 255));
 
 	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 75 });
 	int count = 0;
 	for (std::list<Condition*>::iterator it = selected_transition->conditions.begin(); it != selected_transition->conditions.end(); ++it)
 	{		
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
+		ImGui::BeginChildFrame(count + 1, { boxSize.x-10, 45 }, ImGuiWindowFlags_NoScrollbar);
+		ImGui::PopStyleVar();
+
 		Variable* var = graph->getVariable((*it)->variable_uuid);
 		
 		ImGui::PushItemWidth(80);
@@ -545,11 +556,49 @@ void PanelAnimationGraph::drawTransitionMenu()
 			}
 			ImGui::PopItemWidth();
 		}
+		ImGui::SameLine(boxSize.x - 30);
+		if (ImGui::Button("X", { 20,20 }))
+		{
+			Condition* removed = (*it);
+			bool last = false;
+			if (++it == selected_transition->conditions.end())
+				last = true;
+			selected_transition->conditions.remove(removed);
+			RELEASE(removed);
+			if (last)
+			{
+				ImGui::EndChildFrame();
+				break;
+			}
+		}
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::SetTooltip("Remove");
+		}
+		if (var != nullptr)
+		{
+			float* value = &(*it)->conditionant;
+			switch (var->type)
+			{
+			case VAR_INT:
+			case VAR_FLOAT:
+				ImGui::InputFloat(("Value##NUM" + std::to_string(count)).c_str(), value, 0.0f,0.0f, (var->type == VAR_INT)? "%.0f":"%.3f");
+				break;
+			case VAR_STRING:
+				char text[25] = "";
+				strcpy(text, (*it)->string_conditionant.c_str());
+				if (ImGui::InputText(("Value##STRING" + std::to_string(count)).c_str(), text, sizeof(text)))
+					(*it)->string_conditionant = text;
+				break;
+			}
+		}
 
+		ImGui::EndChildFrame();
 		count++;
 	}
 
 	ImGui::EndGroup();
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
+	ImGui::PopStyleVar();
 }
