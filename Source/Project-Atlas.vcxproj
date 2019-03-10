@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClInclude Include="ComponentAnimationEvent.h" />
     <ClInclude Include="ComponentAnimator.h" />
+    <ClInclude Include="ComponentTrigger.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAnimation.h" />
     <ClInclude Include="Application.h" />
@@ -261,6 +262,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentAnimationEvent.cpp" />
     <ClCompile Include="ComponentAnimator.cpp" />
+    <ClCompile Include="ComponentTrigger.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAnimation.cpp" />
     <ClCompile Include="Application.cpp" />

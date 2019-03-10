@@ -150,59 +150,6 @@ void ModulePhysics3D::UpdatePhysics()
 
 }
 
-void ModulePhysics3D::UpdateTransformsFromPhysics()
-{
-	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	{
-		GameObject* obj = ((ComponentPhysics*)(*item)->body->getUserPointer())->getParent();
-		if (obj != nullptr)
-		{
-			ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-			if (transform != nullptr)
-			{
-
-				btTransform t = (*item)->body->getWorldTransform();
-
-				float3 obj_pos = float3(t.getOrigin().getX(), t.getOrigin().getY(), t.getOrigin().getZ());
-
-				Quat obj_rot = Quat(t.getRotation().getX(), t.getRotation().getY(), t.getRotation().getZ(), t.getRotation().getW());
-
-				transform->local->setPosition(obj_pos);
-				transform->local->setRotation(obj_rot);
-
-			}
-		}
-	}
-}
-
-void ModulePhysics3D::UpdatePhysicsFromTransforms()
-{
-	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	{
-		GameObject* obj = ((ComponentPhysics*)(*item)->body->getUserPointer())->getParent();
-		if (obj != nullptr)
-		{
-			ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-			if (transform != nullptr)
-			{
-
-				btTransform t;
-				t.setIdentity();
-
-				btVector3 obj_pos = btVector3(transform->local->getPosition().x, transform->local->getPosition().y, transform->local->getPosition().z);
-				btQuaternion obj_rot = btQuaternion(transform->local->getRotation().x, transform->local->getRotation().y, transform->local->getRotation().z, transform->local->getRotation().w);
-
-				t.setOrigin(obj_pos);
-				t.setRotation(obj_rot);
-
-				(*item)->GetRigidBody()->setWorldTransform(t);
-
-			}
-		}
-
-	}
-}
-
 void ModulePhysics3D::CleanUpWorld()
 {
 
@@ -331,6 +278,11 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	delete body_to_delete;
 	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
 
+}
+
+btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger * parent, collision_shape shape)
+{
+	return nullptr;
 }
 
 void ModulePhysics3D::GetCollisionsFromObject(std::list<Collision>& list_to_fill, GameObject * to_get)

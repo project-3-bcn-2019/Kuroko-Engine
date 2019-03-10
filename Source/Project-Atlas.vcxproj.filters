@@ -615,6 +615,9 @@
     <ClInclude Include="ComponentPhysics.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentTrigger.h">
+      <Filter>Sources\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1023,6 +1026,9 @@
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
     <ClCompile Include="ComponentPhysics.cpp">
+      <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTrigger.cpp">
       <Filter>Sources\Game</Filter>
     </ClCompile>
   </ItemGroup>
