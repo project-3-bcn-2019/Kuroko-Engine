@@ -137,6 +137,7 @@ public:
 	Node* getNode(uint UID);
 	NodeLink* getLink(uint UID);
 	Variable* getVariable(uint UID) const;
+	uint getVariableUUID(const char* name, variableType type) const;
 
 public:
 

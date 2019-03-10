@@ -334,6 +334,22 @@ Variable* ResourceAnimationGraph::getVariable(uint UID) const
 	return ret;
 }
 
+uint ResourceAnimationGraph::getVariableUUID(const char* name, variableType type) const
+{
+	uint ret = 0;
+
+	for (std::list<Variable*>::const_iterator it = blackboard.begin(); it != blackboard.end(); ++it)
+	{
+		if ((*it)->type == type && (*it)->name == name)
+		{
+			ret = (*it)->uuid;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 Node* ResourceAnimationGraph::getNode(uint UID)
 {
 	if (nodes.find(UID) != nodes.end())
