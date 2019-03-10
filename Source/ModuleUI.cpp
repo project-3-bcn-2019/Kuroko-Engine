@@ -1741,6 +1741,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			static float2 position = pbar->getPos();
 			static float percent = pbar->getPercent();
 			static float width= pbar->getInteriorWidth();
+			static float depth = pbar->getInteriorDepth();
 
 			ImGui::Text("Percent:");
 			ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
@@ -1752,6 +1753,10 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
 			if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { pbar->setInteriorWidth(width); }
+			ImGui::Text("Interior bar depth:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { pbar->setInteriorDepth(depth); }
 
 			int w = 0; int h = 0;
 			if (pbar->getResourceTexture() != nullptr) {

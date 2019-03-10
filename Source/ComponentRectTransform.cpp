@@ -42,6 +42,8 @@ ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * 
 	rect.width = json_object_get_number(deff, "width");
 	rect.height = json_object_get_number(deff, "height");
 
+	rect.depth = json_object_get_number(deff, "depth");
+
 	static const float vtx[] = {
 		rect.global.x,  rect.global.y, 0,
 		rect.global.x + rect.width, rect.global.y, 0,
@@ -127,6 +129,8 @@ void ComponentRectTransform::Save(JSON_Object * config)
 	//Dimension
 	json_object_set_number(config, "width", rect.width);
 	json_object_set_number(config, "height", rect.height);
+	json_object_set_number(config, "depth", rect.depth);
+
 }
 
 

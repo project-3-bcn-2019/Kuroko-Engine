@@ -26,6 +26,8 @@ public:
 
 	void setInteriorWidth(float width);
 	inline const float getInteriorWidth() { return initWidth; }
+	void setInteriorDepth(float depth);
+	const float getInteriorDepth();
 
 	inline const ResourceTexture* getResourceTexture() { return texBar; }
 	void setResourceTexture(ResourceTexture* tex);
