@@ -289,7 +289,7 @@ class ObjectLinker{
 		if(type == ComponentType.BUTTON){
 			return ComponentButton.new(gameObject, component_uuid)
 		}
-		if(type == ComponentType.CHECKBOX){
+		if(type == ComponentType.CHECK_BOX){
 			return ComponentCheckbox.new(gameObject, component_uuid)
 		}
 		if(type == ComponentType.TEXT){
