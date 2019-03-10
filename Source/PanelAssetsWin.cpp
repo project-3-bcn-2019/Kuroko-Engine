@@ -55,14 +55,7 @@ void PanelAssetsWin::Draw()
 				count++;
 		}
 
-		if (count == 0)
-		{
-			ImGui::End();
-			DrawAssetInspector();
-			return;
-		}
-
-		else if (count < column_num) column_num = count;
+		if (count != 0 && count < column_num) column_num = count;
 		count = 0;
 
 		ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
