@@ -26,19 +26,18 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
-	void updateFOVfromWindow();
-
 public:
 	Camera* editor_camera				= nullptr;
-	Camera* background_camera			= nullptr;
-	Camera* current_camera				= nullptr;
-	Camera* selected_camera				= nullptr;
+	Camera* game_camera					= nullptr;
+
 	Camera* override_editor_cam_culling = nullptr;
+	Camera* current_camera				= nullptr;
+
 	std::list<Camera*> game_cameras;
 	std::array<Camera*, 6> viewports;
 
-	float camera_speed;
-	float camera_rotation_speed;
+	float editor_cam_speed = 2.5f;;
+	float editor_cam_rot_speed = 0.25f;
 };
 
 #endif

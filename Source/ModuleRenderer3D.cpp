@@ -102,7 +102,7 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glClearDepth(1.0f);
-		glClearColor(0.8f, 0.8f, 0.8f, 1.f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.f);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE); 
@@ -124,26 +124,19 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 	return ret;
 }
 
-bool ModuleRenderer3D::Start()
-{
-	return true;
-}
-
 // PreUpdate: clear buffer
 update_status ModuleRenderer3D::PreUpdate(float dt)
 {
+
 	for (auto cam = App->camera->game_cameras.begin(); cam != App->camera->game_cameras.end(); ++cam)
 	{	
-		if ((!(*cam)->IsViewport() && App->is_game) || (!(*cam)->active && !(*cam)->draw_in_UI) || (*cam) == App->camera->editor_camera)
-			continue;
-
-		Draw(*cam);	
+		if ((*cam)->active)
+		{
+			glViewport(0, 0, (*cam)->getFrameBuffer()->size_x, (*cam)->getFrameBuffer()->size_y);
+			Draw(App->camera->current_camera = *cam);
+		}
 	}
 
-	if (!App->is_game && App->camera->editor_camera->active)
-		Draw(App->camera->editor_camera);
-	else if (App->is_game && App->camera->game_cameras.size() > 0)
-		Draw(App->camera->game_cameras.back());
 
 	return UPDATE_CONTINUE;
 }
@@ -167,8 +160,6 @@ bool ModuleRenderer3D::CleanUp()
 
 void ModuleRenderer3D::Draw(Camera * cam)
 {
-	App->camera->current_camera = cam;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
@@ -198,7 +189,7 @@ void ModuleRenderer3D::Draw(Camera * cam)
 			glEnable(GL_LIGHTING);
 	}
 
-	if (cam != App->camera->background_camera && cam->getFrameBuffer())
+	if (cam->getFrameBuffer())
 	{
 		glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
 		if (cam->draw_depth)
@@ -214,6 +205,8 @@ void ModuleRenderer3D::Draw(Camera * cam)
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 

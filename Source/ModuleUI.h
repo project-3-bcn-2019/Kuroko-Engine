@@ -64,7 +64,7 @@ public:
 	//void DrawAudioTab();
 	void DrawPrimitivesTab();									//PANEL DONE
 	void DrawGraphicsLeaf() const;								//PANEL DONE
-	void DrawAboutLeaf();											
+	void DrawAboutLeaf();
 	void DrawWindowConfigLeaf() const;							//PANEL DONE
 	void DrawHardwareLeaf() const;								//PANEL DONE
 	void DrawApplicationLeaf() const;							//PANEL DONE
@@ -112,7 +112,6 @@ public:
 	PanelTimeControl* p_time_control = nullptr;
 	PanelShader* p_shader_editor = nullptr;
 
-
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
 	std::string open_script_path; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -121,8 +120,7 @@ public:
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
 	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
-
-
+	ImVec2 game_window_pos = { 0.0f, 0.0f };
 
 private:
 	
@@ -134,8 +132,8 @@ private:
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
 
-	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
-	std::string selected_asset; //NOT IN USE I GUESS---------------
+	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------(yes it is, in DrawAssetWindow)
+	std::string selected_asset; //NOT IN USE I GUESS--------------- (yes it is, in DrawAssetWindow)
 
 	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;

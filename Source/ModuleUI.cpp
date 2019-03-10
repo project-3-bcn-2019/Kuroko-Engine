@@ -59,7 +59,7 @@
 #include "Assimp/include/version.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "SDL\include\SDL_opengl.h"""
+#include "SDL\include\SDL_opengl.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
@@ -79,9 +79,10 @@
 #include "PanelTimeControl.h"
 #include "PanelShader.h"
 
-
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
+
+#define CAMERA_VIEW_MARGIN 25
 
 
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
@@ -97,6 +98,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_configuration = new PanelConfiguration("Configuration", true);
 	p_time_control = new PanelTimeControl("Time Control", true);
 	p_shader_editor = new PanelShader("Shader Editor", false);
+
 }
 
 
@@ -212,23 +214,14 @@ update_status ModuleUI::Update(float dt) {
 		static bool file_save = false;
 		disable_keyboard_control = false;
 
-
 		if (p_configuration->isActive())
-		{
 			p_configuration->Draw();
-		}
 
 		if (p_hierarchy->isActive())
 			p_hierarchy->Draw();
 
-		Camera* prev_selected = App->camera->background_camera;
-		App->camera->selected_camera = nullptr;
-
 		if (p_inspector->isActive())
 			p_inspector->Draw();
-
-		if (!App->camera->selected_camera)
-			App->camera->selected_camera = prev_selected;
 
 		if (p_primitives->isActive())
 			p_primitives->Draw();
@@ -272,12 +265,11 @@ update_status ModuleUI::Update(float dt) {
 		if (p_shader_editor->isActive())
 			p_shader_editor->Draw();
 
-		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())
-			App->gui->DrawGuizmo();
+		
 
 		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
 		{
-			if ((*it)->draw_in_UI)
+			if ((*it)->draw_in_UI || (*it) == App->camera->editor_camera)
 				DrawCameraViewWindow(*(*it));
 		}
 
@@ -361,7 +353,7 @@ update_status ModuleUI::Update(float dt) {
 					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
 				ImGui::EndMenu();
 			}
-
+/*
 			std::string current_viewport = "Viewport: Free camera";
 
 			switch (App->camera->selected_camera->getViewportDir())
@@ -404,7 +396,7 @@ update_status ModuleUI::Update(float dt) {
 				ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
 
 				ImGui::EndMenu();
-			}
+			}*/
 
 		}
 		ImGui::EndMainMenuBar();
@@ -1734,13 +1726,14 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
 		}
 		break;
+
 	case UI_PROGRESSBAR:
 		if (ImGui::CollapsingHeader("UI Progress Bar"))
 		{
 			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
 			static float2 position = pbar->getPos();
 			static float percent = pbar->getPercent();
-			static float width= pbar->getInteriorWidth();
+			static float width = pbar->getInteriorWidth();
 			static float depth = pbar->getInteriorDepth();
 
 			ImGui::Text("Percent:");
@@ -1778,7 +1771,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			}
 
 			ImGui::Image(pbar->getResourceTexture() != nullptr ? (void*)pbar->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			
+
 
 			int w2 = 0; int h2 = 0;
 			if (pbar->getResourceTextureInterior() != nullptr) {
@@ -1807,6 +1800,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	case ANIMATION:
 		if (ImGui::CollapsingHeader("Animation"))
 		{
+
 			ComponentAnimation* anim = (ComponentAnimation*)&component;
 			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
 			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
@@ -2456,14 +2450,6 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 {
 	if (FrameBuffer* frame_buffer = camera.getFrameBuffer())
 	{
-		if (camera.getParent())
-		{
-			if (!camera.getParent()->getParent())
-				return;
-		}
-		else
-			return;
-
 		std::string window_name;
 
 		if (camera.getParent())
@@ -2471,26 +2457,61 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		else
 			window_name = camera.getViewportDirString();
 
-		ImGui::Begin(window_name.c_str(), &camera.draw_in_UI, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
-
-		if(ImGui::IsWindowFocused())
-			App->camera->selected_camera = &camera;
+		ImGui::Begin(window_name.c_str(), &camera.draw_in_UI, ImGuiWindowFlags_NoScrollbar);
 		
-		ImGui::SetWindowSize(ImVec2(frame_buffer->size_x / 3 + 30 , frame_buffer->size_y / 3 + 40));
 
-		if (ImGui::ImageButton((void*) (camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(frame_buffer->size_x / 3, frame_buffer->size_y / 3), nullptr, ImVec2(0, 1), ImVec2(1, 0)))
+		ImVec2 window_size = ImGui::GetWindowSize();
+		frame_buffer->changeTexSize(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN -20);
+
+		if (ImGui::ImageButton((void*) (camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN-20), nullptr, ImVec2(0, 1), ImVec2(1, 0), -10))
 		{
-			float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
-			ImVec2 window_pos = ImGui::GetItemRectMin();
-			x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2)  - 1;
-			y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
+			if (&camera == App->camera->editor_camera)
+			{
+				ImVec2 window_pos = ImGui::GetItemRectMin();
 
-			App->scene->selected_obj.push_back(App->scene->MousePicking(camera.getParent() ? camera.getParent()->getParent() : nullptr));
+				if (&camera == App->camera->game_camera)
+					game_window_pos = window_pos;
+
+				if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+					App->gui->DrawGuizmo();
+
+				float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
+				x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
+				y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
+
+				if (GameObject* picked_obj = App->scene->MousePicking(x, y, nullptr))
+				{
+					if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
+						App->scene->selected_obj.clear();
+						App->scene->selected_obj.push_back(picked_obj);
+					}
+					else {
+						if ((*App->scene->selected_obj.begin())->is_UI == !picked_obj->is_UI) {
+							app_log->AddLog("Cannot select UI GameObject and scene GameObject at the same time!");
+						}
+						else {
+							App->scene->selected_obj.push_back(picked_obj);
+						}
+					}
+				}
+				else
+					App->scene->selected_obj.clear();
+			}
 		}
+
+		if (&camera == App->camera->editor_camera)
+			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+				App->gui->DrawGuizmo();
+
 		ImGui::End();
 	}
 	else 
 		camera.initFrameBuffer();
+
+	if (&camera == App->camera->editor_camera)
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI)
+			App->gui->DrawGizmoMenuTab();
+
 }
 
 void ModuleUI::DrawViewportsWindow()
@@ -2519,9 +2540,6 @@ void ModuleUI::DrawViewportsWindow()
 			for (int i = 0; i < 6; i++)
 				App->camera->viewports[i]->active = false;
 
-			App->camera->background_camera->active = false;
-			App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
-			App->camera->background_camera->active = true;
 			open_tabs[VIEWPORT_MENU] = false;
 		}
 	}
@@ -2565,19 +2583,17 @@ void ModuleUI::DrawCameraMenuWindow()
 			else				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unactive");
 
 			ImGui::SameLine();
-			if (*it != App->camera->background_camera)
+			static bool is_overriding;
+			is_overriding = ((*it) == App->camera->override_editor_cam_culling);
+			if (ImGui::Checkbox("Override Frustum Culling", &is_overriding))
 			{
-				static bool is_overriding;
-				is_overriding = ((*it) == App->camera->override_editor_cam_culling);
-				if (ImGui::Checkbox("Override Frustum Culling", &is_overriding))
-				{
-					if (!is_overriding)  App->camera->override_editor_cam_culling = nullptr;
-					else				 App->camera->override_editor_cam_culling = *it;
-				}
+				if (!is_overriding)  App->camera->override_editor_cam_culling = nullptr;
+				else				 App->camera->override_editor_cam_culling = *it;
 			}
-			else
-				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Background camera");
-			
+
+
+			ImGui::Checkbox("Interpolated movement## IM camera", &(*it)->interpolating);
+		
 			ImGui::Checkbox("Draw camera view", &(*it)->draw_in_UI);
 
 			ImGui::Checkbox("Draw frustum", &(*it)->draw_frustum);
@@ -3568,34 +3584,34 @@ void ModuleUI::DrawGraphicsLeaf() const {
 
 void ModuleUI::DrawWindowConfigLeaf() const
 {
-	//ImGui::PushFont(ui_fonts[REGULAR]);
-
-	//Window* window = App->window->main_window;
-	//if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
-	//	App->window->setBrightness(window->brightness);
-
-	//bool width_mod, height_mod = false;
-	//width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
-	//height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
-	//
-	//if(width_mod || height_mod)
-	//	App->window->setSize(window->width, window->height);
-
-	//// Refresh rate
-	//ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
-	////Bools
-	//if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
-	//	App->window->setFullscreen(window->fullscreen);
-	//ImGui::SameLine();
-	//if (ImGui::Checkbox("Resizable", &window->resizable))
-	//	App->window->setResizable(window->resizable);
-	//if (ImGui::Checkbox("Borderless", &window->borderless))
-	//	App->window->setBorderless(window->borderless);
-	//ImGui::SameLine();
-	//if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
-	//	App->window->setFullDesktop(window->fulldesk);
-
-	//ImGui::PopFont();
+//	ImGui::PushFont(ui_fonts[REGULAR]);
+//
+//	Window* window = App->window->main_window;
+//	if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
+//		App->window->setBrightness(window->brightness);
+//
+//	bool width_mod, height_mod = false;
+//	width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
+//	height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
+//	
+//	if(width_mod || height_mod)
+//		App->window->setSize(window->width, window->height);
+//
+//	// Refresh rate
+//	ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
+//	//Bools
+//	if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
+//		App->window->setFullscreen(window->fullscreen);
+//	ImGui::SameLine();
+//	if (ImGui::Checkbox("Resizable", &window->resizable))
+//		App->window->setResizable(window->resizable);
+//	if (ImGui::Checkbox("Borderless", &window->borderless))
+//		App->window->setBorderless(window->borderless);
+//	ImGui::SameLine();
+//	if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
+//		App->window->setFullDesktop(window->fulldesk);
+//
+//	ImGui::PopFont();
 }
 
 void ModuleUI::DrawHardwareLeaf() const 
@@ -3665,30 +3681,30 @@ void ModuleUI::DrawHardwareLeaf() const
 
 void ModuleUI::DrawApplicationLeaf() const 
 {
-	//// HARDCODED (?)
-	//ImGui::PushFont(ui_fonts[REGULAR]);
-	//
-	//ImGui::Text("App name: Kuroko Engine");
-	//ImGui::Text("Organization: UPC CITM");
-	//char title[25];
-	//sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
-	//ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	//sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
-	//ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	//
-	//ImGui::PopFont();
+	// HARDCODED (?)
+	/*ImGui::PushFont(ui_fonts[REGULAR]);
+	
+	ImGui::Text("App name: Kuroko Engine");
+	ImGui::Text("Organization: UPC CITM");
+	char title[25];
+	sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
+	ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
+	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+	
+	ImGui::PopFont();*/
 }
 
 void ModuleUI::DrawEditorPreferencesLeaf() const {
 
-	/*static float camera_speed = 2.5f;
+	static float camera_speed = 2.5f;
 	if (ImGui::InputFloat("Camera speed", &camera_speed))
-		App->camera->camera_speed = camera_speed;
+		App->camera->editor_cam_speed = camera_speed;
 
 
 	static float camera_rotation_speed = 0.25f;
 	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;*/
+		App->camera->editor_cam_rot_speed = camera_rotation_speed;
 }
 
 void ModuleUI::DrawTimeControlWindow()
@@ -3743,7 +3759,7 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 	ImGui::Begin("Toolbar##Gizmo toolbar", nullptr);
 
-	if (App->camera->background_camera->getFrustum()->type == math::FrustumType::OrthographicFrustum)
+	if (App->camera->editor_camera->getFrustum()->type == math::FrustumType::OrthographicFrustum)
 		ImGui::TextColored(ImVec4(1.5f, 1.0f, 0.0f, 1.0), "WARNING: ImGuizmo is not compatible with orthographic camera");
 	else
 	{
@@ -3833,9 +3849,7 @@ void ModuleUI::DrawQuadtreeConfigWindow() {
 void ModuleUI::DrawGuizmo()
 {
 
-	App->gui->DrawGizmoMenuTab();
-
-	if (draw_guizmo && App->camera->background_camera->getFrustum()->type != math::FrustumType::OrthographicFrustum)
+	if (draw_guizmo)
 	{
 		ImGuizmo::BeginFrame();
 		float4x4 projection4x4;
@@ -3844,22 +3858,23 @@ void ModuleUI::DrawGuizmo()
 		glGetFloatv(GL_MODELVIEW_MATRIX, (float*)view4x4.v);
 		glGetFloatv(GL_PROJECTION_MATRIX, (float*)projection4x4.v);
 
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		/*
+		ImVec2 size = ImGui::GetWindowSize();
+		ImVec2 position = ImGui::GetWindowPos();
+		ImGuizmo::SetRect(position.x, position.y, size.x, size.y);
+
 		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
 		Transform* trans = transform->global;
-*/
+
 		float3 guizmoPos = float3::zero;
 		float3 guizmoScale = float3::zero;
-		//float3 guizmoRot = float3::zero;
+		Quat guizmoRot = Quat::identity;
 
 		//-------------guizmoUI (2d)
 		if ((*App->scene->selected_obj.begin())->is_UI) {
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo UI in average of their positions
 				ComponentRectTransform* transform = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
-				guizmoPos += float3(transform->getAnchor().x , transform->getAnchor().y ,0);
-				guizmoScale += float3(transform->getWidth(), transform->getHeight(),0);
+				guizmoPos += float3(transform->getAnchor().x, transform->getAnchor().y, 0);
+				guizmoScale += float3(transform->getWidth(), transform->getHeight(), 0);
 			}
 		}
 		//------------guizmo (3d)
@@ -3870,36 +3885,43 @@ void ModuleUI::DrawGuizmo()
 				Transform* trans = transform->global;
 				guizmoPos += trans->getPosition();
 				guizmoScale += trans->getScale();
-				//guizmoRot += trans->getRotationEuler();
+				if(App->scene->selected_obj.size() > 1)
+					guizmoRot = trans->getRotation();
 			}
 		}
 
 		guizmoPos /= App->scene->selected_obj.size();
 		guizmoScale /= App->scene->selected_obj.size();
-		//guizmoRot /= App->scene->selected_obj.size();
 
-		Transform guizmoTrans = Transform();
-
-		guizmoTrans.setPosition(guizmoPos);
-		guizmoTrans.setScale(guizmoScale);
-
-
-
-
-
-		guizmoTrans.CalculateMatrix();
-		float4x4 newGzmTrans = float4x4(guizmoTrans.getMatrix());
-		newGzmTrans.Transpose();
-		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)newGzmTrans.v);
+		Transform aux_transform;
+		switch (gizmo_operation)
+		{
+		case ImGuizmo::OPERATION::TRANSLATE:
+			aux_transform.setRotation(guizmoRot);
+			aux_transform.setPosition(guizmoPos); break;
+		case ImGuizmo::OPERATION::ROTATE:
+			aux_transform.setPosition(guizmoPos);
+			aux_transform.setRotation(guizmoRot); break;
+		case ImGuizmo::OPERATION::SCALE:
+			aux_transform.setPosition(guizmoPos);
+			aux_transform.setRotation(guizmoRot);
+			aux_transform.setScale(guizmoScale); break;
+		default:
+			break;
+		}
+		
+		aux_transform.CalculateMatrix();
+		float4x4 mat = float4x4(aux_transform.getMatrix());
+		mat.Transpose();
+		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)mat.v);
 		if (ImGuizmo::IsUsing())
 		{
-
 			float3 new_pos = float3::zero;
 			float3 new_rot = float3::zero;
 			float3 new_scale = float3::zero;
-			newGzmTrans.Transpose();
+			mat.Transpose();
 
-			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
+			float3 displacement = mat.TranslatePart() - aux_transform.getPosition();
 			static const float max_graduated_scale = 20.f;
 
 			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
@@ -3914,19 +3936,19 @@ void ModuleUI::DrawGuizmo()
 					switch (gizmo_operation)
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
-						new_pos.x = pos.x +displacement.x ;
-						new_pos.y = pos.y +displacement.y ;
+						new_pos.x = pos.x + displacement.x;
+						new_pos.y = pos.y + displacement.y;
 						new_pos.z = 0;
 						selectedPos->setPos(float2(new_pos.x, new_pos.y));
 						break;
-					
+
 					case ImGuizmo::OPERATION::SCALE:
-						new_scale.x = newGzmTrans.GetScale().x;
-						new_scale.y = newGzmTrans.GetScale().y;
+						new_scale.x = mat.GetScale().x;
+						new_scale.y = mat.GetScale().y;
 						new_scale.z = 0;
-						if(abs(selectedPos->getHeight()- new_scale.y) < max_graduated_scale){selectedPos->setHeight(new_scale.y);}
+						if (abs(selectedPos->getHeight() - new_scale.y) < max_graduated_scale) { selectedPos->setHeight(new_scale.y); }
 						if (abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale) { selectedPos->setWidth(new_scale.x); }
-						
+
 						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
 						break;
 					default:
@@ -3946,16 +3968,25 @@ void ModuleUI::DrawGuizmo()
 						trans->setPosition(new_pos);
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
-						new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : (newGzmTrans.RotatePart().ToEulerXYZ().x);
-						new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
-						new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
-						new_rot += trans->getRotation().ToEulerXYZ();
-						trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
+						if (App->scene->selected_obj.size() > 1)
+						{
+							new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
+							new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
+							new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
+							trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z) * trans->getRotation());
+						}
+						else
+						{
+							new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
+							new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
+							new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
+							trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
+						}
 						break;
 					case ImGuizmo::OPERATION::SCALE:
-						new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
-						new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
-						new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+						new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : mat.GetScale().x;
+						new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : mat.GetScale().y; // changed z to y to set correct the modification
+						new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : mat.GetScale().z;
 						trans->setScale(new_scale);
 						break;
 					default:
@@ -3965,10 +3996,7 @@ void ModuleUI::DrawGuizmo()
 					selectedTrans->GlobalToLocal();
 				}
 				//-----
-				
-				
 			}
-
 		}
 	}
 }
@@ -4054,6 +4082,7 @@ bool ModuleUI::keepKeyboard() const
 {
 	return ImGui::GetIO().WantCaptureKeyboard;
 }
+
 
 void ModuleUI::InvisibleDockingBegin() {
 	ImGuiWindowFlags window = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |

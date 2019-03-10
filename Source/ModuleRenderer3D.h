@@ -20,7 +20,6 @@ public:
 	~ModuleRenderer3D() {};
 
 	bool Init(const JSON_Object* config);
-	bool Start();
 	update_status PreUpdate(float dt);
 	update_status PostUpdate(float dt);
 	bool CleanUp();

@@ -21,8 +21,8 @@
 #include "ComponentMesh.h"
 #include "ComponentScript.h"
 #include "ComponentAudioListener.h"
-#include "ComponentAudioSource.h"
 #include "ComponentRectTransform.h"
+#include "ComponentAudioSource.h"
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
@@ -79,7 +79,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	//LoadScene("Assets/Scenes/testGraph.scene");
+	LoadScene("Assets/Scenes/MainScene.scene");
 
 	return true;
 }
@@ -126,8 +126,7 @@ update_status ModuleScene::PostUpdate(float dt)
 		//If something is deleted, ask quadtree to reload
 		GameObject* current = (*it);
 		quadtree_reload = true;
-
-		if (!selected_obj.empty() && current == *selected_obj.begin())
+		if (!selected_obj.empty() && current == *selected_obj.begin()) 
 			selected_obj.clear();
 		game_objects.remove(current);
 
@@ -167,33 +166,7 @@ update_status ModuleScene::Update(float dt)
 		obj->addComponent(COLLIDER_CUBE);
 
 	}
-	
-	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
-	{
-		float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);  //is it used?
-		float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);//is it used?
-		
-		
 
-		GameObject* picked = MousePicking();
-		if (picked != nullptr) {
-			if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
-				App->scene->selected_obj.clear();
-				selected_obj.push_back(picked);
-			}
-			else {
-				if ((*selected_obj.begin())->is_UI == !picked->is_UI) {
-					app_log->AddLog("Cannot select UI GameObject and scene GameObject at the same time!");
-				}
-				else {
-					selected_obj.push_back(picked);
-				}
-			}			
-		}
-		else {
-			App->scene->selected_obj.clear();
-		}
-	}
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		(*it)->Update(App->time->getGameDeltaTime()/1000);
@@ -257,63 +230,13 @@ void ModuleScene::DrawScene(float3 camera_pos)
 	quadtree_ignored_obj = game_objects.size() - drawable_gameobjects.size();
 }
 
-void ModuleScene::DrawInGameUI()
-{
-	GameObject* canvas = getCanvasGameObject();
-	if (canvas != nullptr)
-	{
-		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		float left = rectTransform->getGlobalPos().x;
-		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
-		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
-		float bottom = rectTransform->getGlobalPos().y;
-
-		/*float left = rectTransform->GetGlobalPos().x;
-		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
-		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
-		float bottom = rectTransform->GetGlobalPos().y;*/
-		float zNear = -10.f;
-		float zFar = 10.f;
-		float3 min = { left, bottom, zNear };
-		float3 max = { right, top, zFar };
-
-		ui_render_box.minPoint = min;
-		ui_render_box.maxPoint = max;
-
-		glOrtho(left, right, bottom, top, zNear, zFar);
-		float3 corners[8];
-		ui_render_box.GetCornerPoints(corners);
-		App->renderer3D->DrawDirectAABB(ui_render_box);
-		/*glBegin(GL_TRIANGLES);
-		glVertex2f(-1, -1);
-		glVertex2f(1, -1);
-		glVertex2f(1, 1);
-		glEnd();*/
-
-		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
-		for (auto it : UIGameObjects)
-		{
-			it->Draw();
-		}
-	}
-}
-
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }
 
-GameObject* ModuleScene::MousePicking(GameObject* ignore)
+GameObject* ModuleScene::MousePicking(float x, float y, GameObject* ignore)
 {
-	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
-	float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
-
 	GameObject* ret = nullptr;
 
-	Frustum* f = App->camera->selected_camera->getFrustum();
+	Frustum* f = App->camera->editor_camera->getFrustum();
 	Ray ray = f->UnProjectLineSegment(x , y).ToRay();
 
 	std::list<GameObject*> intersected_objs;
@@ -332,7 +255,6 @@ GameObject* ModuleScene::MousePicking(GameObject* ignore)
 		return ret;
 
 	std::list<RayHit> ray_hits;
-
 	
 	for (auto it = intersected_objs.begin(); it != intersected_objs.end(); it++)
 	{
@@ -369,15 +291,14 @@ GameObject* ModuleScene::MousePicking(GameObject* ignore)
 }
 
 
-float3 ModuleScene::MousePickingHit(GameObject* ignore)
+float3 ModuleScene::MousePickingHit(float x, float y, GameObject* ignore)
 {
-
-	float x = (((App->input->GetMouseX() / (float)App->window->main_window->width) * 2) - 1);
-	float y = (((((float)App->window->main_window->height - (float)App->input->GetMouseY()) / (float)App->window->main_window->height) * 2) - 1);
+	if (!App->camera->game_camera)
+		return float3::zero;
 
 	GameObject* ret = nullptr;
 
-	Frustum* f = App->camera->selected_camera->getFrustum();
+	Frustum* f = App->camera->game_camera->getFrustum();
 	Ray ray = f->UnProjectLineSegment(x, y).ToRay();
 
 	std::list<GameObject*> intersected_objs;
@@ -428,6 +349,53 @@ float3 ModuleScene::MousePickingHit(GameObject* ignore)
 	else {
 		ray_hits.sort(sortCloserRayhit);
 		return ray_hits.front().intersection_point;
+	}
+}
+
+void ModuleScene::DrawInGameUI()
+{
+	GameObject* canvas = getCanvasGameObject();
+	if (canvas != nullptr)
+	{
+		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		float left = rectTransform->getGlobalPos().x;
+		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
+		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
+		float bottom = rectTransform->getGlobalPos().y;
+
+		/*float left = rectTransform->GetGlobalPos().x;
+		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
+		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
+		float bottom = rectTransform->GetGlobalPos().y;*/
+		float zNear = -10.f;
+		float zFar = 10.f;
+		float3 min = { left, bottom, zNear };
+		float3 max = { right, top, zFar };
+
+		ui_render_box.minPoint = min;
+		ui_render_box.maxPoint = max;
+
+		glOrtho(left, right, bottom, top, zNear, zFar);
+		float3 corners[8];
+		ui_render_box.GetCornerPoints(corners);
+		App->renderer3D->DrawDirectAABB(ui_render_box);
+		/*glBegin(GL_TRIANGLES);
+		glVertex2f(-1, -1);
+		glVertex2f(1, -1);
+		glVertex2f(1, 1);
+		glEnd();*/
+
+		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
+		for (auto it : UIGameObjects)
+		{
+			it->Draw();
+		}
 	}
 }
 
@@ -485,6 +453,7 @@ void ModuleScene::getGameObjectsByComponent(Component_type type, std::list<GameO
 		}
 	}
 }
+
 
 void ModuleScene::ClearScene()
 {
@@ -567,8 +536,11 @@ GameObject* ModuleScene::getCanvasGameObject(bool createCanvas)
 	}
 	else {
 		return *GOs.begin();
-	}	
+	}
+	
 }
+
+
 
 void ModuleScene::deleteGameObjectRecursive(GameObject* gobj)
 {
