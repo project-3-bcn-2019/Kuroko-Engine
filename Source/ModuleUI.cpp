@@ -437,11 +437,6 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::End();
 		}
 
-		if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
-			open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
-			for (int i = 0; i < 6; i++)
-				App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
-		}
 		InvisibleDockingEnd();
 	}
 	return UPDATE_CONTINUE;
@@ -2725,39 +2720,16 @@ void ModuleUI::DrawTagSelection(GameObject* object) {
 
 void ModuleUI::SaveConfig(JSON_Object* config) const
 {
-	json_object_set_boolean(config, "hierarchy", open_tabs[HIERARCHY]);
-	json_object_set_boolean(config, "obj_inspector", open_tabs[OBJ_INSPECTOR]);
-	json_object_set_boolean(config, "primitive", open_tabs[PRIMITIVE]);
-	json_object_set_boolean(config, "about", open_tabs[ABOUT]);
-	json_object_set_boolean(config, "configuration", open_tabs[CONFIGURATION]);
 	json_object_set_boolean(config, "log", open_log_menu);						//NOT DELETE
-	json_object_set_boolean(config, "time_control", open_tabs[TIME_CONTROL]);
-	json_object_set_boolean(config, "quadtree_config", open_tabs[QUADTREE_CONFIG]);
-	json_object_set_boolean(config, "camera_menu", open_tabs[CAMERA_MENU]);
-	json_object_set_boolean(config, "asset_window", open_tabs[ASSET_WINDOW]);
-	json_object_set_boolean(config, "resources_window", open_tabs[RESOURCES_TAB]);
-	//json_object_set_boolean(config, "audio", open_tabs[AUDIO]);
+	
 }
 
 void ModuleUI::LoadConfig(const JSON_Object* config) 
 {
-	open_tabs[CONFIGURATION]	= json_object_get_boolean(config, "configuration");
-	open_tabs[HIERARCHY]		= json_object_get_boolean(config, "hierarchy");
-	open_tabs[OBJ_INSPECTOR]	= json_object_get_boolean(config, "obj_inspector");
-	open_tabs[PRIMITIVE]		= json_object_get_boolean(config, "primitive");
-	open_tabs[ABOUT]			= json_object_get_boolean(config, "about");
 	open_log_menu				= json_object_get_boolean(config, "log"); //NOT DELETE
-	open_tabs[TIME_CONTROL]		= json_object_get_boolean(config, "time_control");
-	open_tabs[QUADTREE_CONFIG]	= json_object_get_boolean(config, "quadtree_config");
-	open_tabs[CAMERA_MENU]		= json_object_get_boolean(config, "camera_menu");
-	open_tabs[ASSET_WINDOW]		= json_object_get_boolean(config, "asset_window");
-	open_tabs[RESOURCES_TAB]	= json_object_get_boolean(config, "resources_window");
 
-
-	open_tabs[VIEWPORT_MENU]	= false;	// must always start closed
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
-	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
 }
 
 bool ModuleUI::isMouseOnUI() const
