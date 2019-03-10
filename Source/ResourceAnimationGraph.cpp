@@ -97,7 +97,7 @@ bool ResourceAnimationGraph::LoadGraph()
 				NodeLink* linked = getLink((*it_l)->connectedNodeLink);
 				if (linked != nullptr)
 				{
-					int ranges[2];
+					/*int ranges[2];
 					bytes = sizeof(ranges);
 					memcpy(ranges, cursor, bytes);
 					cursor += bytes;
@@ -105,13 +105,13 @@ bool ResourceAnimationGraph::LoadGraph()
 					char* letter = new char[ranges[0]];
 					bytes = sizeof(char)*ranges[0];
 					memcpy(letter, cursor, bytes);
-					cursor += bytes;
+					cursor += bytes;*/
 
 					node->transitions.push_back(new Transition((*it_l), linked, uuid));
-					node->transitions.back()->sdlKeyValue = ranges[1];
+					/*node->transitions.back()->sdlKeyValue = ranges[1];
 					node->transitions.back()->usingLetter = letter;
 
-					RELEASE_ARRAY(letter);
+					RELEASE_ARRAY(letter);*/
 				}
 			}
 		}
@@ -175,7 +175,7 @@ bool ResourceAnimationGraph::saveGraph() const
 		}
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
+			//size += sizeof(char)*(*it_t)->usingLetter.size() + sizeof(int)*2;
 		}
 	}
 	size += sizeof(int);
@@ -230,14 +230,14 @@ bool ResourceAnimationGraph::saveGraph() const
 
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			int ranges[2] = { (*it_t)->usingLetter.size() , (*it_t)->sdlKeyValue };
+			/*int ranges[2] = { (*it_t)->usingLetter.size() , (*it_t)->sdlKeyValue };
 			bytes = sizeof(ranges);
 			memcpy(cursor, &ranges[0], bytes);
 			cursor += bytes;
 
 			bytes = sizeof(char)*ranges[0];
 			memcpy(cursor, (*it_t)->usingLetter.c_str(), bytes);
-			cursor += bytes;
+			cursor += bytes;*/
 		}
 	}
 	int variableAmount = blackboard.size();
@@ -276,6 +276,22 @@ Node* ResourceAnimationGraph::addNode(const char* name, float2 pos)
 void ResourceAnimationGraph::pushLink(NodeLink* link)
 {
 	links.insert(std::pair<uint, NodeLink*>(link->UID, link));
+}
+
+Variable* ResourceAnimationGraph::getVariable(uint UID) const
+{
+	Variable* ret = nullptr;
+
+	for (std::list<Variable*>::const_iterator it = blackboard.begin(); it != blackboard.end(); ++it)
+	{
+		if ((*it)->uuid == UID)
+		{
+			ret = (*it);
+			break;
+		}
+	}
+
+	return ret;
 }
 
 Node* ResourceAnimationGraph::getNode(uint UID)
@@ -434,7 +450,7 @@ uint Node::drawLinks() const
 
 		//Draw line
 		float2 mousePos = { ImGui::GetMousePos().x, ImGui::GetMousePos().y };
-		if ((*it_l)->type == OUTPUT_LINK && (*it_l)->connectedNodeLink == 0 && ImGui::IsMouseClicked(0) && mousePos.Distance({ linkPos.x, linkPos.y }) <= GRAPH_LINK_RADIUS)
+		if (!App->gui->p_animation_graph->hoveringTransitionMenu && (*it_l)->type == OUTPUT_LINK && (*it_l)->connectedNodeLink == 0 && ImGui::IsMouseClicked(0) && mousePos.Distance({ linkPos.x, linkPos.y }) <= GRAPH_LINK_RADIUS)
 		{
 			(*it_l)->linking = true;
 			ret = (*it_l)->UID;

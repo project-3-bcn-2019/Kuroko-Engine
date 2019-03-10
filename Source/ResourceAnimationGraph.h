@@ -35,6 +35,23 @@ enum linkType
 	OUTPUT_LINK
 };
 
+enum conditionType
+{
+	CONDITION_EQUALS,
+	CONDITION_DIFERENT,
+	CONDITION_GREATER,
+	CONDITION_LESS
+};
+
+struct Condition
+{
+	conditionType type = CONDITION_EQUALS;
+	uint variable_uuid = 0;
+
+	float conditionant = 0.0f;
+	std::string string_conditionant = "";
+};
+
 struct Transition
 {
 	Transition(NodeLink* output, NodeLink* input, uint graphUID);
@@ -49,8 +66,8 @@ struct Transition
 	NodeLink* output = nullptr;
 	NodeLink* input = nullptr;
 
-	std::string usingLetter = "None";
-	int sdlKeyValue = 0;
+	float duration = 0.0f;
+	std::list<Condition*> conditions;
 };
 
 struct NodeLink
@@ -118,6 +135,7 @@ public:
 
 	Node* getNode(uint UID);
 	NodeLink* getLink(uint UID);
+	Variable* getVariable(uint UID) const;
 
 public:
 
