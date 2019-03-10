@@ -343,7 +343,8 @@ update_status ModuleUI::Update(float dt) {
 					p_inspector->toggleActive();
 				if (ImGui::MenuItem("Primitive", NULL, p_primitives->isActive()))
 					p_primitives->toggleActive();
-				ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
+				if (ImGui::MenuItem("Configuration", NULL, p_configuration->isActive()))
+					p_configuration->toggleActive();
 				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
 				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
 				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
