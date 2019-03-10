@@ -21,7 +21,8 @@ construct new(){}
  Start() {
 	//_checkbox = getComponent(ComponentType.CHECK_BOX)
 	//_button = getComponent(ComponentType.BUTTON)
-	_text = getComponent(ComponentType.TEXT)
+	//_text = getComponent(ComponentType.TEXT)
+	_progress_bar = getComponent(ComponentType.PROGRESS_BAR)
  }
 
  Update() {
@@ -41,12 +42,18 @@ construct new(){}
 	//	EngineComunicator.consoleOutput("pressed")
 	//}
 
+	//if(InputComunicator.getKey(InputComunicator.UP, InputComunicator.KEY_DOWN)){
+	//	_text.setText("UP")
+	//}
+	//if(InputComunicator.getKey(InputComunicator.DOWN, InputComunicator.KEY_DOWN)){
+	//	_text.setText("DOWN")
+	//}
+
 	if(InputComunicator.getKey(InputComunicator.UP, InputComunicator.KEY_DOWN)){
-		_text.setText("UP")
+		_progress_bar.setProgress(50)
 	}
 	if(InputComunicator.getKey(InputComunicator.DOWN, InputComunicator.KEY_DOWN)){
-		_text.setText("DOWN")
+		_progress_bar.setProgress(25)
 	}
-
  }
 }

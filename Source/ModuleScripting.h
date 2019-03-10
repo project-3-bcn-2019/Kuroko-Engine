@@ -2,6 +2,7 @@
 #define __MODULE_SCRIPTING__
 #include "Module.h"
 #include "Application.h"
+#include "Component.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -37,6 +38,9 @@ public:
 	void StartInstances();
 	void PauseInstances();
 	void StopInstances();
+
+	// Helpers
+	std::string enum2component(Component_type type);
 
 public:
 
