@@ -20,6 +20,7 @@ public:
 	void Draw();
 	void drawAnimationBox(Node* node) const;
 	void drawBlackboard();
+	void drawTransitionMenu();
 
 	void selectNode(Node* node);
 
@@ -28,6 +29,7 @@ public:
 	ImVec2 scrolling = { 0.0f,0.0f };
 	bool showGrid = true;
 	uint linkingNode = 0;
+	bool hoveringTransitionMenu = false;
 
 private:
 

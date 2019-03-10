@@ -218,7 +218,7 @@ void PanelConfiguration::DrawApplicationLeaf() const
 	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
 	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
 
-	ImGui::PopFont();
+	//ImGui::PopFont();
 }
 
 void PanelConfiguration::DrawEditorPreferencesLeaf() const {

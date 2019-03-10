@@ -18,6 +18,9 @@
 #include "ComponentColliderCube.h"
 #include "ComponentParticleEmitter.h"
 #include "ComponentScript.h"
+#include "ComponentButtonUI.h"
+#include "ComponentCheckBoxUI.h"
+#include "ComponentTextUI.h"
 #include "Transform.h"
 
 
@@ -81,6 +84,15 @@ void ResetAnimation(WrenVM* vm);
 // Particles
 void CreateParticles(WrenVM* vm);
 
+// UI
+
+	// Button
+void ButtonGetState(WrenVM* vm);
+	// Checkbox
+void CheckboxIsPressed(WrenVM* vm);
+	// Text
+void UIText_SetText(WrenVM* vm);
+
 
 WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature); // Wren foraign methods
 WrenForeignClassMethods bindForeignClass(WrenVM* vm, const char* module, const char* className);
@@ -126,6 +138,7 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		audio_code = App->fs.GetFileString(AUDIO_PATH);
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
 		particles_code = App->fs.GetFileString(PARTICLES_PATH);
+		UI_code = App->fs.GetFileString(UI_PATH);
 		return true;
 	}
 	else
@@ -414,6 +427,13 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->particles_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "UI") == 0) {
+		int string_size = strlen(App->scripting->UI_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->UI_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
 }
 
@@ -584,6 +604,22 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 		if (strcmp(className, "ParticleComunicator") == 0) {
 			if (isStatic && strcmp(signature, "C_CreateParticles(_,_,_)") == 0)
 				return CreateParticles;
+		}
+	}
+
+	// UI
+	if (strcmp(module, "UI") == 0) {
+		if (strcmp(className, "ButtonComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_ButtonGetState(_,_)") == 0)
+				return ButtonGetState;
+		}
+		if (strcmp(className, "CheckboxComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_CheckboxIsPressed(_,_)") == 0)
+				return CheckboxIsPressed;
+		}
+		if (strcmp(className, "TextComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetText(_,_,_)") == 0)
+				return UIText_SetText;
 		}
 	}
 
@@ -1249,8 +1285,76 @@ void CreateParticles(WrenVM* vm) {
 
 	for(int i = 0; i < particles; i++)
 		component->CreateParticle();
-
-
 }
 
+// UI
+
+	// Button
+void ButtonGetState(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentButtonUI* component = (ComponentButtonUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentButton with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	wrenSetSlotDouble(vm, 0, (int)component->getState());
+}
+
+// Checkbox
+void CheckboxIsPressed(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentCheckBoxUI* component = (ComponentCheckBoxUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentCheckbox with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	wrenSetSlotBool(vm, 0, component->isPressed());
+}
+
+// Text
+
+void UIText_SetText(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string message = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTextUI* component = (ComponentTextUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->SetText(message.c_str());
+}
 

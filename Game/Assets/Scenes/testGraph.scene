@@ -4,7 +4,8 @@
             "name": "Empty",
             "tag": "undefined",
             "static": false,
-            "UUID": 327927284,
+            "UUID": 2299963968,
+            "isUI": false,
             "Components": [
                 {
                     "type": "transform",
@@ -42,17 +43,27 @@
                     "type": "animator",
                     "graph_name": "Assets\/AnimationGraphs\/test.krGph",
                     "Parent3dObject": "",
-                    "ints": [],
-                    "floats": [
+                    "ints": [
                         {
-                            "uuid": 963063288,
-                            "value": 3.1414999961853027
+                            "uuid": 3922917881,
+                            "value": 5
                         }
                     ],
-                    "strings": [],
+                    "floats": [
+                        {
+                            "uuid": 3535487569,
+                            "value": 3.1410000324249268
+                        }
+                    ],
+                    "strings": [
+                        {
+                            "uuid": 3160827727,
+                            "value": "Something"
+                        }
+                    ],
                     "bools": [
                         {
-                            "uuid": 498324491,
+                            "uuid": 3537816217,
                             "value": true
                         }
                     ],
