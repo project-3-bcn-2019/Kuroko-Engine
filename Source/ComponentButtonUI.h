@@ -28,6 +28,7 @@ public:
 	void setResourceTexture(ResourceTexture* tex, ButtonState state); 
 	void DeassignTexture(ButtonState state);
 	inline void setState(ButtonState _state) { state = _state; ChangeGOImage(); };// for debug, may be obsolete
+	ButtonState getState() { return state; };
 	void ChangeGOImage();
 
 	ButtonState state = B_IDLE;
