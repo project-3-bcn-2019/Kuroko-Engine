@@ -14,22 +14,22 @@ public:
 	float2 anchor = float2(0.f, 0.f);
 	int vertexID = -1;
 	float3* vertex = nullptr;
-
+	float depth = 0.0f;
 	
 };
 
-class ComponentRectTransform :	public Component
+class ComponentRectTransform : public Component
 {
 public:
 	ComponentRectTransform(GameObject* parent);
 	ComponentRectTransform(JSON_Object * deff, GameObject * parent);
 	~ComponentRectTransform();
-	
+
 	bool Update(float dt) override;
 	void Draw() const override;
 	void Save(JSON_Object* config) override;
 
-	
+
 	void setPos(float2 pos);
 	void setWidth(float width);
 	void setHeight(float height);
@@ -39,17 +39,21 @@ public:
 	inline const float2 getGlobalPos() { return rect.global; }
 	inline const float getWidth() { return rect.width; }
 	inline const float getHeight() { return rect.height; }
+	inline const float getDepth() { return rect.depth; }
 	inline const int GetVertexID() { return rect.vertexID; }
+
+	inline void setGlobalPos(float2 pos) { rect.global = pos; }
+	inline void setDepth(float _depth) { rect.depth = _depth; }
 
 	bool debug_draw = false;
 
 private:
 	inline void setLocalPos(float2 pos) { rect.local = pos; }
-	inline void setGlobalPos(float2 pos) { rect.global = pos; }
 	void GenBuffer();
 	void UpdateGlobalMatrixRecursive(ComponentRectTransform * rect);
 	void UpdateAnchorPos();
 	RectTransform rect;
 };
+
 
 #endif

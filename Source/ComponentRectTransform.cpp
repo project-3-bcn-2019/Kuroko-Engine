@@ -42,6 +42,8 @@ ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * 
 	rect.width = json_object_get_number(deff, "width");
 	rect.height = json_object_get_number(deff, "height");
 
+	rect.depth = json_object_get_number(deff, "depth");
+
 	static const float vtx[] = {
 		rect.global.x,  rect.global.y, 0,
 		rect.global.x + rect.width, rect.global.y, 0,
@@ -75,7 +77,7 @@ void ComponentRectTransform::Draw() const
 
 		glPushMatrix();
 		float4x4 globalMat;
-		globalMat = float4x4::FromTRS(float3(rect.global.x, rect.global.y, 0), Quat(0, 0, 0, 0), float3(rect.width, rect.height, 0));
+		globalMat = float4x4::FromTRS(float3(rect.global.x, rect.global.y, rect.depth), Quat(0, 0, 0, 0), float3(rect.width, rect.height, 0));
 		glMultMatrixf(globalMat.Transposed().ptr());
 
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -99,10 +101,10 @@ void ComponentRectTransform::Draw() const
 
 		//----Anchor Point
 		glBegin(GL_LINES);
-		glVertex3f(rect.anchor.x, rect.anchor.y + 0.1f, 0);
-		glVertex3f(rect.anchor.x, rect.anchor.y - 0.1f, 0);
-		glVertex3f(rect.anchor.x + 0.1f, rect.anchor.y, 0);
-		glVertex3f(rect.anchor.x - 0.1f, rect.anchor.y, 0);
+		glVertex3f(rect.anchor.x, rect.anchor.y + 0.1f, rect.depth);
+		glVertex3f(rect.anchor.x, rect.anchor.y - 0.1f, rect.depth);
+		glVertex3f(rect.anchor.x + 0.1f, rect.anchor.y, rect.depth);
+		glVertex3f(rect.anchor.x - 0.1f, rect.anchor.y, rect.depth);
 		glEnd();
 
 		glColor3f(1.0f, 1.0f, 1.0f);
@@ -127,6 +129,8 @@ void ComponentRectTransform::Save(JSON_Object * config)
 	//Dimension
 	json_object_set_number(config, "width", rect.width);
 	json_object_set_number(config, "height", rect.height);
+	json_object_set_number(config, "depth", rect.depth);
+
 }
 
 

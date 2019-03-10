@@ -1738,7 +1738,70 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		if (ImGui::CollapsingHeader("UI Progress Bar"))
 		{
 			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
-			ImGui::Text("WIP");
+			static float2 position = pbar->getPos();
+			static float percent = pbar->getPercent();
+			static float width= pbar->getInteriorWidth();
+			static float depth = pbar->getInteriorDepth();
+
+			ImGui::Text("Percent:");
+			ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
+			ImGui::Text("Position:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { pbar->setPos(position); }
+			ImGui::Text("Interior bar width:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { pbar->setInteriorWidth(width); }
+			ImGui::Text("Interior bar depth:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { pbar->setInteriorDepth(depth); }
+
+			int w = 0; int h = 0;
+			if (pbar->getResourceTexture() != nullptr) {
+				pbar->getResourceTexture()->texture->getSize(w, h);
+			}
+
+			ImGui::Text("Bar texture data: \n x: %d\n y: %d", w, h);
+
+			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+					if (pbar->getResourceTexture() != nullptr)
+						App->resources->deasignResource(pbar->getResourceTexture()->uuid);
+					pbar->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+				}
+			}
+
+			ImGui::Image(pbar->getResourceTexture() != nullptr ? (void*)pbar->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+			
+
+			int w2 = 0; int h2 = 0;
+			if (pbar->getResourceTextureInterior() != nullptr) {
+				pbar->getResourceTextureInterior()->texture->getSize(w2, h2);
+			}
+
+
+			ImGui::Text("Interior Bar texture data: \n x: %d\n y: %d", w2, h2);
+
+			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+					if (pbar->getResourceTextureInterior() != nullptr)
+						App->resources->deasignResource(pbar->getResourceTextureInterior()->uuid);
+					pbar->setResourceTextureInterior((ResourceTexture*)App->resources->getResource(new_resource));
+				}
+			}
+
+			ImGui::Image(pbar->getResourceTextureInterior() != nullptr ? (void*)pbar->getResourceTextureInterior()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+			ImGui::SameLine();
 		}
 		break;
 	case ANIMATION:
