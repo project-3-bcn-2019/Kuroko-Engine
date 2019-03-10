@@ -636,6 +636,9 @@
     <ClInclude Include="PanelViewports.h">
       <Filter>Sources\UI Panels</Filter>
     </ClInclude>
+    <ClInclude Include="PanelQuadtreeConfig.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1065,6 +1068,9 @@
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
     <ClCompile Include="PanelViewports.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelQuadtreeConfig.cpp">
       <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>

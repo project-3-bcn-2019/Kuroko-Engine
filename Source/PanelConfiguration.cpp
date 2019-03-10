@@ -5,8 +5,10 @@
 #include "Camera.h"
 #include "ModuleWindow.h"
 #include  "VRAM.h"
+#include "ModuleResourcesManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
+
 PanelConfiguration::PanelConfiguration(const char * name, bool active):Panel(name, active)
 {
 }
@@ -29,6 +31,8 @@ void PanelConfiguration::Draw()
 		DrawApplicationLeaf();
 	if (ImGui::CollapsingHeader("Editor preferences"))
 		DrawEditorPreferencesLeaf();
+	if (ImGui::CollapsingHeader("Resources"))
+		DrawResourcesLeaf();
 
 	if (ImGui::Button("Reset Camera"))
 		App->camera->editor_camera->Reset();
@@ -231,4 +235,13 @@ void PanelConfiguration::DrawEditorPreferencesLeaf() const {
 	static float camera_rotation_speed = 0.25f;
 	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
 		App->camera->camera_rotation_speed = camera_rotation_speed;
+}
+
+void PanelConfiguration::DrawResourcesLeaf() const
+{
+	static float refresh_ratio = 1;
+	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+	if (ImGui::InputFloat("Refresh ratio (seconds)", &refresh_ratio)) {
+		App->resources->setRefreshRatio(refresh_ratio * 1000);
+	}
 }

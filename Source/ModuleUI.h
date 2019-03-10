@@ -35,6 +35,7 @@ class PanelShader;
 class PanelAbout;
 class PanelCameraMenu;
 class PanelViewports;
+class PanelQuadtreeConfig;
 
 enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
 				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
@@ -61,11 +62,8 @@ public:
 	void InitializeScriptEditor();
 
 	bool DrawComponent(Component& component, int id);
-	//void DrawAudioTab();
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
-	void DrawQuadtreeConfigWindow();
-	void DrawResourcesWindow(); // A list where you can see all the resources
 	void DrawSkyboxWindow();
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
@@ -102,7 +100,7 @@ public:
 	PanelAbout* p_about = nullptr;
 	PanelCameraMenu* p_camera_menu = nullptr;
 	PanelViewports* p_viewports = nullptr;
-
+	PanelQuadtreeConfig* p_quadtree_config = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -130,6 +128,8 @@ private:
 
 	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;
+
+	bool open_log_menu = false; //To avoid the GUI_TABS enum
 };
 
 #endif

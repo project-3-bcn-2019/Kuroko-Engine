@@ -81,6 +81,7 @@
 #include "PanelAbout.h"
 #include "PanelCameraMenu.h"
 #include "PanelViewports.h"
+#include "PanelQuadtreeConfig.h"
 
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
@@ -103,6 +104,7 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_about = new PanelAbout("About");
 	p_camera_menu = new PanelCameraMenu("Camera Menu");
 	p_viewports = new PanelViewports("Viewports");
+	p_quadtree_config = new PanelQuadtreeConfig("Quadtree Configuration");
 }
 
 
@@ -242,14 +244,14 @@ update_status ModuleUI::Update(float dt) {
 		if (p_about->isActive())
 			p_about->Draw();
 
-		if (open_tabs[LOG])
-			app_log->Draw("App log", &open_tabs[LOG]);
+		if (open_log_menu)
+			app_log->Draw("App log", &open_log_menu);
 
 		if (p_time_control->isActive())
 			p_time_control->Draw();
 
-		if (open_tabs[QUADTREE_CONFIG])
-			DrawQuadtreeConfigWindow();
+		if (p_quadtree_config->isActive())
+			p_quadtree_config->Draw();
 
 		if (p_camera_menu->isActive())
 			p_camera_menu->Draw();
@@ -259,9 +261,6 @@ update_status ModuleUI::Update(float dt) {
 
 		if (p_assetswindow->isActive())
 			p_assetswindow->Draw();
-
-		if (open_tabs[RESOURCES_TAB])
-			DrawResourcesWindow();
 
 		if (open_tabs[SKYBOX_MENU])
 			DrawSkyboxWindow();
@@ -345,14 +344,15 @@ update_status ModuleUI::Update(float dt) {
 					p_primitives->toggleActive();
 				if (ImGui::MenuItem("Configuration", NULL, p_configuration->isActive()))
 					p_configuration->toggleActive();
-				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
-				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
-				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
+				ImGui::MenuItem("Log", NULL, &open_log_menu);
+				if (ImGui::MenuItem("Time control", NULL, p_time_control->isActive()))
+					p_time_control->toggleActive();
+				if (ImGui::MenuItem("Quadtree", NULL, p_quadtree_config->isActive()))
+					p_quadtree_config->toggleActive();
 				if (ImGui::MenuItem("Camera Menu", NULL, p_camera_menu->isActive()))
 					p_camera_menu->toggleActive();
 				if (ImGui::MenuItem("Assets", NULL, p_assetswindow->isActive()))
 					p_assetswindow->toggleActive();
-				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
 				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
 				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
 				if (ImGui::MenuItem("Shader Editor", NULL, p_shader_editor->isActive()))
@@ -2172,17 +2172,6 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		camera.initFrameBuffer();
 }
 
-void ModuleUI::DrawResourcesWindow()
-{
-	ImGui::Begin("Resources Window", &open_tabs[RESOURCES_TAB]);
-	static float refresh_ratio = 1;
-	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-	if (ImGui::InputFloat("Refresh ratio (seconds)", &refresh_ratio)) {
-		App->resources->setRefreshRatio(refresh_ratio * 1000);
-	}
-	ImGui::End();
-}
-
 void ModuleUI::DrawSkyboxWindow()
 {
 	ImGui::Begin("Skybox", &open_tabs[SKYBOX_MENU]);
@@ -2556,47 +2545,6 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 }
 
-void ModuleUI::DrawQuadtreeConfigWindow() {
-
-	ImGui::Begin("Quadtree", &open_tabs[QUADTREE_CONFIG]);
-	ImGui::Checkbox("Draw", &App->scene->draw_quadtree);
-	ImGui::SameLine();
-	if (ImGui::Button("Reload")) {
-		App->scene->quadtree_reload = true;
-	}
-	static float3 size = float3(0,0,0);
-	static float3 centre = float3(0, 0, 0);
-	static int bucket_size = 1;
-	static int max_depth = 8;
-	static float size_arr[3] = { 0 };
-	static float centre_arr[3] = { 0 };
-
-	ImGui::InputFloat3("Centre", centre_arr);
-	centre.x = centre_arr[0];
-	centre.y = centre_arr[1];
-	centre.z = centre_arr[2];
-
-	ImGui::InputFloat3("Size", size_arr);
-	size.x = size_arr[0];
-	size.y = size_arr[1];
-	size.z = size_arr[2];
-
-	ImGui::InputInt("Bucket size", &bucket_size);
-	ImGui::InputInt("Max depth", &max_depth);
-
-	if (ImGui::Button("Create")) {
-		AABB aabb;
-		aabb.SetFromCenterAndSize(centre, size);
-		App->scene->getQuadtree()->Create(aabb, bucket_size, max_depth);
-		App->scene->quadtree_reload = true;
-	}
-	ImGui::Text("Quadtree ignored objects: %i",App->scene->quadtree_ignored_obj);
-	ImGui::Text("Frustum checks against quadtree: %i", App->scene->quadtree_checks);
-	// TODO: Be able to change bucket size, max depth and size.
-	ImGui::End();
-}
-
-
 void ModuleUI::DrawGuizmo()
 {
 
@@ -2782,7 +2730,7 @@ void ModuleUI::SaveConfig(JSON_Object* config) const
 	json_object_set_boolean(config, "primitive", open_tabs[PRIMITIVE]);
 	json_object_set_boolean(config, "about", open_tabs[ABOUT]);
 	json_object_set_boolean(config, "configuration", open_tabs[CONFIGURATION]);
-	json_object_set_boolean(config, "log", open_tabs[LOG]);
+	json_object_set_boolean(config, "log", open_log_menu);						//NOT DELETE
 	json_object_set_boolean(config, "time_control", open_tabs[TIME_CONTROL]);
 	json_object_set_boolean(config, "quadtree_config", open_tabs[QUADTREE_CONFIG]);
 	json_object_set_boolean(config, "camera_menu", open_tabs[CAMERA_MENU]);
@@ -2798,7 +2746,7 @@ void ModuleUI::LoadConfig(const JSON_Object* config)
 	open_tabs[OBJ_INSPECTOR]	= json_object_get_boolean(config, "obj_inspector");
 	open_tabs[PRIMITIVE]		= json_object_get_boolean(config, "primitive");
 	open_tabs[ABOUT]			= json_object_get_boolean(config, "about");
-	open_tabs[LOG]				= json_object_get_boolean(config, "log");
+	open_log_menu				= json_object_get_boolean(config, "log"); //NOT DELETE
 	open_tabs[TIME_CONTROL]		= json_object_get_boolean(config, "time_control");
 	open_tabs[QUADTREE_CONFIG]	= json_object_get_boolean(config, "quadtree_config");
 	open_tabs[CAMERA_MENU]		= json_object_get_boolean(config, "camera_menu");
