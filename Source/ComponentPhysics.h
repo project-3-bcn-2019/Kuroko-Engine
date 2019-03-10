@@ -22,8 +22,6 @@ public:
 
 	collision_shape shape;
 
-	void OnCollision(GameObject* A, GameObject* B);
-
 	bool Update(float dt);
 	void Draw() const;
 

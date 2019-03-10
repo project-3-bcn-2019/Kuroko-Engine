@@ -1,5 +1,5 @@
-#ifndef __COMPONENT_COLLIDER_CUBE__
-#define __COMPONENT_COLLIDER_CUBE__
+#ifndef __COMPONENT_TRIGGER__
+#define __COMPONENT_TRIGGER__
 #include "Component.h"
 #include "MathGeoLib/MathGeoLib.h"
 #include <list>
@@ -24,8 +24,6 @@ public:
 
 	collision_shape shape;
 
-	void OnCollision(GameObject* A, GameObject* B);
-
 	bool Update(float dt);
 	void Draw() const;
 
@@ -44,10 +42,10 @@ public:
 	float3 offset_pos = float3(0, 0, 0);
 	float3 offset_rot = float3(0, 0, 0);
 
-	void SetSpeed(float x, float y, float z);
-	void SetPosition(float x, float y, float z);
+	//void SetSpeed(float x, float y, float z);
+	//void SetPosition(float x, float y, float z);
 
-	void SetStatic(bool is_static);
+	//void SetStatic(bool is_static);
 
 	//	bool Update(float dt)override;
 	//

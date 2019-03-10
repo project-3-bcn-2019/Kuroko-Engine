@@ -89,14 +89,17 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 		int numContacts = contactManifold->getNumContacts();//TO IMPROVE A LOT
 		if (numContacts > 0)
 		{
-			ComponentPhysics* pbodyA = (ComponentPhysics*)obA->getUserPointer();
-			ComponentPhysics* pbodyB = (ComponentPhysics*)obB->getUserPointer();
 
-			if (pbodyA && pbodyB)
-			{
-				pbodyA->OnCollision(pbodyA->getParent(), pbodyB->getParent());
-				pbodyB->OnCollision(pbodyB->getParent(), pbodyA->getParent());
-			}
+			//switch (((Component*)obA->getUserPointer())->getType())
+			//{
+			//case PHYSICS:
+			//	break;
+			//case TRIGGER:
+			//	break;
+			//}
+
+			Component* pbodyA = (Component*)obA->getUserPointer();
+			Component* pbodyB = (Component*)obB->getUserPointer();
 
 			Collision cA;
 			cA.A = pbodyA->getParent();
@@ -267,6 +270,41 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 	return pbody;
 }
 
+
+btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_shape shape)
+{
+	btCollisionShape* colShape = nullptr;
+	switch (shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	}
+	shapes.push_back(colShape);
+
+	btTransform startTransform;
+
+	startTransform.setIdentity();
+
+	btGhostObject* body = new btGhostObject();
+	body->setCollisionShape(colShape);
+	body->setWorldTransform(startTransform);
+	
+	body->setActivationState(DISABLE_DEACTIVATION);
+	body->setCollisionFlags(btRigidBody::CollisionFlags::CF_NO_CONTACT_RESPONSE);
+
+	world->addCollisionObject(body);
+	triggers.push_back(body);
+
+	return body;
+}
+
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 {
 	world->removeCollisionObject(body_to_delete->body);
@@ -280,10 +318,6 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 
 }
 
-btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger * parent, collision_shape shape)
-{
-	return nullptr;
-}
 
 void ModulePhysics3D::GetCollisionsFromObject(std::list<Collision>& list_to_fill, GameObject * to_get)
 {

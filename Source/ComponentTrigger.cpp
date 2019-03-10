@@ -17,14 +17,15 @@
 #include "SDL/include/SDL_opengl.h"
 
 
-ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape) :Component(_parent, PHYSICS)
+ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape) :Component(_parent, TRIGGER)
 {
 
-
 	shape = _shape;
+	body = App->physics->AddTrigger(this,shape);
+	body->setUserPointer(this);
 }
 
-ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Component(parent, PHYSICS)
+ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Component(parent, TRIGGER)
 {
 	JSON_Object* p = json_object_get_object(deff, "pos");
 	JSON_Object* r = json_object_get_object(deff, "rot");
@@ -40,77 +41,22 @@ ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Com
 
 }
 
-void ComponentTrigger::OnCollision(GameObject * A, GameObject * B)
-{
-
-}
-
 bool ComponentTrigger::Update(float dt)
 {
-	//TODO
-	//Gather the pointer with the transform matrix
 
-	//float* transform_matrix = new float[16];
-	//transform_matrix = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getMatrix().ptr();
 
-	//body->SetTransform(transform_matrix);
 
-	/*
-	GameObject* obj = getParent();
-	if (obj != nullptr)
+	UpdatePhysicsFromTransforms();
+
+	for (int i = 0; i < body->getNumOverlappingObjects(); i++)
 	{
-
-
-	ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-	if (transform != nullptr)
-	{
-	btTransform t;
-	float4x4 fina;
-
-	fina = float4x4::FromTRS(float3(0, 0, 0), Quat::identity, transform->global->getScale());
-
-	fina.Transpose();
-
-	Quat newquat = transform->global->getRotation();
-	newquat.Inverse();
-	float4x4 rot_mat = newquat.ToFloat4x4();
-
-	fina = /*fina * *rot_mat;
-
-	//fina = fina * float4x4::FromQuat(transform->global->getRotation());
-	//fina.Translate(transform->global->getPosition());
-
-	t.setFromOpenGLMatrix(fina.ptr());
-
-	t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-
-	body->GetRigidBody()->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
-
-	body->GetRigidBody->setWorldTransform(t);
+		// Dynamic cast to make sure its a rigid body
+		btRigidBody *pRigidBody = dynamic_cast<btRigidBody *>(body->getOverlappingObject(i));
+		if (pRigidBody)
+		{
+			printf("lul");
+		}
 	}
-	}*/
-
-	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
-
-
-	if (App->time->getGameState() == GameState::PLAYING)
-	{
-		UpdateTransformsFromPhysics();
-	}
-	else
-	{
-		UpdatePhysicsFromTransforms();
-	}
-
-	//btTransform t;
-	//t = body->GetRigidBody()->getWorldTransform();
-
-	//float4x4 m;
-	//t.getOpenGLMatrix(m.ptr());
-
-
-	//bounding_box. = { transform->getScale().x, transform->getScale().y, transform->getScale().z };/*forgive me pls*/
-
 
 	colliding.clear();
 	std::list<Collision> col_list;

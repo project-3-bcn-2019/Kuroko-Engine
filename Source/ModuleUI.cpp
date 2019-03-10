@@ -2370,7 +2370,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 	case PHYSICS:
-	{	if (ImGui::CollapsingHeader("Collider Cube"))
+	{	if (ImGui::CollapsingHeader("Collider"))
 		{
 		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
 		ComponentPhysics* c_phys = (ComponentPhysics*)&component;
@@ -2426,6 +2426,57 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 
 		}
+	}
+	break;
+	case TRIGGER:
+	{	if (ImGui::CollapsingHeader("Trigger"))
+	{
+		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+		ComponentPhysics* c_phys = (ComponentPhysics*)&component;
+
+		//position
+		ImGui::Text("Offset:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p x", &c_phys->offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p y", &c_phys->offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p z", &c_phys->offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		//rotation
+		ImGui::Text("Rotation:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r x", &c_phys->offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r y", &c_phys->offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r z", &c_phys->offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		//scale
+		ImGui::Text("   Scale:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s x", &c_phys->offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s y", &c_phys->offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	}
 	}
 	break;
 	default:

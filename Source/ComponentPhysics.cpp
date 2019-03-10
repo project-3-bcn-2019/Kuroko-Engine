@@ -58,11 +58,6 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 
 }
 
-void ComponentPhysics::OnCollision(GameObject * A, GameObject * B)
-{
-	
-}
-
 bool ComponentPhysics::Update(float dt)
 {
 	//TODO

@@ -21,6 +21,7 @@
 #include "ComponentAnimationEvent.h"
 #include "ComponentPhysics.h"
 #include "ComponentAnimator.h"
+#include "ComponentTrigger.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -102,6 +103,10 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		}
 
 		else if (type == "physics") {
+			component = new ComponentPhysics(component_deff, this);
+		}
+
+		else if (type == "trigger") {
 			component = new ComponentPhysics(component_deff, this);
 		}
 		// Set component's parent-child
@@ -383,6 +388,13 @@ Component* GameObject::addComponent(Component_type type)
 		if (!getComponent(PHYSICS))
 		{
 			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, false);
+			components.push_back(new_component);
+		}
+		break;
+	case TRIGGER:
+		if (!getComponent(TRIGGER))
+		{
+			new_component = new ComponentTrigger(this, collision_shape::COL_CYLINDER);
 			components.push_back(new_component);
 		}
 		break;
