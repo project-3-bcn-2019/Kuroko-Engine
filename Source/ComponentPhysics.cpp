@@ -108,8 +108,7 @@ bool ComponentPhysics::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
 	{
 		//body->GetRigidBody()->ap(btVector3(10,0,0));
-		body->SetSpeed(10, 0, 0);
-
+		App->physics->change_shape(this);
 	}
 
 	if (App->time->getGameState() == GameState::PLAYING)

@@ -153,22 +153,6 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
-
-	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
-	{
-		GameObject* obj = new GameObject("TEST");
-
-		obj->addComponent(PHYSICS);
-
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_J) == KEY_DOWN)
-	{
-		GameObject* obj = new GameObject("TEST_TRIGGERS");
-
-		obj->addComponent(TRIGGER);
-
-	}
 	
 	if (!ImGui::IsMouseHoveringAnyWindow() && App->input->GetMouseButton(1) == KEY_DOWN && !ImGuizmo::IsOver() && App->camera->selected_camera == App->camera->background_camera)
 	{

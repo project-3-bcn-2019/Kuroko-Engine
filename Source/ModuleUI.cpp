@@ -5,6 +5,7 @@
 #include "ModuleCamera3D.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleInput.h"
+#include "ModulePhysics3D.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
 #include "ModuleExporter.h"
@@ -40,6 +41,7 @@
 #include "ComponentBillboard.h"
 #include "ComponentAnimator.h"
 #include "ComponentPhysics.h"
+#include "ComponentTrigger.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Quadtree.h"
@@ -2170,6 +2172,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			c_phys->SetStatic(toggle_static);
 		}
 
+		if (ImGui::Button("Change_shape"))
+		{
+			App->physics->change_shape(c_phys);
+		}
+
 		}
 	}
 	break;
@@ -2177,7 +2184,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	{	if (ImGui::CollapsingHeader("Trigger"))
 	{
 		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
-		ComponentPhysics* c_phys = (ComponentPhysics*)&component;
+		ComponentTrigger* c_phys = (ComponentTrigger*)&component;
 
 		//position
 		ImGui::Text("Offset:");
@@ -2221,6 +2228,11 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 		ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
 
+
+		if (ImGui::Button("Change_shape"))
+		{
+			App->physics->change_shape(c_phys);
+		}
 	}
 	}
 	break;
