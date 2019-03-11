@@ -523,6 +523,21 @@ std::list<GameObject*> ModuleScene::getUIGameObjects()
 	return UIGameObjects;
 }
 
+std::list<GameObject*> ModuleScene::getGameObjectWithButton()
+{
+	std::list<GameObject*>uiGOs = getUIGameObjects();
+	std::list<GameObject*>buttonsObjs;
+	for (auto it : uiGOs)
+	{
+		if (it->getComponent(Component_type::UI_BUTTON))
+		{
+			buttonsObjs.push_back(it);
+		}
+	}
+	return buttonsObjs;
+	
+}
+
 GameObject* ModuleScene::getCanvasGameObject(bool createCanvas)
 {
 	std::list<GameObject*> GOs = std::list<GameObject*>();
