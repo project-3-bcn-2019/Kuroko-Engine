@@ -2259,10 +2259,6 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		ImVec2 window_size = ImGui::GetWindowSize();
 		frame_buffer->changeTexSize(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN -20);
 
-		if (&camera == App->camera->editor_camera)
-			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
-				App->gui->DrawGuizmo(window_pos, window_size);
-
 		if (ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN - 20), nullptr, ImVec2(0, 1), ImVec2(1, 0), -10))
 		{
 			if (&camera == App->camera->editor_camera)
@@ -2291,6 +2287,13 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 					App->scene->selected_obj.clear();
 			}
 		}
+
+		if (&camera == App->camera->editor_camera)
+			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+			{
+				ImGuizmo::SetDrawlist();
+				App->gui->DrawGuizmo(window_pos, window_size);
+			}
 
 		ImGui::End();
 	}
@@ -2678,7 +2681,6 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 {
-
 	if (draw_guizmo)
 	{
 		float4x4 projection4x4;
