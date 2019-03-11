@@ -87,7 +87,8 @@
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
 
-#define CAMERA_VIEW_MARGIN 25
+#define CAMERA_VIEW_MARGIN_X 25
+#define CAMERA_VIEW_MARGIN_Y 45
 
 
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
@@ -2253,17 +2254,18 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		
 		ImVec2 window_pos = ImGui::GetItemRectMin();
 
-		if (&camera == App->camera->game_camera)
-			game_window_pos = window_pos;
 
 		ImVec2 window_size = ImGui::GetWindowSize();
-		frame_buffer->changeTexSize(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN -20);
+		window_size.x -= CAMERA_VIEW_MARGIN_X;
+		window_size.y -= CAMERA_VIEW_MARGIN_Y;
 
-		if (ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN - 20), nullptr, ImVec2(0, 1), ImVec2(1, 0), -10))
+		frame_buffer->changeTexSize(window_size.x, window_size.y);
+
+		if (ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), window_size, nullptr, ImVec2(0, 1), ImVec2(1, 0), -1))
 		{
 			if (&camera == App->camera->editor_camera)
 			{
-
+				window_pos = ImGui::GetItemRectMin();
 				float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
 				x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
 				y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
@@ -2287,6 +2289,12 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 					App->scene->selected_obj.clear();
 			}
 		}
+
+		window_pos = ImGui::GetItemRectMin();
+		window_size = ImGui::GetWindowSize();
+
+		if (&camera == App->camera->game_camera)
+			game_window_pos = window_pos;
 
 		if (&camera == App->camera->editor_camera)
 			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static

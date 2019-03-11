@@ -33,7 +33,11 @@ ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Compon
 	camera->attached_to = this;
 
 	if (json_object_get_boolean(deff, "game_camera"))
+	{
 		App->camera->game_camera = camera;
+		if (App->is_game)
+			is_active = true;
+	}
 }
 
 ComponentCamera::~ComponentCamera()

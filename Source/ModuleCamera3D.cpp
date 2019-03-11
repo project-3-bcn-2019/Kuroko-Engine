@@ -48,7 +48,8 @@ bool ModuleCamera3D::Start()
 	for (int i = 0; i < 6; i++)
 		viewports[i]->initFrameBuffer();
 
-	editor_camera->initFrameBuffer();
+	if(!App->is_game)
+		editor_camera->initFrameBuffer();
 
 	return true;
 }

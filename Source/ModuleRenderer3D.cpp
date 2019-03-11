@@ -76,7 +76,7 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		glClearDepth(1.0f);
 		
 		//Initialize clear color
-		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClearColor(0.9f, 0.9f, 0.9f, 1.f);
 
 		//Check for error
 		error = glGetError();
@@ -102,7 +102,6 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glClearDepth(1.0f);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.f);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE); 
@@ -128,12 +127,17 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 update_status ModuleRenderer3D::PreUpdate(float dt)
 {
 
-	for (auto cam = App->camera->game_cameras.rbegin(); cam != App->camera->game_cameras.rend(); ++cam)
-	{	
-		if ((*cam)->active)
+	if (App->is_game)
+		Draw(App->camera->current_camera = App->camera->game_camera);
+	else
+	{
+		for (auto cam = App->camera->game_cameras.rbegin(); cam != App->camera->game_cameras.rend(); ++cam)
 		{
-			glViewport(0, 0, (*cam)->getFrameBuffer()->size_x, (*cam)->getFrameBuffer()->size_y);
-			Draw(App->camera->current_camera = *cam);
+			if ((*cam)->active)
+			{
+				glViewport(0, 0, (*cam)->getFrameBuffer()->size_x, (*cam)->getFrameBuffer()->size_y);
+				Draw(App->camera->current_camera = *cam);
+			}
 		}
 	}
 
@@ -189,24 +193,28 @@ void ModuleRenderer3D::Draw(Camera * cam)
 			glEnable(GL_LIGHTING);
 	}
 
-	if (cam->getFrameBuffer())
+	if (!App->is_game)
 	{
-		glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
-		if (cam->draw_depth)
-		{
-			glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->depth_tex->gl_id);
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-		else
-		{
-			glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->tex->gl_id);
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-	}
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (cam->getFrameBuffer())
+		{
+			glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
+			if (cam->draw_depth)
+			{
+				glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->depth_tex->gl_id);
+				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->tex->gl_id);
+				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 }
 
 
