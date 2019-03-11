@@ -131,8 +131,11 @@ void ComponentScript::LinkScriptToObject() {
 
 
 void ComponentScript::CleanUp() {
-	App->scripting->loaded_instances.remove(instance_data);
-	delete instance_data;
+
+	if(instance_data){
+		App->scripting->loaded_instances.remove(instance_data);
+		delete instance_data;
+	}
 }
 
 void ComponentScript::Save(JSON_Object * config) {

@@ -1599,7 +1599,8 @@ void GetBool(WrenVM* vm) {
 
 	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_BOOL);
 
-	wrenSetSlotBool(vm, 0, *component->getBool(var_uuid));
+	bool read = *component->getBool(var_uuid);
+	wrenSetSlotBool(vm, 0, read);
 }
 // Particles
 void CreateParticles(WrenVM* vm) {

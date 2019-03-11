@@ -70,16 +70,17 @@ class ComponentAnimator{
 	getFloat(name){
 		return AnimationComunicator.C_GetFloat(gameObject, component, name)
 	}
-	setString(name){
+	setString(name, value){
 		AnimationComunicator.C_SetString(gameObject, component, name, value)
 	}
 	getString(name){
 		return AnimationComunicator.C_GetString(gameObject, component, name)
 	}
-	getBool(name){
+	setBool(name, value){
 		AnimationComunicator.C_SetBool(gameObject, component, name, value)
 	}
-	setBool(name){
+	getBool(name){
 		return AnimationComunicator.C_GetBool(gameObject, component, name)
 	}
+
 }
