@@ -37,6 +37,7 @@ public:
 	bool getComponents(Component_type type, std::list<Component*>& list_to_fill) const;
 	void getComponents(std::list<Component*>& list_to_fill) const { list_to_fill = components; };
 
+	inline const GameObject* getFirstChild() const { if (!children.empty()) { return *children.begin(); } }
 	GameObject* getChild(const char* name, bool  ignoreAssimpNodes = false) const;
 	void getChildren(std::list<GameObject*>& list_to_fill) const { list_to_fill = children; };
 	void getAllDescendants(std::list<GameObject*>& list_to_fill) const;

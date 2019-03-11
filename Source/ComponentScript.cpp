@@ -16,8 +16,14 @@ ComponentScript::ComponentScript(GameObject* g_obj, uint resource_uuid) : Compon
 }
 
 ComponentScript::ComponentScript(JSON_Object * deff, GameObject * parent): Component(parent, SCRIPT) {
-	script_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "script"));
-
+	std::string s_path = json_object_get_string(deff, "script");
+	if (!App->is_game || App->debug_game)
+		script_resource_uuid = App->resources->getResourceUuid(s_path.c_str());
+	else
+	{
+		App->fs.getFileNameFromPath(s_path);
+		script_resource_uuid = App->resources->getScriptResourceUuid(s_path.c_str());
+	}
 	assignScriptResource(script_resource_uuid);
 	
 	JSON_Array* variables = json_object_get_array(deff, "variables");

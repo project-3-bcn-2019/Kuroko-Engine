@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
+#include "ModuleTimeManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 
@@ -25,35 +26,58 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 	GenBuffer();
 }
 
+ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * parent) : Component(parent, RECTTRANSFORM) {
+	
+	// Position
+	//setLocalPos(float2(json_object_get_number(deff, "localX"), json_object_get_number(deff, "localY")));
+	rect.local.x = json_object_get_number(deff, "localX");
+	rect.local.y = json_object_get_number(deff, "localY");
+	rect.global.x = json_object_get_number(deff, "globalX");
+	rect.global.y = json_object_get_number(deff, "globalY");
+
+	rect.anchor.x = json_object_get_number(deff, "anchorX");
+	rect.anchor.y = json_object_get_number(deff, "anchorY");
+
+	//Dimension
+	rect.width = json_object_get_number(deff, "width");
+	rect.height = json_object_get_number(deff, "height");
+
+	rect.depth = json_object_get_number(deff, "depth");
+
+	static const float vtx[] = {
+		rect.global.x,  rect.global.y, 0,
+		rect.global.x + rect.width, rect.global.y, 0,
+		rect.global.x + rect.width, rect.global.y + rect.height, 0,
+		rect.global.x, rect.global.y + rect.height, 0
+	};
+	   
+	rect.vertex = new float3[4];
+	memcpy(rect.vertex, vtx, sizeof(float3) * 4);
+
+	GenBuffer();
+}
+
 
 ComponentRectTransform::~ComponentRectTransform()
 {
-	//RELEASE MACRO NEEDED
-	delete[] rect.vertex;
-	rect.vertex = nullptr;
+
+	glDeleteBuffers(1, (GLuint*)&rect.vertexID);
+	RELEASE_ARRAY( rect.vertex);
+
 }
 
 bool ComponentRectTransform::Update(float dt)
 {
-	/*
-	if (getParent()->getComponent(CANVAS) != nullptr) {//it is canvas
-		setGlobalPos(getLocalPos());
-	}
-	else {
-		ComponentRectTransform* parentTrans = (ComponentRectTransform*)getParent()->getComponent(RECTTRANSFORM);
-		float2 globalTrans = parentTrans->getGlobalPos() + getLocalPos();
-		setLocalPos(globalTrans);
-	}*/
 	return true;
 }
 
 void ComponentRectTransform::Draw() const
 {
-	if (debug_draw) {
+	if (debug_draw && App->time->getGameState() != GameState::PLAYING) {
 
 		glPushMatrix();
 		float4x4 globalMat;
-		globalMat = float4x4::FromTRS(float3(rect.global.x, rect.global.y, 0), Quat(0, 0, 0, 0), float3(rect.width, rect.height, 0));
+		globalMat = float4x4::FromTRS(float3(rect.global.x, rect.global.y, rect.depth), Quat(0, 0, 0, 0), float3(rect.width, rect.height, 0));
 		glMultMatrixf(globalMat.Transposed().ptr());
 
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -77,21 +101,36 @@ void ComponentRectTransform::Draw() const
 
 		//----Anchor Point
 		glBegin(GL_LINES);
-		glVertex3f(rect.anchor.x, rect.anchor.y + 0.1f, 0);
-		glVertex3f(rect.anchor.x, rect.anchor.y - 0.1f, 0);
-		glVertex3f(rect.anchor.x + 0.1f, rect.anchor.y, 0);
-		glVertex3f(rect.anchor.x - 0.1f, rect.anchor.y, 0);
+		glVertex3f(rect.anchor.x, rect.anchor.y + 0.1f, rect.depth);
+		glVertex3f(rect.anchor.x, rect.anchor.y - 0.1f, rect.depth);
+		glVertex3f(rect.anchor.x + 0.1f, rect.anchor.y, rect.depth);
+		glVertex3f(rect.anchor.x - 0.1f, rect.anchor.y, rect.depth);
 		glEnd();
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glLineWidth(1.0f);
-
-
 	}
 }
 
 void ComponentRectTransform::Save(JSON_Object * config)
 {
+	// Set component type
+	json_object_set_string(config, "type", "rectTransform");
+
+	// Position
+	json_object_set_number(config, "localX", rect.local.x);
+	json_object_set_number(config, "localY", rect.local.y);
+	json_object_set_number(config, "globalX", rect.global.x);
+	json_object_set_number(config, "globalY", rect.global.y);
+
+	json_object_set_number(config, "anchorX", rect.anchor.x);
+	json_object_set_number(config, "anchorY", rect.anchor.y);
+
+	//Dimension
+	json_object_set_number(config, "width", rect.width);
+	json_object_set_number(config, "height", rect.height);
+	json_object_set_number(config, "depth", rect.depth);
+
 }
 
 
@@ -99,12 +138,28 @@ void ComponentRectTransform::setPos(float2 pos)
 {
 	float2 dist = pos - rect.local;
 	rect.local = pos;
-	rect.global +=dist;
-
-	rect.anchor.x = rect.global.x + rect.width / 2;
-	rect.anchor.y = rect.global.y + rect.height / 2;
+	rect.global +=dist;	
 
 	UpdateGlobalMatrixRecursive(this);
+	UpdateAnchorPos();
+}
+
+void ComponentRectTransform::setWidth(float width)
+{
+	float dif = width + rect.width;
+	rect.width = width;
+	rect.anchor.x += dif;
+
+	UpdateAnchorPos();
+}
+
+void ComponentRectTransform::setHeight(float height)
+{
+	float dif = height + rect.height;
+	rect.height = height;
+	rect.anchor.y += dif;
+
+	UpdateAnchorPos();
 }
 
 
@@ -125,6 +180,14 @@ void ComponentRectTransform::UpdateGlobalMatrixRecursive(ComponentRectTransform*
 	for (auto it = childs.begin(); it != childs.end(); it++) {
 		ComponentRectTransform* childRect = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
 		childRect->setGlobalPos(rect->getGlobalPos() + childRect->getLocalPos());
+
+		childRect->UpdateAnchorPos();
 		UpdateGlobalMatrixRecursive(childRect);
 	}
+}
+
+void ComponentRectTransform::UpdateAnchorPos()
+{
+	rect.anchor.x = rect.global.x + rect.width / 2;
+	rect.anchor.y = rect.global.y + rect.height / 2;
 }

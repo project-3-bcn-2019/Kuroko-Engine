@@ -78,6 +78,15 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileShader(animationShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
 
+	shaders.push_back(defVertexShader);
+	shaders.push_back(defFragmentShader);
+	shaders.push_back(animationShader);
+
+	shader_programs.push_back(defShaderProgram);
+	shader_programs.push_back(animationShaderProgram);
+
+
+
 	return true;
 }
 
@@ -108,6 +117,8 @@ void ModuleShaders::CreateDefVertexShader()
 		"TexCoord = texCoord;\n"
 		"ret_normal = normal;\n"
 	"}\n";
+
+	defVertexShader->name = "Defaul Vertex Shader";
 
 	animationShader->script =
 	"#version 330\n"
@@ -142,6 +153,8 @@ void ModuleShaders::CreateDefVertexShader()
 	"	Normal0 = (view * NormalL).xyz;\n"
 	"	WorldPos0 = (view * PosL).xyz;\n"
 	"}\n";
+
+	animationShader->name = "Defaul Animation Vertex Shader";
 }
 
 void ModuleShaders::CreateDefFragmentShader()
@@ -184,6 +197,9 @@ void ModuleShaders::CreateDefFragmentShader()
 			"color=vec4(result, 1.0);\n"
 		"}\n"
 	"}\n";
+
+	defFragmentShader->name = "Defaul Fragment Shader";
+
 }
 
 void ModuleShaders::CompileShader(Shader* shader)
@@ -255,4 +271,36 @@ ShaderProgram * ModuleShaders::GetAnimationShaderProgram() const
 	return animationShaderProgram;
 }
 
+Uniform::Uniform(std::string _name, std::string _type, int size)
+{
+	name = _name;
+	data = new float[size];
+	type = GetTypefromChar(_type);
+	stringType = _type;
+}
 
+UniformType Uniform::GetTypefromChar(std::string _type)
+{
+	UniformType ret= U_INT;
+
+	if (_type == "int")
+		ret = U_INT;
+	if (_type == "bool")
+		ret = U_BOOL;
+	if (_type == "float")
+		ret = U_FLOAT;
+	if (_type == "vec2")
+		ret = U_VEC2;
+	if (_type == "vec3")
+		ret = U_VEC3;
+	if (_type == "vec4")
+		ret = U_VEC4;
+	if (_type == "mat2")
+		ret = U_MAT2;
+	if (_type == "mat3")
+		ret = U_MAT3;
+	if (_type == "mat4")
+		ret = U_MAT4;
+	
+	return ret;
+}

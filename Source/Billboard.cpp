@@ -64,7 +64,16 @@ Billboard::Billboard(Component* p_component, Mesh* _mesh, JSON_Object* deff)
 	uint diffuse_resource = 0;
 	if (diffuse_path) { // Means that is being loaded from a scene
 		if (strcmp(diffuse_path, "missing reference") != 0)
-			diffuse_resource = App->resources->getResourceUuid(diffuse_path);
+		{
+			if (App->is_game && !App->debug_game)
+			{
+				std::string diffuse_name = diffuse_path;
+				App->fs.getFileNameFromPath(diffuse_name);
+				diffuse_resource = App->resources->getTextureResourceUuid(diffuse_name.c_str());
+			}
+			else
+				diffuse_resource = App->resources->getResourceUuid(diffuse_path);
+		}
 	}
 	else // Means it is being loaded from a 3dObject binary
 		diffuse_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");

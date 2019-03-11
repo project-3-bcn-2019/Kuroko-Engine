@@ -1,4 +1,5 @@
 #include "ComponentImageUI.h"
+#include "Application.h"
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "MathGeoLib/Math/float4x4.h"
@@ -7,6 +8,7 @@
 
 #include "ResourceTexture.h"
 #include "Material.h"
+#include "ModuleResourcesManager.h"
 
 ComponentImageUI::ComponentImageUI(GameObject* parent) : Component(parent, UI_IMAGE)
 {
@@ -24,14 +26,45 @@ ComponentImageUI::ComponentImageUI(GameObject* parent) : Component(parent, UI_IM
 	memcpy(texCoords, uvs, sizeof(float2) * 4);
 }
 
+ComponentImageUI::ComponentImageUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_IMAGE)
+{
+	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
+
+	static const float uvs[] = {
+
+		0, 1,
+		1, 1,
+		1, 0,
+		0, 0
+	};
+
+	texCoords = new float2[4];
+	memcpy(texCoords, uvs, sizeof(float2) * 4);
+
+	alpha = json_object_get_number(deff, "alpha");
+	const char* texPath = json_object_dotget_string(deff, "textureName");
+
+	if (texPath) {
+		if (strcmp(texPath, "missing reference") != 0) {
+			uint uuid = App->resources->getResourceUuid(texPath);
+			App->resources->assignResource(uuid);
+			texture = (ResourceTexture*)App->resources->getResource(uuid);
+			
+		}
+	}
+
+}
+
 
 ComponentImageUI::~ComponentImageUI()
 {
 	rectTransform = nullptr;
-	//RELEASE MACRO NEEDED
-	delete[] texCoords;
-	texCoords = nullptr;
-	texture = nullptr;
+	RELEASE_ARRAY(texCoords);
+	if (texture) {
+		App->resources->deasignResource(texture->uuid);
+		texture = nullptr;
+	}
+	
 }
 
 bool ComponentImageUI::Update(float dt)
@@ -51,7 +84,7 @@ void ComponentImageUI::Draw() const
 {
 	glPushMatrix();
 	float4x4 globalMat;
-	globalMat = float4x4::FromTRS(float3(rectTransform->getGlobalPos().x, rectTransform->getGlobalPos().y, 0), Quat(0, 0, 0, 0), float3(rectTransform->getWidth(), rectTransform->getHeight(), 0));
+	globalMat = float4x4::FromTRS(float3(rectTransform->getGlobalPos().x, rectTransform->getGlobalPos().y, rectTransform->getDepth()), Quat(0, 0, 0, 0), float3(rectTransform->getWidth(), rectTransform->getHeight(), 0));
 	glMultMatrixf(globalMat.Transposed().ptr());
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -59,6 +92,9 @@ void ComponentImageUI::Draw() const
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //resets the buffer
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
 	glColor4f(1.0, 1.0, 1.0, alpha);
 	glLineWidth(4.0f);
 
@@ -81,13 +117,25 @@ void ComponentImageUI::Draw() const
 
 	if (texture) { glDisable(GL_TEXTURE_2D); }
 	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
 	glPopMatrix();
 
 }
 
 void ComponentImageUI::Save(JSON_Object * config)
 {
+	json_object_set_string(config, "type", "UIimage");
+	json_object_set_number(config, "alpha", alpha);
+
+	std::string texName = std::string("missing_reference");
+	if (texture) {  //If it has a texture
+		texName = texture->asset;		
+	}
+	json_object_dotset_string(config, "textureName",texName.c_str());
+
+
 }
+
 void ComponentImageUI::FadeIn()
 {
 	alpha += DELTA_ALPHA;

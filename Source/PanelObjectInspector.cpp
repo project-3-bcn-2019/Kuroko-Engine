@@ -33,35 +33,45 @@ void PanelObjectInspector::Draw()
 		{
 			ImGui::Text("Name: %s", selected_obj->getName().c_str());
 
-			ImGui::Checkbox("Active", &selected_obj->is_active);
-			ImGui::SameLine();
-			if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
-				App->scene->quadtree_reload = true;
-
-			DrawTagSelection(selected_obj);
-			// Add a new tag
-			static char new_tag[64];
-			ImGui::InputText("New Tag", new_tag, 64);
-			if (ImGui::Button("Add Tag")) {
-				App->scripting->tags.push_back(new_tag);
-				for (int i = 0; i < 64; i++)
-					new_tag[i] = '\0';
-
+			if (selected_obj->is_UI){//if is UI
+				ImGui::SameLine(0.f, 10.0f);
+				ImGui::TextColored(ImVec4(0.25f, 0.25f, 0.25f, 1), "UI GameObject");
 			}
 
+			ImGui::Checkbox("Active", &selected_obj->is_active);
+			
+			if (!selected_obj->is_UI) { // if it is not UI
+				ImGui::SameLine();
+				if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
+					App->scene->quadtree_reload = true;
+				DrawTagSelection(selected_obj);
+				// Add a new tag
+				static char new_tag[64];
+				ImGui::InputText("New Tag", new_tag, 64);
+				if (ImGui::Button("Add Tag")) {
+					App->scripting->tags.push_back(new_tag);
+					for (int i = 0; i < 64; i++)
+						new_tag[i] = '\0';
+
+				}
+			}
+			
 			if (ImGui::CollapsingHeader("Add component"))
 			{
-				if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
-				if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
 				if (ImGui::Button("Add Script")) select_script = true;
-				if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-				if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
-				if (ImGui::Button("Add Audio Source")) select_audio = true;
-				if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER);
-				if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
-				if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-				if (ImGui::Button("Add Physic Object Properties")) selected_obj->addComponent(PHYSICS);
-				if (ImGui::Button("Add Animator")) selected_obj->addComponent(ANIMATOR);
+
+				if (!selected_obj->is_UI) {
+					if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
+					if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
+					if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
+					if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
+					if (ImGui::Button("Add Audio Source")) select_audio = true;
+					if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER);
+					if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
+					if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
+					if (ImGui::Button("Add Physic Object Properties")) selected_obj->addComponent(PHYSICS);
+					if (ImGui::Button("Add Animator")) selected_obj->addComponent(ANIMATOR);
+				}
 			}
 
 			std::list<Component*> components;

@@ -617,6 +617,29 @@
     </ClInclude>
     <ClInclude Include="ComponentTrigger.h">
       <Filter>Sources\Game</Filter>
+    <ClInclude Include="PanelShader.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelTimeControl.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelConfiguration.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentProgressBarUI.h">
+      <Filter>Sources\Game\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelAbout.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelCameraMenu.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelViewports.h">
+      <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelQuadtreeConfig.h">
+      <Filter>Sources\UI Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1030,6 +1053,29 @@
     </ClCompile>
     <ClCompile Include="ComponentTrigger.cpp">
       <Filter>Sources\Game</Filter>
+    <ClCompile Include="PanelConfiguration.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentProgressBarUI.cpp">
+      <Filter>Sources\Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelShader.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelTimeControl.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelAbout.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelCameraMenu.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelViewports.cpp">
+      <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelQuadtreeConfig.cpp">
+      <Filter>Sources\UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

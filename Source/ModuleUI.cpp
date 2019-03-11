@@ -34,6 +34,7 @@
 #include "ComponentCamera.h"
 #include "ComponentImageUI.h"
 #include "ComponentCheckBoxUI.h"
+#include "ComponentProgressBarUI.h"
 #include "ComponentButtonUI.h"
 #include "ComponentAnimation.h"
 #include "ComponentBillboard.h"
@@ -59,7 +60,7 @@
 #include "Assimp/include/version.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
-#include "SDL\include\SDL_opengl.h"
+#include "SDL\include\SDL_opengl.h"""
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
@@ -75,6 +76,14 @@
 #include "PanelAssetsWin.h"
 #include "PanelPrimitives.h"
 #include "PanelAnimationGraph.h"
+#include "PanelConfiguration.h"
+#include "PanelTimeControl.h"
+#include "PanelShader.h"
+#include "PanelAbout.h"
+#include "PanelCameraMenu.h"
+#include "PanelViewports.h"
+#include "PanelQuadtreeConfig.h"
+
 
 #pragma comment( lib, "glew-2.1.0/lib/glew32.lib")
 #pragma comment( lib, "glew-2.1.0/lib/glew32s.lib")
@@ -90,6 +99,13 @@ ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_ena
 	p_assetswindow = new PanelAssetsWin("Assets", true);
 	p_primitives = new PanelPrimitives("Primitives", true);
 	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
+	p_configuration = new PanelConfiguration("Configuration", true);
+	p_time_control = new PanelTimeControl("Time Control", true);
+	p_shader_editor = new PanelShader("Shader Editor", false);
+	p_about = new PanelAbout("About");
+	p_camera_menu = new PanelCameraMenu("Camera Menu");
+	p_viewports = new PanelViewports("Viewports");
+	p_quadtree_config = new PanelQuadtreeConfig("Quadtree Configuration");
 }
 
 
@@ -163,6 +179,11 @@ bool ModuleUI::Start()
 
 		open_tabs[BUILD_MENU] = false;
 
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = { 0.1f,0.1f,0.1f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = { 0.05f, 0.05f,0.05f,1.0f };
+		ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = { 0.3f, 0.3f,0.3f,1.0f };
+
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io->IniFilename = "Settings\\imgui.ini";
@@ -201,25 +222,9 @@ update_status ModuleUI::Update(float dt) {
 		disable_keyboard_control = false;
 
 
-		if (open_tabs[CONFIGURATION])
+		if (p_configuration->isActive())
 		{
-			ImGui::Begin("Configuration", &open_tabs[CONFIGURATION]);
-
-			if (ImGui::CollapsingHeader("Graphics"))
-				DrawGraphicsLeaf();
-			if (ImGui::CollapsingHeader("Window"))
-				DrawWindowConfigLeaf();
-			if (ImGui::CollapsingHeader("Hardware"))
-				DrawHardwareLeaf();
-			if (ImGui::CollapsingHeader("Application"))
-				DrawApplicationLeaf();
-			if (ImGui::CollapsingHeader("Editor preferences"))
-				DrawEditorPreferencesLeaf();
-
-			if (ImGui::Button("Reset Camera"))
-				App->camera->editor_camera->Reset();
-
-			ImGui::End();
+			p_configuration->Draw();
 		}
 
 		if (p_hierarchy->isActive())
@@ -237,29 +242,26 @@ update_status ModuleUI::Update(float dt) {
 		if (p_primitives->isActive())
 			p_primitives->Draw();
 
-		if (open_tabs[ABOUT])
-			DrawAboutLeaf();
+		if (p_about->isActive())
+			p_about->Draw();
 
-		if (open_tabs[LOG])
-			app_log->Draw("App log", &open_tabs[LOG]);
+		if (open_log_menu)
+			app_log->Draw("App log", &open_log_menu);
 
-		if (open_tabs[TIME_CONTROL])
-			DrawTimeControlWindow();
+		if (p_time_control->isActive())
+			p_time_control->Draw();
 
-		if (open_tabs[QUADTREE_CONFIG])
-			DrawQuadtreeConfigWindow();
+		if (p_quadtree_config->isActive())
+			p_quadtree_config->Draw();
 
-		if (open_tabs[CAMERA_MENU])
-			DrawCameraMenuWindow();
+		if (p_camera_menu->isActive())
+			p_camera_menu->Draw();
 
-		if (open_tabs[VIEWPORT_MENU])
-			DrawViewportsWindow();
+		if (p_viewports->isActive())
+			p_viewports->Draw();
 
 		if (p_assetswindow->isActive())
 			p_assetswindow->Draw();
-
-		if (open_tabs[RESOURCES_TAB])
-			DrawResourcesWindow();
 
 		if (open_tabs[SKYBOX_MENU])
 			DrawSkyboxWindow();
@@ -273,7 +275,10 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[BUILD_MENU])
 			DrawBuildMenu();
 
-		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+		if (p_shader_editor->isActive())
+			p_shader_editor->Draw();
+
+		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())
 			App->gui->DrawGuizmo();
 
 		for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
@@ -338,20 +343,26 @@ update_status ModuleUI::Update(float dt) {
 					p_inspector->toggleActive();
 				if (ImGui::MenuItem("Primitive", NULL, p_primitives->isActive()))
 					p_primitives->toggleActive();
-				ImGui::MenuItem("Configuration", NULL, &open_tabs[CONFIGURATION]);
-				ImGui::MenuItem("Log", NULL, &open_tabs[LOG]);
-				ImGui::MenuItem("Time control", NULL, &open_tabs[TIME_CONTROL]);
-				ImGui::MenuItem("Quadtree", NULL, &open_tabs[QUADTREE_CONFIG]);
-				ImGui::MenuItem("Camera Menu", NULL, &open_tabs[CAMERA_MENU]);
+				if (ImGui::MenuItem("Configuration", NULL, p_configuration->isActive()))
+					p_configuration->toggleActive();
+				ImGui::MenuItem("Log", NULL, &open_log_menu);
+				if (ImGui::MenuItem("Time control", NULL, p_time_control->isActive()))
+					p_time_control->toggleActive();
+				if (ImGui::MenuItem("Quadtree", NULL, p_quadtree_config->isActive()))
+					p_quadtree_config->toggleActive();
+				if (ImGui::MenuItem("Camera Menu", NULL, p_camera_menu->isActive()))
+					p_camera_menu->toggleActive();
 				if (ImGui::MenuItem("Assets", NULL, p_assetswindow->isActive()))
 					p_assetswindow->toggleActive();
-				ImGui::MenuItem("Resources", NULL, &open_tabs[RESOURCES_TAB]);
 				ImGui::MenuItem("Skybox", NULL, &open_tabs[SKYBOX_MENU]);
 				ImGui::MenuItem("Script Editor", NULL, &open_tabs[SCRIPT_EDITOR]);
+				if (ImGui::MenuItem("Shader Editor", NULL, p_shader_editor->isActive()))
+					p_shader_editor->toggleActive();
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Help")) {
-				ImGui::MenuItem("About", NULL, &open_tabs[ABOUT]);
+				if (ImGui::MenuItem("About", NULL, p_about->isActive()))
+					p_about->toggleActive();
 				if (ImGui::MenuItem("Documentation"))
 					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/wiki");
 				if (ImGui::MenuItem("Download latest"))
@@ -400,7 +411,8 @@ update_status ModuleUI::Update(float dt) {
 					}
 				}
 
-				ImGui::MenuItem("Open viewport menu", nullptr, open_tabs[VIEWPORT_MENU]);
+				if (ImGui::MenuItem("Open viewport menu", nullptr, p_viewports->isActive()))
+					p_viewports->toggleActive();
 
 				ImGui::EndMenu();
 			}
@@ -426,11 +438,6 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::End();
 		}
 
-		if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN && !disable_keyboard_control) {
-			open_tabs[VIEWPORT_MENU] = !open_tabs[VIEWPORT_MENU];
-			for (int i = 0; i < 6; i++)
-				App->camera->viewports[i]->active = open_tabs[VIEWPORT_MENU];
-		}
 		InvisibleDockingEnd();
 	}
 	return UPDATE_CONTINUE;
@@ -481,337 +488,6 @@ void ModuleUI::InitializeScriptEditor()
 		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 		script_editor.SetText(str);
 	}
-
-}
-
-
-
-
-void ModuleUI::DrawHierarchyTab()
-{
-	//ImGui::Begin("Hierarchy Tab", &open_tabs[HIERARCHY]);
-	//ImGui::PushFont(ui_fonts[REGULAR]);
-
-	//int id = 0;
-	//std::list<GameObject*> root_objs;
-	//App->scene->getRootObjs(root_objs);
-
-	//bool item_hovered = false;
-
-	//for (auto it = root_objs.begin(); it != root_objs.end(); it++)
-	//	if (DrawHierarchyNode(*(*it), id)) 
-	//		item_hovered = true;
-	//	
-	//if (ImGui::IsWindowHovered())
-	//{
-	//	if (!item_hovered&&App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-	//		App->scene->selected_obj.clear();
-	//	else if(App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
-	//		ImGui::OpenPopup("##hierarchy context menu");
-	//}
-
-	//if (ImGui::BeginPopup("##hierarchy context menu"))
-	//{
-	//	if (ImGui::MenuItem("Empty gameobject"))
-	//	{
-	//		GameObject* parent = nullptr;
-	//		if (!App->scene->selected_obj.empty())
-	//			parent = *App->scene->selected_obj.begin();
-	//		
-	//		GameObject* go = new GameObject("Empty", parent);
-	//		if (!App->scene->selected_obj.empty())
-	//			(*App->scene->selected_obj.begin())->addChild(go);
-	//	}
-	//	if (ImGui::TreeNode("UI"))
-	//	{
-	//		if (ImGui::MenuItem("UI_Image"))
-	//		{
-	//			GameObject* parent = nullptr;
-	//			if (!App->scene->selected_obj.empty() ) {
-	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-	//					parent = *(App->scene->selected_obj.begin());						
-	//				}
-
-	//			}
-	//			else {
-	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-	//			}
-	//			if (parent != nullptr) {
-	//				GameObject* image = new GameObject("UI_Image", parent, true);
-	//				image->addComponent(Component_type::UI_IMAGE);
-	//				parent->addChild(image);
-	//			}
-	//		}
-	//		if (ImGui::MenuItem("UI_Text"))
-	//		{
-	//			GameObject* parent = nullptr;
-	//			if (!App->scene->selected_obj.empty()) {
-	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-	//					parent = *App->scene->selected_obj.begin();
-	//				}
-	//			}
-	//			else {
-	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-	//			}
-	//			if (parent != nullptr) {
-	//				GameObject* text = new GameObject("UI_Text", parent, true);
-	//				text->addComponent(Component_type::UI_TEXT);
-	//				parent->addChild(text);
-	//			}
-	//			
-	//		}
-	//		
-	//		if (ImGui::MenuItem("UI_Button"))
-	//		{
-	//			GameObject* parent = nullptr;
-	//			if (!App->scene->selected_obj.empty()) {
-	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-	//					parent = (*App->scene->selected_obj.begin());
-	//				}
-	//			}
-	//			else {
-	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-	//			}
-	//			if (parent != nullptr) {
-	//				GameObject* button = new GameObject("UI_Button", parent, true);
-	//				button->addComponent(Component_type::UI_IMAGE);
-	//				button->addComponent(Component_type::UI_BUTTON);
-	//				parent->addChild(button);
-	//			}
-	//			
-	//		}
-	//		if (ImGui::MenuItem("UI_CheckBox"))
-	//		{
-	//			GameObject* parent = nullptr;
-	//			if (!App->scene->selected_obj.empty()) {
-	//				if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
-	//					parent = *App->scene->selected_obj.begin();
-	//				}
-	//			}
-	//			else {
-	//				parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
-	//			}
-	//			if (parent != nullptr) {
-	//				GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
-	//				chbox->addComponent(Component_type::UI_IMAGE);
-	//				chbox->addComponent(Component_type::UI_CHECKBOX);
-	//				parent->addChild(chbox);
-	//			}
-	//			
-	//		}
-	//		ImGui::TreePop();
-	//	}
-	//	ImGui::EndPopup();
-	//}
-
-	//ImGui::PopFont();
-	//ImGui::End();
-}
-
-bool ModuleUI::DrawHierarchyNode(GameObject& game_object, int& id) 
-{
-	//id++;
-	//static int selection_mask = (1 << 2);
-	//ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick; 
-
-	//std::list<GameObject*> children;
-	//game_object.getChildren(children);
-
-	//if(children.empty())
-	//	node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; 
-	//for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
-	//	if (*it == &game_object) {
-	//		node_flags |= ImGuiTreeNodeFlags_Selected;
-	//		break;
-	//	}
-	//}
-
-	//bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)game_object.getUUID(), node_flags, game_object.getName().c_str()) && !children.empty();
-	//bool item_hovered = ImGui::IsItemHovered();
-
-	//
-	//if(!App->scene->selected_obj.empty() && (*App->scene->selected_obj.begin()) == &game_object)
-	//	selection_mask = (1 << id);
-	//else if (App->scene->selected_obj.empty())
-	//	selection_mask = (1 >> id);
-
-
-	//if (ImGui::IsItemClicked()) {
-	//	if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
-	//		App->scene->selected_obj.clear();
-	//	}
-	//	int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it
-	//	App->scene->selected_obj.remove(&game_object);
-	//	if(lastSize == App->scene->selected_obj.size())
-	//	{
-	//		App->scene->selected_obj.push_back(&game_object);
-	//	}
-	//	
-	//}
-	//else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
-	//	ImGui::OpenPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str());
-
-	//static int show_rename = -1;
-	//if (ImGui::BeginPopup(("##" + game_object.getName() + std::to_string(id) + "Object context menu").c_str()))
-	//{
-	//	if (ImGui::Button(("Duplicate##" + game_object.getName() + std::to_string(id) + "Duplicate gobj button").c_str()))
-	//		App->scene->duplicateGameObject(&game_object);
-
-	//	if (ImGui::Button(("Rename##" + game_object.getName() + std::to_string(id) + "Rename gobj button").c_str()))
-	//		show_rename = id;
-
-	//	if (ImGui::Button(("Delete##" + game_object.getName() + std::to_string(id) + "Delete gobj button").c_str()))
-	//		App->scene->deleteGameObjectRecursive(&game_object);
-
-	//	if (ImGui::Button(("Save to prefab##" + game_object.getName() + std::to_string(id) + "prefab save gobj button").c_str()))
-	//		App->scene->SavePrefab(&game_object, (game_object.getName()).c_str());
-
-	//	ImGui::EndPopup();
-	//}
-
-	//if (node_open)
-	//{
-	//	ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
-
-	//	for (std::list<GameObject*>::iterator it = children.begin(); it != children.end(); it++)
-	//		if (DrawHierarchyNode(*(*it), id))
-	//			item_hovered = true;
-
-	//	ImGui::PopStyleVar();
-	//	ImGui::TreePop();
-	//}
-
-	//if (show_rename == id)
-	//{
-	//	static bool rename_open = true;
-	//	disable_keyboard_control = true;
-	//	ImGui::SetNextWindowPos(ImVec2(700, 320), ImGuiCond_FirstUseEver);
-	//	ImGui::Begin("Rename object", &rename_open);
-	//	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	//	static char rename_buffer[64];
-	//	ImGui::PushItemWidth(ImGui::GetWindowSize().x - 60);
-	//	ImGui::InputText("##Rename to", rename_buffer, 64);
-
-	//	ImGui::SameLine();
-	//	if (ImGui::Button("OK##Change name"))
-	//	{
-	//		game_object.Rename(rename_buffer);
-	//		show_rename = -1;
-	//	}
-
-	//	ImGui::PopFont();
-	//	ImGui::End();
-
-	//	if(!rename_open)
-	//		show_rename = -1;
-	//}
-
-	//return item_hovered;
-	return false;
-}
-
-void ModuleUI::DrawObjectInspectorTab()
-{
-	//ImGui::Begin("Object inspector", &open_tabs[OBJ_INSPECTOR]);
-	//ImGui::PushFont(ui_fonts[REGULAR]);
-
-	//static bool select_script = false;
-	//static bool select_audio = false;
-	//if (App->scene->selected_obj.size() == 1) {
-	//	GameObject* selected_obj = (*App->scene->selected_obj.begin());
-
-	//	if (selected_obj)
-	//	{
-	//		ImGui::Text("Name: %s", selected_obj->getName().c_str());
-
-	//		ImGui::Checkbox("Active", &selected_obj->is_active);
-	//		ImGui::SameLine();
-	//		if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
-	//			App->scene->quadtree_reload = true;
-
-	//		DrawTagSelection(selected_obj);
-	//		// Add a new tag
-	//		static char new_tag[64];
-	//		ImGui::InputText("New Tag", new_tag, 64);
-	//		if (ImGui::Button("Add Tag")) {
-	//			App->scripting->tags.push_back(new_tag);
-	//			for (int i = 0; i < 64; i++)
-	//				new_tag[i] = '\0';
-
-	//		}
-
-	//		if (ImGui::CollapsingHeader("Add component"))
-	//		{
-	//			if (ImGui::Button("Add Mesh"))	selected_obj->addComponent(MESH);
-	//			if (ImGui::Button("Add Camera"))  selected_obj->addComponent(CAMERA);
-	//			if (ImGui::Button("Add Script")) select_script = true;
-	//			if (ImGui::Button("Add Animation")) selected_obj->addComponent(ANIMATION);
-	//			if (ImGui::Button("Add Animation Event")) selected_obj->addComponent(ANIMATION_EVENT);
-	//			if (ImGui::Button("Add Audio Source")) select_audio = true;
-	//			if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER); 
-	//			if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
-	//			if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-	//			if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
-	//		}
-
-	//		std::list<Component*> components;
-	//		selected_obj->getComponents(components);
-
-	//		std::list<Component*> components_to_erase;
-	//		int id = 0;
-	//		for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-	//			if (!DrawComponent(*(*it), id))
-	//				components_to_erase.push_back(*it);
-	//			id++;
-	//		}
-
-	//		for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
-	//			selected_obj->removeComponent(*it);
-
-	//		if (select_script) {
-	//			std::list<resource_deff> script_res;
-	//			App->resources->getScriptResourceList(script_res);
-
-	//			ImGui::Begin("Script selector", &select_script);
-	//			for (auto it = script_res.begin(); it != script_res.end(); it++) {
-	//				resource_deff script_deff = (*it);
-	//				if (ImGui::MenuItem(script_deff.asset.c_str())) {
-	//					ComponentScript* c_script = (ComponentScript*)selected_obj->addComponent(SCRIPT);
-	//					c_script->assignScriptResource(script_deff.uuid);
-	//					select_script = false;
-	//					break;
-	//				}
-	//			}
-
-	//			ImGui::End();
-	//		}
-
-	//		if (select_audio)
-	//		{
-	//			ImGui::Begin("Select Audio Event", &select_audio);
-	//			if (ImGui::MenuItem("NONE"))
-	//			{
-	//				selected_obj->addComponent(AUDIOSOURCE);
-	//				select_audio = false;
-	//			}
-	//			for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
-
-	//				if (ImGui::MenuItem((*it).c_str())) {
-	//					ComponentAudioSource* c_source = (ComponentAudioSource*)selected_obj->addComponent(AUDIOSOURCE);
-	//					c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
-	//					c_source->SetSoundName((*it).c_str());
-	//					select_audio = false;
-	//					break;
-	//				}
-	//			}
-	//			ImGui::End();
-	//		}
-	//	}
-	//}
-
-	//ImGui::PopFont();
-	//ImGui::End();
 
 }
 
@@ -1494,9 +1170,10 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			//position
 			ImGui::Text("Position:");
 			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
 			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { rectTrans->setPos(position); }
 			//Width
+			ImGui::Text("Dimensions:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { rectTrans->setWidth(width); }
@@ -1730,6 +1407,76 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Button("Idle")) { button->setState(B_IDLE); } ImGui::SameLine();
 			if (ImGui::Button("Hover")) { button->setState(B_MOUSEOVER); }ImGui::SameLine();
 			if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
+		}
+		break;
+	case UI_PROGRESSBAR:
+		if (ImGui::CollapsingHeader("UI Progress Bar"))
+		{
+			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
+			static float2 position = pbar->getPos();
+			static float percent = pbar->getPercent();
+			static float width= pbar->getInteriorWidth();
+			static float depth = pbar->getInteriorDepth();
+
+			ImGui::Text("Percent:");
+			ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
+			ImGui::Text("Position:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { pbar->setPos(position); }
+			ImGui::Text("Interior bar width:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { pbar->setInteriorWidth(width); }
+			ImGui::Text("Interior bar depth:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { pbar->setInteriorDepth(depth); }
+
+			int w = 0; int h = 0;
+			if (pbar->getResourceTexture() != nullptr) {
+				pbar->getResourceTexture()->texture->getSize(w, h);
+			}
+
+			ImGui::Text("Bar texture data: \n x: %d\n y: %d", w, h);
+
+			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+					if (pbar->getResourceTexture() != nullptr)
+						App->resources->deasignResource(pbar->getResourceTexture()->uuid);
+					pbar->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+				}
+			}
+
+			ImGui::Image(pbar->getResourceTexture() != nullptr ? (void*)pbar->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+			
+
+			int w2 = 0; int h2 = 0;
+			if (pbar->getResourceTextureInterior() != nullptr) {
+				pbar->getResourceTextureInterior()->texture->getSize(w2, h2);
+			}
+
+
+			ImGui::Text("Interior Bar texture data: \n x: %d\n y: %d", w2, h2);
+
+			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+					if (pbar->getResourceTextureInterior() != nullptr)
+						App->resources->deasignResource(pbar->getResourceTextureInterior()->uuid);
+					pbar->setResourceTextureInterior((ResourceTexture*)App->resources->getResource(new_resource));
+				}
+			}
+
+			ImGui::Image(pbar->getResourceTextureInterior() != nullptr ? (void*)pbar->getResourceTextureInterior()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+			ImGui::SameLine();
 		}
 		break;
 	case ANIMATION:
@@ -2351,8 +2098,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
 					resource_deff anim_deff = (*it);
 					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						App->resources->deasignResource(animator->getAnimationGraphResource());
-						App->resources->assignResource(anim_deff.uuid);
 						animator->setAnimationGraphResource(anim_deff.uuid);
 						set_animation_menu = false;
 						break;
@@ -2526,609 +2271,6 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 	}
 	else 
 		camera.initFrameBuffer();
-}
-
-void ModuleUI::DrawViewportsWindow()
-{
-	ImGui::Begin("Viewports", nullptr);
-
-	if (ImGui::Button("Close##Close viewports"))
-	{
-		for (int i = 0; i < 6; i++)
-			App->camera->viewports[i]->active = false;
-
-		open_tabs[VIEWPORT_MENU] = false;
-	}
-
-	for (int i = 0; i < 6; i++)
-	{
-		if (i != 0 && i != 3)
-			ImGui::SameLine();
-
-		FrameBuffer* fb = App->camera->viewports[i]->getFrameBuffer();
-		ImGui::TextWrapped(App->camera->viewports[i]->getViewportDirString().c_str());
-		ImGui::SameLine();
-
-		if (ImGui::ImageButton((void*)(App->camera->viewports[i]->draw_depth ? fb->depth_tex->gl_id : fb->tex->gl_id), ImVec2(fb->size_x / 4, fb->size_y / 4), nullptr, ImVec2(0, 1), ImVec2(1, 0)))
-		{
-			for (int i = 0; i < 6; i++)
-				App->camera->viewports[i]->active = false;
-
-			App->camera->background_camera->active = false;
-			App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
-			App->camera->background_camera->active = true;
-			open_tabs[VIEWPORT_MENU] = false;
-		}
-	}
-	ImGui::End();
-}
-
-void ModuleUI::DrawCameraMenuWindow()
-{
-	ImGui::Begin("Camera Menu", &open_tabs[CAMERA_MENU]);
-
-	if (App->camera->override_editor_cam_culling)
-	{
-		ImGui::TextWrapped("Background camera frustum culling overriden by camera %s", App->camera->override_editor_cam_culling->getParent()->getParent()->getName().c_str());
-		if (ImGui::Button("Stop overriding"))
-			App->camera->override_editor_cam_culling = nullptr;
-	}
-
-	static bool hide_viewports = false;
-
-	ImGui::Checkbox("Hide viewports", &hide_viewports);
-
-	for (auto it = App->camera->game_cameras.begin(); it != App->camera->game_cameras.end(); it++)
-	{
-		if ((*it)->IsViewport() && hide_viewports)
-			continue;
-
-		std::string name;
-		if ((*it)->getParent()) 
-			name = (*it)->getParent()->getParent()->getName() + "Camera";
-		else
-		{
-			if ((*it) == App->camera->editor_camera)
-				name = "Free camera";
-			else
-				name = (*it)->getViewportDirString();
-		}
-
-		if (ImGui::TreeNode(name.c_str()))
-		{
-			if ((*it)->active)  ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Active");
-			else				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unactive");
-
-			ImGui::SameLine();
-			if (*it != App->camera->background_camera)
-			{
-				static bool is_overriding;
-				is_overriding = ((*it) == App->camera->override_editor_cam_culling);
-				if (ImGui::Checkbox("Override Frustum Culling", &is_overriding))
-				{
-					if (!is_overriding)  App->camera->override_editor_cam_culling = nullptr;
-					else				 App->camera->override_editor_cam_culling = *it;
-				}
-			}
-			else
-				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Background camera");
-			
-			ImGui::Checkbox("Draw camera view", &(*it)->draw_in_UI);
-
-			ImGui::Checkbox("Draw frustum", &(*it)->draw_frustum);
-
-			ImGui::Checkbox("Draw depth", &(*it)->draw_depth);
-
-			if(ImGui::CollapsingHeader("Frustum"))
-			{
-				if ((*it)->getFrustum()->type == math::FrustumType::PerspectiveFrustum)
-				{
-					ImGui::Text("Current mode: Perspective");
-					ImGui::SameLine();
-					if (ImGui::Button("Set ortographic"))
-					{
-						(*it)->getFrustum()->type = math::FrustumType::OrthographicFrustum;
-						(*it)->getFrustum()->orthographicHeight = (*it)->getFrustum()->orthographicWidth = INIT_ORT_SIZE;
-					}
-
-					static float ver_fov = RADTODEG * (*it)->getFrustum()->verticalFov;
-
-					if (ImGui::SliderFloat("##Vertical FOV", &ver_fov, MIN_V_FOV, MAX_V_FOV, "Ver. FOV: %.0f"))
-						(*it)->getFrustum()->verticalFov = DEGTORAD * ver_fov;
-				}
-				else
-				{
-					ImGui::Text("Current mode: Ortographic");
-					ImGui::SameLine();
-
-					if (ImGui::Button("Set perspective"))
-					{
-						(*it)->getFrustum()->type = math::FrustumType::PerspectiveFrustum;
-						(*it)->getFrustum()->horizontalFov = DEGTORAD * INIT_HOR_FOV; (*it)->getFrustum()->verticalFov = DEGTORAD * INIT_VER_FOV;
-					}
-
-					ImGui::SliderFloat("##Ortographic Width", &(*it)->getFrustum()->orthographicWidth, 1.0f, 500.0f, "Ort. width: %.0f");
-					ImGui::SliderFloat("##Ortographic Height", &(*it)->getFrustum()->orthographicHeight, 1.0f, 500.0f, "Ort. height: %.0f");
-
-				}
-
-				ImGui::SliderFloat("##Near Plane:", &(*it)->getFrustum()->nearPlaneDistance, 0.1f, (*it)->getFrustum()->farPlaneDistance, "Near plane: %.1f");
-				ImGui::SliderFloat("##Far Plane:", &(*it)->getFrustum()->farPlaneDistance, (*it)->getFrustum()->nearPlaneDistance, 2500.0f, "Far plane: %.1f");
-
-			}
-
-			ImGui::TreePop();
-		}
-	}
-
-	ImGui::End();
-}
-
-void ModuleUI::DrawAssetsWindow()
-{
-	//ImGui::Begin("Assets Window", &open_tabs[ASSET_WINDOW]);
-	//int element_size = 64;
-	//std::string path, name, extension;
-	//
-	//int column_num = (int)trunc(ImGui::GetWindowSize().x / (element_size + 20));
-	//static bool item_hovered = false;
-
-	//if (column_num != 0)
-	//{
-	//	int count = 0;
-	//	int iteration = 0;
-
-	//	if (ImGui::ImageButton((void*)ui_textures[RETURN_ICON]->getGLid(), ImVec2(24, 17)))
-	//	{
-	//		if (!App->fs.getPath(asset_window_path))
-	//			asset_window_path = ASSETS_FOLDER;
-	//	}
-
-	//	ImGui::SameLine();
-	//	ImGui::Text(asset_window_path.c_str());
-
-	//	using std::experimental::filesystem::directory_iterator;
-	//	for (auto& it : directory_iterator(asset_window_path))
-	//	{
-	//		extension = it.path().generic_string();
-	//		App->fs.getExtension(extension);
-	//		if(extension != ".meta")
-	//			count++;
-	//	}
-
-	//	if (count == 0)
-	//	{
-	//		ImGui::End();
-	//		DrawAssetInspector();
-	//		return;
-	//	}
-
-	//	else if (count < column_num) column_num = count;
-	//	count = 0;
-
-	//	ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
-
-	//	for (auto& it : directory_iterator(asset_window_path)) {
-
-	//		path = name = extension = it.path().generic_string();	// Separate path, name and extension	
-	//		App->fs.getExtension(extension);
-	//		App->fs.getPath(path);
-	//		App->fs.getFileNameFromPath(name);
-
-	//		if (extension == ".meta")
-	//			continue;
-
-	//		if (count == column_num)
-	//		{
-	//			ImGui::NewLine();
-	//			iteration++;
-	//			count = 0;
-	//			ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
-	//		}
-	//		count++;
-
-	//		if(column_num > 1)
-	//			ImGui::SetColumnWidth(ImGui::GetColumnIndex(), element_size + 20);
-
-	//		bool draw_caution = false;
-	//		bool draw_warning = false;
-	//		std::string error_message;
-
-	//		if (it.status().type() == std::experimental::filesystem::v1::file_type::directory)
-	//		{
-
-	//			if (ImGui::IsMouseDoubleClicked(0))
-	//			{
-	//				ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-	//				if (ImGui::IsItemHovered())
-	//					asset_window_path = it.path().generic_string();
-	//			}
-	//			else {
-	//				if (ImGui::ImageButton((void*)ui_textures[FOLDER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//					selected_asset = it.path().generic_string();
-	//				else if (ImGui::IsItemHovered())
-	//					item_hovered = true;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			const char* type = App->resources->assetExtension2type(extension.c_str());
-
-	//			if (type == "3dobject")
-	//			{
-
-	//				if (ImGui::IsMouseDoubleClicked(0)) {
-	//					ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-	//					if (ImGui::IsItemHovered())
-	//						App->resources->Load3dObjectToScene(it.path().generic_string().c_str());
-	//				}
-	//				else{
-	//					if (ImGui::ImageButton((void*)ui_textures[OBJECT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//						selected_asset = it.path().generic_string();
-	//					else if (ImGui::IsItemHovered())
-	//						item_hovered = true;
-	//				}
-	//			}
-	//			else if (type == "texture")
-	//			{
-	//				ResourceTexture* res_tex = (ResourceTexture*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
-	//				if(res_tex){
-	//					res_tex->drawn_in_UI = true;
-	//					if (!res_tex->IsLoaded())
-	//						res_tex->LoadToMemory();
-	//					if (ImGui::ImageButton((void*)res_tex->texture->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//						selected_asset = it.path().generic_string();
-	//					else if (ImGui::IsItemHovered())
-	//						item_hovered = true;
-	//				}
-
-
-	//			}
-	//			else if (type == "prefab") {
-
-	//				if (ImGui::IsMouseDoubleClicked(0)) {
-	//					ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-	//					if (ImGui::IsItemHovered())
-	//						App->scene->AskPrefabLoadFile((char*)it.path().generic_string().c_str(), float3(0,0,0), float3(0, 0, 0));
-	//				}
-	//				else {
-	//					if (ImGui::ImageButton((void*)ui_textures[PREFAB_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//						selected_asset = it.path().generic_string();
-	//					else if (ImGui::IsItemHovered())
-	//						item_hovered = true;
-	//				}
-	//			}
-
-	//			else if(type == "scene")
-	//			{
-	//				if (ImGui::IsMouseDoubleClicked(0)) {
-	//					ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-	//					if (ImGui::IsItemHovered())
-	//						App->scene->AskSceneLoadFile((char*)it.path().generic_string().c_str());
-	//				}
-	//				else {
-	//					if (ImGui::ImageButton((void*)ui_textures[SCENE_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//						selected_asset = it.path().generic_string();
-	//					else if (ImGui::IsItemHovered())
-	//						item_hovered = true;
-	//				}
-	//			}
-
-	//			else if (type == "script")
-	//			{
-	//				ResourceScript* res = (ResourceScript*)App->resources->getResource(App->resources->getResourceUuid(it.path().generic_string().c_str()));
-
-	//				if (res && res->IsInvalid())
-	//				{
-	//					draw_warning = true;
-	//					error_message += "Compile error in imported script";
-	//				}
-
-	//				if (ImGui::IsMouseDoubleClicked(0)) {
-	//					ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
-	//					if (ImGui::IsItemHovered())
-	//					{
-	//						open_script_path = it.path().generic_string();
-	//						open_tabs[SCRIPT_EDITOR] = true;
-
-	//						if (App->scripting->edited_scripts.find(open_script_path) != App->scripting->edited_scripts.end())
-	//							script_editor.SetText(App->scripting->edited_scripts.at(open_script_path));
-	//						else
-	//						{
-	//							std::ifstream t(open_script_path.c_str());
-	//							if (t.good())
-	//							{
-	//								std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-	//								script_editor.SetText(str);
-	//							}
-	//						}
-	//					}
-	//				}
-	//				else {
-	//					if (ImGui::ImageButton((void*)ui_textures[SCRIPT_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
-	//						selected_asset = it.path().generic_string();
-	//					else if (ImGui::IsItemHovered())
-	//						item_hovered = true;
-	//				}
-	//			}
-	//		}
-	//		
-	//		if (draw_warning || draw_caution)
-	//		{
-	//			ImGui::Image((void*)ui_textures[draw_warning ? WARNING_ICON : CAUTION_ICON]->getGLid(), ImVec2(16, 16));
-
-	//			if (ImGui::IsItemHovered())
-	//			{
-	//				ImGui::BeginTooltip();
-	//				ImGui::Text(error_message.c_str());
-	//				ImGui::EndTooltip();
-	//			}
-
-	//			ImGui::SameLine();
-	//		}
-
-	//		ImGui::TextWrapped(name.c_str());
-	//		ImGui::NextColumn();
-	//	}
-	//	ImGui::Columns(1);
-	//}
-
-	//if (ImGui::IsWindowHovered())
-	//{
-	//	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-	//		selected_asset = "";
-	//	else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
-	//		ImGui::OpenPopup("##asset window context menu");
-	//}
-	//item_hovered = false;
-
-	//static bool name_script = false;
-	//if (ImGui::BeginPopup("##asset window context menu"))
-	//{
-	//	if (ImGui::Button("Add script")) 
-	//		name_script = true;
-
-	//	ImGui::EndPopup();
-	//}
-
-	//ImGui::End();
-
-	//if (name_script) {
-	//	disable_keyboard_control = true;
-	//	ImGui::Begin("Script Name", &name_script);
-	//	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	//	static char rename_buffer[64];
-	//	ImGui::InputText("Create as...", rename_buffer, 64);
-	//	ImGui::SameLine();
-	//	if (ImGui::Button("Create")) {
-	//		std::string script_name = rename_buffer;
-	//		std::string full_path = asset_window_path + "/" + script_name + ".wren";
-	//		App->fs.CreateEmptyFile(full_path.c_str());
-	//		open_script_path = full_path;
-	//		std::string file_initial_text;
-	//		file_initial_text = 
-	//			"\nimport \"ObjectLinker\" for ObjectLinker,\nEngineComunicator,\nInputComunicator\n"
-	//			"\n//For each var you declare, remember to create" 
-	//			"\n//		setters [varname=(v) { __varname = v }]" 
-	//			"\n//		and getters [varname { __varname }]" 
-	//			"\n//The construct method is mandatory, do not erase!"
-	//			"\n//The import statement at the top og the cript is mandatory, do not erase!"
-	//			"\n//Be careful not to overwrite the methods declared in Game/ScriptingAPI/ObjectLinker.wren"
-	//			"\n//[gameObject] is a reserved identifier for the engine, don't use it for your own variables"
-	//			"\n\nclass " + script_name + " is ObjectLinker{"
-	//			"\n\nconstruct new(){}"
-	//			"\n\n Start() {}"
-	//			"\n\n Update() {}"
-	//			"\n}";
-	//		script_editor.SetText(file_initial_text);
-	//		App->fs.SetFileString(open_script_path.c_str(), file_initial_text.c_str());
-	//		open_tabs[SCRIPT_EDITOR] = true;
-	//		for (int i = 0; i < 64; i++)
-	//			rename_buffer[i] = '\0';
-	//		name_script = false;
-	//	}
-	//	ImGui::PopFont();
-	//	ImGui::End();
-	//}
-
-	//DrawAssetInspector();
-}
-
-void ModuleUI::DrawAssetInspector()
-{
-	//ImGui::Begin("Asset inspector", nullptr);
-
-	//if (!selected_asset.empty())
-	//{
-	//	std::string name, extension;
-	//	extension = name = selected_asset;
-	//	App->fs.getExtension(extension);
-	//	App->fs.getFileNameFromPath(name);
-
-	//	ImGui::Text(name.c_str());
-	//	
-	//	if (extension.empty())  // is directory
-	//	{
-	//		ImGui::Text("type: directory");
-	//		ImGui::End();
-	//		return;
-	//	}
-	//	else if (extension == ".scene")
-	//	{
-	//		ImGui::Text("type: scene");
-	//		ImGui::End();
-	//		return;
-	//	}
-
-	//	const char* type = App->resources->assetExtension2type(extension.c_str());
-	//	if(type == "3dobject")
-	//		ImGui::Text("type: 3D object");
-	//	else
-	//		ImGui::Text("type: %s", type);
-
-	//	Resource* res = App->resources->getResource(App->resources->getResourceUuid(selected_asset.c_str()));
-	//	if (res) {
-	//		ImGui::Text("Used by %s components", std::to_string(res->components_used_by).c_str());
-	//		if (res->IsLoaded())		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Loaded");
-	//		else					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unloaded");
-	//	}
-	//	else
-	//		return;
-
-	//	if (type == "texture")
-	//	{
-	//		ResourceTexture* res_tex = (ResourceTexture*)res;
-	//		if(res_tex){
-	//			res_tex->drawn_in_UI = true;
-	//			if (!res_tex->IsLoaded())
-	//				res_tex->LoadToMemory();
-
-	//			int size_x, size_y;
-	//			res_tex->texture->getSize(size_x, size_y);
-	//			ImGui::Image((void*)res_tex->texture->getGLid(), ImVec2((float)size_x, (float)size_y));
-
-	//			ImGui::Scrollbar(ImGuiLayoutType_::ImGuiLayoutType_Horizontal);
-	//		}
-	//	}
-	//	else if (type == "script")
-	//	{
-	//		
-	//		ScriptData* script_data = ((ResourceScript*)res)->getData();
-
-	//		bool updated = false;
-
-	//		if (!script_data) {
-	//			ImGui::Text("Script can't be compiled!");
-	//		}
-	//		else {
-	//			for (auto it = script_data->vars.begin(); it != script_data->vars.end(); it++) {
-
-	//				ImportedVariable* curr = &(*it);
-	//				std::string unique_tag = "##" + curr->getName();
-
-	//				ImGui::Text(curr->getName().c_str());
-	//				static int type = 0;
-	//				type = curr->getType();
-	//				if (ImGui::Combo((unique_tag + "type").c_str(), &type, "None\0Bool\0String\0Numeral\0"))
-	//				{
-	//					if(type != 0)
-	//						curr->setType((ImportedVariable::WrenDataType)(type));
-
-	//					updated = true;
-	//				}
-
-	//				ImGui::SameLine();
-
-	//				static bool forced_type = false;
-	//				forced_type = curr->isTypeForced();
-	//				if (ImGui::Checkbox(("Forced" + unique_tag + "forced").c_str(), &forced_type))
-	//				{
-	//					if (type != 0)
-	//					{
-	//						curr->setForcedType(forced_type);
-	//						updated = true;
-	//					}
-	//				}
-
-	//				static bool _public = true;
-	//				_public = curr->isPublic();
-	//				if (ImGui::Checkbox(("Public" + unique_tag + "public").c_str(), &_public))
-	//				{
-	//					curr->setPublic(_public);
-	//					updated = true;
-	//				}
-	//			}
-
-	//			if (updated)
-	//			{
-	//				for (auto instance = App->scripting->loaded_instances.begin(); instance != App->scripting->loaded_instances.end(); instance++)
-	//				{
-	//					if ((*instance)->class_name == script_data->class_name)
-	//					{
-	//						if ((*instance)->vars.size() == script_data->vars.size());   // should always be true, but to be safe
-	//						for (int i = 0; i < (*instance)->vars.size(); i++)
-	//						{
-	//							(*instance)->vars[i].setType(script_data->vars[i].getType());
-	//							(*instance)->vars[i].setPublic(script_data->vars[i].isPublic());
-	//							(*instance)->vars[i].setForcedType(script_data->vars[i].isTypeForced());
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-
-	//ImGui::End();
-}
-
-void ModuleUI::DrawResourcesWindow()
-{
-	ImGui::Begin("Resources Window", &open_tabs[RESOURCES_TAB]);
-	static float refresh_ratio = 1;
-	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-	if (ImGui::InputFloat("Refresh ratio (seconds)", &refresh_ratio)) {
-		App->resources->setRefreshRatio(refresh_ratio * 1000);
-	}
-	ImGui::End();
-}
-
-//void ModuleUI::DrawAudioTab()
-//{
-//	ImGui::Begin("Audio", &open_tabs[AUDIO]);
-//	ImGui::PushFont(ui_fonts[REGULAR]);
-//	ImGui::Text("Use this tab to check and play loaded audio files");
-//	
-//	for (auto it = App->audio->audio_files.begin(); it != App->audio->audio_files.end(); it++)
-//	{
-//		if (ImGui::TreeNode((*it)->name.c_str()))
-//		{
-//			ImGui::Text("type: %s", (*it)->type == FX ? "FX" : "Music");
-//			ImGui::SameLine();
-//			if (ImGui::ImageButton((void*)ui_textures[PLAY]->getGLid(), ImVec2(16, 16)))
-//				(*it)->Play();
-//			ImGui::SameLine();
-//			if (ImGui::ImageButton((void*)ui_textures[STOP]->getGLid(), ImVec2(16, 16)))
-//				(*it)->Stop();
-//			ImGui::TreePop();
-//		}
-//	}
-//
-//  ImGui::PopFont();
-//	ImGui::End();
-//}
-
-void ModuleUI::DrawPrimitivesTab() 
-{
-	/*ImGui::Begin("Primitives", &open_tabs[PRIMITIVE]);
-	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	if (ImGui::Button("Add cube")){
-		GameObject* cube = new GameObject("Cube");
-		cube->addComponent(C_AABB);
-		cube->addComponent(new ComponentMesh(cube, Primitive_Cube));
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Add plane")){
-		GameObject* plane = new GameObject("Plane");
-		plane->addComponent(C_AABB);
-		plane->addComponent(new ComponentMesh(plane, Primitive_Plane));
-	}
-	if (ImGui::Button("Add sphere")) {
-		GameObject* sphere = new GameObject("Sphere");
-		sphere->addComponent(C_AABB);
-		sphere->addComponent(new ComponentMesh(sphere, Primitive_Sphere));
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Add cylinder")) {
-		GameObject* cylinder = new GameObject("Cylinder");
-		cylinder->addComponent(C_AABB);
-		cylinder->addComponent(new ComponentMesh(cylinder, Primitive_Cylinder));
-	}
-
-	ImGui::PopFont();
-	ImGui::End();*/
 }
 
 void ModuleUI::DrawSkyboxWindow()
@@ -3454,326 +2596,6 @@ uint ModuleUI::getMainScene() const
 	return ret;
 }
 
-void ModuleUI::DrawAboutLeaf()
-{
-	ImGui::Begin("About", &open_tabs[ABOUT]); 
-	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	ImGui::Text("Kuroko Engine");
-	ImGui::Separator();
-	ImGui::Text("An engine to make videogames");
-	ImGui::Text("By Rodrigo de Pedro Lombao and Lucas Garcia Mateu.");
-	ImGui::Text("Kuroko Engine is licensed under the MIT License.\n");
-	ImGui::Separator();
-
-	ImGui::Text("Libraries used:");
-	ImGui::Text("Assimp %i", ASSIMP_API::aiGetVersionMajor());
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##assimp"))
-		App->requestBrowser("http://www.assimp.org/");
-	ImGui::Text("Glew %s", glewGetString(GLEW_VERSION));
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##glew"))
-		App->requestBrowser("http://glew.sourceforge.net/");
-	ImGui::Text("DevIL 1.8.0");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##devil"))
-		App->requestBrowser("http://openil.sourceforge.net/");
-	ImGui::Text("MathGeoLib ? version");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##mathgeolib"))
-		App->requestBrowser("http://clb.demon.fi/MathGeoLib/");
-	SDL_version compiled; 
-	SDL_GetVersion(&compiled);
-	ImGui::Text("SDL %d.%d.%d", compiled.major, compiled.major, compiled.patch);
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##sdl"))
-		App->requestBrowser("https://wiki.libsdl.org/FrontPage");
-	ImGui::Text("OpenGL %s", glGetString(GL_VERSION));
-	ImGui::Text("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##opngl"))
-		App->requestBrowser("https://www.opengl.org/");
-	ImGui::Text("Parson");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##parson"))
-		App->requestBrowser("https://github.com/kgabis/parson");
-	ImGui::Text("PCG Random");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##pcg_random"))
-		App->requestBrowser("http://www.pcg-random.org");
-	ImGui::Text("ImGuizmo");
-	ImGui::SameLine();
-	if(ImGui::Button("Learn more##imguizmo"))
-		App->requestBrowser("https://github.com/CedricGuillemet/ImGuizmo");
-	ImGui::Text("ImGuiColorTextEdit");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##texteditor"))
-		App->requestBrowser("https://github.com/BalazsJako/ImGuiColorTextEdit");
-	ImGui::Text("Wren");
-	ImGui::SameLine();
-	if (ImGui::Button("Learn more##wren"))
-		App->requestBrowser("http://wren.io/");
-	ImGui::PopFont();
-	ImGui::End();
-}
-
-void ModuleUI::DrawGraphicsLeaf() const {
-	//starting values
-	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	static bool depth_test = glIsEnabled(GL_DEPTH_TEST);
-	static bool face_culling = glIsEnabled(GL_CULL_FACE);
-	static bool lighting = glIsEnabled(GL_LIGHTING);
-	static bool material_color = glIsEnabled(GL_COLOR_MATERIAL);
-	static bool textures = glIsEnabled(GL_TEXTURE_2D);
-	static bool fog = glIsEnabled(GL_FOG);
-	static bool antialias = glIsEnabled(GL_LINE_SMOOTH);
-	ImGui::Text("Use this tab to enable/disable openGL characteristics");
-
-	if (ImGui::TreeNode("Depth test")) {
-		if (ImGui::Checkbox("Enabled##DT Enabled", &depth_test)) {
-			if (depth_test)			glEnable(GL_DEPTH_TEST);
-			else					glDisable(GL_DEPTH_TEST);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Face culling")) {
-		if (ImGui::Checkbox("Enabled##FC Enabled", &face_culling)) {
-			if (face_culling)		glEnable(GL_CULL_FACE);
-			else					glDisable(GL_CULL_FACE);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Lighting")) {
-		if (ImGui::Checkbox("Enabled##L Enabled", &lighting)) {
-			if (lighting)			glEnable(GL_LIGHTING);
-			else					glDisable(GL_LIGHTING);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Material color")) {
-		if (ImGui::Checkbox("Enabled##M Enabled", &material_color)) {
-			if (material_color)		glEnable(GL_COLOR_MATERIAL);
-			else					glDisable(GL_COLOR_MATERIAL);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Textures")) {
-		if (ImGui::Checkbox("Enabled##T Enabled", &textures)) {
-			if (textures)			glEnable(GL_TEXTURE_2D);
-			else					glDisable(GL_TEXTURE_2D);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Fog")) {
-		static float fog_distance = 0.5f;
-		if (ImGui::Checkbox("Enabled##F Enabled", &fog)) {
-			if (fog)				glEnable(GL_FOG);
-			else					glDisable(GL_FOG);
-
-			if (fog) {
-				GLfloat fog_color[4] = { 0.8f, 0.8f, 0.8f, 0.0f };
-				glFogfv(GL_FOG_COLOR, fog_color);
-				glFogf(GL_FOG_DENSITY, fog_distance);
-			}
-		}
-
-		if (ImGui::SliderFloat("##Fog density", &fog_distance, 0.0f, 1.0f, "Fog density: %.2f"))
-			glFogf(GL_FOG_DENSITY, fog_distance);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Antialias")) {
-		if (ImGui::Checkbox("Enabled##A Enabled", &antialias)) {
-			if (antialias)			glEnable(GL_LINE_SMOOTH);
-			else					glDisable(GL_LINE_SMOOTH);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Wireframe")) {
-		ImGui::Checkbox("Enabled##WF Enabled", &App->scene->global_wireframe);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Normals")) {
-		ImGui::Checkbox("Enabled##N Enabled", &App->scene->global_normals);
-		ImGui::TreePop();
-	}
-	ImGui::PopFont();
-}
-
-void ModuleUI::DrawWindowConfigLeaf() const
-{
-	ImGui::PushFont(ui_fonts[REGULAR]);
-
-	Window* window = App->window->main_window;
-	if(ImGui::SliderFloat("##Brightness", &window->brightness, 0, 1.0f, "Brightness: %.2f"))
-		App->window->setBrightness(window->brightness);
-
-	bool width_mod, height_mod = false;
-	width_mod = ImGui::SliderInt("##Window width", &window->width, MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH, "Width: %d");
-	height_mod = ImGui::SliderInt("###Window height", &window->height, MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT, "Height: %d");
-	
-	if(width_mod || height_mod)
-		App->window->setSize(window->width, window->height);
-
-	// Refresh rate
-	ImGui::Text("Refresh Rate %i", (int)ImGui::GetIO().Framerate);
-	//Bools
-	if (ImGui::Checkbox("Fullscreen", &window->fullscreen))
-		App->window->setFullscreen(window->fullscreen);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("Resizable", &window->resizable))
-		App->window->setResizable(window->resizable);
-	if (ImGui::Checkbox("Borderless", &window->borderless))
-		App->window->setBorderless(window->borderless);
-	ImGui::SameLine();
-	if (ImGui::Checkbox("FullDesktop", &window->fulldesk))
-		App->window->setFullDesktop(window->fulldesk);
-
-	ImGui::PopFont();
-}
-
-void ModuleUI::DrawHardwareLeaf() const 
-{
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	//CPUs
-	ImGui::Text("CPUs");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255),"%i", SDL_GetCPUCount());
-
-	// RAM
-	ImGui::Text("System RAM");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%i Gb", SDL_GetSystemRAM());
-
-	// Caps
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	if(SDL_HasRDTSC())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "RDTSC, ");
-	ImGui::SameLine();
-	if (SDL_HasMMX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "MMX, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE2())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE2, ");
-	if (SDL_HasSSE3())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE3, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE41())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE41, ");
-	ImGui::SameLine();
-	if (SDL_HasSSE42())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "SSE42, ");
-	ImGui::SameLine();
-	if (SDL_HasAVX())
-		ImGui::TextColored(ImVec4(0, 255, 0, 255), "AVX.");
-	ImGui::SameLine();
-
-	ImGui::Separator();
-	//GPU
-	ImGui::Text("Caps:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_VENDOR));
-	ImGui::Text("Brand:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%s", glGetString(GL_RENDERER));
-	ImGui::Text("VRAM Budget:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Usage:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getTotalVRAMMb_NVIDIA() - getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Avaliable:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", getAvaliableVRAMMb_NVIDIA());
-	ImGui::Text("VRAM Reserved:");
-	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0, 255, 0, 255), "%f Mb", 0);
-		
-	ImGui::PopFont();
-}
-
-void ModuleUI::DrawApplicationLeaf() const 
-{
-	// HARDCODED (?)
-	ImGui::PushFont(ui_fonts[REGULAR]);
-	
-	ImGui::Text("App name: Kuroko Engine");
-	ImGui::Text("Organization: UPC CITM");
-	char title[25];
-	sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
-	ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
-	ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-	
-	ImGui::PopFont();
-}
-
-void ModuleUI::DrawEditorPreferencesLeaf() const {
-
-	static float camera_speed = 2.5f;
-	if (ImGui::InputFloat("Camera speed", &camera_speed))
-		App->camera->camera_speed = camera_speed;
-
-
-	static float camera_rotation_speed = 0.25f;
-	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;
-}
-
-void ModuleUI::DrawTimeControlWindow()
-{
-	ImGui::Begin("Time control", &open_tabs[TIME_CONTROL]);
-
-	int w, h;
-	ui_textures[PLAY]->getSize(w, h);
-	if (ImGui::ImageButton((void*)ui_textures[PLAY]->getGLid(), ImVec2(w, h), nullptr, ImVec2(0,0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, App->time->getGameState() == PLAYING ? 1.0f : 0.0f)))
-		App->time->Play();
-
-	ImGui::SameLine();
-	ui_textures[PAUSE]->getSize(w, h);
-	if(ImGui::ImageButton((void*)ui_textures[PAUSE]->getGLid(), ImVec2(w, h), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, App->time->getGameState() == PAUSED ? 1.0f : 0.0f)))
-		App->time->Pause();
-
-	ImGui::SameLine();
-	ui_textures[STOP]->getSize(w, h);
-	if (ImGui::ImageButton((void*)ui_textures[STOP]->getGLid(), ImVec2(w, h), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, App->time->getGameState() == STOPPED ? 1.0f : 0.0f)))
-		App->time->Stop();
-	
-
-	static int advance_frames = 1;
-	static float time_scale = 1;
-
-	ImGui::SameLine();
-	ui_textures[ADVANCE]->getSize(w, h);
-	if (ImGui::ImageButton((void*)ui_textures[ADVANCE]->getGLid(), ImVec2(w, h), nullptr, ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, 0.0f)))
-		App->time->Advance(advance_frames);
-
-	ImGui::Text("Advance frames:");
-	ImGui::InputInt("##Advance frames", &advance_frames);
-
-	ImGui::Text("Time scale:");
-	if (ImGui::InputFloat("##Time scale", &time_scale))
-		App->time->setTimeScale(time_scale);
-
-
-	ImGui::Text("%f seconds in real time clock", App->time->getRealTime() / 1000);
-	ImGui::Text("%f ms delta_time", App->time->getDeltaTime());
-	ImGui::Text("%f seconds in game time clock", App->time->getGameTime() / 1000);
-	ImGui::Text("%f ms game delta_time", App->time->getGameDeltaTime());
-	ImGui::Text("%i frames", App->time->getFrameCount());
-
-
-
-
-	ImGui::End();
-}
-
 void ModuleUI::DrawGizmoMenuTab() {
 
 	ImGui::Begin("Toolbar##Gizmo toolbar", nullptr);
@@ -3824,47 +2646,6 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 }
 
-void ModuleUI::DrawQuadtreeConfigWindow() {
-
-	ImGui::Begin("Quadtree", &open_tabs[QUADTREE_CONFIG]);
-	ImGui::Checkbox("Draw", &App->scene->draw_quadtree);
-	ImGui::SameLine();
-	if (ImGui::Button("Reload")) {
-		App->scene->quadtree_reload = true;
-	}
-	static float3 size = float3(0,0,0);
-	static float3 centre = float3(0, 0, 0);
-	static int bucket_size = 1;
-	static int max_depth = 8;
-	static float size_arr[3] = { 0 };
-	static float centre_arr[3] = { 0 };
-
-	ImGui::InputFloat3("Centre", centre_arr);
-	centre.x = centre_arr[0];
-	centre.y = centre_arr[1];
-	centre.z = centre_arr[2];
-
-	ImGui::InputFloat3("Size", size_arr);
-	size.x = size_arr[0];
-	size.y = size_arr[1];
-	size.z = size_arr[2];
-
-	ImGui::InputInt("Bucket size", &bucket_size);
-	ImGui::InputInt("Max depth", &max_depth);
-
-	if (ImGui::Button("Create")) {
-		AABB aabb;
-		aabb.SetFromCenterAndSize(centre, size);
-		App->scene->getQuadtree()->Create(aabb, bucket_size, max_depth);
-		App->scene->quadtree_reload = true;
-	}
-	ImGui::Text("Quadtree ignored objects: %i",App->scene->quadtree_ignored_obj);
-	ImGui::Text("Frustum checks against quadtree: %i", App->scene->quadtree_checks);
-	// TODO: Be able to change bucket size, max depth and size.
-	ImGui::End();
-}
-
-
 void ModuleUI::DrawGuizmo()
 {
 
@@ -3881,62 +2662,129 @@ void ModuleUI::DrawGuizmo()
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
+		/*
 		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
 		Transform* trans = transform->global;
+*/
+		float3 guizmoPos = float3::zero;
+		float3 guizmoScale = float3::zero;
+		//float3 guizmoRot = float3::zero;
 
-		Transform aux_transform;
-		switch (gizmo_operation)
-		{
-		case ImGuizmo::OPERATION::TRANSLATE:
-			aux_transform.setRotation(trans->getRotation());
-			aux_transform.setPosition(trans->getPosition()); break;
-		case ImGuizmo::OPERATION::ROTATE:
-			aux_transform.setPosition(trans->getPosition());
-			aux_transform.setRotation(trans->getRotation()); break;
-		case ImGuizmo::OPERATION::SCALE:
-			aux_transform.setPosition(trans->getPosition());
-			aux_transform.setRotation(trans->getRotation());
-			aux_transform.setScale(trans->getScale()); break;
-		default:
-			break;
+		//-------------guizmoUI (2d)
+		if ((*App->scene->selected_obj.begin())->is_UI) {
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo UI in average of their positions
+				ComponentRectTransform* transform = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
+				guizmoPos += float3(transform->getAnchor().x , transform->getAnchor().y ,0);
+				guizmoScale += float3(transform->getWidth(), transform->getHeight(),0);
+			}
 		}
-		
-		aux_transform.CalculateMatrix();
-		float4x4 mat = float4x4(aux_transform.getMatrix());
-		mat.Transpose();
-		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)mat.v);
+		//------------guizmo (3d)
+
+		else {
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) { //sets the pos of the guizmo in average of their positions
+				ComponentTransform* transform = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+				Transform* trans = transform->global;
+				guizmoPos += trans->getPosition();
+				guizmoScale += trans->getScale();
+				//guizmoRot += trans->getRotationEuler();
+			}
+		}
+
+		guizmoPos /= App->scene->selected_obj.size();
+		guizmoScale /= App->scene->selected_obj.size();
+		//guizmoRot /= App->scene->selected_obj.size();
+
+		Transform guizmoTrans = Transform();
+
+		guizmoTrans.setPosition(guizmoPos);
+		guizmoTrans.setScale(guizmoScale);
+
+
+
+
+
+		guizmoTrans.CalculateMatrix();
+		float4x4 newGzmTrans = float4x4(guizmoTrans.getMatrix());
+		newGzmTrans.Transpose();
+		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)newGzmTrans.v);
 		if (ImGuizmo::IsUsing())
 		{
+
 			float3 new_pos = float3::zero;
 			float3 new_rot = float3::zero;
 			float3 new_scale = float3::zero;
-			mat.Transpose();
-			switch (gizmo_operation)
-			{
-			case ImGuizmo::OPERATION::TRANSLATE:
-				new_pos.x = transform->constraints[0][0] ? trans->getPosition().x : (mat.TranslatePart().x);
-				new_pos.y = transform->constraints[0][1] ? trans->getPosition().y : (mat.TranslatePart().y);
-				new_pos.z = transform->constraints[0][2] ? trans->getPosition().z : (mat.TranslatePart().z);
-				trans->setPosition(new_pos);
-				break;
-			case ImGuizmo::OPERATION::ROTATE:
-				new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
-				new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
-				new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
-				trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
-				break;
-			case ImGuizmo::OPERATION::SCALE:
-				new_scale.x = transform->constraints[2][0] ? trans->getScale().x : mat.GetScale().x;
-				new_scale.y = transform->constraints[2][1] ? trans->getScale().y : mat.GetScale().y;
-				new_scale.z = transform->constraints[2][2] ? trans->getScale().z : mat.GetScale().z;
-				trans->setScale(new_scale);
-				break;
-			default:
-				break;
+			newGzmTrans.Transpose();
+
+			float3 displacement = newGzmTrans.TranslatePart() - guizmoTrans.getPosition();
+			static const float max_graduated_scale = 20.f;
+
+			for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++) {
+
+				//------- UI
+				if ((*App->scene->selected_obj.begin())->is_UI) {
+					ComponentRectTransform* selectedPos = (ComponentRectTransform*)(*it)->getComponent(RECTTRANSFORM);
+					float2 pos = selectedPos->getLocalPos();
+					float2 dim = float2(selectedPos->getWidth(), selectedPos->getHeight());
+					float2 anchor = selectedPos->getAnchor();
+
+					switch (gizmo_operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						new_pos.x = pos.x +displacement.x ;
+						new_pos.y = pos.y +displacement.y ;
+						new_pos.z = 0;
+						selectedPos->setPos(float2(new_pos.x, new_pos.y));
+						break;
+					
+					case ImGuizmo::OPERATION::SCALE:
+						new_scale.x = newGzmTrans.GetScale().x;
+						new_scale.y = newGzmTrans.GetScale().y;
+						new_scale.z = 0;
+						if(abs(selectedPos->getHeight()- new_scale.y) < max_graduated_scale){selectedPos->setHeight(new_scale.y);}
+						if (abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale) { selectedPos->setWidth(new_scale.x); }
+						
+						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
+						break;
+					default:
+						break;
+					}
+				}
+				//--------not UI
+				else {
+					ComponentTransform* selectedTrans = (ComponentTransform*)(*it)->getComponent(TRANSFORM);
+					Transform* trans = selectedTrans->global;
+					switch (gizmo_operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						new_pos.x = selectedTrans->constraints[0][0] ? trans->getPosition().x : (trans->getPosition().x + displacement.x);
+						new_pos.y = selectedTrans->constraints[0][1] ? trans->getPosition().y : (trans->getPosition().y + displacement.y);
+						new_pos.z = selectedTrans->constraints[0][2] ? trans->getPosition().z : (trans->getPosition().z + displacement.z);
+						trans->setPosition(new_pos);
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : (newGzmTrans.RotatePart().ToEulerXYZ().x);
+						new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
+						new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
+						new_rot += trans->getRotation().ToEulerXYZ();
+						trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
+						new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
+						new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+						trans->setScale(new_scale);
+						break;
+					default:
+						break;
+					}
+					trans->CalculateMatrix();
+					selectedTrans->GlobalToLocal();
+				}
+				//-----
+				
+				
 			}
-			trans->CalculateMatrix();
-			transform->GlobalToLocal();
+
 		}
 	}
 }
@@ -3978,39 +2826,26 @@ void ModuleUI::DrawTagSelection(GameObject* object) {
 
 void ModuleUI::SaveConfig(JSON_Object* config) const
 {
-	json_object_set_boolean(config, "hierarchy", open_tabs[HIERARCHY]);
-	json_object_set_boolean(config, "obj_inspector", open_tabs[OBJ_INSPECTOR]);
-	json_object_set_boolean(config, "primitive", open_tabs[PRIMITIVE]);
-	json_object_set_boolean(config, "about", open_tabs[ABOUT]);
-	json_object_set_boolean(config, "configuration", open_tabs[CONFIGURATION]);
-	json_object_set_boolean(config, "log", open_tabs[LOG]);
-	json_object_set_boolean(config, "time_control", open_tabs[TIME_CONTROL]);
-	json_object_set_boolean(config, "quadtree_config", open_tabs[QUADTREE_CONFIG]);
-	json_object_set_boolean(config, "camera_menu", open_tabs[CAMERA_MENU]);
-	json_object_set_boolean(config, "asset_window", open_tabs[ASSET_WINDOW]);
-	json_object_set_boolean(config, "resources_window", open_tabs[RESOURCES_TAB]);
-	//json_object_set_boolean(config, "audio", open_tabs[AUDIO]);
+	json_object_set_boolean(config, "log", open_log_menu);						//NOT DELETE
+	
 }
 
 void ModuleUI::LoadConfig(const JSON_Object* config) 
 {
-	open_tabs[CONFIGURATION]	= json_object_get_boolean(config, "configuration");
-	open_tabs[HIERARCHY]		= json_object_get_boolean(config, "hierarchy");
-	open_tabs[OBJ_INSPECTOR]	= json_object_get_boolean(config, "obj_inspector");
-	open_tabs[PRIMITIVE]		= json_object_get_boolean(config, "primitive");
-	open_tabs[ABOUT]			= json_object_get_boolean(config, "about");
-	open_tabs[LOG]				= json_object_get_boolean(config, "log");
-	open_tabs[TIME_CONTROL]		= json_object_get_boolean(config, "time_control");
-	open_tabs[QUADTREE_CONFIG]	= json_object_get_boolean(config, "quadtree_config");
-	open_tabs[CAMERA_MENU]		= json_object_get_boolean(config, "camera_menu");
-	open_tabs[ASSET_WINDOW]		= json_object_get_boolean(config, "asset_window");
-	open_tabs[RESOURCES_TAB]	= json_object_get_boolean(config, "resources_window");
+	open_log_menu				= json_object_get_boolean(config, "log"); //NOT DELETE
 
-
-	open_tabs[VIEWPORT_MENU]	= false;	// must always start closed
 	open_tabs[SKYBOX_MENU]		= false;
 	open_tabs[SCRIPT_EDITOR] = false;
-	//open_tabs[AUDIO]			= json_object_get_boolean(config, "audio");
+}
+
+bool ModuleUI::isMouseOnUI() const
+{
+	return ImGui::GetIO().WantCaptureMouse;// && !hoveringScene;
+}
+
+bool ModuleUI::keepKeyboard() const
+{
+	return ImGui::GetIO().WantCaptureKeyboard;
 }
 
 void ModuleUI::InvisibleDockingBegin() {

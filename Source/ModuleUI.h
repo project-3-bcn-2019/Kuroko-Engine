@@ -29,9 +29,15 @@ class PanelObjectInspector;
 class PanelAssetsWin;
 class PanelPrimitives;
 class PanelAnimationGraph;
+class PanelConfiguration;
+class PanelTimeControl;
+class PanelShader;
+class PanelAbout;
+class PanelCameraMenu;
+class PanelViewports;
+class PanelQuadtreeConfig;
 
-enum GUI_Tabs { HIERARCHY, OBJ_INSPECTOR, PRIMITIVE, ABOUT, LOG, TIME_CONTROL, CONFIGURATION,
-				QUADTREE_CONFIG, CAMERA_MENU, VIEWPORT_MENU /*AUDIO,*/, ASSET_WINDOW, RESOURCES_TAB, SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
+enum GUI_Tabs { SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
@@ -54,33 +60,16 @@ public:
 	bool CleanUp();
 	void InitializeScriptEditor();
 
-	void DrawHierarchyTab();									//PANEL DONE
-	bool DrawHierarchyNode(GameObject& game_object, int& id);	//PANEL DONE
-	void DrawObjectInspectorTab();								//PANEL DONE
 	bool DrawComponent(Component& component, int id);
-	//void DrawAudioTab();
-	void DrawPrimitivesTab();									//PANEL DONE
-	void DrawGraphicsLeaf() const;
-	void DrawAboutLeaf();
-	void DrawWindowConfigLeaf() const;
-	void DrawHardwareLeaf() const;
-	void DrawApplicationLeaf() const;
-	void DrawEditorPreferencesLeaf() const;
-	void DrawTimeControlWindow();
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
-	void DrawQuadtreeConfigWindow();
-	void DrawCameraMenuWindow();
-	void DrawViewportsWindow();
-	void DrawAssetsWindow();									//PANEL DONE
-	void DrawAssetInspector();									//PANEL DONE
-	void DrawResourcesWindow(); // A list where you can see all the resources
 	void DrawSkyboxWindow();
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
 	void DrawBuildMenu();
 
 	uint getMainScene() const;
+	std::list<resource_deff> GetBuildScenes() { return build_scenes; }
 
 	void DrawGuizmo();
 	void DrawTagSelection(GameObject* object);
@@ -90,6 +79,9 @@ public:
 
 	void SaveConfig(JSON_Object* config) const;
 	void LoadConfig(const JSON_Object* config);
+
+	bool isMouseOnUI() const;
+	bool keepKeyboard() const;
 
 	bool disable_keyboard_control = false;
 
@@ -101,6 +93,13 @@ public:
 	PanelAssetsWin* p_assetswindow = nullptr;
 	PanelPrimitives* p_primitives = nullptr;
 	PanelAnimationGraph* p_animation_graph = nullptr;
+	PanelConfiguration* p_configuration = nullptr;
+	PanelTimeControl* p_time_control = nullptr;
+	PanelShader* p_shader_editor = nullptr;
+	PanelAbout* p_about = nullptr;
+	PanelCameraMenu* p_camera_menu = nullptr;
+	PanelViewports* p_viewports = nullptr;
+	PanelQuadtreeConfig* p_quadtree_config = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -109,6 +108,9 @@ public:
 	bool open_tabs[LAST_UI_TAB];  // _serializable_var
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
+	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
+
+
 
 private:
 	
@@ -119,13 +121,15 @@ private:
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
-	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
 
 	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
 	std::string selected_asset; //NOT IN USE I GUESS---------------
 
 	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;
+
+	bool open_log_menu = false; //To avoid the GUI_TABS enum
 };
+
 #endif
 

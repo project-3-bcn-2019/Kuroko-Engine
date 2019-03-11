@@ -37,11 +37,19 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		CreateDirectory(fullPath.c_str(), NULL);
 		std::string library = fullPath + "Library\\";
 		CreateDirectory(library.c_str(), NULL);
-		App->fs.CopyFolder("Library\\*", library.c_str(), true);
 		std::list<const char*> excludedFiles;
+		excludedFiles.push_back("Scenes");
+		App->fs.CopyFolder("Library\\*", library.c_str(), true, &excludedFiles);
+		excludedFiles.clear();
 		excludedFiles.push_back("memory.log");
 		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles);
 		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name);
+		CreateDirectory((fullPath + "Library\\Scenes\\").c_str(), NULL);
+		std::list<resource_deff> build_scenes = App->gui->GetBuildScenes();
+		for (auto it = build_scenes.begin(); it != build_scenes.end(); it++) {
+			resource_deff scene_deff = (*it);
+			App->fs.copyFileTo(scene_deff.binary.c_str(), NO_LIB, ".scene", fullPath + "Library\\Scenes\\" + std::to_string(scene_deff.uuid));
+		}
 
 		CreateDirectory((fullPath + SCRIPTINGAPI_FOLDER).c_str(), NULL);
 		App->fs.CopyFolder("ScriptingAPI\\*", (fullPath + SCRIPTINGAPI_FOLDER).c_str(), false);
@@ -68,6 +76,7 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts\\*"));
 	json_object_set_value(json_object(json), "Audio", GetAssetFolderUUIDs("\\Assets\\Audio\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
+	json_object_set_value(json_object(json), "AnimationGraphs", GetAssetFolderUUIDs("\\Assets\\AnimationGraphs\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	Get3dObjectsUUIDs("\\Assets\\Meshes\\*", json); // Get UUIDs for Meshes, Animations and Bones from 3dObjets
 	//Sounds and UI resources?

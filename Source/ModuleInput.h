@@ -79,15 +79,9 @@ public:
 	float getFirstControllerAxis(SDL_GameControllerAxis axis);
 
 
-	KEY_STATE GetKey(int id) const
-	{
-		return keyboard[id];
-	}
+	KEY_STATE GetKey(int id) const;
 
-	KEY_STATE GetMouseButton(int id) const
-	{
-		return mouse_buttons[id];
-	}
+	KEY_STATE GetMouseButton(int id) const;
 
 	int GetMouseX() const
 	{

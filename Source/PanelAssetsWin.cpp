@@ -55,14 +55,7 @@ void PanelAssetsWin::Draw()
 				count++;
 		}
 
-		if (count == 0)
-		{
-			ImGui::End();
-			DrawAssetInspector();
-			return;
-		}
-
-		else if (count < column_num) column_num = count;
+		if (count != 0 && count < column_num) column_num = count;
 		count = 0;
 
 		ImGui::Columns(column_num, (std::to_string(iteration) + " asset columns").c_str(), false);
@@ -272,9 +265,9 @@ void PanelAssetsWin::Draw()
 
 	if (ImGui::IsWindowHovered())
 	{
-		if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+		if (ImGui::IsMouseClicked(0))
 			selected_asset = "";
-		else if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_DOWN && !item_hovered)
+		else if (ImGui::IsMouseClicked(1) && !item_hovered)
 			ImGui::OpenPopup("##asset window context menu");
 	}
 	item_hovered = false;
@@ -343,7 +336,14 @@ void PanelAssetsWin::Draw()
 		{
 			std::string graph_name = rename_buffer;
 			std::string full_path = asset_window_path + "/" + graph_name + GRAPH_EXTENSION;
-			App->fs.CreateEmptyFile(full_path.c_str());
+
+			//Save empty graph
+			uint size = 3 * sizeof(uint);
+			char* buffer = new char[size];
+			uint ranges[3] = { 0, 0, 0 }; // 0 nodes | start node uuid | 0 variables
+			memcpy(buffer, ranges, size);
+			App->fs.ExportBuffer(buffer, size, full_path.c_str());
+			RELEASE_ARRAY(buffer);
 
 			name_graph = false;
 		}

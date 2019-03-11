@@ -70,10 +70,12 @@ public:
 	uint getResourceUuid(const char* file); // Will not assign the resource 
 	uint getResourceUuid(const char* name, ResourceType type);
 	uint getMeshResourceUuid(const char* Parent3dObject, const char* name);
+	uint getTextureResourceUuid(const char* name);
 	uint getAnimationResourceUuid(const char* Parent3dObject, const char* name);
 	uint getAnimationResourceUuid(const char* name);
 	uint getBoneResourceUuid(const char* Parent3dObject, const char* name);
 	uint getAudioResourceUuid(const char* name);
+	uint getScriptResourceUuid(const char* name);
 	uint getAnimationGraphResourceUuid(const char* Parent3dObject, const char* name);
 
 	void CleanResources() { cleanResources = true; }

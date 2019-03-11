@@ -5,9 +5,29 @@
 #include <map>
 #include <list>
 #include "MathGeoLib\MathGeoLib.h"
+#include "Random.h"
 
 struct Node;
 struct NodeLink;
+
+enum variableType
+{
+	VAR_INT,
+	VAR_FLOAT,
+	VAR_STRING,
+	VAR_BOOL,
+
+	LAST_TYPE
+};
+
+struct Variable
+{
+	Variable(variableType type, const char* name): type(type), name(name), uuid(random32bits()) {}
+
+	uint uuid = 0;
+	variableType type = VAR_INT;
+	std::string name = "";
+};
 
 enum linkType
 {
@@ -15,9 +35,27 @@ enum linkType
 	OUTPUT_LINK
 };
 
+enum conditionType
+{
+	CONDITION_EQUALS,
+	CONDITION_DIFERENT,
+	CONDITION_GREATER,
+	CONDITION_LESS
+};
+
+struct Condition
+{
+	conditionType type = CONDITION_EQUALS;
+	uint variable_uuid = 0;
+
+	float conditionant = 0.0f;
+	std::string string_conditionant = "";
+};
+
 struct Transition
 {
 	Transition(NodeLink* output, NodeLink* input, uint graphUID);
+	~Transition();
 
 	bool drawLine(bool selected, float2 offset);
 
@@ -29,13 +67,14 @@ struct Transition
 	NodeLink* output = nullptr;
 	NodeLink* input = nullptr;
 
-	std::string usingLetter = "None";
-	int sdlKeyValue = 0;
+	float duration = 0.0f;
+	std::list<Condition*> conditions;
 };
 
 struct NodeLink
 {
-	NodeLink(linkType type, uint nodeUID);
+	NodeLink(linkType type, uint nodeUID, uint resourceUID);
+	~NodeLink();
 
 	void connect(uint nodeLinkUID) { connectedNodeLink = nodeLinkUID; }
 
@@ -43,6 +82,7 @@ struct NodeLink
 
 	uint UID = 0;
 	uint nodeUID = 0;
+	uint resourceUID = 0;
 	uint connectedNodeLink = 0;
 
 	linkType type = INPUT_LINK;
@@ -58,6 +98,7 @@ struct Node
 	~Node();
 
 	NodeLink* addLink(linkType type, bool addToList = true, uint forced_uid = 0);
+	void removeLink(NodeLink* link);
 	//Return true if any node is clicked
 	uint drawLinks() const;
 
@@ -95,6 +136,8 @@ public:
 
 	Node* getNode(uint UID);
 	NodeLink* getLink(uint UID);
+	Variable* getVariable(uint UID) const;
+	uint getVariableUUID(const char* name, variableType type) const;
 
 public:
 
@@ -102,6 +145,10 @@ public:
 
 	std::map<uint, Node*> nodes;
 	std::map<uint, NodeLink*> links;
+
+	Node* start = nullptr;
+
+	std::list<Variable*> blackboard;
 };
 
 #endif // !_RESOURCE_ANIMATIONGRAPH
