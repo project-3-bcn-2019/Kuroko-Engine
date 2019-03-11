@@ -606,7 +606,7 @@ Transition::~Transition()
 	conditions.clear();
 }
 
-bool Transition::drawLine(bool selected, float2 offset)
+bool Transition::drawLine(bool selected, bool inTransition)
 {
 	bool ret = false;
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -617,7 +617,11 @@ bool Transition::drawLine(bool selected, float2 offset)
 	float lineThickness = 3.0f;
 	float triangleSize = 10.0f;
 	ImU32 color = IM_COL32(200, 200, 100, 255);
-	if (selected)
+	if (inTransition)
+	{
+		color = IM_COL32(75, 255, 255, 255);
+	}
+	else if (selected)
 	{
 		color = IM_COL32(240, 240, 175, 255);
 		lineThickness = 5.0f;

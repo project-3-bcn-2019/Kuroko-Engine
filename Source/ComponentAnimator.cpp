@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimationGraph.h"
+#include "ModuleTimeManager.h"
 
 ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Component(parent, ANIMATOR)
 {
@@ -22,6 +23,46 @@ ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Co
 
 ComponentAnimator::~ComponentAnimator()
 {
+	App->resources->deasignResource(graph_resource_uuid);
+}
+
+bool ComponentAnimator::Update(float dt)
+{
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
+	if (graph != nullptr)
+	{
+		if (App->time->getGameState() == GameState::STOPPED)
+		{
+			currentNode = graph->start->UID;
+		}
+		else if (App->time->getGameState() == GameState::PLAYING)
+		{
+			if (doingTransition != nullptr)
+			{
+				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
+				{
+					currentNode = doingTransition->destination->UID;
+					doingTransition = nullptr;
+				}
+			}
+			else
+			{
+				Node* current = graph->getNode(currentNode);
+
+				for (std::list<Transition*>::iterator it = current->transitions.begin(); it != current->transitions.end(); ++it)
+				{
+					if (conditionSuccess((*it)))
+					{
+						doingTransition = (*it);
+						startTransitionTime = App->time->getGameTime();
+						currentNode = 0;
+					}
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
@@ -58,6 +99,96 @@ void ComponentAnimator::setAnimationGraphResource(uint uuid)
 			}
 		}
 	}
+}
+
+bool ComponentAnimator::conditionSuccess(Transition* transition)
+{
+	bool ret = true;
+
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
+
+	for (std::list<Condition*>::iterator it = transition->conditions.begin(); it != transition->conditions.end(); ++it)
+	{
+		Variable* var = graph->getVariable((*it)->variable_uuid);
+		if (var != nullptr)
+		{
+			switch (var->type)
+			{
+			case VAR_INT:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((int)(*it)->conditionant != ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((int)(*it)->conditionant == ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_GREATER:
+					if ((int)(*it)->conditionant > ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_LESS:
+					if ((int)(*it)->conditionant < ints[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_FLOAT:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((*it)->conditionant != floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((*it)->conditionant == floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_GREATER:
+					if ((*it)->conditionant > floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_LESS:
+					if ((*it)->conditionant < floats[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_BOOL:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if (!bools[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if (bools[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_STRING:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((*it)->string_conditionant.c_str() != strings[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((*it)->string_conditionant.c_str() == strings[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			}
+		}
+		if (!ret)
+			break;
+	}
+
+	return ret;
 }
 
 void ComponentAnimator::loadValues(JSON_Object * deff)

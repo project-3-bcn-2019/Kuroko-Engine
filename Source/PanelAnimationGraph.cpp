@@ -3,6 +3,7 @@
 #include "ModuleResourcesManager.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
+#include "ModuleTimeManager.h"
 
 #include "ComponentAnimator.h"
 #include "ResourceAnimation.h"
@@ -124,6 +125,7 @@ void PanelAnimationGraph::Draw()
 		//Node box
 		ImU32 borderColor = IM_COL32(100, 100, 100, 255);
 		ImU32 backgroundColor = IM_COL32(45, 45, 45, 230);
+		float thickness = 1.0f;
 
 		if (hovered_node == node)
 		{
@@ -133,6 +135,7 @@ void PanelAnimationGraph::Draw()
 		{
 			borderColor = IM_COL32(255, 255, 75, 255);
 			backgroundColor = IM_COL32(55, 55, 55, 245);
+			thickness = 2.0f;
 		}
 		if (graph->start == node)
 		{
@@ -142,13 +145,18 @@ void PanelAnimationGraph::Draw()
 				borderColor = IM_COL32(150, 150, 255, 255);
 			}
 		}
+		if (App->time->getGameState() != GameState::STOPPED && node->UID == component->currentNode)
+		{
+			borderColor = IM_COL32(75, 255, 255, 255);
+			thickness = 3.0f;
+		}
 
 		draw_list->AddRectFilled({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, backgroundColor, 4.0f);
-		draw_list->AddRect({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, borderColor, 4.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+		draw_list->AddRect({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, borderColor, 4.0f, 15, thickness);
 		if (graph->start == node)
 		{
 			draw_list->AddRectFilled({ node->gridPos.x+node->size.x/3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, backgroundColor, 1.0f);
-			draw_list->AddRect({ node->gridPos.x + node->size.x / 3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, borderColor, 1.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+			draw_list->AddRect({ node->gridPos.x + node->size.x / 3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, borderColor, 1.0f, 15, thickness);
 			ImGui::SetCursorScreenPos({ node->gridPos.x + node->size.x / 3 + 10, node->gridPos.y - 18 });
 			ImGui::Text("Start");
 		}
@@ -164,7 +172,7 @@ void PanelAnimationGraph::Draw()
 			linkingNode = clickedLink;
 		for (std::list<Transition*>::iterator it_t = node->transitions.begin(); it_t != node->transitions.end(); ++it_t)
 		{
-			if ((*it_t)->drawLine((*it_t) == selected_transition, { offset.x, offset.y }))
+			if ((*it_t)->drawLine((*it_t) == selected_transition, (component->doingTransition != nullptr && component->doingTransition == (*it_t))))
 			{
 				selected_transition = (*it_t);
 				clickedLine = true;
@@ -528,17 +536,15 @@ void PanelAnimationGraph::drawTransitionMenu()
 			ImGui::PushItemWidth(75);
 			if (ImGui::BeginCombo(("##Type" + std::to_string(count)).c_str(), (var->type == VAR_BOOL) ? types[(*it)->type + 4] : types[(*it)->type]))
 			{
-				if (var->type == VAR_BOOL)
+				if (var->type == VAR_BOOL || var->type == VAR_STRING)
 				{
 					if (ImGui::Selectable(types[4]))
 					{
 						(*it)->type = CONDITION_EQUALS;
-						(*it)->conditionant = 1.0f;
 					}
 					if (ImGui::Selectable(types[5]))
 					{
 						(*it)->type = CONDITION_DIFERENT;
-						(*it)->conditionant = 0.0f;
 					}
 				}
 				else
