@@ -60,7 +60,10 @@ bool ComponentButtonUI::Update(float dt)
 	return true;
 }
 
+void ComponentButtonUI::ChangeFocus()
+{
 
+}
 
 const ResourceTexture * ComponentButtonUI::getResourceTexture(ButtonState state)
 {

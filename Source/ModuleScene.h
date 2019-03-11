@@ -66,6 +66,7 @@ public:
 	void LoadScriptComponents();
 
 	std::list<GameObject*>getUIGameObjects();
+	std::list<GameObject*>getGameObjectWithButton();
 	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
@@ -128,6 +129,7 @@ private:
 public:
 
 	std::list<GameObject*> selected_obj;
+	GameObject* focused_obj; //USED FOR THE G.O. WITH A COMPONENTBUTTON TO CHANGE THE FOCUS OF THE CONTROLLER
 	Skybox* skybox				= nullptr;
 
 	uint last_mat_id			= 0;

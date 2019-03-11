@@ -14,6 +14,13 @@ enum ButtonState {
 	B_PRESSED
 };
 
+//struct ButtonLink {
+//	ComponentButtonUI up = nullptr;
+//	ComponentButtonUI down = nullptr;
+//	ComponentButtonUI left = nullptr;
+//	ComponentButtonUI right = nullptr;
+//};
+
 class ComponentButtonUI :public Component
 {
 public:
@@ -22,6 +29,7 @@ public:
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;
+	void ChangeFocus();
 	void Save(JSON_Object* config) override;
 
 	const ResourceTexture* getResourceTexture(ButtonState state);
@@ -31,11 +39,15 @@ public:
 	ButtonState getState() { return state; };
 	void ChangeGOImage();
 
-	ButtonState state = B_IDLE;
-
 	inline void doFadeIn() {	alpha = 0.0f; fadingIn = true;}
 	inline void doFadeOut() { alpha = 1.0f; fadingOut = true; }
-	
+
+	//bool isFocus() const { return focus; }
+	//void setFocus(bool _focus) { focus = _focus; }
+
+public:
+	ButtonState state = B_IDLE;
+	//ButtonLink button_link;
 	
 private:
 
@@ -50,7 +62,13 @@ private:
 	void FadeOut();
 	bool fadingIn = false;
 	bool fadingOut = false;
+	//bool focus = false;
 	float alpha = 1.0f;
+
+	ComponentButtonUI* up = nullptr;
+	ComponentButtonUI* down = nullptr;
+	ComponentButtonUI* left = nullptr;
+	ComponentButtonUI* right = nullptr;
 };
 
 #endif
