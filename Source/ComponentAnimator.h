@@ -5,6 +5,7 @@
 #include <map>
 
 enum variableType;
+class Transition;
 
 class ComponentAnimator :
 	public Component
@@ -14,8 +15,12 @@ public:
 	ComponentAnimator(JSON_Object* deff, GameObject* parent);
 	~ComponentAnimator();
 
+	bool Update(float dt);
+
 	uint getAnimationGraphResource() const { return graph_resource_uuid; }
 	void setAnimationGraphResource(uint uuid);
+
+	bool conditionSuccess(Transition* transition);
 
 	void loadValues(JSON_Object* deff);
 
@@ -39,6 +44,12 @@ private:
 	std::map<uint, float> floats;
 	std::map<uint, std::string> strings;
 	std::map<uint, bool> bools;
+
+public:
+
+	uint currentNode = 0;
+	Transition* doingTransition = nullptr;
+	float startTransitionTime = 0.0f;
 };
 
 #endif // !_COMPONENT_ANIMATOR

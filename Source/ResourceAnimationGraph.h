@@ -57,7 +57,7 @@ struct Transition
 	Transition(NodeLink* output, NodeLink* input, uint graphUID);
 	~Transition();
 
-	bool drawLine(bool selected, float2 offset);
+	bool drawLine(bool selected, bool inTransition);
 
 	uint graphUID = 0;
 
