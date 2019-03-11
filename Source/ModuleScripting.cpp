@@ -110,6 +110,9 @@ void UIText_SetText(WrenVM* vm);
 	// Progress Bar
 void SetProgress(WrenVM* vm);
 
+// Physics
+void SetSpeed(WrenVM* vm);
+
 
 WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature); // Wren foraign methods
 WrenForeignClassMethods bindForeignClass(WrenVM* vm, const char* module, const char* className);
@@ -156,6 +159,7 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
 		particles_code = App->fs.GetFileString(PARTICLES_PATH);
 		UI_code = App->fs.GetFileString(UI_PATH);
+		physics_code = App->fs.GetFileString(PHYSICS_PATH);
 		return true;
 	}
 	else
@@ -450,21 +454,7 @@ std::vector<std::string> ModuleScripting::GetMethodsFromClassHandler(WrenHandle 
 
 // Wren callbacks  ======================================================================
 
-void write(WrenVM* vm, const char* text)
-{
-	app_log->AddLog(text);
-}
-
-void error(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message)
-{
-	if (type == WrenErrorType::WREN_ERROR_COMPILE)
-		app_log->AddLog("Couldn't compile %s. %s error in %i line", module, message, line);
-	else if (type == WrenErrorType::WREN_ERROR_RUNTIME)
-		app_log->AddLog("Error when running %s. %s error in %i line", module, message, line);
-}
-
-char* loadModule(WrenVM* vm, const char* name)
-{
+char* loadModule(WrenVM* vm, const char* name) {
 	char* ret = nullptr;
 	if (strcmp(name, "ObjectLinker") == 0) {
 
@@ -501,7 +491,27 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->UI_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "Physics") == 0) {
+		int string_size = strlen(App->scripting->physics_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->physics_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
+}
+
+void write(WrenVM* vm, const char* text)
+{
+	app_log->AddLog(text);
+}
+
+void error(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message)
+{
+	if (type == WrenErrorType::WREN_ERROR_COMPILE)
+		app_log->AddLog("Couldn't compile %s. %s error in %i line", module, message, line);
+	else if (type == WrenErrorType::WREN_ERROR_RUNTIME)
+		app_log->AddLog("Error when running %s. %s error in %i line", module, message, line);
 }
 
 
@@ -713,6 +723,14 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 		if (strcmp(className, "ProgressBarComunicator") == 0) {
 			if (isStatic && strcmp(signature, "C_SetProgress(_,_,_)") == 0)
 				return SetProgress;
+		}
+	}
+
+	// Physics
+	if (strcmp(module, "Physics") == 0) {
+		if (strcmp(className, "PhysicsComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetSpeed(_,_,_,_,_)") == 0)
+				return SetSpeed;
 		}
 	}
 
@@ -1720,4 +1738,30 @@ void SetProgress(WrenVM* vm) {
 	}
 
 component->setPercent(percentage);
+}
+
+
+// Physics
+void SetSpeed(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	int x = wrenGetSlotDouble(vm, 3);
+	int y = wrenGetSlotDouble(vm, 4);
+	int z = wrenGetSlotDouble(vm, 5);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentPhysics* component = (ComponentPhysics*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->SetSpeed(x, y, z);
 }

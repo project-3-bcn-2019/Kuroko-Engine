@@ -2,6 +2,7 @@ import "Audio" for ComponentAudioSource
 import "Animation" for ComponentAnimation, ComponentAnimator
 import "Particles" for ComponentParticleEmitter
 import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProgressBar
+import "Physics" for ComponentPhysics
 
 class Math{
 	foreign static C_sqrt(number)
@@ -193,14 +194,15 @@ class ObjectComunicator{
 }
 
 class ComponentType{
-	static AUDIO_SOURCE {15}
+	static AUDIO_SOURCE {16}
 	static ANIMATION {7}
-	static PARTICLES {18}
+	static PARTICLES {20}
 	static BUTTON {12}
 	static CHECK_BOX {11}
 	static TEXT {13}
 	static PROGRESS_BAR {14}
 	static ANIMATOR {22}
+	static PHYSICS {17}
 }
 
 class ObjectLinker{
@@ -215,9 +217,9 @@ class ObjectLinker{
 	modPos(x,y,z){
 		ObjectComunicator.C_modPos(gameObject, x, y, z)
 	}
-        rotate(x,y,z){
-                ObjectComunicator.C_rotate(gameObject, x, y, z)
-        }
+    rotate(x,y,z){
+        ObjectComunicator.C_rotate(gameObject, x, y, z)
+    }
 	lookAt(x,y,z){
 		ObjectComunicator.C_lookAt(gameObject, x, y, z)
 	}
@@ -249,7 +251,7 @@ class ObjectLinker{
 	getPitch(){
 		return ObjectComunicator.C_getPitch(gameObject)
 	}
-
+	 
 	getYaw(){
 		return ObjectComunicator.C_getYaw(gameObject)
 	}
@@ -301,6 +303,9 @@ class ObjectLinker{
 		}
 		if(type == ComponentType.ANIMATOR){
 			return ComponentAnimator.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PHYSICS){
+			return ComponentPhysics.new(gameObject, component_uuid)
 		}
 
 	}

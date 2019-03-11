@@ -17,6 +17,7 @@ struct ScriptData;
 #define ANIMATION_PATH "ScriptingAPI/Animation.wren"
 #define PARTICLES_PATH "ScriptingAPI/Particles.wren"
 #define UI_PATH "ScriptingAPI/UI.wren"
+#define PHYSICS_PATH "ScriptingAPI/Physics.wren"
 
 class ModuleScripting : public Module {
 public:
@@ -56,6 +57,7 @@ public:
 	std::string animation_code;
 	std::string particles_code;
 	std::string UI_code;
+	std::string physics_code;
 
 
 	virtual void SaveConfig(JSON_Object* config) const;
