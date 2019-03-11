@@ -39,6 +39,7 @@ class PlayerController is ObjectLinker{
     DashButton {_dash_button}
 
 
+
     // Setters
     State = (new_state) {
         if (_player_state)  _player_state.EndState() //the first time player_state is null
@@ -56,7 +57,7 @@ class PlayerController is ObjectLinker{
         _player_state
         _move_direction = Vec3.zero()
         _old_move_direction = Vec3.zero()
-        _speed = 0.5
+        _speed = 50
 
         _punch_button = InputComunicator.C_X
         _kick_button = InputComunicator.C_Y
@@ -78,6 +79,9 @@ class PlayerController is ObjectLinker{
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
 
+
+        //Movement
+        _move_script = getScript("EntityMove")
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = _idle_state //Reminder that "State" is a setter method
@@ -115,40 +119,15 @@ class PlayerController is ObjectLinker{
     }
 
     modPos(x,y,z) {
-        super.modPos(x,y,z)
+
+        _move_script.SetSpeed(x,y,z)
+        //super.modPos(x,y,z)
     } 
 
     rotate(x,y,z) {
         super.rotate(x,y,z)
     }
 
-    CheckBoundaries(movement){
-        //Collision stuff delete later
-        var pos_x = getPosX("global")
-        var pos_z = getPosZ("global")
-
-        if (pos_x > 40){
-            if (movement.x > 0){
-                movement.x = 0
-            }
-        }
-        if (pos_x < -40 ){
-            if (movement.x < 0){
-                movement.x = 0
-            }
-        }
-
-        if (pos_z > 40 ){
-            if (movement.z > 0){
-                movement.z = 0
-            }
-        }
-        if (pos_z < -40 ){
-            if (movement.z < 0){
-                movement.z = 0
-            }
-        }
-    }
 }
 
 class State {
@@ -255,8 +234,6 @@ class MovingState is State {
 
         var movement = Vec3.new(_player.MoveDirection.x*_player.Speed,0,_player.MoveDirection.y*_player.Speed)
 
-        _player.CheckBoundaries(movement)
-
         _player.modPos(movement.x,movement.y,movement.z)
 
         var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
@@ -291,7 +268,7 @@ class DashState is State {
         _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _dash_speed = 1
+        _dash_speed = 100
     }
 
     HandleInput() {
@@ -303,7 +280,6 @@ class DashState is State {
 
         var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
 
-        _player.CheckBoundaries(movement)
         _player.modPos(movement.x,movement.y,movement.z)
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
