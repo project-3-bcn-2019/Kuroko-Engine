@@ -92,6 +92,9 @@ void ComponentImageUI::Draw() const
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //resets the buffer
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
 	glColor4f(1.0, 1.0, 1.0, alpha);
 	glLineWidth(4.0f);
 
@@ -114,6 +117,7 @@ void ComponentImageUI::Draw() const
 
 	if (texture) { glDisable(GL_TEXTURE_2D); }
 	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
 	glPopMatrix();
 
 }

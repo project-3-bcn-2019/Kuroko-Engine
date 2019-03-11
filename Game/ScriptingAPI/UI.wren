@@ -62,5 +62,26 @@ class ComponentText{
 	setText(text){
 		return TextComunicator.C_SetText(gameObject, component, text)
 	}
+}
 
+class ProgressBarComunicator{
+	foreign static C_SetProgress(gameObject, component, progress)
+}
+
+class ComponentProgressBar {
+	gameObject { _gameObject}		// UUID of the linked GO
+	gameObject=(v){ _gameObject = v}
+
+	component { _component}		// UUID of the component 
+	component=(v){ _component = v}
+
+	
+	construct new(parent, uuid){
+		gameObject = parent
+		component = uuid
+	}
+
+	setProgress(progress){
+		return ProgressBarComunicator.C_SetProgress(gameObject, component, progress)
+	}
 }

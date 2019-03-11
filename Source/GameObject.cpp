@@ -20,8 +20,9 @@
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
 #include "ComponentAnimationEvent.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "ComponentAnimator.h"
+#include "ComponentTrigger.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -107,9 +108,14 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "animation_event") {
 			component = new ComponentAnimationEvent(component_deff, this);
 		}
-		else if (type == "collider_cube") {
-			component = new ComponentColliderCube(component_deff, this);
+
+		else if (type == "physics") {
+			component = new ComponentPhysics(component_deff, this);
 		}
+		else if (type == "trigger") {
+			component = new ComponentTrigger(component_deff, this);
+		}
+		
 		else if (type == "animator") {
 			component = new ComponentAnimator(component_deff, this);
 		}
@@ -407,10 +413,17 @@ Component* GameObject::addComponent(Component_type type)
 			components.push_back(new_component);
 		}
 		break;
-	case COLLIDER_CUBE:
-		if (!getComponent(COLLIDER_CUBE))
+	case PHYSICS:
+		if (!getComponent(PHYSICS))
 		{
-			new_component = new ComponentColliderCube(this);
+			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, false);
+			components.push_back(new_component);
+		}
+		break;
+	case TRIGGER:
+		if (!getComponent(TRIGGER))
+		{
+			new_component = new ComponentTrigger(this, collision_shape::COL_CYLINDER);
 			components.push_back(new_component);
 		}
 		break;
@@ -485,7 +498,10 @@ void GameObject::addComponent(Component* component)
 	case PARTICLE_EMITTER:
 		components.push_back(component);
 		break;
-	case COLLIDER_CUBE:
+	case PHYSICS:
+		components.push_back(component);
+		break;
+	case TRIGGER:
 		components.push_back(component);
 		break;
 	case ANIMATION_EVENT:

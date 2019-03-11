@@ -20,6 +20,7 @@ private:
 	void DrawHardwareLeaf() const;
 	void DrawApplicationLeaf() const;
 	void DrawEditorPreferencesLeaf() const;
+	void DrawResourcesLeaf() const;
 };
 
 #endif

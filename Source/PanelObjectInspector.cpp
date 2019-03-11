@@ -69,7 +69,7 @@ void PanelObjectInspector::Draw()
 					if (ImGui::Button("Add Listener")) selected_obj->addComponent(AUDIOLISTENER);
 					if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 					if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
-					if (ImGui::Button("Add Collider")) selected_obj->addComponent(COLLIDER_CUBE);
+					if (ImGui::Button("Add Physic Object Properties")) selected_obj->addComponent(PHYSICS);
 					if (ImGui::Button("Add Animator")) selected_obj->addComponent(ANIMATOR);
 				}
 			}

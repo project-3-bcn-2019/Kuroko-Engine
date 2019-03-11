@@ -5,7 +5,8 @@
 #include "ModuleTimeManager.h"
 #include "ComponentTransform.h"
 #include "ComponentAABB.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
+#include "ComponentTrigger.h"
 //#include "ComponentColliderSphere.h"
 #include "Component.h"
 #include "ModuleCamera3D.h"
@@ -65,6 +66,8 @@ bool ModulePhysics3D::Start()
 
 	pdebug_draw->setDebugMode(pdebug_draw->DBG_DrawWireframe);
 	world->setDebugDrawer(pdebug_draw);
+
+	world->setGravity(btVector3(0,0,0));
 	//Big plane
 
 
@@ -87,14 +90,17 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 		int numContacts = contactManifold->getNumContacts();//TO IMPROVE A LOT
 		if (numContacts > 0)
 		{
-			ComponentColliderCube* pbodyA = (ComponentColliderCube*)obA->getUserPointer();
-			ComponentColliderCube* pbodyB = (ComponentColliderCube*)obB->getUserPointer();
 
-			if (pbodyA && pbodyB)
-			{
-				pbodyA->OnCollision(pbodyA->getParent(), pbodyB->getParent());
-				pbodyB->OnCollision(pbodyB->getParent(), pbodyA->getParent());
-			}
+			//switch (((Component*)obA->getUserPointer())->getType())
+			//{
+			//case PHYSICS:
+			//	break;
+			//case TRIGGER:
+			//	break;
+			//}
+
+			Component* pbodyA = (Component*)obA->getUserPointer();
+			Component* pbodyB = (Component*)obB->getUserPointer();
 
 			Collision cA;
 			cA.A = pbodyA->getParent();
@@ -116,9 +122,16 @@ update_status ModulePhysics3D::Update(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		physics_debug = !physics_debug;
+	//if (App->time->getGameState() == GameState::PLAYING)
+	//{
+	//	UpdateTransformsFromPhysics();
+	//}
+	//else
+	//{
+	//	UpdatePhysicsFromTransforms();
+	//}
 
-	if (App->time->getGameState() == GameState::PLAYING)
-		UpdatePhysics();
+	world->stepSimulation(dt, 1);
 
 
 	return UPDATE_CONTINUE;
@@ -138,64 +151,7 @@ update_status ModulePhysics3D::PostUpdate(float dt)
 void ModulePhysics3D::UpdatePhysics()
 {
 
-	world->stepSimulation(17, 1);
 
-	////float *matrix = new float[16];
-	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-	{
-		float* matrix = new float[16];
-		//(*item)->GetTransform(matrix);
-
-		GameObject* obj = ((ComponentColliderCube*)(*item)->body->getUserPointer())->getParent();
-		if (obj != nullptr)
-		{
-
-
-			ComponentTransform* transform = (ComponentTransform*)obj->getComponent(TRANSFORM);
-			if (transform != nullptr)
-			{
-
-
-			//matrix = transform->global->getMatrix().ptr();
-
-			btTransform t = (*item)->body->getWorldTransform();
-
-			////t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-			//t.setRotation(t.getRotation().inverse());
-
-			////btScalar* m = new btScalar[16];
-			////t.getOpenGLMatrix(m);
-
-			float4x4 fina;
-
-			////fina[0][0] = m[0];		fina[1][0] = m[4];		fina[2][0] = m[8];		fina[3][0] = m[12];
-			////fina[0][1] = m[1];		fina[1][1] = m[5];		fina[2][1] = m[9];		fina[3][1] = m[13];
-			////fina[0][2] = m[2];		fina[1][2] = m[6];		fina[2][2] = m[10];		fina[3][2] = m[14];
-			////fina[0][3] = m[3];		fina[1][3] = m[7];		fina[2][3] = m[11];		fina[3][3] = m[15];
-
-			fina = float4x4::FromTRS(float3(0, 0, 0), Quat::identity, transform->global->getScale());
-
-			fina.Transpose();
-
-			Quat newquat = transform->global->getRotation();
-			newquat.Inverse();
-			float4x4 rot_mat = newquat.ToFloat4x4();
-
-			fina = /*fina * */rot_mat;
-
-			//fina = fina * float4x4::FromQuat(transform->global->getRotation());
-			//fina.Translate(transform->global->getPosition());
-
-			t.setFromOpenGLMatrix(fina.ptr());
-
-			t.setOrigin(btVector3(transform->global->getPosition().x, transform->global->getPosition().y, transform->global->getPosition().z));
-
-			(*item)->body->getCollisionShape()->setLocalScaling(btVector3(transform->global->getScale().x, transform->global->getScale().y, transform->global->getScale().z));
-
-			(*item)->body->setWorldTransform(t);
-			}
-		}
-	}
 }
 
 void ModulePhysics3D::CleanUpWorld()
@@ -273,17 +229,22 @@ bool ModulePhysics3D::CleanUp()
 	return true;
 }
 
-PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
+
+PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment)
 {
-	ComponentAABB* box = (ComponentAABB*)parent->getComponent(C_AABB);
-	//if (box == nullptr)
-	//{
-	//	box = (ComponentAABB*)parent->addComponent(C_AABB);
-	//	box->getAABB()->maxPoint = float3(0.5, 0.5, 0.5);
-	//	box->getAABB()->minPoint = float3(-0.5, -0.5, -0.5);
-	//}
-	
-	btCollisionShape* colShape = new btBoxShape(btVector3(box->getOBB()->Size().x*0.5, box->getOBB()->Size().y*0.5, box->getOBB()->Size().z*0.5));
+	btCollisionShape* colShape = nullptr;
+	switch (shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	}
 	shapes.push_back(colShape);
 
 	btTransform startTransform;
@@ -294,16 +255,55 @@ PhysBody * ModulePhysics3D::AddBody(GameObject* parent)
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	motions.push_back(myMotionState);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
-
 	btRigidBody* body = new btRigidBody(rbInfo);
+
+	body->setFlags(DISABLE_DEACTIVATION);
+	body->setActivationState(DISABLE_DEACTIVATION);
+	//body->setCollisionFlags(btRigidBody::CollisionFlags::CF_KINEMATIC_OBJECT);
+	
 	PhysBody* pbody = new PhysBody(body);
 
-	pbody->dimensions = box->getOBB()->Size();
+	pbody->dimensions = float3(1,1,1);
 
 	world->addRigidBody(body);
 	bodies.push_back(pbody);
 
 	return pbody;
+}
+
+
+btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_shape shape)
+{
+	btCollisionShape* colShape = nullptr;
+	switch (shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	}
+	shapes.push_back(colShape);
+
+	btTransform startTransform;
+
+	startTransform.setIdentity();
+
+	btGhostObject* body = new btGhostObject();
+	body->setCollisionShape(colShape);
+	body->setWorldTransform(startTransform);
+	
+	body->setActivationState(DISABLE_DEACTIVATION);
+	body->setCollisionFlags(btRigidBody::CollisionFlags::CF_NO_CONTACT_RESPONSE);
+
+	world->addCollisionObject(body);
+	triggers.push_back(body);
+
+	return body;
 }
 
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
@@ -318,6 +318,17 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
 
 }
+
+void ModulePhysics3D::DeleteTrigger(ComponentTrigger * component)
+{
+	world->removeCollisionObject(component->body);
+	
+	delete component->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), component->body->getCollisionShape()), end(shapes));
+	delete component->body;
+	triggers.erase(std::remove(begin(triggers), end(triggers), component->body), end(triggers));
+}
+
 
 void ModulePhysics3D::GetCollisionsFromObject(std::list<Collision>& list_to_fill, GameObject * to_get)
 {

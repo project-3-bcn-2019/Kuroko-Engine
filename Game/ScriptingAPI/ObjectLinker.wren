@@ -1,7 +1,7 @@
 import "Audio" for ComponentAudioSource
 import "Animation" for ComponentAnimation
 import "Particles" for ComponentParticleEmitter
-import "UI" for ComponentButton, ComponentCheckbox, ComponentText
+import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProgressBar
 
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
@@ -200,6 +200,7 @@ class ComponentType{
 	static BUTTON {12}
 	static CHECK_BOX {11}
 	static TEXT {13}
+	static PROGRESS_BAR {14}
 }
 
 class ObjectLinker{
@@ -294,6 +295,9 @@ class ObjectLinker{
 		}
 		if(type == ComponentType.TEXT){
 			return ComponentText.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PROGRESS_BAR){
+			return ComponentProgressBar.new(gameObject, component_uuid)
 		}
 
 	}

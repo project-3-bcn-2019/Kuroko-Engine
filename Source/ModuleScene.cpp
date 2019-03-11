@@ -157,13 +157,15 @@ update_status ModuleScene::Update(float dt)
 	{
 		GameObject* obj = new GameObject("TEST");
 
-		obj->own_half_size = float3(0.5, 0.5, 0.5);
+		obj->addComponent(PHYSICS);
 
-		OBB* obb = ((ComponentAABB*)obj->getComponent(C_AABB))->getOBB();
+	}
 
-		obb->SetFrom(AABB(float3(-0.5, -0.5, -0.5), float3(0.5, 0.5, 0.5)));
+	if (App->input->GetKey(SDL_SCANCODE_J) == KEY_DOWN)
+	{
+		GameObject* obj = new GameObject("TEST_TRIGGERS");
 
-		obj->addComponent(COLLIDER_CUBE);
+		obj->addComponent(TRIGGER);
 
 	}
 
