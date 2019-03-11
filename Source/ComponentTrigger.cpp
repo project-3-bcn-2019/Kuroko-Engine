@@ -23,6 +23,9 @@ ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape)
 	shape = _shape;
 	body = App->physics->AddTrigger(this,shape);
 	body->setUserPointer(this);
+
+	//body = App->physics->AddTrigger(this, shape);
+	//body->setUserPointer(this);
 }
 
 ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Component(parent, TRIGGER)
@@ -39,6 +42,8 @@ ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Com
 
 	shape = (collision_shape)(int)json_object_get_number(data, "shape");
 
+	body = App->physics->AddTrigger(this, shape);
+	body->setUserPointer(this);
 }
 
 bool ComponentTrigger::Update(float dt)
@@ -79,7 +84,7 @@ void ComponentTrigger::Draw() const
 
 void ComponentTrigger::Save(JSON_Object* config)
 {
-	json_object_set_string(config, "type", "physics");
+	json_object_set_string(config, "type", "trigger");
 
 	JSON_Value* data = json_value_init_object();
 	json_object_set_number(json_object(data), "shape", shape);
@@ -180,6 +185,6 @@ void ComponentTrigger::UpdatePhysicsFromTransforms()
 
 ComponentTrigger::~ComponentTrigger()
 {
-
+	App->physics->DeleteTrigger(this);
 
 };

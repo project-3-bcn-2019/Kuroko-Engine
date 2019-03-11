@@ -261,8 +261,8 @@ std::string ModuleScripting::enum2component(Component_type type) {
 			return "Camera";
 		case Component_type::CANVAS:
 			return "Canvas";
-		case Component_type::COLLIDER_CUBE:
-			return "Collider Cube";
+		case Component_type::PHYSICS:
+			return "physics";
 		case Component_type::C_AABB:
 			return "AABB";
 		case Component_type::MESH:

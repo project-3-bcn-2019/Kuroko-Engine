@@ -112,9 +112,8 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		else if (type == "physics") {
 			component = new ComponentPhysics(component_deff, this);
 		}
-
 		else if (type == "trigger") {
-			component = new ComponentPhysics(component_deff, this);
+			component = new ComponentTrigger(component_deff, this);
 		}
 		
 		else if (type == "animator") {
@@ -500,6 +499,9 @@ void GameObject::addComponent(Component* component)
 		components.push_back(component);
 		break;
 	case PHYSICS:
+		components.push_back(component);
+		break;
+	case TRIGGER:
 		components.push_back(component);
 		break;
 	case ANIMATION_EVENT:

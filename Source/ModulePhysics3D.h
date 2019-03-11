@@ -67,6 +67,7 @@ public:
 
 	PhysBody* AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment);
 	void DeleteBody(PhysBody* body_to_delete);
+	void DeleteTrigger(ComponentTrigger* component);
 
 	btGhostObject* AddTrigger(ComponentTrigger* parent, collision_shape shape);
 

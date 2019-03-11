@@ -6,6 +6,7 @@
 #include "ComponentTransform.h"
 #include "ComponentAABB.h"
 #include "ComponentPhysics.h"
+#include "ComponentTrigger.h"
 //#include "ComponentColliderSphere.h"
 #include "Component.h"
 #include "ModuleCamera3D.h"
@@ -316,6 +317,16 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	delete body_to_delete;
 	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
 
+}
+
+void ModulePhysics3D::DeleteTrigger(ComponentTrigger * component)
+{
+	world->removeCollisionObject(component->body);
+	
+	delete component->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), component->body->getCollisionShape()), end(shapes));
+	delete component->body;
+	triggers.erase(std::remove(begin(triggers), end(triggers), component->body), end(triggers));
 }
 
 
