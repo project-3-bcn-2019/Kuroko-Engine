@@ -1,30 +1,7 @@
 import "Audio" for ComponentAudioSource
-import "Animation" for ComponentAnimation
+import "Animation" for ComponentAnimation, ComponentAnimator
 import "Particles" for ComponentParticleEmitter
 import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProgressBar
-
-class ObjectComunicator{
-	foreign static C_setPos(gameObject, x, y, z)
-	foreign static C_modPos(gameObject, x, y, z)
-        foreign static C_rotate(gameObject, x, y, z)
-	foreign static C_lookAt(gameObject, x, y, z)
-
-	foreign static C_getPosX(gameObject, mode)
-	foreign static C_getPosY(gameObject, mode)
-	foreign static C_getPosZ(gameObject, mode)
-
-	foreign static C_getPitch(gameObject)
-	foreign static C_getYaw(gameObject)
-	foreign static C_getRoll(gameObject)
-
-	foreign static C_Kill(gameObject)
-	foreign static C_MoveForward(gameObject, speed)
-
-	foreign static C_GetComponentUUID(gameObject, component_type)
-	foreign static C_GetCollisions(gameObject)
-	foreign static C_GetScript(gameObject, script_name)
-
-}
 
 class Math{
 	foreign static C_sqrt(number)
@@ -192,6 +169,28 @@ class InputComunicator{
 	}
 }
 
+class ObjectComunicator{
+	foreign static C_setPos(gameObject, x, y, z)
+	foreign static C_modPos(gameObject, x, y, z)
+        foreign static C_rotate(gameObject, x, y, z)
+	foreign static C_lookAt(gameObject, x, y, z)
+
+	foreign static C_getPosX(gameObject, mode)
+	foreign static C_getPosY(gameObject, mode)
+	foreign static C_getPosZ(gameObject, mode)
+
+	foreign static C_getPitch(gameObject)
+	foreign static C_getYaw(gameObject)
+	foreign static C_getRoll(gameObject)
+
+	foreign static C_Kill(gameObject)
+	foreign static C_MoveForward(gameObject, speed)
+
+	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+	foreign static C_GetScript(gameObject, script_name)
+
+}
 
 class ComponentType{
 	static AUDIO_SOURCE {15}
@@ -201,6 +200,7 @@ class ComponentType{
 	static CHECK_BOX {11}
 	static TEXT {13}
 	static PROGRESS_BAR {14}
+	static ANIMATOR {22}
 }
 
 class ObjectLinker{
@@ -298,6 +298,9 @@ class ObjectLinker{
 		}
 		if(type == ComponentType.PROGRESS_BAR){
 			return ComponentProgressBar.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.ANIMATOR){
+			return ComponentAnimator.new(gameObject, component_uuid)
 		}
 
 	}
