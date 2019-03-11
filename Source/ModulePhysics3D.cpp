@@ -189,11 +189,11 @@ void ModulePhysics3D::CleanUpWorld()
 
 bool ModulePhysics3D::CleanUp()
 {
-	for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
-	{
-		btCollisionObject* obj = world->getCollisionObjectArray()[i];
-		world->removeCollisionObject(obj);
-	}
+	//for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+	//{
+	//	btCollisionObject* obj = world->getCollisionObjectArray()[i];
+	//	world->removeCollisionObject(obj);
+	//}
 
 	for (std::vector<btTypedConstraint*>::iterator item = constraints.begin(); item != constraints.end(); item++)
 	{
@@ -220,7 +220,7 @@ bool ModulePhysics3D::CleanUp()
 
 	delete world;
 
-	//delete pdebug_draw;
+	delete pdebug_draw;
 	delete solver;
 	delete broad_phase;
 	delete dispatcher;
@@ -304,6 +304,61 @@ btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_
 	triggers.push_back(body);
 
 	return body;
+}
+
+void ModulePhysics3D::change_shape(ComponentPhysics * to_change)
+{
+
+	delete to_change->body->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), to_change->body->body->getCollisionShape()), end(shapes));
+
+	btCollisionShape* colShape = nullptr;
+	switch (to_change->shape)
+	{
+	case COL_CUBE:
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		to_change->shape = COL_CYLINDER;
+		break;
+	case COL_CYLINDER:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		to_change->shape = COL_CUBE;
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	}
+
+	shapes.push_back(colShape);
+	to_change->body->body->setCollisionShape(colShape);
+
+}
+
+void ModulePhysics3D::change_shape(ComponentTrigger * to_change)
+{
+
+
+	delete to_change->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), to_change->body->getCollisionShape()), end(shapes));
+
+	btCollisionShape* colShape = nullptr;
+	switch (to_change->shape)
+	{
+	case COL_CUBE:
+		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		to_change->shape = COL_CYLINDER;
+		break;
+	case COL_CYLINDER:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		to_change->shape = COL_CUBE;
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(1, 1, 1));
+		break;
+	}
+
+	shapes.push_back(colShape);
+	to_change->body->setCollisionShape(colShape);
+
 }
 
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)

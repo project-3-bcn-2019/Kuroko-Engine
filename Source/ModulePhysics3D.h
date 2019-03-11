@@ -71,6 +71,10 @@ public:
 
 	btGhostObject* AddTrigger(ComponentTrigger* parent, collision_shape shape);
 
+	void change_shape(ComponentPhysics* to_change);
+	void change_shape(ComponentTrigger* to_change);
+
+
 	std::list<Collision> collisions;
 	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
 
