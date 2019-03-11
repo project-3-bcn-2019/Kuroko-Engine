@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BT_COLLISION_OBJECT_H
 #define BT_COLLISION_OBJECT_H
 
-#include "LinearMath/btTransform.h"
+#include "../Bullet/include/LinearMath/btTransform.h"
 
 //island management, m_activationState1
 #define ACTIVE_TAG 1
@@ -28,9 +28,9 @@ subject to the following restrictions:
 struct	btBroadphaseProxy;
 class	btCollisionShape;
 struct btCollisionShapeData;
-#include "LinearMath/btMotionState.h"
-#include "LinearMath/btAlignedAllocator.h"
-#include "LinearMath/btAlignedObjectArray.h"
+#include "../Bullet/include/LinearMath/btMotionState.h"
+#include "../Bullet/include/LinearMath/btAlignedAllocator.h"
+#include "../Bullet/include/LinearMath/btAlignedObjectArray.h"
 
 typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 

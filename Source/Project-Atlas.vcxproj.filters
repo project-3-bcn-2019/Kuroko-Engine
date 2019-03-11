@@ -558,9 +558,6 @@
     <ClInclude Include="ModulePhysics3D.h">
       <Filter>Sources\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentColliderCube.h">
-      <Filter>Sources\Game</Filter>
-    </ClInclude>
     <ClInclude Include="PhysBody.h">
       <Filter>Sources\Helpers</Filter>
     </ClInclude>
@@ -638,6 +635,12 @@
     </ClInclude>
     <ClInclude Include="PanelQuadtreeConfig.h">
       <Filter>Sources\UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTrigger.h">
+      <Filter>Sources\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentPhysics.h">
+      <Filter>Sources\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -995,9 +998,6 @@
     <ClCompile Include="ModulePhysics3D.cpp">
       <Filter>Sources\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentColliderCube.cpp">
-      <Filter>Sources\Game</Filter>
-    </ClCompile>
     <ClCompile Include="PhysBody.cpp">
       <Filter>Sources\Helpers</Filter>
     </ClCompile>
@@ -1072,6 +1072,12 @@
     </ClCompile>
     <ClCompile Include="PanelQuadtreeConfig.cpp">
       <Filter>Sources\UI Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTrigger.cpp">
+      <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentPhysics.cpp">
+      <Filter>Sources\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

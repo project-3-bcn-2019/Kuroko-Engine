@@ -15,7 +15,7 @@
 #include "ComponentTransform.h"
 #include "ComponentAudioSource.h"
 #include "ComponentAnimation.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "ComponentParticleEmitter.h"
 #include "ComponentScript.h"
 #include "ComponentButtonUI.h"
@@ -261,8 +261,8 @@ std::string ModuleScripting::enum2component(Component_type type) {
 			return "Camera";
 		case Component_type::CANVAS:
 			return "Canvas";
-		case Component_type::COLLIDER_CUBE:
-			return "Collider Cube";
+		case Component_type::PHYSICS:
+			return "physics";
 		case Component_type::C_AABB:
 			return "AABB";
 		case Component_type::MESH:
@@ -922,7 +922,7 @@ void GetCollisions(WrenVM* vm) {
 		return;
 	}
 
-	ComponentColliderCube* component = (ComponentColliderCube*)go->getComponent(COLLIDER_CUBE);
+	ComponentPhysics* component = (ComponentPhysics*)go->getComponent(PHYSICS);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentColliderCube", go->getName().c_str());

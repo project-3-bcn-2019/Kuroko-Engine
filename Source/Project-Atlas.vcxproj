@@ -14,7 +14,7 @@
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>
     <RootNamespace>SDLGame</RootNamespace>
     <ProjectName>Project-Atlas</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClInclude Include="ComponentAnimationEvent.h" />
     <ClInclude Include="ComponentAnimator.h" />
+    <ClInclude Include="ComponentTrigger.h" />
     <ClInclude Include="ComponentProgressBarUI.h" />
     <ClInclude Include="ModuleExporter.h" />
     <ClInclude Include="PanelAbout.h" />
@@ -103,7 +104,7 @@
     <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="ComponentCanvas.h" />
     <ClInclude Include="ComponentCheckBoxUI.h" />
-    <ClInclude Include="ComponentColliderCube.h" />
+    <ClInclude Include="ComponentPhysics.h" />
     <ClInclude Include="ComponentImageUI.h" />
     <ClInclude Include="ComponentParticleEmitter.h" />
     <ClInclude Include="ComponentRectTransform.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentAnimationEvent.cpp" />
     <ClCompile Include="ComponentAnimator.cpp" />
+    <ClCompile Include="ComponentTrigger.cpp" />
     <ClCompile Include="ComponentProgressBarUI.cpp" />
     <ClCompile Include="ModuleExporter.cpp" />
     <ClCompile Include="PanelAbout.cpp" />
@@ -287,7 +289,7 @@
     <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="ComponentCanvas.cpp" />
     <ClCompile Include="ComponentCheckBoxUI.cpp" />
-    <ClCompile Include="ComponentColliderCube.cpp" />
+    <ClCompile Include="ComponentPhysics.cpp" />
     <ClCompile Include="ComponentImageUI.cpp" />
     <ClCompile Include="ComponentParticleEmitter.cpp" />
     <ClCompile Include="ComponentRectTransform.cpp" />

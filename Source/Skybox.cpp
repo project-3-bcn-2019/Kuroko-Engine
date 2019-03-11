@@ -138,7 +138,7 @@ void Skybox::setDistance(float dist)
 
 
 void Skybox::Draw() const
-{
+{//MISSES HERE
 	if (active)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
