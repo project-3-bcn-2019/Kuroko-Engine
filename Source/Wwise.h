@@ -17,9 +17,9 @@ namespace Wwise
 		void SetPosition(float x = 0, float y = 0, float z = 0, float x_front = 1, float y_front = 0, float z_front = 0, float x_top = 0, float y_top = 1, float z_top = 0);
 		
 		void PlayEvent(unsigned long id);
-		void PauseEvent(unsigned long id);
-		void ResumeEvent(unsigned long id);
-		void StopEvent(unsigned long id);
+		void PauseEvent(unsigned long id, int fade_time_ms = 0);
+		void ResumeEvent(unsigned long id, int fade_time_ms = 0);
+		void StopEvent(unsigned long id, int fade_time_ms = 0);
 
 		void SetAuxiliarySends(AkReal32 value, const char * target_bus, AkGameObjectID listener_id);
 

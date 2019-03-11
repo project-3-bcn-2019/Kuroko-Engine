@@ -31,6 +31,7 @@ class ComponentTextUI :
 	};
 public:
 	ComponentTextUI(GameObject* parent);
+	ComponentTextUI(JSON_Object* deff, GameObject* parent);
 	~ComponentTextUI();
 
 	bool Update(float dt)override;

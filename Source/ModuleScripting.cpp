@@ -8,17 +8,24 @@
 #include "ModuleScene.h"
 #include "ModuleInput.h"
 #include "ModuleResourcesManager.h"
+#include "ResourceAnimationGraph.h"
 #include "ModuleTimeManager.h"
 #include "Include_Wwise.h"
 // May be better to manage in scene
 #include "GameObject.h"
+#include "Transform.h"
 #include "ComponentTransform.h"
 #include "ComponentAudioSource.h"
 #include "ComponentAnimation.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "ComponentParticleEmitter.h"
 #include "ComponentScript.h"
-#include "Transform.h"
+#include "ComponentButtonUI.h"
+#include "ComponentCheckBoxUI.h"
+#include "ComponentTextUI.h"
+#include "ComponentProgressBarUI.h"
+#include "ComponentAnimator.h"
+
 
 
 // Object comunicator
@@ -73,13 +80,38 @@ void ResumeAudio(WrenVM* vm);
 void StopAudio(WrenVM* vm);
 
 // Animation
+	// Animation
 void SetAnimation(WrenVM* vm);
 void PlayAnimation(WrenVM* vm);
 void PauseAnimation(WrenVM* vm);
 void ResetAnimation(WrenVM* vm);
+	// Animation graph
+void SetInt(WrenVM* vm);
+void GetInt(WrenVM* vm);
+void SetFloat(WrenVM* vm);
+void GetFloat(WrenVM* vm);
+void SetString(WrenVM* vm);
+void GetString(WrenVM* vm);
+void SetBool(WrenVM* vm);
+void GetBool(WrenVM* vm);
+
 
 // Particles
 void CreateParticles(WrenVM* vm);
+
+// UI
+
+	// Button
+void ButtonGetState(WrenVM* vm);
+	// Checkbox
+void CheckboxIsPressed(WrenVM* vm);
+	// Text
+void UIText_SetText(WrenVM* vm);
+	// Progress Bar
+void SetProgress(WrenVM* vm);
+
+// Physics
+void SetSpeed(WrenVM* vm);
 
 
 WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature); // Wren foraign methods
@@ -126,6 +158,8 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		audio_code = App->fs.GetFileString(AUDIO_PATH);
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
 		particles_code = App->fs.GetFileString(PARTICLES_PATH);
+		UI_code = App->fs.GetFileString(UI_PATH);
+		physics_code = App->fs.GetFileString(PHYSICS_PATH);
 		return true;
 	}
 	else
@@ -223,6 +257,56 @@ update_status ModuleScripting::Update(float dt)
 void ModuleScripting::StartInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_STARTING); }
 void ModuleScripting::PauseInstances() { for (auto it : loaded_instances) (*it).setState(SCRIPT_PAUSED); }
 void ModuleScripting::StopInstances() { for (auto it : loaded_instances)  (*it).setState(SCRIPT_STOPPED); }
+
+std::string ModuleScripting::enum2component(Component_type type) {
+
+	switch (type) {
+		case Component_type::ANIMATION:
+			return "Animation";
+		case Component_type::ANIMATION_EVENT:
+			return "Animation Event";
+		case Component_type::ANIMATOR:
+			return "Animator";
+		case Component_type::AUDIOLISTENER:
+			return "Audio Listener";
+		case Component_type::AUDIOSOURCE:
+			return "Audio Source";
+		case Component_type::BILLBOARD:
+			return "Billboard";
+		case Component_type::BONE:
+			return "Bone";
+		case Component_type::CAMERA:
+			return "Camera";
+		case Component_type::CANVAS:
+			return "Canvas";
+		case Component_type::PHYSICS:
+			return "physics";
+		case Component_type::C_AABB:
+			return "AABB";
+		case Component_type::MESH:
+			return "Mesh";
+		case Component_type::PARTICLE_EMITTER:
+			return "Particle Emitter";
+		case Component_type::RECTTRANSFORM:
+			return "Rect Transform";
+		case Component_type::SCRIPT:
+			return "Script";
+		case Component_type::TRANSFORM:
+			return "Transform";
+		case Component_type::UI_BUTTON:
+			return "Button";
+		case Component_type::UI_CHECKBOX:
+			return "Checkbox";
+		case Component_type::UI_IMAGE:
+			return "Image";
+		case Component_type::UI_PROGRESSBAR:
+			return "Progress Bar";
+		case Component_type::UI_TEXT:
+			return "Text";
+
+	}
+	return std::string();
+}
 
 
 void ModuleScripting::SaveConfig(JSON_Object * config) const {
@@ -370,21 +454,7 @@ std::vector<std::string> ModuleScripting::GetMethodsFromClassHandler(WrenHandle 
 
 // Wren callbacks  ======================================================================
 
-void write(WrenVM* vm, const char* text)
-{
-	app_log->AddLog(text);
-}
-
-void error(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message)
-{
-	if (type == WrenErrorType::WREN_ERROR_COMPILE)
-		app_log->AddLog("Couldn't compile %s. %s error in %i line", module, message, line);
-	else if (type == WrenErrorType::WREN_ERROR_RUNTIME)
-		app_log->AddLog("Error when running %s. %s error in %i line", module, message, line);
-}
-
-char* loadModule(WrenVM* vm, const char* name)
-{
+char* loadModule(WrenVM* vm, const char* name) {
 	char* ret = nullptr;
 	if (strcmp(name, "ObjectLinker") == 0) {
 
@@ -414,7 +484,34 @@ char* loadModule(WrenVM* vm, const char* name)
 		strcpy(ret, App->scripting->particles_code.c_str());
 		ret[string_size - 1] = '\0';
 	}
+
+	if (strcmp(name, "UI") == 0) {
+		int string_size = strlen(App->scripting->UI_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->UI_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
+
+	if (strcmp(name, "Physics") == 0) {
+		int string_size = strlen(App->scripting->physics_code.c_str()) + 1; // 1 for the /0
+		ret = new char[string_size];
+		strcpy(ret, App->scripting->physics_code.c_str());
+		ret[string_size - 1] = '\0';
+	}
 	return ret;
+}
+
+void write(WrenVM* vm, const char* text)
+{
+	app_log->AddLog(text);
+}
+
+void error(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message)
+{
+	if (type == WrenErrorType::WREN_ERROR_COMPILE)
+		app_log->AddLog("Couldn't compile %s. %s error in %i line", module, message, line);
+	else if (type == WrenErrorType::WREN_ERROR_RUNTIME)
+		app_log->AddLog("Error when running %s. %s error in %i line", module, message, line);
 }
 
 
@@ -576,6 +673,28 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 				return PauseAnimation;
 			if (isStatic && strcmp(signature, "C_ResetAnimation(_,_)") == 0)
 				return ResetAnimation;
+
+			if (isStatic && strcmp(signature, "C_SetInt(_,_,_,_)") == 0)
+				return SetInt;
+			if (isStatic && strcmp(signature, "C_GetInt(_,_,_)") == 0)
+				return GetInt;
+
+			if (isStatic && strcmp(signature, "C_SetFloat(_,_,_,_)") == 0)
+				return SetFloat;
+			if (isStatic && strcmp(signature, "C_GetFloat(_,_,_)") == 0)
+				return GetFloat;
+
+			if (isStatic && strcmp(signature, "C_SetString(_,_,_,_)") == 0)
+				return SetString;
+			if (isStatic && strcmp(signature, "C_GetString(_,_,_)") == 0)
+				return GetString;
+
+			if (isStatic && strcmp(signature, "C_SetBool(_,_,_,_)") == 0)
+				return SetBool;
+			if (isStatic && strcmp(signature, "C_GetBool(_,_,_)") == 0)
+				return GetBool;
+
+
 		}
 	}
 
@@ -584,6 +703,34 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 		if (strcmp(className, "ParticleComunicator") == 0) {
 			if (isStatic && strcmp(signature, "C_CreateParticles(_,_,_)") == 0)
 				return CreateParticles;
+		}
+	}
+
+	// UI
+	if (strcmp(module, "UI") == 0) {
+		if (strcmp(className, "ButtonComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_ButtonGetState(_,_)") == 0)
+				return ButtonGetState;
+		}
+		if (strcmp(className, "CheckboxComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_CheckboxIsPressed(_,_)") == 0)
+				return CheckboxIsPressed;
+		}
+		if (strcmp(className, "TextComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetText(_,_,_)") == 0)
+				return UIText_SetText;
+		}
+		if (strcmp(className, "ProgressBarComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetProgress(_,_,_)") == 0)
+				return SetProgress;
+		}
+	}
+
+	// Physics
+	if (strcmp(module, "Physics") == 0) {
+		if (strcmp(className, "PhysicsComunicator") == 0) {
+			if (isStatic && strcmp(signature, "C_SetSpeed(_,_,_,_,_)") == 0)
+				return SetSpeed;
 		}
 	}
 
@@ -813,7 +960,7 @@ void GetComponentUUID(WrenVM* vm) {
 	Component* component = go->getComponent(type);
 
 	if (!component) {
-		app_log->AddLog("Game Object: %s has no (make enum2component)", go->getName().c_str());
+		app_log->AddLog("Game Object named %s has no %s", go->getName().c_str(), App->scripting->enum2component(type).c_str());
 		return;
 	}
 
@@ -829,7 +976,7 @@ void GetCollisions(WrenVM* vm) {
 		return;
 	}
 
-	ComponentColliderCube* component = (ComponentColliderCube*)go->getComponent(COLLIDER_CUBE);
+	ComponentPhysics* component = (ComponentPhysics*)go->getComponent(PHYSICS);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentColliderCube", go->getName().c_str());
@@ -1225,7 +1372,254 @@ void ResetAnimation(WrenVM * vm)
 
 	component->Reset();
 }
+// Animation graph
+void SetInt(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+	int value = wrenGetSlotDouble(vm, 4);
 
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_INT);
+
+	component->setInt(var_uuid, value);
+}
+void GetInt(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_INT);
+
+	wrenSetSlotDouble(vm, 0, *component->getInt(var_uuid));
+}
+void SetFloat(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+	float value = wrenGetSlotDouble(vm, 4);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_FLOAT);
+
+	component->setFloat(var_uuid, value);
+}
+void GetFloat(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_FLOAT);
+
+	wrenSetSlotDouble(vm, 0, *component->getFloat(var_uuid));
+}
+void SetString(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+	std::string value = wrenGetSlotString(vm, 4);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_STRING);
+
+	component->setString(var_uuid, value.c_str());
+
+
+}
+void GetString(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_STRING);
+
+	wrenSetSlotString(vm, 0, (*component->getString(var_uuid)).c_str());
+}
+void SetBool(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+	bool value = wrenGetSlotBool(vm, 4);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_BOOL);
+
+	component->setBool(var_uuid, value);
+}
+void GetBool(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string name = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	ResourceAnimationGraph* res = (ResourceAnimationGraph*)App->resources->getResource(component->getAnimationGraphResource());
+
+	if (!res) {
+		app_log->AddLog("Couldn't find the Animator's graph %i uuid in resources", component->getAnimationGraphResource());
+		return;
+	}
+
+	uint var_uuid = res->getVariableUUID(name.c_str(), variableType::VAR_BOOL);
+
+	bool read = *component->getBool(var_uuid);
+	wrenSetSlotBool(vm, 0, read);
+}
 // Particles
 void CreateParticles(WrenVM* vm) {
 
@@ -1249,8 +1643,125 @@ void CreateParticles(WrenVM* vm) {
 
 	for(int i = 0; i < particles; i++)
 		component->CreateParticle();
+}
 
+// UI
 
+	// Button
+void ButtonGetState(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentButtonUI* component = (ComponentButtonUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentButton with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	wrenSetSlotDouble(vm, 0, (int)component->getState());
+}
+
+// Checkbox
+void CheckboxIsPressed(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentCheckBoxUI* component = (ComponentCheckBoxUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentCheckbox with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	wrenSetSlotBool(vm, 0, component->isPressed());
+}
+
+// Text
+
+void UIText_SetText(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	std::string message = wrenGetSlotString(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTextUI* component = (ComponentTextUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->SetText(message.c_str());
+}
+
+// Progress Bar
+
+void SetProgress(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	uint percentage = wrenGetSlotDouble(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentProgressBarUI* component = (ComponentProgressBarUI*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+component->setPercent(percentage);
 }
 
 
+// Physics
+void SetSpeed(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	int x = wrenGetSlotDouble(vm, 3);
+	int y = wrenGetSlotDouble(vm, 4);
+	int z = wrenGetSlotDouble(vm, 5);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentPhysics* component = (ComponentPhysics*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->SetSpeed(x, y, z);
+}

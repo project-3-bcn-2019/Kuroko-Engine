@@ -317,6 +317,14 @@ float ModuleInput::getFirstControllerAxis(SDL_GameControllerAxis axis) {
 	return ret;
 }
 
+KEY_STATE ModuleInput::GetKey(int id) const
+{
+	if (App->gui->keepKeyboard())
+		return KEY_IDLE;
+	else
+		return keyboard[id];
+}
+
 KEY_STATE ModuleInput::GetMouseButton(int id) const
 {
 	if (App->gui->isMouseOnUI())

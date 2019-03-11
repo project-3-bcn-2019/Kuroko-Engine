@@ -4,6 +4,7 @@
 #include "ModuleScene.h"
 #include "ModuleInput.h"
 #include "ModuleUI.h"
+#include "Applog.h"
 
 PanelHierarchyTab::PanelHierarchyTab(const char* name, bool active) : Panel(name, active)
 {
@@ -60,7 +61,7 @@ void PanelHierarchyTab::Draw()
 
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* image = new GameObject("UI_Image", parent, true);
@@ -77,7 +78,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* text = new GameObject("UI_Text", parent, true);
@@ -96,7 +97,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* button = new GameObject("UI_Button", parent, true);
@@ -115,7 +116,7 @@ void PanelHierarchyTab::Draw()
 					}
 				}
 				else {
-					parent = App->scene->getCanvasGameObject();// creates or checks for the cnavas					
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
 				}
 				if (parent != nullptr) {
 					GameObject* chbox = new GameObject("UI_CheckBox", parent, true);
@@ -124,6 +125,27 @@ void PanelHierarchyTab::Draw()
 					parent->addChild(chbox);
 				}
 
+			}
+			if (ImGui::MenuItem("UI_ProgressBar"))
+			{
+				GameObject* parent = nullptr;
+				if (!App->scene->selected_obj.empty()) {
+					if ((*App->scene->selected_obj.begin())->getComponent(RECTTRANSFORM) != nullptr) {
+						parent = *App->scene->selected_obj.begin();
+					}
+				}
+				else {
+					parent = App->scene->getCanvasGameObject(true);// creates or checks for the cnavas					
+				}
+				if (parent != nullptr) {
+					GameObject* pbar = new GameObject("UI_ProgressBar", parent, true);
+					pbar->addComponent(Component_type::UI_IMAGE);
+					parent->addChild(pbar);
+					GameObject* pbarInterior = new GameObject("UI_ProgressBar_interior", pbar, true);
+					pbarInterior->addComponent(Component_type::UI_IMAGE);
+					pbar->addChild(pbarInterior);					
+					pbar->addComponent(Component_type::UI_PROGRESSBAR);
+				}
 			}
 			ImGui::TreePop();
 		}
@@ -167,11 +189,17 @@ bool PanelHierarchyTab::DrawHierarchyNode(GameObject& game_object, int& id)
 		if (!App->input->GetKey(SDL_SCANCODE_LCTRL)) {
 			App->scene->selected_obj.clear();
 		}
-		int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it
+		int lastSize = App->scene->selected_obj.size();// checks if already is selected and diselects it ( if size changes means it was selected )
 		App->scene->selected_obj.remove(&game_object);
 		if (lastSize == App->scene->selected_obj.size())
 		{
-			App->scene->selected_obj.push_back(&game_object);
+			if (App->scene->selected_obj.empty() || (*App->scene->selected_obj.begin())->is_UI == game_object.is_UI) {
+				App->scene->selected_obj.push_back(&game_object);
+			}
+			else {
+				app_log->AddLog("Cannot select UI GameObject and scene GameObject at the same time!");
+			}
+				
 		}
 
 	}

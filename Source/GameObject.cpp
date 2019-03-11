@@ -11,6 +11,7 @@
 #include "ComponentAudioSource.h"
 #include "ComponentImageUI.h"
 #include "ComponentButtonUI.h"
+#include "ComponentProgressBarUI.h"
 #include "ComponentCheckBoxUI.h"
 #include "ComponentTextUI.h"
 #include "ComponentBone.h"
@@ -19,8 +20,9 @@
 #include "ComponentAnimation.h"
 #include "ModulePhysics3D.h"
 #include "ComponentAnimationEvent.h"
-#include "ComponentColliderCube.h"
+#include "ComponentPhysics.h"
 #include "ComponentAnimator.h"
+#include "ComponentTrigger.h"
 
 #include "Camera.h"
 #include "Application.h"
@@ -55,6 +57,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");
 
+	if (json_object_has_value(deff, "isUI")) {
+		is_UI = json_object_get_boolean(deff, "isUI");
+	}
 	// Create components
 	JSON_Array* json_components = json_object_get_array(deff, "Components");
 
@@ -66,6 +71,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 		Component* component = nullptr;
 		if (type == "transform") {
 			component = new ComponentTransform(component_deff, this);
+		}
+		else if (type == "rectTransform") {
+			component = new ComponentRectTransform(component_deff, this);
 		}
 		else if (type == "AABB") {
 			component = new ComponentAABB(this);
@@ -101,9 +109,35 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 			component = new ComponentAnimationEvent(component_deff, this);
 		}
 
-		else if (type == "collider_cube") {
-			component = new ComponentColliderCube(component_deff, this);
+		else if (type == "physics") {
+			component = new ComponentPhysics(component_deff, this);
 		}
+		else if (type == "trigger") {
+			component = new ComponentTrigger(component_deff, this);
+		}
+		
+		else if (type == "animator") {
+			component = new ComponentAnimator(component_deff, this);
+		}
+		else if (type == "canvas") {
+			component = new ComponentCanvas(component_deff, this);
+		}
+		else if (type == "UIimage") {
+			component = new ComponentImageUI(component_deff, this);
+		}
+		else if (type == "UItext") {
+			component = new ComponentTextUI(component_deff, this);
+		}
+		else if (type == "UIbutton") {
+			component = new ComponentButtonUI(component_deff, this);
+		}
+		else if (type == "UIcheckbox") {
+			component = new ComponentCheckBoxUI(component_deff, this);
+		}
+		else if (type == "UIprogress_bar") {
+			component = new ComponentProgressBarUI(component_deff, this);
+		}
+		
 		// Set component's parent-child
 		if (!component){
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
@@ -113,8 +147,6 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 
 		addComponent(component);
 	}
-
-	
 }
 
 GameObject::~GameObject()
@@ -123,8 +155,6 @@ GameObject::~GameObject()
 		delete *it;
 
 }
-
-
 
 bool GameObject::Update(float dt)
 {
@@ -363,11 +393,8 @@ Component* GameObject::addComponent(Component_type type)
 		}
 		break;
 	case UI_IMAGE:
-		if (!getComponent(UI_IMAGE))
-		{
-			new_component = new ComponentImageUI(this);
-			components.push_back(new_component);
-		}
+		new_component = new ComponentImageUI(this);
+		components.push_back(new_component);
 		break;
 	case UI_BUTTON:
 		if (!getComponent(UI_BUTTON))
@@ -390,6 +417,13 @@ Component* GameObject::addComponent(Component_type type)
 			components.push_back(new_component);
 		}
 		break;
+	case UI_PROGRESSBAR:
+		if (!getComponent(UI_PROGRESSBAR))
+		{
+			new_component = new ComponentProgressBarUI(this);
+			components.push_back(new_component);
+		}
+		break;
 	case BONE:
 		new_component = new ComponentBone(this);
 		components.push_back(new_component);
@@ -401,10 +435,17 @@ Component* GameObject::addComponent(Component_type type)
 			components.push_back(new_component);
 		}
 		break;
-	case COLLIDER_CUBE:
-		if (!getComponent(COLLIDER_CUBE))
+	case PHYSICS:
+		if (!getComponent(PHYSICS))
 		{
-			new_component = new ComponentColliderCube(this);
+			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, false);
+			components.push_back(new_component);
+		}
+		break;
+	case TRIGGER:
+		if (!getComponent(TRIGGER))
+		{
+			new_component = new ComponentTrigger(this, collision_shape::COL_CYLINDER);
 			components.push_back(new_component);
 		}
 		break;
@@ -479,10 +520,34 @@ void GameObject::addComponent(Component* component)
 	case PARTICLE_EMITTER:
 		components.push_back(component);
 		break;
-	case COLLIDER_CUBE:
+	case PHYSICS:
+		components.push_back(component);
+		break;
+	case TRIGGER:
 		components.push_back(component);
 		break;
 	case ANIMATION_EVENT:
+		components.push_back(component);
+		break;
+	case UI_BUTTON:
+		components.push_back(component);
+		break;
+	case UI_CHECKBOX:
+		components.push_back(component);
+		break;
+	case UI_TEXT:
+		components.push_back(component);
+		break;
+	case UI_IMAGE:
+		components.push_back(component);
+		break;
+	case UI_PROGRESSBAR:
+		components.push_back(component);
+		break;
+	case RECTTRANSFORM:
+		components.push_back(component);
+		break;
+	case CANVAS:
 		components.push_back(component);
 		break;
 	case ANIMATOR:
@@ -528,6 +593,7 @@ void GameObject::Save(JSON_Object * config) {
 	json_object_set_string(config, "tag", tag.c_str());
 	json_object_set_boolean(config, "static", is_static);
 	json_object_set_number(config, "UUID", uuid);
+	json_object_set_boolean(config, "isUI", is_UI);
 
 	if (parent) json_object_set_number(config, "Parent", parent->uuid);
 

@@ -2,6 +2,7 @@
 #define __MODULE_SCRIPTING__
 #include "Module.h"
 #include "Application.h"
+#include "Component.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -15,6 +16,8 @@ struct ScriptData;
 #define AUDIO_PATH "ScriptingAPI/Audio.wren"
 #define ANIMATION_PATH "ScriptingAPI/Animation.wren"
 #define PARTICLES_PATH "ScriptingAPI/Particles.wren"
+#define UI_PATH "ScriptingAPI/UI.wren"
+#define PHYSICS_PATH "ScriptingAPI/Physics.wren"
 
 class ModuleScripting : public Module {
 public:
@@ -37,6 +40,9 @@ public:
 	void PauseInstances();
 	void StopInstances();
 
+	// Helpers
+	std::string enum2component(Component_type type);
+
 public:
 
 	WrenVM* vm							= nullptr;
@@ -50,6 +56,8 @@ public:
 	std::string audio_code;
 	std::string animation_code;
 	std::string particles_code;
+	std::string UI_code;
+	std::string physics_code;
 
 
 	virtual void SaveConfig(JSON_Object* config) const;

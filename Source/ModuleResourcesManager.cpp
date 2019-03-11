@@ -359,7 +359,7 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 	case R_TEXTURE:
 		name = "Textures";
 		path = TEXTURES_FOLDER;
-		extension = OWN_MESH_EXTENSION;
+		extension = DDS_EXTENSION;
 		break;
 	case R_SCENE:
 		name = "Scenes";
@@ -632,6 +632,19 @@ uint ModuleResourcesManager::getAudioResourceUuid(const char* name)
 			ResourceAudio* res_audio = (ResourceAudio*)(*it).second;
 			if (res_audio->asset == name) {
 				return res_audio->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getScriptResourceUuid(const char* name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SCRIPT) {
+			ResourceScript* res_script = (ResourceScript*)(*it).second;
+			if (res_script->asset == name) {
+				return res_script->uuid;
 			}
 		}
 	}

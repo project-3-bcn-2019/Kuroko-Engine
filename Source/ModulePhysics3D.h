@@ -8,12 +8,21 @@
 
 
 #include "Bullet/include/btBulletDynamicsCommon.h"
+#include "Bullet/include/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 // Recommended scale is 1.0f == 1 meter, no less than 0.2 objects
 #define GRAVITY btVector3(0.0f, -10.0f, 0.0f) 
 
 class GameObject;
 struct PhysBody;
+class ComponentPhysics;
+class ComponentTrigger;
+
+enum collision_shape
+{
+	COL_CUBE,
+	COL_CYLINDER
+};
 
 struct Collision
 {
@@ -52,11 +61,15 @@ public:
 
 	void UpdatePhysics();
 
+
 	bool CleanUp();
 	void CleanUpWorld();
 
-	PhysBody* AddBody(GameObject* parent);
+	PhysBody* AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment);
 	void DeleteBody(PhysBody* body_to_delete);
+	void DeleteTrigger(ComponentTrigger* component);
+
+	btGhostObject* AddTrigger(ComponentTrigger* parent, collision_shape shape);
 
 	std::list<Collision> collisions;
 	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
@@ -78,7 +91,7 @@ private:
 	std::vector<PhysBody*>				bodies;
 	std::vector<btDefaultMotionState*>	motions;
 	std::vector<btTypedConstraint*>		constraints;
-
+	std::vector<btGhostObject*>			triggers;
 };
 
 

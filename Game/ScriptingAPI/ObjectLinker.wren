@@ -1,29 +1,8 @@
 import "Audio" for ComponentAudioSource
-import "Animation" for ComponentAnimation
+import "Animation" for ComponentAnimation, ComponentAnimator
 import "Particles" for ComponentParticleEmitter
-
-class ObjectComunicator{
-	foreign static C_setPos(gameObject, x, y, z)
-	foreign static C_modPos(gameObject, x, y, z)
-        foreign static C_rotate(gameObject, x, y, z)
-	foreign static C_lookAt(gameObject, x, y, z)
-
-	foreign static C_getPosX(gameObject, mode)
-	foreign static C_getPosY(gameObject, mode)
-	foreign static C_getPosZ(gameObject, mode)
-
-	foreign static C_getPitch(gameObject)
-	foreign static C_getYaw(gameObject)
-	foreign static C_getRoll(gameObject)
-
-	foreign static C_Kill(gameObject)
-	foreign static C_MoveForward(gameObject, speed)
-
-	foreign static C_GetComponentUUID(gameObject, component_type)
-	foreign static C_GetCollisions(gameObject)
-	foreign static C_GetScript(gameObject, script_name)
-
-}
+import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProgressBar
+import "Physics" for ComponentPhysics
 
 class Math{
 	foreign static C_sqrt(number)
@@ -191,11 +170,39 @@ class InputComunicator{
 	}
 }
 
+class ObjectComunicator{
+	foreign static C_setPos(gameObject, x, y, z)
+	foreign static C_modPos(gameObject, x, y, z)
+        foreign static C_rotate(gameObject, x, y, z)
+	foreign static C_lookAt(gameObject, x, y, z)
+
+	foreign static C_getPosX(gameObject, mode)
+	foreign static C_getPosY(gameObject, mode)
+	foreign static C_getPosZ(gameObject, mode)
+
+	foreign static C_getPitch(gameObject)
+	foreign static C_getYaw(gameObject)
+	foreign static C_getRoll(gameObject)
+
+	foreign static C_Kill(gameObject)
+	foreign static C_MoveForward(gameObject, speed)
+
+	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+	foreign static C_GetScript(gameObject, script_name)
+
+}
 
 class ComponentType{
-	static AUDIO_SOURCE {15}
+	static AUDIO_SOURCE {16}
 	static ANIMATION {7}
-	static PARTICLES {18}
+	static PARTICLES {20}
+	static BUTTON {12}
+	static CHECK_BOX {11}
+	static TEXT {13}
+	static PROGRESS_BAR {14}
+	static ANIMATOR {22}
+	static PHYSICS {17}
 }
 
 class ObjectLinker{
@@ -210,9 +217,9 @@ class ObjectLinker{
 	modPos(x,y,z){
 		ObjectComunicator.C_modPos(gameObject, x, y, z)
 	}
-        rotate(x,y,z){
-                ObjectComunicator.C_rotate(gameObject, x, y, z)
-        }
+    rotate(x,y,z){
+        ObjectComunicator.C_rotate(gameObject, x, y, z)
+    }
 	lookAt(x,y,z){
 		ObjectComunicator.C_lookAt(gameObject, x, y, z)
 	}
@@ -244,7 +251,7 @@ class ObjectLinker{
 	getPitch(){
 		return ObjectComunicator.C_getPitch(gameObject)
 	}
-
+	 
 	getYaw(){
 		return ObjectComunicator.C_getYaw(gameObject)
 	}
@@ -281,6 +288,24 @@ class ObjectLinker{
 		}
 		if(type == ComponentType.PARTICLES){
 			return ComponentParticleEmitter.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.BUTTON){
+			return ComponentButton.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.CHECK_BOX){
+			return ComponentCheckbox.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.TEXT){
+			return ComponentText.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PROGRESS_BAR){
+			return ComponentProgressBar.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.ANIMATOR){
+			return ComponentAnimator.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PHYSICS){
+			return ComponentPhysics.new(gameObject, component_uuid)
 		}
 
 	}

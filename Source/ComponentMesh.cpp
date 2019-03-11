@@ -58,8 +58,17 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	const char* diffuse_path = json_object_dotget_string(deff, "material.diffuse");
 	uint diffuse_resource = 0;
 	if (diffuse_path) { // Means that is being loaded from a scene
-		if(strcmp(diffuse_path, "missing reference") != 0)
-			diffuse_resource = App->resources->getResourceUuid(diffuse_path);
+		if (strcmp(diffuse_path, "missing reference") != 0)
+		{
+			if (!App->is_game || App->debug_game)
+				diffuse_resource = App->resources->getResourceUuid(diffuse_path);
+			else
+			{
+				std::string d_path = diffuse_path;
+				App->fs.getFileNameFromPath(d_path);
+				diffuse_resource = App->resources->getTextureResourceUuid(d_path.c_str());
+			}
+		}
 	}
 	else // Means it is being loaded from a 3dObject binary
 		diffuse_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");

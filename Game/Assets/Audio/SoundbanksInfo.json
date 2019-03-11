@@ -28,12 +28,23 @@
       "ObjectPath": "\\Events\\Default Work Unit\\Footsteps"
      },
      {
+      "Id": "251043389",
+      "Name": "Play_song",
+      "ObjectPath": "\\Events\\Default Work Unit\\Play_song"
+     },
+     {
       "Id": "645565787",
       "Name": "Punch",
       "ObjectPath": "\\Events\\Default Work Unit\\Punch"
      }
     ],
     "IncludedMemoryFiles": [
+     {
+      "Id": "25887676",
+      "Language": "SFX",
+      "ShortName": "song.wav",
+      "Path": "SFX\\song_1C9C67B2.wem"
+     },
      {
       "Id": "154814369",
       "Language": "SFX",

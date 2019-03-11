@@ -17,11 +17,11 @@ subject to the following restrictions:
 #define BT_PERSISTENT_MANIFOLD_H
 
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btTransform.h"
+#include "../Bullet/include/LinearMath/btVector3.h"
+#include "../Bullet/include/LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
 class btCollisionObject;
-#include "LinearMath/btAlignedAllocator.h"
+#include "../Bullet/include/LinearMath/btAlignedAllocator.h"
 
 struct btCollisionResult;
 

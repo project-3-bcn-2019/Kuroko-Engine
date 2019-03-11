@@ -279,25 +279,25 @@ void Wwise::WwiseGameObject::PlayEvent(unsigned long id)
 	}
 }
 
-void Wwise::WwiseGameObject::PauseEvent(unsigned long id)
+void Wwise::WwiseGameObject::PauseEvent(unsigned long id, int fade_time_ms)
 {
-	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Pause, ID) == AK_INVALID_PLAYING_ID)
+	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Pause, ID, fade_time_ms) == AK_INVALID_PLAYING_ID)
 	{
 		assert(!"Error pausing event");
 	}
 }
 
-void Wwise::WwiseGameObject::ResumeEvent(unsigned long id)
+void Wwise::WwiseGameObject::ResumeEvent(unsigned long id, int fade_time_ms)
 {
-	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Resume, ID) == AK_INVALID_PLAYING_ID)
+	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Resume, ID, fade_time_ms) == AK_INVALID_PLAYING_ID)
 	{
 		assert(!"Error resuming event");
 	}
 }
 
-void Wwise::WwiseGameObject::StopEvent(unsigned long id)
+void Wwise::WwiseGameObject::StopEvent(unsigned long id, int fade_time_ms)
 {
-	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Stop, ID) == AK_INVALID_PLAYING_ID)
+	if (AK::SoundEngine::ExecuteActionOnEvent(id, AK::SoundEngine::AkActionOnEventType::AkActionOnEventType_Stop, ID, fade_time_ms) == AK_INVALID_PLAYING_ID)
 	{
 		assert(!"Error stopping event");
 	}

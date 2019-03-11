@@ -1,6 +1,7 @@
 #ifndef __MODULE_SCENE
 #define __MODULE_SCENE
 #include "Module.h"
+#include "MathGeoLib\Geometry\Polygon.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Math\float3.h"
@@ -42,6 +43,7 @@ public:
 	bool CleanUp();
 
 	void DrawScene(float3 camera_pos);
+	void DrawInGameUI();
 
 	void addGameObject(GameObject* gobj)	{ game_objects.push_back(gobj); };
 	GameObject* duplicateGameObject(GameObject* gobj);
@@ -63,7 +65,8 @@ public:
 	void CleanScriptComponents();
 	void LoadScriptComponents();
 
-	GameObject* getCanvasGameObject();//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
+	std::list<GameObject*>getUIGameObjects();
+	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
 	void AskPrefabLoadFile(const char* path, float3 pos, float3 eulerang);
@@ -76,6 +79,7 @@ public:
 
 	GameObject* MousePicking(GameObject* ignore = nullptr);
 	float3 MousePickingHit(GameObject* ignore = nullptr);
+	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
 private:
@@ -97,6 +101,10 @@ private:
 
 	Quadtree * quadtree		= nullptr;
 
+	bool dragging = false;
+	Frustum* dragging_frustum = nullptr;
+	float2 initial_drag;
+
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
 
@@ -114,6 +122,9 @@ private:
 	std::string path_to_load_prefab;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
+
+	//TESTING GLORTHO AABB:
+	AABB ui_render_box;
 
 public:
 
