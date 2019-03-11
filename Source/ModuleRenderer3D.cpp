@@ -128,7 +128,7 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 update_status ModuleRenderer3D::PreUpdate(float dt)
 {
 
-	for (auto cam = App->camera->game_cameras.begin(); cam != App->camera->game_cameras.end(); ++cam)
+	for (auto cam = App->camera->game_cameras.rbegin(); cam != App->camera->game_cameras.rend(); ++cam)
 	{	
 		if ((*cam)->active)
 		{
