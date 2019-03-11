@@ -30,7 +30,7 @@ ModuleCamera3D::~ModuleCamera3D()
 bool ModuleCamera3D::Init(const JSON_Object* config)
 {
 	app_log->AddLog("Setting up the camera");
-	editor_camera = new Camera(float3(-2.0, 67.0f, -70.0f), float3::zero);
+	game_camera = editor_camera = new Camera(float3(-2.0, 67.0f, -70.0f), float3::zero);
 	editor_camera->active = true;
 
 	viewports[VP_RIGHT] = new Camera(float3(10.0, 0.0f, 0.0f ), float3::zero);
@@ -67,9 +67,9 @@ bool ModuleCamera3D::CleanUp()
 // -----------------------------------------------------------------
 update_status ModuleCamera3D::Update(float dt)
 {
+
 	if (editor_camera->active)
 	{
-		
 		// Movement
 		float3 displacement = float3::zero;
 		float speed = editor_cam_speed * dt;

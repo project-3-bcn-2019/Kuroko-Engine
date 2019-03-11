@@ -36,7 +36,7 @@ public:
 	std::list<Camera*> game_cameras;
 	std::array<Camera*, 6> viewports;
 
-	float editor_cam_speed = 2.5f;;
+	float editor_cam_speed = 2.5f;
 	float editor_cam_rot_speed = 0.25f;
 };
 

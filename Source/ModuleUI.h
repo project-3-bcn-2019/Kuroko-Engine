@@ -71,7 +71,7 @@ public:
 	uint getMainScene() const;
 	std::list<resource_deff> GetBuildScenes() { return build_scenes; }
 
-	void DrawGuizmo();
+	void DrawGuizmo(ImVec2 window_pos, ImVec2 window_size);
 	void DrawTagSelection(GameObject* object);
 
 	void InvisibleDockingBegin();

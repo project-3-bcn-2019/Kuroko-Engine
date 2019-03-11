@@ -16,6 +16,7 @@ ComponentCamera::ComponentCamera(GameObject* parent, Camera* camera) : Component
 
 ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Component(parent, CAMERA){
 
+
 	// Load camera
 	float3 pos(json_object_dotget_number(deff, "camera.pos_x"), json_object_dotget_number(deff, "camera.pos_y"), json_object_dotget_number(deff, "camera.pos_z"));
 	float3 reference(json_object_dotget_number(deff, "camera.ref_x"), json_object_dotget_number(deff, "camera.ref_y"), json_object_dotget_number(deff, "camera.ref_z"));
@@ -30,16 +31,17 @@ ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Compon
 
 	transform = (ComponentTransform*)parent->getComponent(TRANSFORM);
 	camera->attached_to = this;
+
+	if (json_object_get_boolean(deff, "game_camera"))
+		App->camera->game_camera = camera;
 }
 
 ComponentCamera::~ComponentCamera()
 {
-	if (camera != App->camera->editor_camera && !camera->IsViewport())
-	{
-		if (camera == App->camera->override_editor_cam_culling) App->camera->override_editor_cam_culling = nullptr;
-		App->camera->game_cameras.remove(camera);
-		delete camera;
-	}
+	if (camera == App->camera->override_editor_cam_culling) App->camera->override_editor_cam_culling = nullptr;
+	if (camera == App->camera->game_camera)					App->camera->game_camera = App->camera->editor_camera;
+	App->camera->game_cameras.remove(camera);
+	delete camera;
 }
 
 bool ComponentCamera::Update(float dt)
@@ -66,4 +68,5 @@ void ComponentCamera::Save(JSON_Object* config) {
 	JSON_Value* camera_value = json_value_init_object();
 	camera->Save(json_object(camera_value));
 	json_object_set_value(config, "camera", camera_value);
+	json_object_set_boolean(config, "game_camera", App->camera->game_camera == camera);
 }

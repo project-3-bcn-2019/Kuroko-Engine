@@ -202,13 +202,14 @@ update_status ModuleUI::PreUpdate(float dt) {
 
 	if (!App->is_game)
 	{
+
 		// Start the ImGui frame
 		ImGui_ImplOpenGL2_NewFrame();
 
 		ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
-	
 
 	//ImGui::ShowDemoWindow();
 	return UPDATE_CONTINUE;
@@ -218,6 +219,7 @@ update_status ModuleUI::Update(float dt) {
 
 	if (!App->is_game)
 	{
+		
 		InvisibleDockingBegin();
 		static bool file_save = false;
 		disable_keyboard_control = false;
@@ -428,6 +430,8 @@ update_status ModuleUI::Update(float dt) {
 			ImGui::PopFont();
 			ImGui::End();
 		}
+
+
 
 		InvisibleDockingEnd();
 	}
@@ -904,6 +908,12 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			if (ImGui::Checkbox("Active##active camera", &camera_active))
 				camera->setActive(camera_active);
+
+			static bool game_camera;
+			game_camera = (App->camera->game_camera == camera->getCamera());
+
+			if (ImGui::Checkbox("Game Camera", &game_camera))
+				App->camera->game_camera = game_camera ? camera->getCamera() : App->camera->editor_camera;
 
 			ImGui::Checkbox("Draw camera view", &camera->getCamera()->draw_in_UI);
 
@@ -2236,23 +2246,27 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 		else
 			window_name = camera.getViewportDirString();
 
+		if (App->camera->game_camera == &camera)
+			window_name += "(Game camera)";
+
 		ImGui::Begin(window_name.c_str(), &camera.draw_in_UI, ImGuiWindowFlags_NoScrollbar);
 		
+		ImVec2 window_pos = ImGui::GetItemRectMin();
+
+		if (&camera == App->camera->game_camera)
+			game_window_pos = window_pos;
 
 		ImVec2 window_size = ImGui::GetWindowSize();
 		frame_buffer->changeTexSize(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN -20);
 
-		if (ImGui::ImageButton((void*) (camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN-20), nullptr, ImVec2(0, 1), ImVec2(1, 0), -10))
+		if (&camera == App->camera->editor_camera)
+			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+				App->gui->DrawGuizmo(window_pos, window_size);
+
+		if (ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), ImVec2(window_size.x - CAMERA_VIEW_MARGIN, window_size.y - CAMERA_VIEW_MARGIN - 20), nullptr, ImVec2(0, 1), ImVec2(1, 0), -10))
 		{
 			if (&camera == App->camera->editor_camera)
 			{
-				ImVec2 window_pos = ImGui::GetItemRectMin();
-
-				if (&camera == App->camera->game_camera)
-					game_window_pos = window_pos;
-
-				if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
-					App->gui->DrawGuizmo();
 
 				float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
 				x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
@@ -2277,10 +2291,6 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 					App->scene->selected_obj.clear();
 			}
 		}
-
-		if (&camera == App->camera->editor_camera)
-			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
-				App->gui->DrawGuizmo();
 
 		ImGui::End();
 	}
@@ -2666,21 +2676,18 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 }
 
-void ModuleUI::DrawGuizmo()
+void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 {
 
 	if (draw_guizmo)
 	{
-		ImGuizmo::BeginFrame();
 		float4x4 projection4x4;
 		float4x4 view4x4;
 
 		glGetFloatv(GL_MODELVIEW_MATRIX, (float*)view4x4.v);
 		glGetFloatv(GL_PROJECTION_MATRIX, (float*)projection4x4.v);
 
-		ImVec2 size = ImGui::GetWindowSize();
-		ImVec2 position = ImGui::GetWindowPos();
-		ImGuizmo::SetRect(position.x, position.y, size.x, size.y);
+		ImGuizmo::SetRect(window_pos.x, window_pos.y, window_size.x, window_size.y);
 
 		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
 		Transform* trans = transform->global;
