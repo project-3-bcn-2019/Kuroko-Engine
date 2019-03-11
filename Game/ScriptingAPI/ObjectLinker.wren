@@ -79,7 +79,11 @@ class Vec3{
 	static add(vec1, vec2){
 		return ret = Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
 	}
-	
+
+	static subtract(vec1, vec2){
+		return ret = Vec3.new(vec1.x-vec2.x,vec1.y-vec2.y,vec1.z-vec2.z)
+	}
+
 	copy(vec){
 		x = vec.x
 		y = vec.y
