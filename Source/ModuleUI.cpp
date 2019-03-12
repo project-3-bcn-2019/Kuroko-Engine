@@ -424,6 +424,15 @@ bool ModuleUI::CleanUp()
 	for (int i = 0; i < LAST_UI_TEX; i++) { // Cleanup textures
 		delete ui_textures[i];
 	}
+
+	for (std::list<Panel*>::iterator iterator = panels.begin(); iterator != panels.end(); iterator++)
+	{
+		if (*iterator != nullptr)
+			delete *iterator;
+		*iterator = nullptr;
+	}
+	panels.clear();
+
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
@@ -690,146 +699,146 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ret = false;
 		}
 		break;
-	case TRANSFORM:
-		if (ImGui::CollapsingHeader("Transform")) 
-		{
-			ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
-			ComponentTransform* c_trans = (ComponentTransform*)&component;
+	//case TRANSFORM:
+	//	if (ImGui::CollapsingHeader("Transform")) 
+	//	{
+	//		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+	//		ComponentTransform* c_trans = (ComponentTransform*)&component;
 
-			static float3 position;
-			static float3 rotation;
-			static float3 scale;
+	//		static float3 position;
+	//		static float3 rotation;
+	//		static float3 scale;
 
-			Transform* transform = nullptr;
+	//		Transform* transform = nullptr;
 
-			if (c_trans->getMode() == LOCAL)
-			{
-				transform = c_trans->local;
-				ImGui::Text("Current mode: Local");
-				ImGui::SameLine();
-				if (ImGui::Button("Global"))
-					c_trans->setMode(GLOBAL);
-			}
-			else
-			{
-				transform = c_trans->global;
-				ImGui::Text("Current mode: Global");
-				ImGui::SameLine();
-				if (ImGui::Button("Local"))
-					c_trans->setMode(LOCAL);
-			}
+	//		if (c_trans->getMode() == LOCAL)
+	//		{
+	//			transform = c_trans->local;
+	//			ImGui::Text("Current mode: Local");
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("Global"))
+	//				c_trans->setMode(GLOBAL);
+	//		}
+	//		else
+	//		{
+	//			transform = c_trans->global;
+	//			ImGui::Text("Current mode: Global");
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("Local"))
+	//				c_trans->setMode(LOCAL);
+	//		}
 
-			position = transform->getPosition();
-			rotation = transform->getRotationEuler();
-			scale = transform->getScale();
+	//		position = transform->getPosition();
+	//		rotation = transform->getRotationEuler();
+	//		scale = transform->getScale();
 
-			//position
-			ImGui::Text("Position:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if(!c_trans->constraints[0][0])		ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f");
-			else								ImGui::Text("%.2f", position.x);
+	//		//position
+	//		ImGui::Text("Position:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if(!c_trans->constraints[0][0])		ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", position.x);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[0][1])	ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f");
-			else								ImGui::Text("%.2f", position.y);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[0][1])	ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", position.y);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[0][2])	ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
-			else								ImGui::Text("%.2f", position.z);
-			
-			//rotation
-			ImGui::Text("Rotation:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[1][0])	ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f");
-			else								ImGui::Text("%.2f", rotation.z);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[0][2])	ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", position.z);
+	//		
+	//		//rotation
+	//		ImGui::Text("Rotation:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[1][0])	ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", rotation.z);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[1][1])	ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f");
-			else								ImGui::Text("%.2f", rotation.x);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[1][1])	ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", rotation.x);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[1][2])	ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f");
-			else								ImGui::Text("%.2f", rotation.y);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[1][2])	ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", rotation.y);
 
-			//scale
-			ImGui::Text("   Scale:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[2][0])	ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
-			else								ImGui::Text("%.2f", scale.x);
+	//		//scale
+	//		ImGui::Text("   Scale:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[2][0])	ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", scale.x);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[2][1])	ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
-			else								ImGui::Text("%.2f", scale.y);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[2][1])	ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", scale.y);
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (!c_trans->constraints[2][2])	ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
-			else								ImGui::Text("%.2f", scale.z);
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		if (!c_trans->constraints[2][2])	ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+	//		else								ImGui::Text("%.2f", scale.z);
 
-			if (ImGui::Button("Reset Transform"))
-			{
-				position = float3::zero; rotation = float3::zero, scale = float3::one;
-			}
+	//		if (ImGui::Button("Reset Transform"))
+	//		{
+	//			position = float3::zero; rotation = float3::zero, scale = float3::one;
+	//		}
 
-			ImGui::Checkbox("Draw axis", &c_trans->draw_axis);
-			
-			if (ImGui::CollapsingHeader("	Constraints"))
-			{
-				ImGui::Text("Position:");
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint p x", &c_trans->constraints[0][0]);
+	//		ImGui::Checkbox("Draw axis", &c_trans->draw_axis);
+	//		
+	//		if (ImGui::CollapsingHeader("	Constraints"))
+	//		{
+	//			ImGui::Text("Position:");
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint p x", &c_trans->constraints[0][0]);
 
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint p y", &c_trans->constraints[0][1]);
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint p y", &c_trans->constraints[0][1]);
 
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint p z", &c_trans->constraints[0][2]);
-
-
-				ImGui::Text("Rotation:");
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint r x", &c_trans->constraints[1][0]);
-
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint r y", &c_trans->constraints[1][1]);
-
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint r z", &c_trans->constraints[1][2]);
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint p z", &c_trans->constraints[0][2]);
 
 
-				ImGui::Text("   Scale:");
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint s x", &c_trans->constraints[2][0]);
+	//			ImGui::Text("Rotation:");
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint r x", &c_trans->constraints[1][0]);
 
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint s y", &c_trans->constraints[2][1]);
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint r y", &c_trans->constraints[1][1]);
 
-				ImGui::SameLine();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-				ImGui::Checkbox("##constraint s z", &c_trans->constraints[2][2]);
-			}
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint r z", &c_trans->constraints[1][2]);
 
-			transform->setPosition(position);
-			transform->setRotationEuler(rotation);
-			transform->setScale(scale);
-		}
-		break;
+
+	//			ImGui::Text("   Scale:");
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint s x", &c_trans->constraints[2][0]);
+
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint s y", &c_trans->constraints[2][1]);
+
+	//			ImGui::SameLine();
+	//			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//			ImGui::Checkbox("##constraint s z", &c_trans->constraints[2][2]);
+	//		}
+
+	//		transform->setPosition(position);
+	//		transform->setRotationEuler(rotation);
+	//		transform->setScale(scale);
+	//	}
+	//	break;
 
 	case C_AABB:
 		if (ImGui::CollapsingHeader("AABB"))
