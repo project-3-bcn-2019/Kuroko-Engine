@@ -86,6 +86,7 @@ public:
 	bool disable_keyboard_control = false;
 
 	// Panels
+	std::list<Panel*> panels;
 	PanelAnimation* p_anim = nullptr;
 	PanelAnimationEvent* p_anim_evt = nullptr;
 	PanelHierarchyTab* p_hierarchy = nullptr;

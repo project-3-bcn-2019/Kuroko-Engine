@@ -14,26 +14,10 @@ enum UniformType
 	U_INT, U_BOOL, U_FLOAT, U_VEC2, U_VEC3, U_VEC4, U_MAT2, U_MAT3, U_MAT4
 };
 
-struct Shader
+struct Uniform
 {
-	Shader(ShaderType type) :type(type) {};
+	Uniform(std::string _name, std::string _type, int size);
 
-	std::string name = "";
-	char* script = nullptr;
-	ShaderType type;
-	uint shaderId=0;
-};
-
-struct ShaderProgram
-{
-	uint programID = 0;
-	std::vector<uint> shaders;
-};
-
-struct Uniform 
-{
-	Uniform(std::string _name, std::string _type, int size);	
-	
 	UniformType GetTypefromChar(std::string _type);
 
 	UniformType type;
@@ -42,6 +26,25 @@ struct Uniform
 	float* data;
 
 };
+
+struct Shader
+{
+	Shader(ShaderType type) :type(type) {};
+
+	std::string name = "";
+	std::string script = "";
+	ShaderType type;
+	uint shaderId=0;
+
+	std::vector<Uniform*> uniforms;
+};
+
+struct ShaderProgram
+{
+	uint programID = 0;
+	std::vector<uint> shaders;
+};
+
 
 class ModuleShaders : public Module
 {
@@ -58,8 +61,8 @@ public:
 	void CreateDefVertexShader();
 	void CreateDefFragmentShader();
 
-	void CompileShader(Shader* shader);
-	void CompileProgram(ShaderProgram* program);
+	bool CompileShader(Shader* shader);
+	bool CompileProgram(ShaderProgram* program);
 
 	ShaderProgram* GetDefaultShaderProgram()const;
 	ShaderProgram* GetAnimationShaderProgram()const;

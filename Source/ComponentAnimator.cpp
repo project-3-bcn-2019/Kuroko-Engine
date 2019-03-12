@@ -3,6 +3,13 @@
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimationGraph.h"
 #include "ModuleTimeManager.h"
+#include "ComponentAnimation.h"
+
+ComponentAnimator::ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR)
+{
+	animation = new ComponentAnimation(gameobject);
+	animation->loop = true;
+}
 
 ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Component(parent, ANIMATOR)
 {
@@ -18,11 +25,16 @@ ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Co
 
 	loadValues(deff);
 
+	animation = new ComponentAnimation(deff, parent);
+	animation->loop = true;
+	animation->speed = 1.0f;
+
 	App->resources->assignResource(graph_resource_uuid);
 }
 
 ComponentAnimator::~ComponentAnimator()
 {
+	RELEASE(animation);
 	App->resources->deasignResource(graph_resource_uuid);
 }
 
@@ -31,17 +43,22 @@ bool ComponentAnimator::Update(float dt)
 	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
 	if (graph != nullptr)
 	{
-		if (App->time->getGameState() == GameState::STOPPED)
+		if (graph->start != nullptr && graph->start->UID == currentNode && graph->start->animationUID != animation->getAnimationResource())
+			animation->setAnimationResource(graph->start->animationUID);
+
+		if (App->time->getGameState() == GameState::STOPPED && graph->start != nullptr)
 		{
 			currentNode = graph->start->UID;
 		}
 		else if (App->time->getGameState() == GameState::PLAYING)
 		{
+			animation->Update(dt);
 			if (doingTransition != nullptr)
 			{
 				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
 				{
 					currentNode = doingTransition->destination->UID;
+					animation->setAnimationResource(doingTransition->destination->animationUID);
 					doingTransition = nullptr;
 				}
 			}
@@ -98,6 +115,9 @@ void ComponentAnimator::setAnimationGraphResource(uint uuid)
 				break;
 			}
 		}
+
+		if (graph->start != nullptr)
+			animation->setAnimationResource(graph->start->animationUID);
 	}
 }
 

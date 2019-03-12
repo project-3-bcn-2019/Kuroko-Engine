@@ -25,6 +25,18 @@ ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape _shape,
 	shape = _shape;
 	is_environment = _is_environment;
 
+	if (is_environment)
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+		body->GetRigidBody()->setMassProps(0, btVector3(0, 0, 0));
+	}
+	else
+	{
+		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
+		body->GetRigidBody()->setMassProps(1, btVector3(0, 0, 0));
+
+	}
+
 }
 
 ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Component(parent, PHYSICS)
@@ -48,10 +60,13 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 	if (is_environment)
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+		body->GetRigidBody()->setMassProps(0, btVector3(0, 0, 0));
 	}
 	else
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
+		body->GetRigidBody()->setMassProps(1, btVector3(0, 0, 0));
+
 	}
 
 
@@ -108,8 +123,7 @@ bool ComponentPhysics::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
 	{
 		//body->GetRigidBody()->ap(btVector3(10,0,0));
-		body->SetSpeed(10, 0, 0);
-
+		App->physics->change_shape(this);
 	}
 
 	if (App->time->getGameState() == GameState::PLAYING)
@@ -119,6 +133,11 @@ bool ComponentPhysics::Update(float dt)
 	else
 	{
 		UpdatePhysicsFromTransforms();
+		body->SetSpeed(0, 0, 0);
+	}
+
+	if (is_environment)
+	{
 		body->SetSpeed(0, 0, 0);
 	}
 
@@ -255,11 +274,13 @@ void ComponentPhysics::SetStatic(bool is_static)
 	if (is_static)
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+		body->GetRigidBody()->setMassProps(0, btVector3(0, 0, 0));
 		is_environment = true;
 	}
 	else
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
+		body->GetRigidBody()->setMassProps(1, btVector3(0, 0, 0));
 		is_environment = false;
 	}
 }

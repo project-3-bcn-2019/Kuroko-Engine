@@ -8,8 +8,10 @@
 #include "ModuleAudio.h"
 #include "Include_Wwise.h"
 
+#include "Component.h"
 #include "ComponentScript.h"
 #include "ComponentAudioSource.h"
+
 
 PanelObjectInspector::PanelObjectInspector(const char * name, bool active): Panel(name, active)
 {
@@ -70,6 +72,7 @@ void PanelObjectInspector::Draw()
 					if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 					if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
 					if (ImGui::Button("Add Physic Object Properties")) selected_obj->addComponent(PHYSICS);
+					if (ImGui::Button("Add Trigger")) selected_obj->addComponent(TRIGGER);
 					if (ImGui::Button("Add Animator")) selected_obj->addComponent(ANIMATOR);
 				}
 			}
@@ -80,6 +83,10 @@ void PanelObjectInspector::Draw()
 			std::list<Component*> components_to_erase;
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
+				if ((*it)->getType() == Component_type::TRANSFORM)
+				{
+					(*it)->DrawInspector();
+				}
 				if (!App->gui->DrawComponent(*(*it), id))
 					components_to_erase.push_back(*it);
 				id++;

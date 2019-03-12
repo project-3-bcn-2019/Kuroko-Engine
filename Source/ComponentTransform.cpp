@@ -5,6 +5,8 @@
 #include "ModuleScene.h"
 #include "ModuleDebug.h"
 
+#include "ImGui/imgui.h"
+
 #include "glew-2.1.0\include\GL\glew.h"
 
 ComponentTransform::ComponentTransform(GameObject* parent, const Quat& rot, const float3& pos, const float3& scl) : Component(parent, TRANSFORM)
@@ -112,6 +114,148 @@ void ComponentTransform::Draw() const
 {
 	if (draw_axis)
 		App->debug->directDrawAxis(global->getPosition(), global->getRotation());
+}
+
+void ComponentTransform::DrawInspector()
+{
+	if (ImGui::CollapsingHeader("Transform"))
+	{
+		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+		/*ComponentTransform* c_trans = (ComponentTransform*)&component;*/
+
+		static float3 position;
+		static float3 rotation;
+		static float3 scale;
+
+		Transform* transform = nullptr;
+
+		if (this->getMode() == LOCAL)
+		{
+			transform = this->local;
+			ImGui::Text("Current mode: Local");
+			ImGui::SameLine();
+			if (ImGui::Button("Global"))
+				this->setMode(GLOBAL);
+		}
+		else
+		{
+			transform = this->global;
+			ImGui::Text("Current mode: Global");
+			ImGui::SameLine();
+			if (ImGui::Button("Local"))
+				this->setMode(LOCAL);
+		}
+
+		position = transform->getPosition();
+		rotation = transform->getRotationEuler();
+		scale = transform->getScale();
+
+		//position
+		ImGui::Text("Position:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[0][0])		ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f");
+		else								ImGui::Text("%.2f", position.x);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[0][1])	ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f");
+		else								ImGui::Text("%.2f", position.y);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[0][2])	ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
+		else								ImGui::Text("%.2f", position.z);
+
+		//rotation
+		ImGui::Text("Rotation:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[1][0])	ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f");
+		else								ImGui::Text("%.2f", rotation.z);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[1][1])	ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f");
+		else								ImGui::Text("%.2f", rotation.x);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[1][2])	ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f");
+		else								ImGui::Text("%.2f", rotation.y);
+
+		//scale
+		ImGui::Text("   Scale:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[2][0])	ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		else								ImGui::Text("%.2f", scale.x);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[2][1])	ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		else								ImGui::Text("%.2f", scale.y);
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		if (!this->constraints[2][2])	ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		else								ImGui::Text("%.2f", scale.z);
+
+		if (ImGui::Button("Reset Transform"))
+		{
+			position = float3::zero; rotation = float3::zero, scale = float3::one;
+		}
+
+		ImGui::Checkbox("Draw axis", &this->draw_axis);
+
+		if (ImGui::CollapsingHeader("	Constraints"))
+		{
+			ImGui::Text("Position:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint p x", &this->constraints[0][0]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint p y", &this->constraints[0][1]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint p z", &this->constraints[0][2]);
+
+
+			ImGui::Text("Rotation:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint r x", &this->constraints[1][0]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint r y", &this->constraints[1][1]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint r z", &this->constraints[1][2]);
+
+
+			ImGui::Text("   Scale:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint s x", &this->constraints[2][0]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint s y", &this->constraints[2][1]);
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::Checkbox("##constraint s z", &this->constraints[2][2]);
+		}
+
+		transform->setPosition(position);
+		transform->setRotationEuler(rotation);
+		transform->setScale(scale);
+	}
 }
 
 void ComponentTransform::Save(JSON_Object* config) {

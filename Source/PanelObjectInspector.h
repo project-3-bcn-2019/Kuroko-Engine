@@ -5,6 +5,7 @@
 #include <list>
 
 class GameObject;
+class Component;
 
 class PanelObjectInspector : public Panel
 {

@@ -28,6 +28,7 @@ public:
 
 	bool Update(float dt); 
 	void Draw() const;
+	void DrawInspector();
 
 	Transform* getInheritedTransform();
 
