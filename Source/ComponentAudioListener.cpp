@@ -43,6 +43,10 @@ bool ComponentAudioListener::Update(float dt)
 	return true;
 }
 
+void ComponentAudioListener::DrawInspector(int id)
+{
+}
+
 void ComponentAudioListener::CleanUp()
 {
 	App->scene->audiolistenerdefault = nullptr;

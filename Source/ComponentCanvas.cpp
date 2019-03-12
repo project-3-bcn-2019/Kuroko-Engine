@@ -48,6 +48,10 @@ void ComponentCanvas::Draw() const
 	}
 }
 
+void ComponentCanvas::DrawInspector(int id)
+{
+}
+
 void ComponentCanvas::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "canvas");

@@ -269,12 +269,25 @@ void PanelShader::Draw()
 	}
 	
 
-	ImGui::BeginChild("Uniform Var", ImVec2(400, 300), true);
-	for (int i = 0; i < shader_uniforms.size(); ++i)
+	if (current_shader)
 	{
-		std::string uniform_info = shader_uniforms[i]->name + " " + shader_uniforms[i]->stringType;
-		ImGui::Text(uniform_info.c_str());
+		ImGui::BeginChild("Uniform Var", ImVec2(400, 300), true);
+		for (int i = 0; i < current_shader->uniforms.size(); ++i)
+		{
+			std::string uniform_info = current_shader->uniforms[i]->name + " " + current_shader->uniforms[i]->stringType;
+			ImGui::Text(uniform_info.c_str());
+		}
 	}
+	else
+	{
+		ImGui::BeginChild("Uniform Var", ImVec2(400, 300), true);
+		for (int i = 0; i < shader_uniforms.size(); ++i)
+		{
+			std::string uniform_info = shader_uniforms[i]->name + " " + shader_uniforms[i]->stringType;
+			ImGui::Text(uniform_info.c_str());
+		}
+	}
+	
 
 
 
@@ -306,11 +319,7 @@ void PanelShader::SaveShader(Shader* shader)
 		}
 		else
 		{
-			app_log->AddLog("Error modifing shader: recovering from Back up");
-
-			shader->script = saveCopy;
-			App->shaders->CompileShader(shader);
-			shader_editor.SetText(shader->script);
+			app_log->AddLog("Error modifing shader, check the file for errors");
 		}
 
 	}
@@ -344,7 +353,16 @@ void PanelShader::SaveShader(Shader* shader)
 void PanelShader::AddUniform()
 {
 	Uniform* aux_uniform = new Uniform(uniform_name, selected_type, uniform_size);
-	shader_uniforms.push_back(aux_uniform);
+	if (current_shader)
+	{
+		current_shader->uniforms.push_back(aux_uniform);
+	}
+	else
+	{
+		shader_uniforms.push_back(aux_uniform);
+	}
+	
+	
 
 	selected_type = uniform_types[0];
 	uniform_size = 1;

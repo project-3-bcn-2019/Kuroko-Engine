@@ -116,7 +116,7 @@ void ComponentTransform::Draw() const
 		App->debug->directDrawAxis(global->getPosition(), global->getRotation());
 }
 
-void ComponentTransform::DrawInspector()
+void ComponentTransform::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Transform"))
 	{

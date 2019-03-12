@@ -24,6 +24,7 @@ public:
 	void setDrawNormals(bool state)		{ draw_normals = state; };
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0);
 
 	Mesh* getMesh()	const;
 	uint getMeshResource() { return mesh_resource_uuid; }

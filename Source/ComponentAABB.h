@@ -19,6 +19,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
+	void DrawInspector(int id = 0);
 	void Reload();
 
 	math::AABB* getAABB() const { return aabb; };
