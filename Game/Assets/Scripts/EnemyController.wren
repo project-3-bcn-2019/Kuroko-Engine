@@ -54,8 +54,6 @@ HitStun=(v) { _hit_stun = v }
 Sight {_sight}
 Sight=(v) { _sight = v }
 
-Range {_range}
-Range=(v) { _range = v }
 
 //Other variables
 AlitaSeen {_alita_seen}
@@ -71,7 +69,7 @@ State = (new_state) {
 
  Start() {
 
-     _enemy_state
+    _enemy_state
 
     _idle_state = IdleState.new(this)
     _chase_state = ChaseState.new(this)
@@ -156,7 +154,7 @@ class EnemyState {
 
     IsStateFinished() {
         var ret = false
-        if (_current_time_in >= _total_duration) ret = true
+        if (_current_time_in > _total_duration) ret = true
         return ret
     }
 
@@ -165,12 +163,12 @@ class EnemyState {
 class IdleState is  EnemyState{
     construct new(enemy){
         super(enemy)
+        _enemy = enemy
     }
 
     BeginState(){
         _enemy.ComponentAnimation.setAnimation("IdleAnimation")
         _enemy.ComponentAnimation.Reset()
-                  EngineComunicator.consoleOutput("SHIT CREATED")
         super.BeginState()
     }
 
