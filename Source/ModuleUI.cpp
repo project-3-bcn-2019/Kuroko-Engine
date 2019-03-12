@@ -1050,7 +1050,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 		}
 		break;
 
-	case AUDIOSOURCE:
+	/*case AUDIOSOURCE:
 		if (ImGui::CollapsingHeader("Audio Source"))
 		{
 			static bool select_audio = false;
@@ -1119,7 +1119,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 			if (ImGui::Button("Remove##Remove audioSource"))
 				ret = false;
 		}
-		break;
+		break;*/
 	case CANVAS:
 		if (ImGui::CollapsingHeader("Canvas"))
 		{

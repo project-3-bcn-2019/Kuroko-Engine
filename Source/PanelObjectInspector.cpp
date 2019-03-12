@@ -83,10 +83,7 @@ void PanelObjectInspector::Draw()
 			std::list<Component*> components_to_erase;
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-				if ((*it)->getType() == Component_type::TRANSFORM || (*it)->getType() == Component_type::C_AABB || (*it)->getType() == Component_type::MESH || (*it)->getType() == Component_type::CAMERA)
-				{
-					(*it)->DrawInspector(id);
-				}
+				(*it)->DrawInspector(id);
 				if (!App->gui->DrawComponent(*(*it), id))
 					components_to_erase.push_back(*it);
 				id++;
