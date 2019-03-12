@@ -4,13 +4,13 @@
 #include "ModuleScene.h"
 #include "ModuleCamera3D.h"
 #include "ModuleRenderer3D.h"
-#include "ModuleInput.h"
 #include "ModulePhysics3D.h"
 #include "ModuleWindow.h"
 #include "ModuleImporter.h"
 #include "ModuleExporter.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
+#include "ModuleInput.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleScripting.h"
 #include "Applog.h"
@@ -44,7 +44,6 @@
 #include "ComponentTrigger.h"
 #include "Transform.h"
 #include "Camera.h"
-#include "Quadtree.h"
 #include "ResourceTexture.h"
 #include "Resource3dObject.h"
 #include "ResourceAnimation.h"
@@ -56,10 +55,7 @@
 #include "ComponentAnimationEvent.h"
 
 #include "Random.h"
-#include "VRAM.h"
 #include "WinItemDialog.h" 
-
-#include "Assimp/include/version.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"""
@@ -94,20 +90,20 @@
 ModuleUI::ModuleUI(Application* app, bool start_enabled) : Module(app, start_enabled) {
 	name = "gui";
 
-	p_anim = new PanelAnimation("AnimEditor");
-	p_anim_evt = new PanelAnimationEvent("AnimEvtEditor");
-	p_hierarchy = new PanelHierarchyTab("Hierarchy", true);
-	p_inspector = new PanelObjectInspector("Object Inspector", true);
-	p_assetswindow = new PanelAssetsWin("Assets", true);
-	p_primitives = new PanelPrimitives("Primitives", true);
-	p_animation_graph = new PanelAnimationGraph("Animation Graph", false);
-	p_configuration = new PanelConfiguration("Configuration", true);
-	p_time_control = new PanelTimeControl("Time Control", true);
-	p_shader_editor = new PanelShader("Shader Editor", false);
-	p_about = new PanelAbout("About");
-	p_camera_menu = new PanelCameraMenu("Camera Menu");
-	p_viewports = new PanelViewports("Viewports");
-	p_quadtree_config = new PanelQuadtreeConfig("Quadtree Configuration");
+	panels.push_back(p_anim = new PanelAnimation("AnimEditor"));
+	panels.push_back(p_anim_evt = new PanelAnimationEvent("AnimEvtEditor"));
+	panels.push_back(p_hierarchy = new PanelHierarchyTab("Hierarchy", true));
+	panels.push_back(p_inspector = new PanelObjectInspector("Object Inspector", true));
+	panels.push_back(p_assetswindow = new PanelAssetsWin("Assets", true));
+	panels.push_back(p_primitives = new PanelPrimitives("Primitives", true));
+	panels.push_back(p_animation_graph = new PanelAnimationGraph("Animation Graph", false));
+	panels.push_back(p_configuration = new PanelConfiguration("Configuration", true));
+	panels.push_back(p_time_control = new PanelTimeControl("Time Control", true));
+	panels.push_back(p_shader_editor = new PanelShader("Shader Editor", false));
+	panels.push_back(p_about = new PanelAbout("About"));
+	panels.push_back(p_camera_menu = new PanelCameraMenu("Camera Menu"));
+	panels.push_back(p_viewports = new PanelViewports("Viewports"));
+	panels.push_back(p_quadtree_config = new PanelQuadtreeConfig("Quadtree Configuration"));
 }
 
 
@@ -192,10 +188,6 @@ bool ModuleUI::Start()
 		docking_background = true;
 	}
 
-
-	// HARDCODE
-	//App->scene->AskSceneLoadFile("Assets/Scenes/animation.scene");
-
 	return true;
 }
 
@@ -209,9 +201,7 @@ update_status ModuleUI::PreUpdate(float dt) {
 		ImGui_ImplSDL2_NewFrame(App->window->main_window->window);
 		ImGui::NewFrame();
 	}
-	
 
-	//ImGui::ShowDemoWindow();
 	return UPDATE_CONTINUE;
 }
 
@@ -223,53 +213,17 @@ update_status ModuleUI::Update(float dt) {
 		static bool file_save = false;
 		disable_keyboard_control = false;
 
-
-		if (p_configuration->isActive())
-		{
-			p_configuration->Draw();
-		}
-
-		if (p_hierarchy->isActive())
-			p_hierarchy->Draw();
-
 		Camera* prev_selected = App->camera->background_camera;
 		App->camera->selected_camera = nullptr;
-
-		if (p_inspector->isActive())
-			p_inspector->Draw();
 
 		if (!App->camera->selected_camera)
 			App->camera->selected_camera = prev_selected;
 
-		if (p_primitives->isActive())
-			p_primitives->Draw();
-
-		if (p_about->isActive())
-			p_about->Draw();
-
 		if (open_log_menu)
 			app_log->Draw("App log", &open_log_menu);
 
-		if (p_time_control->isActive())
-			p_time_control->Draw();
-
-		if (p_quadtree_config->isActive())
-			p_quadtree_config->Draw();
-
-		if (p_camera_menu->isActive())
-			p_camera_menu->Draw();
-
-		if (p_viewports->isActive())
-			p_viewports->Draw();
-
-		if (p_assetswindow->isActive())
-			p_assetswindow->Draw();
-
 		if (open_tabs[SKYBOX_MENU])
 			DrawSkyboxWindow();
-
-		if (p_animation_graph->isActive())
-			p_animation_graph->Draw();
 
 		if (open_tabs[SCRIPT_EDITOR])
 			DrawScriptEditor();
@@ -277,8 +231,13 @@ update_status ModuleUI::Update(float dt) {
 		if (open_tabs[BUILD_MENU])
 			DrawBuildMenu();
 
-		if (p_shader_editor->isActive())
-			p_shader_editor->Draw();
+		for (auto it : panels)
+		{
+			if (it->isActive())
+			{
+				it->Draw();
+			}
+		}
 
 		if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic())
 			App->gui->DrawGuizmo();
