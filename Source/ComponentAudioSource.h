@@ -35,6 +35,7 @@ public:
 	void Resume();
 	void SetSoundID(AkUniqueID ID);
 	void SetSoundName(const char* newName);
+	void PlayOnStart();
 
 	// Animation Events
 	std::string EvTypetoString(int evt) override;
@@ -47,6 +48,7 @@ public:
 	std::string name = "Sound";
 	int volume = 100;
 	int pitch = 0;
+	bool play_on_start = true;
 };
 
 #endif

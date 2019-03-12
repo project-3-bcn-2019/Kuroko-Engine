@@ -1,6 +1,7 @@
 #include "ComponentAudioSource.h"
 #include "Application.h"
 #include "ModuleAudio.h"
+#include "ModuleTimeManager.h"
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "Transform.h"
@@ -34,6 +35,7 @@ bool ComponentAudioSource::Update(float dt)
 {
 	float3 pos = ((ComponentTransform*)parent->getComponent(Component_type::TRANSFORM))->local->getPosition();
 	sound_go->SetPosition(pos.x, pos.y, pos.z);
+	PlayOnStart();
 
 	return true;
 }
@@ -109,6 +111,12 @@ void ComponentAudioSource::SetSoundID(AkUniqueID ID)
 void ComponentAudioSource::SetSoundName(const char* newName)
 {
 	name = newName;
+}
+
+void ComponentAudioSource::PlayOnStart()
+{
+	if (play_on_start && App->time->getJustPlayed())
+		Play();
 }
 
 // --------------------------------------------------------------
