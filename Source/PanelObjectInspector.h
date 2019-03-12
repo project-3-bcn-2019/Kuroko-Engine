@@ -15,6 +15,8 @@ public:
 
 	void Draw();
 
+	void DrawChildedInspector(GameObject* object);
+
 private:
 	void DrawTagSelection(GameObject * object);
 };

@@ -10,6 +10,7 @@
 #include "GameObject.h"
 #include "ModuleTimeManager.h"
 #include "ComponentBone.h"
+#include "PanelObjectInspector.h"
 
 PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 {
@@ -21,6 +22,8 @@ PanelAnimation::PanelAnimation(const char* name) : Panel(name)
 	speed = 0.5f;
 	progress = 0.0f;
 	winSize = 1000.0f;
+
+	insp = new PanelObjectInspector("AnimationObject", false);
 }
 
 bool PanelAnimation::fillInfo()
@@ -308,6 +311,9 @@ void PanelAnimation::Draw()
 			{
 				ImGui::BeginChild("Component Events", ImVec2(0, 0), true);
 				{
+					if (ImGui::Button("Inspect GameObject")) peek_go = !peek_go;
+					if (peek_go) insp->DrawChildedInspector(compBone->getParent());
+
 					compBone->getParent()->getComponents(par_components);
 					if (ImGui::Button("+")) TryPushKey();
 					if (ImGui::IsItemHovered() && (sel_comp == nullptr || PushEvt.first == -1))

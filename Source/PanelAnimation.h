@@ -11,6 +11,7 @@ class ResourceAnimation;
 class GameObject;
 class BoneTransform;
 class ComponentBone;
+class PanelObjectInspector;
 
 class PanelAnimation : public Panel
 {
@@ -25,6 +26,7 @@ public:
 	void Draw();
 	void ComponentAnimationDraw();
 	void TryPushKey();
+
 public:
 
 	GameObject* selected_obj = nullptr;
@@ -66,6 +68,9 @@ private:
 	std::pair<int, void*> PushEvt;
 	Component* sel_comp = nullptr;
 	bool token_false = false;
+
+	bool peek_go = false;
+	PanelObjectInspector* insp;
 
 public:
 	void ResetNewKeyValues()
