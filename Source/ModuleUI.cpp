@@ -1521,8 +1521,6 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			if (ImGui::Button("AnimEditor"))
 				p_anim->toggleActive();
-			if (p_anim->isActive())
-				p_anim->Draw();
 
 			if (ImGui::Button("Remove Component##Remove animation"))
 				ret = false;

@@ -149,7 +149,7 @@ void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 	static bool select_audio = false;
 	if (object != nullptr) {
 
-			ImGui::Text("Name: %s##ChildedInsp", object->getName().c_str());
+			ImGui::Text("Name: %s", object->getName().c_str());
 
 			if (object->is_UI) {//if is UI
 				ImGui::SameLine(0.f, 10.0f);

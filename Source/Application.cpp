@@ -65,6 +65,7 @@ Application::Application()
 	
 	// Scenes
 	list_modules.push_back(audio);
+	list_modules.push_back(scripting);
 	list_modules.push_back(scene);
 	
 	
@@ -73,7 +74,7 @@ Application::Application()
 	list_modules.push_back(debug);
 
 	// Renderer last!
-	list_modules.push_back(scripting);
+	
 	list_modules.push_back(shaders);
 	list_modules.push_back(gui);
 	list_modules.push_back(renderer3D);
