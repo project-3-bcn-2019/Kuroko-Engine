@@ -142,31 +142,31 @@ void PanelObjectInspector::Draw()
 
 void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 {
-	ImGui::BeginChild("Object Inspector", ImVec2(0,0), true);
+	ImGui::BeginChild("Object Inspector##ChildedInsp", ImVec2(0,0), true);
 	//ImGui::PushFont(ui_fonts[REGULAR]);
 
 	static bool select_script = false;
 	static bool select_audio = false;
 	if (object != nullptr) {
 
-			ImGui::Text("Name: %s", object->getName().c_str());
+			ImGui::Text("Name: %s##ChildedInsp", object->getName().c_str());
 
 			if (object->is_UI) {//if is UI
 				ImGui::SameLine(0.f, 10.0f);
-				ImGui::TextColored(ImVec4(0.25f, 0.25f, 0.25f, 1), "UI GameObject");
+				ImGui::TextColored(ImVec4(0.25f, 0.25f, 0.25f, 1), "UI GameObject##ChildedInsp");
 			}
 
-			ImGui::Checkbox("Active", &object->is_active);
+			ImGui::Checkbox("Active##ChildedInsp", &object->is_active);
 
 			if (!object->is_UI) { // if it is not UI
 				ImGui::SameLine();
-				if (ImGui::Checkbox("Static", &object->is_static)) // If an object is set/unset static, reload the quadtree
+				if (ImGui::Checkbox("Static##ChildedInsp", &object->is_static)) // If an object is set/unset static, reload the quadtree
 					App->scene->quadtree_reload = true;
 				DrawTagSelection(object);
 				// Add a new tag
 				static char new_tag[64];
-				ImGui::InputText("New Tag", new_tag, 64);
-				if (ImGui::Button("Add Tag")) {
+				ImGui::InputText("New Tag##ChildedInsp", new_tag, 64);
+				if (ImGui::Button("Add Tag##ChildedInsp")) {
 					App->scripting->tags.push_back(new_tag);
 					for (int i = 0; i < 64; i++)
 						new_tag[i] = '\0';
@@ -174,21 +174,21 @@ void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 				}
 			}
 
-			if (ImGui::CollapsingHeader("Add component"))
+			if (ImGui::CollapsingHeader("Add component##ChildedInsp"))
 			{
-				if (ImGui::Button("Add Script")) select_script = true;
+				if (ImGui::Button("Add Script##ChildedInsp")) select_script = true;
 
 				if (!object->is_UI) {
-					if (ImGui::Button("Add Mesh"))	object->addComponent(MESH);
-					if (ImGui::Button("Add Camera"))  object->addComponent(CAMERA);
-					if (ImGui::Button("Add Animation")) object->addComponent(ANIMATION);
-					if (ImGui::Button("Add Animation Event")) object->addComponent(ANIMATION_EVENT);
-					if (ImGui::Button("Add Audio Source")) select_audio = true;
-					if (ImGui::Button("Add Listener")) object->addComponent(AUDIOLISTENER);
-					if (ImGui::Button("Add Billboard")) object->addComponent(BILLBOARD);
-					if (ImGui::Button("Add Particle Emitter")) object->addComponent(PARTICLE_EMITTER);
-					if (ImGui::Button("Add Physic Object Properties")) object->addComponent(PHYSICS);
-					if (ImGui::Button("Add Animator")) object->addComponent(ANIMATOR);
+					if (ImGui::Button("Add Mesh##ChildedInsp"))	object->addComponent(MESH);
+					if (ImGui::Button("Add Camera##ChildedInsp"))  object->addComponent(CAMERA);
+					if (ImGui::Button("Add Animation##ChildedInsp")) object->addComponent(ANIMATION);
+					if (ImGui::Button("Add Animation Event##ChildedInsp")) object->addComponent(ANIMATION_EVENT);
+					if (ImGui::Button("Add Audio Source##ChildedInsp")) select_audio = true;
+					if (ImGui::Button("Add Listener##ChildedInsp")) object->addComponent(AUDIOLISTENER);
+					if (ImGui::Button("Add Billboard##ChildedInsp")) object->addComponent(BILLBOARD);
+					if (ImGui::Button("Add Particle Emitter##ChildedInsp")) object->addComponent(PARTICLE_EMITTER);
+					if (ImGui::Button("Add Physic Object Properties##ChildedInsp")) object->addComponent(PHYSICS);
+					if (ImGui::Button("Add Animator##ChildedInsp")) object->addComponent(ANIMATOR);
 				}
 			}
 
@@ -210,7 +210,7 @@ void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 				std::list<resource_deff> script_res;
 				App->resources->getScriptResourceList(script_res);
 
-				ImGui::Begin("Script selector", &select_script);
+				ImGui::Begin("Script selector##ChildedInsp", &select_script);
 				for (auto it = script_res.begin(); it != script_res.end(); it++) {
 					resource_deff script_deff = (*it);
 					if (ImGui::MenuItem(script_deff.asset.c_str())) {
@@ -226,8 +226,8 @@ void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 
 			if (select_audio)
 			{
-				ImGui::Begin("Select Audio Event", &select_audio);
-				if (ImGui::MenuItem("NONE"))
+				ImGui::Begin("Select Audio Event##ChildedInsp", &select_audio);
+				if (ImGui::MenuItem("NONE##ChildedInsp"))
 				{
 					object->addComponent(AUDIOSOURCE);
 					select_audio = false;

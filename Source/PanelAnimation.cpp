@@ -70,10 +70,7 @@ PanelAnimation::~PanelAnimation()
 
 void PanelAnimation::Draw()
 {
-
 	ImGui::Begin(name.c_str(), &active, ImGuiWindowFlags_HorizontalScrollbar);
-	
-	
 
 	if (fillInfo())
 	{
@@ -307,65 +304,86 @@ void PanelAnimation::Draw()
 		if (compBone != nullptr)
 		{
 			token_false = false;
-			ImGui::BeginGroup();
+			
+			if (ImGui::Button("Inspect GameObject##AnimationObj")) peek_go = !peek_go;
+			if (peek_go) insp->DrawChildedInspector(compBone->getParent());
+
+			compBone->getParent()->getComponents(par_components);
+			if (ImGui::Button("+##AddEvent")) TryPushKey();
+			if (ImGui::IsItemHovered() && (sel_comp == nullptr || PushEvt.first == -1))
 			{
-				ImGui::BeginChild("Component Events", ImVec2(0, 0), true);
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				ImGui::TextColored(ImVec4(1,0,0,1),"Complete the event or it won't be added!");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+
+			ImGui::SameLine();
+
+			ImGui::PushItemWidth(250.f);
+			if (sel_comp == nullptr)
+			{
+				if (ImGui::BeginCombo("##ComponentsToAnimA", "SelectComponent"))
 				{
-					if (ImGui::Button("Inspect GameObject")) peek_go = !peek_go;
-					if (peek_go) insp->DrawChildedInspector(compBone->getParent());
+					for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
+						if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
+							sel_comp = *it_comps;
+					ImGui::EndCombo();
+				}
+			}
+			else
+			{
+				if (ImGui::BeginCombo("##ComponentsToAnimB", sel_comp->TypeToString().c_str()))
+				{
+					for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
+						if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
+							sel_comp = *it_comps;
+					ImGui::EndCombo();
+				}
 
-					compBone->getParent()->getComponents(par_components);
-					if (ImGui::Button("+")) TryPushKey();
-					if (ImGui::IsItemHovered() && (sel_comp == nullptr || PushEvt.first == -1))
+				ImGui::SameLine();
+				ImGui::PushItemWidth(250.f);
+				if (ImGui::BeginCombo("##AnimEvtsSel", sel_comp->EvTypetoString(PushEvt.first).c_str()))
+				{
+					for (int i = 0; i < sel_comp->getEvAmount(); ++i)
+						if (ImGui::Selectable(sel_comp->EvTypetoString(i).c_str(), token_false))
+							PushEvt.first = i;
+
+					ImGui::EndCombo();
+				}
+				// ImGui::SameLine();
+				// Function to continue the values for the initialization of event
+			}
+					
+
+			std::map<uint, std::map<int, void*>>* KeyMapGet = nullptr;
+			{
+				auto getAnimSet = compBone->AnimSets.find(compAnimation->getAnimationResource());
+				if (getAnimSet != compBone->AnimSets.end())
+				{
+					auto getKeyMap = getAnimSet->second.AnimEvts.find(frames);
+					if (getKeyMap != getAnimSet->second.AnimEvts.end())
+						KeyMapGet = &getKeyMap->second;
+				}
+			}
+			if (KeyMapGet != nullptr)
+			{				
+				for (auto it = KeyMapGet->begin(); it != KeyMapGet->end(); ++it)
+				{
+					for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 					{
-						ImGui::BeginTooltip();
-						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-						ImGui::TextColored(ImVec4(1,0,0,1),"Complete the event or it won't be added!");
-						ImGui::PopTextWrapPos();
-						ImGui::EndTooltip();
-					}
-
-					ImGui::SameLine();
-
-					ImGui::PushItemWidth(250.f);
-					if (sel_comp == nullptr)
-					{
-						if (ImGui::BeginCombo("##ComponentsToAnim", "SelectComponent"))
-						{
-							for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
-								if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
-									sel_comp = *it_comps;
-							ImGui::EndCombo();
+						if (ImGui::Button("-##EraseEvent")) 
+						{ 
+							it->second.erase(it2);
+							if (it->second.size() == 0)
+								KeyMapGet->erase(it);
+							continue;
 						}
+						ImGui::Text("%s -> %s", compBone->getParent()->getComponentByUUID(it->first)->TypeToString().c_str(), compBone->getParent()->getComponentByUUID(it->first)->EvTypetoString(it->first).c_str());
 					}
-					else
-					{
-						if (ImGui::BeginCombo("##ComponentsToAnim", sel_comp->TypeToString().c_str()))
-						{
-							for (auto it_comps = par_components.begin(); it_comps != par_components.end(); ++it_comps)
-								if (ImGui::Selectable(it_comps._Ptr->_Myval->TypeToString().c_str(), token_false))
-									sel_comp = *it_comps;
-							ImGui::EndCombo();
-						}
-
-						ImGui::SameLine();
-						ImGui::PushItemWidth(250.f);
-						if (ImGui::BeginCombo("##AnimEvtsSel", sel_comp->EvTypetoString(PushEvt.first).c_str()))
-						{
-							for (int i = 0; i < sel_comp->getEvAmount(); ++i)
-								if (ImGui::Selectable(sel_comp->EvTypetoString(i).c_str(), token_false))
-									PushEvt.first = i;
-
-							ImGui::EndCombo();
-						}
-						// ImGui::SameLine();
-						// Function to continue the values for the initialization of event
-					}
-
-										
-
-				} ImGui::EndChild();
-			} ImGui::EndGroup();
+				} 								
+			}					
 		}
 		else
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "No associated GameObject, events unavailable!");
