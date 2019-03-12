@@ -60,7 +60,10 @@ bool ComponentButtonUI::Update(float dt)
 	return true;
 }
 
-
+void ComponentButtonUI::WhenPressed()
+{
+	int i = 0;
+}
 
 const ResourceTexture * ComponentButtonUI::getResourceTexture(ButtonState state)
 {
@@ -121,6 +124,7 @@ void ComponentButtonUI::ChangeGOImage()
 		break;
 	case B_PRESSED:
 		image->setResourceTexture(pressed);
+		WhenPressed();
 		break;
 	}
 }

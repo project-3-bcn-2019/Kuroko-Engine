@@ -22,6 +22,7 @@ public:
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;
+	void WhenPressed();
 	void Save(JSON_Object* config) override;
 
 	const ResourceTexture* getResourceTexture(ButtonState state);
