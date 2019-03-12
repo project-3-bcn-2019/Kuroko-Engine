@@ -6,12 +6,13 @@
 
 enum variableType;
 class Transition;
+class ComponentAnimation;
 
 class ComponentAnimator :
 	public Component
 {
 public:
-	ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR) {};
+	ComponentAnimator(GameObject* gameobject);
 	ComponentAnimator(JSON_Object* deff, GameObject* parent);
 	~ComponentAnimator();
 
@@ -44,6 +45,8 @@ private:
 	std::map<uint, float> floats;
 	std::map<uint, std::string> strings;
 	std::map<uint, bool> bools;
+
+	ComponentAnimation* animation = nullptr;
 
 public:
 
