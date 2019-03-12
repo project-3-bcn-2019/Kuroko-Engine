@@ -18,6 +18,7 @@ public:
 	uint getBoneResource() { return bone_resource_uuid; }
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0);
 
 private:
 

@@ -8,6 +8,7 @@
 #include "ComponentBone.h"
 #include "Material.h"
 #include "ModuleImporter.h"
+#include "ModuleUI.h"
 #include "FileSystem.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "ModuleCamera3D.h"
@@ -17,6 +18,8 @@
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
+
+std::string openFileWID(bool isfile = false);
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
 	std::string path;
@@ -178,6 +181,232 @@ bool ComponentMesh::Update(float dt)
 	}
 
 	return true;
+}
+
+void ComponentMesh::DrawInspector(int id)
+{
+	std::string tag;
+	tag = "Mesh##" + std::to_string(id);
+	if (ImGui::CollapsingHeader(tag.c_str()))
+	{
+		static bool wireframe_enabled;
+		static bool mesh_active;
+		static bool draw_normals;
+
+		wireframe_enabled = getWireframe();
+		draw_normals = getDrawNormals();
+		mesh_active = isActive();
+
+		if (ImGui::Checkbox("Active## mesh_active", &mesh_active))
+			setActive(mesh_active);
+
+		if (mesh_active)
+		{
+			ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(getMeshResource());
+			ImGui::Text("Resource: %s", (R_mesh != nullptr) ? R_mesh->asset.c_str() : "None");
+
+			if (ImGui::Checkbox("Wireframe", &wireframe_enabled))
+				setWireframe(wireframe_enabled);
+			ImGui::SameLine();
+			if (ImGui::Checkbox("Draw normals", &draw_normals))
+				setDrawNormals(draw_normals);
+
+			if (!getMesh()) {
+				static bool add_mesh_menu = false;
+				if (ImGui::Button("Add mesh")) {
+					add_mesh_menu = true;
+				}
+
+				if (add_mesh_menu) {
+
+					std::list<resource_deff> mesh_res;
+					App->resources->getMeshResourceList(mesh_res);
+
+					ImGui::Begin("Mesh selector", &add_mesh_menu);
+					for (auto it = mesh_res.begin(); it != mesh_res.end(); it++) {
+						resource_deff mesh_deff = (*it);
+						if (ImGui::MenuItem(mesh_deff.asset.c_str())) {
+							App->resources->deasignResource(getMeshResource());
+							App->resources->assignResource(mesh_deff.uuid);
+							setMeshResourceId(mesh_deff.uuid);
+							add_mesh_menu = false;
+							break;
+						}
+					}
+
+					ImGui::End();
+				}
+			}
+
+			if (Mesh* mesh = getMesh())
+			{
+				if (ImGui::TreeNode("Mesh Options"))
+				{
+					uint vert_num, poly_count;
+					bool has_normals, has_colors, has_texcoords;
+					if (ImGui::Button("Remove mesh")) {
+						App->resources->deasignResource(getMeshResource());
+						setMeshResourceId(0);
+					}
+					mesh->getData(vert_num, poly_count, has_normals, has_colors, has_texcoords);
+					ImGui::Text("vertices: %d, poly count: %d, ", vert_num, poly_count);
+					ImGui::Text(has_normals ? "normals: Yes," : "normals: No,");
+					ImGui::Text(has_colors ? "colors: Yes," : "colors: No,");
+					ImGui::Text(has_texcoords ? "tex coords: Yes" : "tex coords: No");
+
+					ImGui::TreePop();
+				}
+			}
+
+
+			if (ImGui::TreeNode("Material"))
+			{
+				if (Material* material = getMaterial())
+				{
+					static int preview_size = 128;
+					ImGui::Text("Id: %d", material->getId());
+					ImGui::SameLine();
+					/*if (ImGui::Button("remove material"))
+					{
+						delete c_mesh->getMaterial();
+						c_mesh->setMaterial(nullptr);
+						ImGui::TreePop();
+						return true;
+					}*/
+
+					ImGui::Text("Preview size");
+					ImGui::SameLine();
+					if (ImGui::Button("64")) preview_size = 64;
+					ImGui::SameLine();
+					if (ImGui::Button("128")) preview_size = 128;
+					ImGui::SameLine();
+					if (ImGui::Button("256")) preview_size = 256;
+
+					if (ImGui::TreeNode("diffuse"))
+					{
+						Texture* texture = nullptr;
+						if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+							texture = tex_res->texture;
+
+
+						ImGui::Image(texture ? (void*)texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+						ImGui::SameLine();
+
+						int w = 0; int h = 0;
+						if (texture)
+							texture->getSize(w, h);
+
+						ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+						//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+						//	material->setCheckeredTexture(DIFFUSE);
+						//ImGui::SameLine()
+						if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+						{
+							std::string texture_path = openFileWID();
+							uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+							if (new_resource != 0) {
+								App->resources->assignResource(new_resource);
+								App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+								material->setTextureResource(DIFFUSE, new_resource);
+							}
+						}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("ambient (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(AMBIENT) ? (void*)material->getTexture(AMBIENT)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Amb: Load checkered"))
+						//	material->setCheckeredTexture(AMBIENT);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Amb: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(AMBIENT, tex);
+						//}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("normals (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(NORMALS) ? (void*)material->getTexture(NORMALS)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Nor: Load checkered"))
+						//	material->setCheckeredTexture(NORMALS);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Nor: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(NORMALS, tex);
+						//}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("lightmap (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(LIGHTMAP) ? (void*)material->getTexture(LIGHTMAP)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Lgm: Load checkered"))
+						//	material->setCheckeredTexture(LIGHTMAP);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Lgm: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(LIGHTMAP, tex);
+						//}
+						ImGui::TreePop();
+					}
+				}
+				else
+				{
+					ImGui::TextWrapped("No material assigned!");
+
+					if (getMesh())
+					{
+						static bool draw_colorpicker = false;
+						static Color reference_color = getMesh()->tint_color;
+						static GameObject* last_selected = getParent();
+
+						std::string label = getParent()->getName() + " color picker";
+
+						if (last_selected != getParent())
+							reference_color = getMesh()->tint_color;
+
+						ImGui::SameLine();
+						if (ImGui::ColorButton((label + "button").c_str(), ImVec4(getMesh()->tint_color.r, getMesh()->tint_color.g, getMesh()->tint_color.b, getMesh()->tint_color.a)))
+							draw_colorpicker = !draw_colorpicker;
+
+						if (draw_colorpicker)
+							App->gui->DrawColorPickerWindow(label.c_str(), (Color*)&getMesh()->tint_color, &draw_colorpicker, (Color*)&reference_color);
+						else
+							reference_color = getMesh()->tint_color;
+
+						last_selected = getParent();
+					}
+
+					if (ImGui::Button("Add material"))
+					{
+						Material* mat = new Material();
+						setMaterial(mat);
+					}
+
+				}
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("Connected Bones"))
+			{
+				ImGui::Text("Num Bones: %d", components_bones.size());
+				ImGui::TreePop();
+			}
+
+		}
+	}
 }
 
 Mesh* ComponentMesh::getMesh() const {

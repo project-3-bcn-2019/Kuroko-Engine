@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "ModuleCamera3D.h"
 
+#include "ImGui/imgui.h"
+
 #include "MathGeoLib\Math\Quat.h"
 
 ComponentCamera::ComponentCamera(GameObject* parent, Camera* camera) : Component(parent, CAMERA), camera(camera)
@@ -61,6 +63,52 @@ bool ComponentCamera::Update(float dt)
 	getCamera()->active = getCamera()->draw_in_UI;
 
 	return true;
+}
+
+void ComponentCamera::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Camera"))
+	{
+		static bool camera_active;
+		camera_active = isActive();
+
+		if (ImGui::Checkbox("Active##active camera", &camera_active))
+			setActive(camera_active);
+
+		ImGui::Checkbox("Draw camera view", &getCamera()->draw_in_UI);
+
+		ImGui::Checkbox("Draw frustum", &getCamera()->draw_frustum);
+
+		ImGui::Checkbox("Draw depth", &getCamera()->draw_depth);
+
+		static bool overriding;
+		overriding = (getCamera() == App->camera->override_editor_cam_culling);
+		if (ImGui::Checkbox("Override Frustum Culling", &overriding))
+		{
+			if (!overriding)	App->camera->override_editor_cam_culling = nullptr;
+			else				App->camera->override_editor_cam_culling = getCamera();
+		}
+
+		if (camera_active)
+		{
+			static float3 _offset;
+			_offset = offset;
+			ImGui::Text("Offset:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::DragFloat("##o x", &_offset.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::DragFloat("##o y", &_offset.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			ImGui::DragFloat("##o z", &_offset.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+			offset = _offset;
+		}
+	}
 }
 
 void ComponentCamera::Save(JSON_Object* config) {

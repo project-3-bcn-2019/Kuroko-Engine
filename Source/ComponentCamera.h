@@ -15,6 +15,7 @@ public:
 	~ComponentCamera();
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0);
 	Camera* getCamera() const { return camera; };
 
 	void Save(JSON_Object* config);

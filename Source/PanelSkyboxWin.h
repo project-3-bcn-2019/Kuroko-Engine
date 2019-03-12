@@ -10,7 +10,7 @@ class PanelSkyboxWin : public Panel
 {
 public:
 
-	PanelSkyboxWin(const char* name, bool active);
+	PanelSkyboxWin(const char* name);
 	~PanelSkyboxWin();
 
 	void Draw();

@@ -38,6 +38,10 @@ bool ComponentAudioSource::Update(float dt)
 	return true;
 }
 
+void ComponentAudioSource::DrawInspector(int id)
+{
+}
+
 void ComponentAudioSource::CleanUp()
 {
 	sound_go->StopEvent(sound_ID);

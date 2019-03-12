@@ -53,6 +53,10 @@ void ComponentBillboard::Draw() const
 	billboard->Draw();
 }
 
+void ComponentBillboard::DrawInspector(int id)
+{
+}
+
 void ComponentBillboard::Save(JSON_Object* config)
 {
 	// Determine the type of the mesh

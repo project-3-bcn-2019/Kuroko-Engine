@@ -9,6 +9,8 @@
 #include "Transform.h"
 #include "Camera.h"
 
+#include "ImGui/imgui.h"
+
 #include "glew-2.1.0\include\GL\glew.h"
 
 
@@ -119,6 +121,39 @@ void ComponentAABB::Draw() const
 {
 	if (draw_aabb)	DrawAABB();
 	if (draw_obb && App->camera->current_camera->frustumCull(*getOBB()))	DrawOBB();
+}
+
+void ComponentAABB::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("AABB"))
+	{
+
+		static bool aabb_active;
+		aabb_active = isActive();
+
+		if (ImGui::Checkbox("Active##active AABB", &aabb_active))
+			setActive(aabb_active);
+
+		if (aabb_active)
+		{
+			static bool aabb_drawn;
+			aabb_drawn = draw_aabb;
+
+			if (ImGui::Checkbox("draw AABB", &aabb_drawn))
+				draw_aabb = aabb_drawn;
+
+			static bool obb_drawn;
+			obb_drawn = draw_obb;
+
+			ImGui::SameLine();
+			if (ImGui::Checkbox("draw OBB", &obb_drawn))
+				draw_obb = obb_drawn;
+
+			if (ImGui::Button("Reload##Reload AABB"))
+				Reload();
+		}
+
+	}
 }
 
 void ComponentAABB::DrawAABB() const

@@ -53,3 +53,7 @@ bool ComponentBone::Update(float dt)
 
 	return true;
 }
+
+void ComponentBone::DrawInspector(int id)
+{
+}
