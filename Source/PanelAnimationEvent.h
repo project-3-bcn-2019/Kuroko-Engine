@@ -28,7 +28,7 @@ public:
 	
 public:
 
-	GameObject* selected_obj = nullptr;
+	GameObject* selected_obj = nullptr; 
 
 	ComponentAnimationEvent* c_AnimEvt = nullptr;
 	//ResourceAnimationEvent* r_AnimEvt = nullptr; // When Available

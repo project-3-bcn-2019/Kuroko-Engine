@@ -31,6 +31,12 @@ ComponentAnimation::~ComponentAnimation()
 
 bool ComponentAnimation::Update(float dt)
 {
+	if (bones.size() == 0) //If empty try to fill it
+	{
+		setAnimationResource(animation_resource_uuid);
+		app_log->AddLog("Trying to fill component animation with bones");
+	}
+
 	if (App->time->getGameState() != GameState::PLAYING)
 		return true;
 
@@ -70,6 +76,10 @@ bool ComponentAnimation::Update(float dt)
 					local.Decompose(pos, rot, scale);
 					transform->local->Set(pos, rot, scale);
 				}
+
+				ComponentBone* bone = (ComponentBone*)GO->getComponent(BONE);
+				if (bone != nullptr && getAnimationResource() != 0)
+					bone->ProcessCompAnimations(getAnimationResource(), (animTime * anim->ticksXsecond));
 			}
 		}
 	}

@@ -143,7 +143,7 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
 			continue;
 		}
-		component->LoadCompUUID(component_deff);
+		component->LoadCommons(component_deff);
 
 		addComponent(component);
 	}
@@ -281,6 +281,28 @@ GameObject* GameObject::getChild(const char* name, bool  ignoreAssimpNodes) cons
 		else
 		{
 			child = (*it)->getChild(name, ignoreAssimpNodes);
+			if (child != nullptr)
+				break;
+		}
+	}
+
+	return child;
+}
+
+GameObject * GameObject::getChildByUUID(uint cmp_uuid) const
+{
+	GameObject* child = nullptr;
+
+	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
+	{
+		if ((*it)->getUUID() == cmp_uuid)
+		{
+			child = (*it);
+			break;
+		}
+		else
+		{
+			child = (*it)->getChildByUUID(cmp_uuid);
 			if (child != nullptr)
 				break;
 		}
@@ -581,7 +603,7 @@ void GameObject::Save(JSON_Object * config) {
 	for (auto it = components.begin(); it != components.end(); it++) {
 		JSON_Value* curr_component = json_value_init_object(); // Create new components 
 		(*it)->Save(json_object(curr_component));			   // Save component
-		(*it)->SaveCompUUID(json_object(curr_component));
+		(*it)->SaveCommons(json_object(curr_component));
 		json_array_append_value(json_array(component_array), curr_component); // Add them to array
 	}
 

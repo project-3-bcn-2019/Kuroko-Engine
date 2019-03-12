@@ -31,12 +31,16 @@ std::string Component::TypeToString()
 	return uid;
 }
 
-void Component::SaveCompUUID(JSON_Object * config)
+
+// Commons functions to save and load common data that will
+// have the same format in all components, such as uuid
+
+void Component::SaveCommons(JSON_Object * config)
 {
 	json_object_set_number(config, "uuid", uuid);
 }
 
-void Component::LoadCompUUID(JSON_Object * deff)
+void Component::LoadCommons(JSON_Object * deff)
 {
 	uuid = json_object_get_number(deff, "uuid");
 	if (uuid == 0) uuid = random32bits();
