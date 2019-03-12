@@ -202,8 +202,10 @@ void ModuleShaders::CreateDefFragmentShader()
 
 }
 
-void ModuleShaders::CompileShader(Shader* shader)
+bool ModuleShaders::CompileShader(Shader* shader)
 {
+	bool ret = false;
+
 	if (shader->type == VERTEX)
 	{
 		shader->shaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -213,7 +215,12 @@ void ModuleShaders::CompileShader(Shader* shader)
 		shader->shaderId = glCreateShader(GL_FRAGMENT_SHADER);
 	}
 	
-	glShaderSource(shader->shaderId, 1, &shader->script, NULL);
+	int size = strlen(shader->script.c_str());
+	++size;
+	char* buffer = new char[size];
+	strcpy(buffer, shader->script.c_str());
+
+	glShaderSource(shader->shaderId, 1, &buffer, NULL);
 	glCompileShader(shader->shaderId);
 
 	int success;
@@ -224,6 +231,7 @@ void ModuleShaders::CompileShader(Shader* shader)
 	{
 		glGetShaderInfoLog(shader->shaderId, 512, NULL, Error);
 		app_log->AddLog(Error);
+		ret = false;
 	}
 	else
 	{
@@ -231,11 +239,17 @@ void ModuleShaders::CompileShader(Shader* shader)
 			app_log->AddLog("Vertex Shader compiled successfully!");
 		else
 			app_log->AddLog("Fragment Shader compiled successfully!");
+
+		ret = true;
 	}
+
+	return ret;
 }
 
-void ModuleShaders::CompileProgram(ShaderProgram* program)
+bool ModuleShaders::CompileProgram(ShaderProgram* program)
 {
+	bool ret = false;
+
 	program->programID = glCreateProgram();
 
 	for (int i = 0; i < program->shaders.size(); i++)
@@ -253,12 +267,15 @@ void ModuleShaders::CompileProgram(ShaderProgram* program)
 	{
 		glGetProgramInfoLog(program->programID, 512, NULL, Error);
 		app_log->AddLog(Error);
+		ret = false;
 	}
 	else
 	{
 		app_log->AddLog("Program linked and compiled Successfully!");
+		ret = true;
 	}
 
+	return ret;
 }
 
 ShaderProgram * ModuleShaders::GetDefaultShaderProgram() const

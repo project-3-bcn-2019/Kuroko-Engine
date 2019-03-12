@@ -4,6 +4,7 @@
 #include "ModuleScripting.h"
 #include "ModuleInput.h"
 #include "ModuleShaders.h"
+#include "Applog.h"
 
 #include <fstream>
 
@@ -204,6 +205,16 @@ void PanelShader::Draw()
 		vertex = false;
 	}
 
+	ImGui::Text("New Name:");
+	ImGui::SameLine();
+
+	ImGui::PushID("new name");
+	ImGui::PushItemWidth(150.0f);
+	ImGui::InputText("", shaderName, 256);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+	ImGui::SameLine();
+
 	ImGui::Dummy(ImVec2(0.0f, 52.0f));
 
 	ImGui::Text("Uniform variables");
@@ -284,6 +295,49 @@ void PanelShader::Draw()
 
 void PanelShader::SaveShader(Shader* shader)
 {
+	if (shader)
+	{
+		std::string saveCopy = shader->script;
+		shader->script = shader_editor.GetText();
+
+		if (App->shaders->CompileShader(shader))
+		{
+			//App.shader.recompilePrograms();
+		}
+		else
+		{
+			app_log->AddLog("Error modifing shader: recovering from Back up");
+
+			shader->script = saveCopy;
+			App->shaders->CompileShader(shader);
+			shader_editor.SetText(shader->script);
+		}
+
+	}
+	else
+	{
+		if (vertex || fragment)
+		{
+			Shader* aux_shader = new Shader(vertex == true ? VERTEX : FRAGMENT);
+			
+			aux_shader->script = shader_editor.GetText();
+
+			aux_shader->name = shaderName;
+			aux_shader->uniforms = shader_uniforms;
+			if (App->shaders->CompileShader(aux_shader))
+			{
+				App->shaders->shaders.push_back(aux_shader);
+				shader_uniforms.clear();
+				shader_editor.SetText(" ");
+				vertex = fragment = false;
+				
+			}
+			else
+			{
+				RELEASE(aux_shader);
+			}
+		}
+	}
 
 }
 

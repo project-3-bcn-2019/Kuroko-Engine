@@ -33,6 +33,7 @@ private:
 	bool vertex=false;
 	bool fragment=false;
 
+	char shaderName[256] = "";
 	char uniform_name[256] = "";
 	char* selected_type = nullptr;
 
