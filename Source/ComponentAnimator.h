@@ -17,6 +17,7 @@ public:
 	~ComponentAnimator();
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0);
 
 	uint getAnimationGraphResource() const { return graph_resource_uuid; }
 	void setAnimationGraphResource(uint uuid);

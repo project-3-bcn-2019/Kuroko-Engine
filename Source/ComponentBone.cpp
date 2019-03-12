@@ -191,3 +191,8 @@ void ComponentBone::ProcessCompAnimations(const uint anim_uuid, const int frame)
 		last_frame = frame;
 	}
 }
+
+void ComponentBone::DrawInspector(int id)
+{
+}
+

@@ -62,6 +62,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
+	void DrawInspector(int id = 0);
 	void Save(JSON_Object* json);
 
 

@@ -170,6 +170,10 @@ void ComponentPhysics::Draw() const
 
 }
 
+void ComponentPhysics::DrawInspector(int id)
+{
+}
+
 void ComponentPhysics::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "physics");

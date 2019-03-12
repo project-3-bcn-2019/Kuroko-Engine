@@ -58,8 +58,8 @@ bool ResourceAnimation::LoadAnimation()
 			boneTransformations[i].numRotKeys = boneRanges[2];
 
 			//Loading Name
-			bytes = boneRanges[3];
-			char* auxName = new char[bytes];
+			bytes = sizeof(char)*boneRanges[3];
+			char* auxName = new char[boneRanges[3]];
 			memcpy(auxName, cursor, bytes);
 			boneTransformations[i].NodeName = auxName;
 			boneTransformations[i].NodeName = boneTransformations[i].NodeName.substr(0, bytes);

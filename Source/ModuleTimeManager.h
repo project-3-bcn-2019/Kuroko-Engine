@@ -58,6 +58,7 @@ public:
 	int getFrameCount() { return frame_count; }
 	float getTimeScale() { return time_scale; }
 	void setTimeScale(float scale) { game_time.setScale(scale); }
+	bool getJustPlayed() { return just_played; }
 
 private:
 
@@ -82,6 +83,8 @@ private:
 	bool advancing = false;
 	int advance_frames = 0;
 	int advanced_frames = 0;
+
+	bool just_played = false;
 };
 
 

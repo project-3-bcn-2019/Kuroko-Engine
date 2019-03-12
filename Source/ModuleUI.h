@@ -36,8 +36,9 @@ class PanelAbout;
 class PanelCameraMenu;
 class PanelViewports;
 class PanelQuadtreeConfig;
+class PanelSkyboxWin;
 
-enum GUI_Tabs { SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
+enum GUI_Tabs { SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
@@ -101,6 +102,7 @@ public:
 	PanelCameraMenu* p_camera_menu = nullptr;
 	PanelViewports* p_viewports = nullptr;
 	PanelQuadtreeConfig* p_quadtree_config = nullptr;
+	PanelSkyboxWin* p_skybox = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW

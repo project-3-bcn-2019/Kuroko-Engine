@@ -47,11 +47,11 @@ bool ResourceAnimationGraph::LoadGraph()
 		memcpy(&nameLength, cursor, sizeof(uint));
 		cursor += sizeof(uint);
 
-		bytes = nameLength;
-		char* auxName = new char[bytes];
-		memcpy(auxName, cursor, sizeof(char)*bytes);
+		bytes = sizeof(char)*nameLength;
+		char* auxName = new char[nameLength];
+		memcpy(auxName, cursor, bytes);
 		std::string name = auxName;
-		name = name.substr(0, bytes);
+		name = name.substr(0, nameLength);
 		RELEASE_ARRAY(auxName);
 		cursor += bytes;
 
@@ -119,13 +119,13 @@ bool ResourceAnimationGraph::LoadGraph()
 						memcpy(&cond->conditionant, cursor, sizeof(float));
 						cursor += sizeof(float);
 
-						bytes = ranges[2];
+						bytes = sizeof(char)*ranges[2];
 						if (bytes > 0)
 						{
-							char* auxName = new char[bytes];
-							memcpy(auxName, cursor, sizeof(char)*bytes);
+							char* auxName = new char[ranges[2]];
+							memcpy(auxName, cursor, bytes);
 							std::string name = auxName;
-							name = name.substr(0, bytes);
+							name = name.substr(0, ranges[2]);
 							RELEASE_ARRAY(auxName);
 							cond->string_conditionant = name;
 						}
@@ -152,11 +152,11 @@ bool ResourceAnimationGraph::LoadGraph()
 		memcpy(ranges, cursor, bytes);
 		cursor += bytes;
 
-		bytes = ranges[2];
-		char* auxName = new char[bytes];
+		bytes = sizeof(char)*ranges[2];
+		char* auxName = new char[ranges[2]];
 		memcpy(auxName, cursor, bytes);
 		std::string name = auxName;
-		name = name.substr(0, bytes);
+		name = name.substr(0, ranges[2]);
 		RELEASE_ARRAY(auxName);
 		cursor += bytes;
 
@@ -230,17 +230,18 @@ bool ResourceAnimationGraph::saveGraph() const
 		bytes = (*it_n).second->name.length();
 		memcpy(cursor, &bytes, sizeof(uint));
 		cursor += sizeof(uint);
+		bytes = sizeof(char)*bytes;
 		memcpy(cursor, (*it_n).second->name.c_str(), bytes);
 		cursor += bytes;
 
 		float position[2] = { (*it_n).second->pos.x, (*it_n).second->pos.y };
 		bytes = sizeof(float) * 2;
-		memcpy(cursor, position, bytes);
+		memcpy(cursor, &position[0], bytes);
 		cursor += bytes;
 
 		uint uids[3] = { (*it_n).second->UID, (*it_n).second->animationUID, (*it_n).second->links.size() };
 		bytes = sizeof(uint) * 3;
-		memcpy(cursor, uids, bytes);
+		memcpy(cursor, &uids[0], bytes);
 		cursor += bytes;
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
@@ -252,7 +253,7 @@ bool ResourceAnimationGraph::saveGraph() const
 
 			uint links[2] = { (*it_l)->UID, (*it_l)->connectedNodeLink };
 			bytes = sizeof(uint) * 2;
-			memcpy(cursor, links, bytes);
+			memcpy(cursor, &links[0], bytes);
 			cursor += bytes;
 		}
 
@@ -269,7 +270,7 @@ bool ResourceAnimationGraph::saveGraph() const
 			{
 				uint ranges[3] = { (*it_c)->type, (*it_c)->variable_uuid, (*it_c)->string_conditionant.size() };
 				bytes = sizeof(ranges);
-				memcpy(cursor, ranges, bytes);
+				memcpy(cursor, &ranges[0], bytes);
 				cursor += bytes;
 
 				memcpy(cursor, &(*it_c)->conditionant, sizeof(float));
@@ -287,7 +288,7 @@ bool ResourceAnimationGraph::saveGraph() const
 	{
 		uint ranges[3] = { (*it_v)->uuid, (*it_v)->type, (*it_v)->name.size() };
 		bytes = sizeof(ranges);
-		memcpy(cursor, ranges, bytes);
+		memcpy(cursor, &ranges[0], bytes);
 		cursor += bytes;
 
 		memcpy(cursor, (*it_v)->name.c_str(), sizeof(char)*ranges[2]);

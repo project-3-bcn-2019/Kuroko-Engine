@@ -23,8 +23,8 @@ public:
 	~ComponentAudioSource();
 
 	bool Update(float dt) override;
+	void DrawInspector(int id = 0) override;
 	void CleanUp();
-	//void SetInspectorInfo() override;
 
 	void Save(JSON_Object* config) override;
 
@@ -34,6 +34,7 @@ public:
 	void Resume();
 	void SetSoundID(AkUniqueID ID);
 	void SetSoundName(const char* newName);
+	void PlayOnStart();
 
 	// Animation Events
 	std::string EvTypetoString(int evt) override;
@@ -46,6 +47,7 @@ public:
 	std::string name = "Sound";
 	int volume = 100;
 	int pitch = 0;
+	bool autoplay = false;
 };
 
 #endif

@@ -25,6 +25,7 @@
 #include "ComponentTextUI.h"
 #include "ComponentProgressBarUI.h"
 #include "ComponentAnimator.h"
+#include "ComponentTrigger.h"
 
 
 
@@ -976,7 +977,7 @@ void GetCollisions(WrenVM* vm) {
 		return;
 	}
 
-	ComponentPhysics* component = (ComponentPhysics*)go->getComponent(PHYSICS);
+	ComponentTrigger* component = (ComponentTrigger*)go->getComponent(PHYSICS);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentColliderCube", go->getName().c_str());

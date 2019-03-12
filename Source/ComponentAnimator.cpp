@@ -82,6 +82,10 @@ bool ComponentAnimator::Update(float dt)
 	return true;
 }
 
+void ComponentAnimator::DrawInspector(int id)
+{
+}
+
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
 {
 	App->resources->deasignResource(graph_resource_uuid);

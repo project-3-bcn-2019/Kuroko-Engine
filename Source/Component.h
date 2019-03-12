@@ -31,7 +31,7 @@ public:
 	virtual bool Update(float dt) { return true; };
 	virtual void Draw() const {};
 
-	virtual void DrawInspector() { return; };
+	virtual void DrawInspector(int id = 0) { return; };
 
 	bool isActive() { return is_active; } const
 	void setActive(bool state) { is_active = state; }
