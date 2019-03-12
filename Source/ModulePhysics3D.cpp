@@ -418,6 +418,9 @@ void PDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const bt
 
 	glEnd();
 
+
+	glColor4f(255, 255, 255, 255);
+
 	//debug_line.origin.Set(from.getX(), from.getY(), from.getZ());
 	//debug_line.destination.Set(to.getX(), to.getY(), to.getZ());
 	//debug_line.color.Set(color.getX(), color.getY(), color.getZ());
