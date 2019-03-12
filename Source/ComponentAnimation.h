@@ -34,6 +34,7 @@ public:
 
 	bool loop = false;
 	float speed = 1.0f;
+	bool interpolate = false;
 
 private:
 

@@ -69,7 +69,7 @@ bool ComponentAnimation::Update(float dt)
 				ComponentTransform* transform = (ComponentTransform*)GO->getComponent(TRANSFORM);
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
-					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, false);
+					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
 					float4x4 local = anim->boneTransformations[i].lastTransform;
 					float3 pos, scale;
 					Quat rot;

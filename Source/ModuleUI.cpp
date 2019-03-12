@@ -1493,6 +1493,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 			ImGui::Checkbox("Loop", &anim->loop);
 
+			ImGui::Checkbox("Interpolate", &anim->interpolate);
+
 			ImGui::InputFloat("Speed", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 			if (R_anim != nullptr)
