@@ -44,6 +44,7 @@ public:
 	~ComponentAnimationEvent();
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0) override;
 
 	// Get the resource when there is
 

@@ -309,6 +309,20 @@ std::string ModuleScripting::enum2component(Component_type type) {
 	return std::string();
 }
 
+WrenCall ModuleScripting::DisplayMethods(GameObject * go) {
+	std::list<Component*> scripts;
+	go->getComponents(SCRIPT, scripts);
+
+	ImGui::Begin("Script Selector");
+	//for (auto it = scripts.begin(); it != scripts.end(); it++) {
+	//	ScriptData* script = ((ComponentScript*)(*it))->instance_data;
+	//	std::string display = script->methods;
+	//}
+	ImGui::End();
+
+	return WrenCall("hello", "everyone");
+}
+
 
 void ModuleScripting::SaveConfig(JSON_Object * config) const {
 	JSON_Array* tags_arr = json_array(json_value_init_array());

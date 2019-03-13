@@ -5,6 +5,8 @@
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
 
+#include "ImGui/imgui.h"
+
 ComponentCanvas::ComponentCanvas(GameObject* parent) : Component(parent, CANVAS)
 {
 	
@@ -50,6 +52,11 @@ void ComponentCanvas::Draw() const
 
 void ComponentCanvas::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Canvas"))
+	{
+		ImGui::Text("Resolution  %.0f x %.0f", getResolution().x, getResolution().y);
+		ImGui::Checkbox("Draw cross hair", &draw_cross);
+	}
 }
 
 void ComponentCanvas::Save(JSON_Object * config)

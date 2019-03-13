@@ -3,9 +3,11 @@
 #include "Application.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
+#include "ModuleUI.h"
 
 #include "ModuleInput.h"
 #include "GameObject.h"
+#include "Material.h"
 #include "Applog.h"
 
 
@@ -135,6 +137,90 @@ void ComponentScript::CleanUp() {
 	if(instance_data){
 		App->scripting->loaded_instances.remove(instance_data);
 		delete instance_data;
+	}
+}
+
+void ComponentScript::DrawInspector(int id)
+{
+	std::string component_title = script_name + "(Script)";
+	if (ImGui::CollapsingHeader(component_title.c_str())) {
+
+		if (!instance_data) {
+			ImGui::Image((void*)App->gui->ui_textures[WARNING_ICON]->getGLid(), ImVec2(16, 16));
+			ImGui::SameLine();
+			ImGui::Text("Compile error");
+		}
+		else {
+			for (auto it = instance_data->vars.begin(); it != instance_data->vars.end(); it++) {
+
+				if (!(*it).isPublic())
+					continue;
+
+				ImportedVariable* curr = &(*it);
+				std::string unique_tag = "##" + curr->getName();
+
+				static int type = 0;
+
+				if (!curr->isTypeForced())
+				{
+					type = curr->getType() - 1;
+					if (ImGui::Combo(unique_tag.c_str(), &type, "Bool\0String\0Numeral\0"))
+					{
+						curr->setType((ImportedVariable::WrenDataType)(type + 1));
+						Var nuller;
+						switch (curr->getType())
+						{
+						case ImportedVariable::WrenDataType::WREN_BOOL:
+							nuller.value_bool = false;
+							break;
+						case ImportedVariable::WrenDataType::WREN_NUMBER:
+							nuller.value_number = 0;
+							break;
+						case ImportedVariable::WrenDataType::WREN_STRING:
+							curr->value_string = "";
+							break;
+						}
+						curr->SetValue(nuller);
+						curr->setEdited(true);
+					}
+				}
+
+				ImGui::Text(curr->getName().c_str());
+				ImGui::SameLine();
+
+				static char buf[200] = "";
+				Var variable = curr->GetValue();
+
+				switch (curr->getType()) {
+				case ImportedVariable::WREN_NUMBER:
+					if (ImGui::InputFloat((unique_tag + " float").c_str(), &variable.value_number))
+					{
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+					break;
+				case ImportedVariable::WREN_STRING:
+				{
+					strcpy(buf, curr->value_string.c_str());
+
+					if (ImGui::InputText((unique_tag + " string").c_str(), buf, sizeof(buf)))
+					{
+						curr->value_string = buf;
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+				}
+				break;
+				case ImportedVariable::WREN_BOOL:
+					if (ImGui::Checkbox((unique_tag + " bool").c_str(), &variable.value_bool))
+					{
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+					break;
+				}
+			}
+		}
 	}
 }
 
