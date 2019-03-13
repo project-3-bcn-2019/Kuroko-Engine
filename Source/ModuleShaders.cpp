@@ -75,15 +75,15 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileProgram(defShaderProgram);
 
 	//Animation Shaders
-	CompileShader(animationShader);
+	/*CompileShader(animationShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
-
+	*/
 	shaders.push_back(defVertexShader);
 	shaders.push_back(defFragmentShader);
-	shaders.push_back(animationShader);
+	//shaders.push_back(animationShader);
 
 	shader_programs.push_back(defShaderProgram);
-	shader_programs.push_back(animationShaderProgram);
+	/*shader_programs.push_back(animationShaderProgram);*/
 
 
 
@@ -113,7 +113,7 @@ void ModuleShaders::CreateDefVertexShader()
 	"{\n"
 		"FragPos=vec3(model_matrix*vec4(position,1.0));\n"
 		"gl_Position = projection * view * model_matrix * vec4(position,1.0f);\n"
-		"ourColor = vec4(0.0,0.0,0.0,1.0);\n"
+		"ourColor = color;\n"
 		"TexCoord = texCoord;\n"
 		"ret_normal = normal;\n"
 	"}\n";
@@ -255,9 +255,6 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 {
 	bool ret = false;
 
-	if(program->programID!=0)
-		glDeleteProgram(program->programID);
-
 	program->programID = glCreateProgram();
 
 	for (int i = 0; i < program->shaders.size(); i++)
@@ -266,6 +263,11 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 	}
 
 	glLinkProgram(program->programID);
+
+	for (int i = 0; i < program->shaders.size(); i++)
+	{
+		glDetachShader(program->programID, program->shaders[i]);
+	}
 
 	int success;
 	char Error[512];
@@ -290,9 +292,35 @@ bool ModuleShaders::RecompileAllPrograms()
 {
 	for (int i = 0; i < shader_programs.size(); ++i)
 	{
+		for (int j = 0; j < shader_programs[i]->shaders.size(); ++j)
+		{
+			if(shader_programs[i]->shaders[j]== defFragmentShader->shaderId)
+				CompileShader(defFragmentShader);
+		}
 		CompileProgram(shader_programs[i]);
 	}
 	return false;
+}
+
+bool ModuleShaders::IsProgramValid(uint program)
+{
+	bool ret = false;
+
+	GLint success = 0;
+	glGetProgramiv(program, GL_VALIDATE_STATUS, &success);
+	if (success == GL_FALSE)
+	{
+		app_log->AddLog("Shader Program is not valid. ERROR: %s");
+		ret = false;
+	}
+	else
+	{
+		app_log->AddLog("Shader Program is valid");
+		app_log->AddLog("%d", program);
+		ret = true;
+	}
+
+	return ret;
 }
 
 ShaderProgram * ModuleShaders::GetDefaultShaderProgram() const
