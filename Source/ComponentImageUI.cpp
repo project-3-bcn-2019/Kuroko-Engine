@@ -9,6 +9,11 @@
 #include "ResourceTexture.h"
 #include "Material.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleUI.h"
+
+#include "ImGui/imgui.h"
+
+std::string openFileWID(bool isfile = false);
 
 ComponentImageUI::ComponentImageUI(GameObject* parent) : Component(parent, UI_IMAGE)
 {
@@ -120,6 +125,37 @@ void ComponentImageUI::Draw() const
 	glDisable(GL_ALPHA_TEST);
 	glPopMatrix();
 
+}
+
+void ComponentImageUI::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("UI Image"))
+	{
+
+		ImGui::Image(getResourceTexture() != nullptr ? (void*)getResourceTexture()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w = 0; int h = 0;
+		if (getResourceTexture() != nullptr) {
+			getResourceTexture()->texture->getSize(w, h);
+		}
+
+		ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+		ImGui::SliderFloat("Alpha", &alpha, 0.0f, 1.0f);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture() != nullptr)
+					App->resources->deasignResource(getResourceTexture()->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+			}
+		}
+	}
 }
 
 void ComponentImageUI::Save(JSON_Object * config)

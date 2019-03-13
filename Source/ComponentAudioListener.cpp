@@ -8,6 +8,8 @@
 #include "ComponentCamera.h"
 #include "Camera.h"
 
+#include "ImGui/imgui.h"
+
 
 ComponentAudioListener::ComponentAudioListener(GameObject* parent) : Component(parent, AUDIOLISTENER)
 {
@@ -45,6 +47,20 @@ bool ComponentAudioListener::Update(float dt)
 
 void ComponentAudioListener::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Audio Listener"))
+	{
+		if (ImGui::Checkbox("Mute", &App->audio->muted))
+		{
+			App->audio->SetVolume(App->audio->volume);
+		}
+		if (ImGui::SliderInt("Volume", &App->audio->volume, 0, 100))
+		{
+			App->audio->muted = false;
+			App->audio->SetVolume(App->audio->volume);
+		}
+		/*if (ImGui::Button("Remove##Remove audioListener"))
+			ret = false;*/
+	}
 }
 
 void ComponentAudioListener::CleanUp()

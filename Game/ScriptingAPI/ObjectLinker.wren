@@ -77,11 +77,11 @@ class Vec3{
 	}
 
 	static add(vec1, vec2){
-		return ret = Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
+		return Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
 	}
 
 	static subtract(vec1, vec2){
-		return ret = Vec3.new(vec1.x-vec2.x,vec1.y-vec2.y,vec1.z-vec2.z)
+		return Vec3.new(vec1.x-vec2.x,vec1.y-vec2.y,vec1.z-vec2.z)
 	}
 
 	copy(vec){
@@ -90,6 +90,11 @@ class Vec3{
 		z = vec.z
 	}
 
+	*(num) {
+		x = x*num
+		y = y*num
+		z = z*num
+	}
 }
 
 class EngineComunicator{
@@ -315,5 +320,10 @@ class ObjectLinker{
 	}
 	getScript(script_name){
 		return ObjectComunicator.C_GetScript(gameObject, script_name)
+	}
+
+	instantiate(prefab_name, offset, euler){
+		var pos = Vec3.add(getPos("global"), offset)
+		EngineComunicator.Instantiate(prefab_name, pos, euler)
 	}
 }

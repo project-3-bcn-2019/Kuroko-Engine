@@ -305,6 +305,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float
 		
 		if (animation == nullptr)
 		{
+			App->shaders->IsProgramValid(App->shaders->GetDefaultShaderProgram()->programID);
 			glUseProgram(App->shaders->GetDefaultShaderProgram()->programID);
 
 			GLint model_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "model_matrix");

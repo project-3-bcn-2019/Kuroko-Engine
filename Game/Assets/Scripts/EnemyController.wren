@@ -4,7 +4,8 @@ EngineComunicator,
 InputComunicator,
 ComponentType,
 Time,
-Vec3
+Vec3,
+Math
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -31,6 +32,7 @@ DeadState{_dead_state}
  //Components
 ComponentAnimation {_component_animation}
 ComponentAudioSource {_component_audio_source}
+MoveScript {_move_script}
 
 //Stats
 MoveSpeed {_move_speed}
@@ -68,9 +70,12 @@ State = (new_state) {
     }
 
  Start() {
+     //initialize components
+    _move_script = getScript("EntityMove")
+    
 
+    //initialize states
     _enemy_state
-
     _idle_state = IdleState.new(this)
     _chase_state = ChaseState.new(this)
     _attack_state = AttackState.new(this)
@@ -81,7 +86,6 @@ State = (new_state) {
  }
 
  Update() {
-     lookForAlita()
 
      _enemy_state.HandleInput()
      _enemy_state.Update()
@@ -93,7 +97,7 @@ State = (new_state) {
      }
     var own_pos = getPos("global")
     var target_pos = _target.getPos("global")
-     var distance = Vec3.new(own_pos.x-target_pos.x,own_pos.y-target_pos.y,own_pos.z-target_pos.z)
+    var distance = Vec3.new(own_pos.x-target_pos.x,own_pos.y-target_pos.y,own_pos.z-target_pos.z)
      distance = distance.magnitude
 
      if(distance < _sight){
@@ -124,7 +128,7 @@ class EnemyState {
     construct new(enemy,duration){
         _enemy = enemy
         _total_duration = duration
-
+                
     }
 
 
@@ -136,6 +140,7 @@ class EnemyState {
         if(_enemy.Damaged){
             _enemy.State = _enemy.HitState
         }
+        this.UpdateCurrentTime()
 
     }
 
@@ -167,25 +172,22 @@ class IdleState is  EnemyState{
     }
 
     BeginState(){
-        _enemy.ComponentAnimation.setAnimation("IdleAnimation")
-        _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.setAnimation("IdleAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        EngineComunicator.consoleOutput("Current state: Idle")
         super.BeginState()
     }
 
     HandleInput(){
         //If alita is detected
-             EngineComunicator.consoleOutput("update enemy")
         if(_enemy.AlitaSeen){
             _enemy.State = _enemy.ChaseState
-                        EngineComunicator.consoleOutput("change to chase")
         }
     }
 
     Update(){
         super.Update()
-        if(_enemy.ShowDebuLogs){
-            EngineComunicator.consoleOutput("Current state: Idle")
-        }
+        _enemy.lookForAlita()
     }
 }
 
@@ -196,10 +198,11 @@ class ChaseState is EnemyState{
     }
 
     BeginState(){
-        _enemy.ComponentAnimation.setAnimation("RunningAnimation")
-        _enemy.ComponentAnimation.Reset()
-        _enemy.ComponentAnimation.Play()
-
+        // _enemy.ComponentAnimation.setAnimation("RunningAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        EngineComunicator.consoleOutput("Current state: Chasing")
+        super.BeginState()
     }
 
     HandleInput(){
@@ -209,8 +212,17 @@ class ChaseState is EnemyState{
     }
 
     Update(){
-        //check the distance here
-         EngineComunicator.consoleOutput("Current state: Chasing")
+        super.Update()
+        _enemy.lookForAlita()
+        this.Chase()
+
+    }
+
+    Chase(){
+        var own_pos = _enemy.getPos("global")
+        var target_pos = _enemy.Target.getPos("global")
+        var distance_vector = Vec3.new(own_pos.x-target_pos.x,own_pos.y-target_pos.y,own_pos.z-target_pos.z)
+        _enemy.MoveScript.SetSpeedUnitary(-distance_vector.x,-distance_vector.y,-distance_vector.z,_enemy.MoveSpeed)
     }
 }
 
@@ -221,10 +233,11 @@ class AttackState is EnemyState{
     }
 
     BeginState(){
-        _enemy.ComponentAnimation.setAnimation("AttackAnimation")
-        _enemy.ComponentAnimation.Reset()
-        _enemy.ComponentAnimation.Play()
-
+        // _enemy.ComponentAnimation.setAnimation("AttackAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        EngineComunicator.consoleOutput("Current state: Attacking")
+        super.BeginState()
     }
 
     EndState(){
@@ -236,7 +249,9 @@ class AttackState is EnemyState{
     }
 
     Update() {
+        super.Update()
         if(super.IsStateFinished()){
+            EngineComunicator.consoleOutput("Attack")
             if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
             } else {
@@ -258,9 +273,10 @@ class HitState is EnemyState{
     }
 
     BeginState(){
-        _enemy.ComponentAnimation.setAnimation("HitAnimation")
-        _enemy.ComponentAnimation.Reset()
-        _enemy.ComponentAnimation.Play()
+        // _enemy.ComponentAnimation.setAnimation("HitAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        super.BeginState()
     }
 
     EndState(){
@@ -274,6 +290,8 @@ class HitState is EnemyState{
     Update(){
         super.Update()
         if(super.IsStateFinished()){
+
+            _enemy.lookForAlita()
              if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
             } else {
@@ -293,9 +311,10 @@ class DeadState is EnemyState{
     }
 
     BeginState(){
-        _enemy.ComponentAnimation.setAnimation("DeathAnimation")
-        _enemy.ComponentAnimation.Reset()
-        _enemy.ComponentAnimation.Play()
+        // _enemy.ComponentAnimation.setAnimation("DeathAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        super.BeginState()
     }
 
     EndState(){

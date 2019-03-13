@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
+#include "ModuleUI.h"
+#include "PanelAnimation.h"
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {
@@ -85,6 +87,86 @@ bool ComponentAnimation::Update(float dt)
 	}
 
 	return true;
+}
+
+void ComponentAnimation::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Animation"))
+	{
+		ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(getAnimationResource());
+		ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+		if (ImGui::Button((R_anim != nullptr) ? "Change Animation" : "Add Animation")) {
+			set_animation_menu = true;
+		}
+
+		if (set_animation_menu) {
+
+			std::list<resource_deff> anim_res;
+			App->resources->getAnimationResourceList(anim_res);
+
+			ImGui::Begin("Animation selector", &set_animation_menu);
+			for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
+				resource_deff anim_deff = (*it);
+				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+					App->resources->deasignResource(getAnimationResource());
+					App->resources->assignResource(anim_deff.uuid);
+					setAnimationResource(anim_deff.uuid);
+					set_animation_menu = false;
+					break;
+				}
+			}
+
+			ImGui::End();
+		}
+
+		static bool animation_active;
+		animation_active = isActive();
+
+		if (ImGui::Checkbox("Active##active animation", &animation_active))
+			setActive(animation_active);
+
+		ImGui::Checkbox("Loop", &loop);
+
+		ImGui::Checkbox("Interpolate", &interpolate);
+
+		ImGui::InputFloat("Speed", &speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+
+		if (R_anim != nullptr)
+		{
+			if (App->time->getGameState() != GameState::PLAYING)
+			{
+				ImGui::Text("Play");
+				ImGui::SameLine();
+				ImGui::Text("Pause");
+			}
+			else if (isPaused())
+			{
+				if (ImGui::Button("Play"))
+					Play();
+				ImGui::SameLine();
+				ImGui::Text("Pause");
+			}
+			else
+			{
+				ImGui::Text("Play");
+				ImGui::SameLine();
+				if (ImGui::Button("Pause"))
+					Pause();
+			}
+
+			ImGui::Text("Animation info:");
+			ImGui::Text(" Duration: %.1f ms", R_anim->getDuration() * 1000);
+			ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+		}
+
+		if (ImGui::Button("AnimEditor"))
+			App->gui->p_anim->toggleActive();
+
+		/*if (ImGui::Button("Remove Component##Remove animation"))
+			ret = false;*/
+	}
 }
 
 void ComponentAnimation::setAnimationResource(uint uuid)

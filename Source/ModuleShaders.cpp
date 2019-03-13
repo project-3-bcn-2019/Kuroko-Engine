@@ -75,15 +75,15 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileProgram(defShaderProgram);
 
 	//Animation Shaders
-	CompileShader(animationShader);
+	/*CompileShader(animationShader);
 	animationShaderProgram->shaders.push_back(animationShader->shaderId);
-
+	*/
 	shaders.push_back(defVertexShader);
 	shaders.push_back(defFragmentShader);
-	shaders.push_back(animationShader);
+	//shaders.push_back(animationShader);
 
 	shader_programs.push_back(defShaderProgram);
-	shader_programs.push_back(animationShaderProgram);
+	/*shader_programs.push_back(animationShaderProgram);*/
 
 
 
@@ -206,6 +206,11 @@ bool ModuleShaders::CompileShader(Shader* shader)
 {
 	bool ret = false;
 
+	if (shader->shaderId != 0)
+	{
+		glDeleteShader(shader->shaderId);
+	}
+
 	if (shader->type == VERTEX)
 	{
 		shader->shaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -259,6 +264,11 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 
 	glLinkProgram(program->programID);
 
+	for (int i = 0; i < program->shaders.size(); i++)
+	{
+		glDetachShader(program->programID, program->shaders[i]);
+	}
+
 	int success;
 	char Error[512];
 	glGetProgramiv(program->programID, GL_LINK_STATUS, &success);
@@ -272,6 +282,41 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 	else
 	{
 		app_log->AddLog("Program linked and compiled Successfully!");
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool ModuleShaders::RecompileAllPrograms()
+{
+	for (int i = 0; i < shader_programs.size(); ++i)
+	{
+		for (int j = 0; j < shader_programs[i]->shaders.size(); ++j)
+		{
+			if(shader_programs[i]->shaders[j]== defFragmentShader->shaderId)
+				CompileShader(defFragmentShader);
+		}
+		CompileProgram(shader_programs[i]);
+	}
+	return false;
+}
+
+bool ModuleShaders::IsProgramValid(uint program)
+{
+	bool ret = false;
+
+	GLint success = 0;
+	glGetProgramiv(program, GL_VALIDATE_STATUS, &success);
+	if (success == GL_FALSE)
+	{
+		app_log->AddLog("Shader Program is not valid. ERROR: %s");
+		ret = false;
+	}
+	else
+	{
+		app_log->AddLog("Shader Program is valid");
+		app_log->AddLog("%d", program);
 		ret = true;
 	}
 

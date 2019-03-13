@@ -64,7 +64,7 @@ public:
 	bool DrawComponent(Component& component, int id);
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
-	void DrawSkyboxWindow();
+	/*void DrawSkyboxWindow();*/
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
 	void DrawBuildMenu();
