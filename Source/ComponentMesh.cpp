@@ -119,12 +119,12 @@ void ComponentMesh::Draw() const
 			else											glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			Skining();
-			//mesh_from_resource->Draw(mat);
+			mesh_from_resource->Draw(mat);
 			//Descoment to use shader render
-			ComponentAnimation* animation = nullptr;
+			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
 			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
-
+*/
 
 			if (transform)
 				glLoadMatrixf((GLfloat*)view_mat.v);
@@ -159,11 +159,11 @@ void ComponentMesh::DrawSelected() const
 			Mesh* mesh_from_resource = getMeshFromResource();
 
 
-			/*mesh_from_resource->Draw(mat, true);*/
+			mesh_from_resource->Draw(mat, true);
 			//Descoment to use shader render
-			ComponentAnimation* animation = nullptr;
+			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);
+			mesh_from_resource->MaxDrawFunctionTest(nullptr,animation,*transform->global->getMatrix().Transposed().v, true);*/
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
