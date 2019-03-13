@@ -382,9 +382,10 @@ ScriptData* ModuleScripting::GenerateScript(const char* file_name_c)
 					break;
 				}
 				var.setPublic(is_public);
+				var.setEdited(true);
 			}
 
-			var.setEdited(true);
+
 			script->vars.push_back(var);
 		}
 	}
