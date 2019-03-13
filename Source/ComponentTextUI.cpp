@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "glew-2.1.0\include\GL\glew.h"
+#include "ImGui/imgui.h"
 
 
 ComponentTextUI::ComponentTextUI(GameObject* parent) : Component(parent, UI_TEXT)
@@ -230,6 +231,55 @@ void ComponentTextUI::Draw() const
 			glEnd();
 		}
 		glColor3f(1.0f, 1.0f, 1.0f);
+	}
+}
+
+void ComponentTextUI::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("UI Text"))
+	{
+		static const int maxSize = 32;
+		if (ImGui::InputText("Label Text", (char*)label.text.c_str(), maxSize)) {
+			SetText(label.text.c_str());
+		}
+		if (ImGui::SliderFloat("Scale", &(label.font->scale), 8, MAX_CHARS, "%0.f")) {
+			SetFontScale(label.font->scale);
+		}
+		ImGui::Checkbox("Draw Characters Frame", &drawCharPanel);
+		ImGui::Checkbox("Draw Label Frame", &drawLabelrect);
+		std::string currentFont = label.font->fontSrc;
+		if (ImGui::BeginCombo("Fonts", currentFont.c_str()))
+		{
+			std::vector<std::string> fonts = App->fontManager->singleFonts;
+
+			for (int i = 0; i < fonts.size(); i++)
+			{
+				bool isSelected = false;
+
+				if (strcmp(currentFont.c_str(), fonts[i].c_str()) == 0) {
+					isSelected = true;
+				}
+
+				if (ImGui::Selectable(fonts[i].c_str(), isSelected)) {
+					std::string newFontName = std::string(fonts[i].c_str());
+					std::string newFontExtension = std::string(fonts[i].c_str());
+					App->fs.getFileNameFromPath(newFontName);
+					App->fs.getExtension(newFontExtension);
+					newFontName += newFontExtension;
+					SetFont(newFontName.c_str());
+
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+
+			}
+			ImGui::EndCombo();
+
+		}
+		ImGui::Spacing();
+		ImGui::ColorPicker3("Color##2f", (float*)&label.color);
 	}
 }
 

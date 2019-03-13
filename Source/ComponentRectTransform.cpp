@@ -5,6 +5,7 @@
 #include "ModuleTimeManager.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
+#include "ImGui/imgui.h"
 
 
 ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(parent, RECTTRANSFORM)
@@ -110,6 +111,39 @@ void ComponentRectTransform::Draw() const
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glLineWidth(1.0f);
 	}
+}
+
+void ComponentRectTransform::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Rect Transform"))
+		if (ImGui::CollapsingHeader("Rect Transform"))
+		{
+			static float2 position;
+			static float width;
+			static float height;
+
+			position = getLocalPos();
+			width = getWidth();
+			height = getHeight();
+
+			//position
+			ImGui::Text("Position:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { setPos(position); }
+			//Width
+			ImGui::Text("Dimensions:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
+			//Height
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			if (ImGui::DragFloat("##w", &height, 0.01f, 0.0f, 0.0f, "%.02f")) {
+				setHeight(height);
+			}
+			ImGui::Checkbox("Debug draw", &debug_draw);
+		}
 }
 
 void ComponentRectTransform::Save(JSON_Object * config)

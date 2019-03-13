@@ -315,7 +315,7 @@ void PanelShader::SaveShader(Shader* shader)
 
 		if (App->shaders->CompileShader(shader))
 		{
-			//App.shader.recompilePrograms();
+			App->shaders->RecompileAllPrograms();
 		}
 		else
 		{

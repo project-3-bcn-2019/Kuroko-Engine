@@ -29,6 +29,7 @@ public:
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;
+	void DrawInspector(int id = 0) override;
 	void WhenPressed();
 	void Save(JSON_Object* config) override;
 
