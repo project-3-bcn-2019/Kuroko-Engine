@@ -8,6 +8,9 @@
 #include "ModuleUI.h"
 #include "Material.h"
 
+#include "Application.h"
+#include "ModuleScripting.h"
+
 #include "ImGui/imgui.h"
 
 std::string openFileWID(bool isfile = false);
@@ -16,6 +19,10 @@ ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+	
+	callbacks.push_back(WrenCall("dummy", "test"));
+	callbacks.push_back(WrenCall("dummy22", "test22"));
+	callbacks.push_back(WrenCall("dummy3", "test33"));
 }
 
 ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_BUTTON)
@@ -152,6 +159,30 @@ void ComponentButtonUI::DrawInspector(int id)
 		if (ImGui::Button("Idle")) { setState(B_IDLE); } ImGui::SameLine();
 		if (ImGui::Button("Hover")) { setState(B_MOUSEOVER); }ImGui::SameLine();
 		if (ImGui::Button("Pressed")) { setState(B_PRESSED); }
+
+		// Functions
+
+		ImGui::Text("Callbacks:");
+
+		for (auto it = callbacks.begin(); it != callbacks.end(); it++) {
+			std::string display = (*it).method_name + " (" + (*it).script_name + ")";
+			ImGui::Text(display.c_str());
+		}
+
+		static bool display_methods = false;
+		if (ImGui::Button("Add callback")) {
+			display_methods = true;
+		}
+
+		if (display_methods) {
+			callbacks.push_back(App->scripting->DisplayMethods(parent));
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Remove callback")) {
+			if (callbacks.size() > 0)
+				callbacks.pop_back();
+		}
 	}
 }
 

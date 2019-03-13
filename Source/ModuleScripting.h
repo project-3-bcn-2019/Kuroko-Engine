@@ -11,6 +11,7 @@
 struct WrenVM;
 struct WrenHandle;
 struct ScriptData;
+struct WrenCall;
 
 #define OBJECT_LINKER_PATH "ScriptingAPI/ObjectLinker.wren"
 #define AUDIO_PATH "ScriptingAPI/Audio.wren"
@@ -42,6 +43,7 @@ public:
 
 	// Helpers
 	std::string enum2component(Component_type type);
+	WrenCall DisplayMethods(GameObject* go);
 
 public:
 

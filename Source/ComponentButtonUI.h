@@ -2,7 +2,7 @@
 #define _COMPONENTBUTTONUI_
 
 #include "Component.h"
-
+#include <list>
 
 class ComponentRectTransform;
 class ComponentImageUI;
@@ -12,6 +12,13 @@ enum ButtonState {
 	B_IDLE = 0,
 	B_MOUSEOVER,
 	B_PRESSED
+};
+
+struct WrenCall {
+
+	WrenCall(std::string script, std::string method): script_name(script), method_name(method) {}
+	std::string script_name;
+	std::string method_name;
 };
 
 class ComponentButtonUI :public Component
@@ -32,6 +39,8 @@ public:
 	inline void setState(ButtonState _state) { state = _state; ChangeGOImage(); };// for debug, may be obsolete
 	ButtonState getState() { return state; };
 	void ChangeGOImage();
+
+	std::list<WrenCall> callbacks;
 
 	ButtonState state = B_IDLE;
 
