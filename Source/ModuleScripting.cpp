@@ -363,37 +363,28 @@ ScriptData* ModuleScripting::GenerateScript(const char* file_name_c)
 	for (int i = 0; i < methods.size(); i++)
 	{
 		std::string method_name = methods[i];
-		if (method_name.find("(") != std::string::npos)					
+		if (method_name.find("(") != std::string::npos)		// Setter / Method			
+			script->methods.push_back(ImportedMethod(method_name, wrenMakeCallHandle(vm, method_name.c_str())));				
+		else   // Variable
 		{
-			if (method_name.find("=") == std::string::npos)				// method
-			{
-				ImportedVariable::WrenDataType return_type_test = ImportedVariable::WREN_NUMBER;
-				std::string var_name_test = "test";
-				std::vector<ImportedVariable> args;
-				float var_value_test = 0.0f;
-
-				size_t offset = method_name.find_first_of("(");
-				for (auto it = method_name.find_first_of("_", offset + 1); it != std::string::npos; it = method_name.find_first_of("_", offset + 1))
-				{
-					offset = it;
-					args.push_back(ImportedVariable(var_name_test.c_str(), return_type_test, (void*)&var_value_test, nullptr)); // Don't call getters on arguments
-				}
-
-				script->methods.push_back(ImportedMethod(method_name, return_type_test, args, wrenMakeCallHandle(vm, method_name.c_str())));
-			}													 
-			else	
-				// setter
-				script->methods.push_back(ImportedMethod(method_name, wrenMakeCallHandle(vm, method_name.c_str())));
-		}						
-		else															// var
-		{
-
 			float value_test = 0.0f;
 			ImportedVariable var(method_name.c_str(), ImportedVariable::WrenDataType::WREN_NUMBER, &value_test, wrenMakeCallHandle(vm, method_name.c_str()));
 
+			// Game Object variable is allways private
 			if (method_name == "gameObject")
 				var.setPublic(false);
+			else{
+			// If the setter has no getter, it shouldn't be displayed
+				bool is_public = false;
+				for(int j = 0; j < methods.size(); j++)
+					if (methods[j] == (method_name + "=(_)")){
+					is_public = true;
+					break;
+				}
+				var.setPublic(is_public);
+			}
 
+			var.setEdited(true);
 			script->vars.push_back(var);
 		}
 	}
