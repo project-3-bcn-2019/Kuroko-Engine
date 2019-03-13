@@ -26,6 +26,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
+	void DrawInspector(int id = 0) override;
 
 	virtual ~ComponentTrigger();
 	btGhostObject* body;

@@ -12,8 +12,6 @@
 #include "ModuleUI.h"
 #include "Material.h"
 
-#include "ImGui/imgui.h"
-
 std::string openFileWID(bool isfile = false);
 
 ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent, UI_CHECKBOX)

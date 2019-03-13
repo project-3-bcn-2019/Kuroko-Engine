@@ -14,6 +14,7 @@ public:
 	~ComponentAnimation();
 
 	bool Update(float dt);
+	void DrawInspector(int id = 0) override;
 
 	uint getAnimationResource() const { return animation_resource_uuid; }
 	void setAnimationResource(uint uuid);

@@ -5,6 +5,8 @@
 #include "ModuleTimeManager.h"
 #include "ComponentAnimation.h"
 
+#include "ImGui/imgui.h"
+
 ComponentAnimator::ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR)
 {
 	animation = new ComponentAnimation(gameobject);
@@ -85,6 +87,40 @@ bool ComponentAnimator::Update(float dt)
 
 void ComponentAnimator::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Animator"))
+	{
+		ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(getAnimationGraphResource());
+		ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+		if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+			set_animation_menu = true;
+		}
+
+		if (set_animation_menu) {
+
+			std::list<resource_deff> graph_res;
+			App->resources->getAnimationGraphResourceList(graph_res);
+
+			ImGui::Begin("Animation selector", &set_animation_menu);
+			for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+				resource_deff anim_deff = (*it);
+				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+					setAnimationGraphResource(anim_deff.uuid);
+					set_animation_menu = false;
+					break;
+				}
+			}
+
+			ImGui::End();
+		}
+
+		static bool animator_active;
+		animator_active = isActive();
+
+		if (ImGui::Checkbox("Active##active animator", &animator_active))
+			setActive(animator_active);
+	}
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)

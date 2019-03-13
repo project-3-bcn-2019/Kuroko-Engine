@@ -1348,761 +1348,762 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	//		ImGui::SameLine();
 	//	}
 	//	break;
-	case ANIMATION:
-		if (ImGui::CollapsingHeader("Animation"))
-		{
-			ComponentAnimation* anim = (ComponentAnimation*)&component;
-			ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
-			ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
+	//case ANIMATION:
+	//	if (ImGui::CollapsingHeader("Animation"))
+	//	{
+	//		ComponentAnimation* anim = (ComponentAnimation*)&component;
+	//		ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+	//		ImGui::Text("Resource: %s", (R_anim!=nullptr)? R_anim->asset.c_str() : "None");
 
-			static bool set_animation_menu = false;
-			if (ImGui::Button((R_anim != nullptr)? "Change Animation":"Add Animation")) {
-				set_animation_menu = true;
-			}
+	//		static bool set_animation_menu = false;
+	//		if (ImGui::Button((R_anim != nullptr)? "Change Animation":"Add Animation")) {
+	//			set_animation_menu = true;
+	//		}
 
-			if (set_animation_menu) {
+	//		if (set_animation_menu) {
 
-				std::list<resource_deff> anim_res;
-				App->resources->getAnimationResourceList(anim_res);
+	//			std::list<resource_deff> anim_res;
+	//			App->resources->getAnimationResourceList(anim_res);
 
-				ImGui::Begin("Animation selector", &set_animation_menu);
-				for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
-					resource_deff anim_deff = (*it);
-					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						App->resources->deasignResource(anim->getAnimationResource());
-						App->resources->assignResource(anim_deff.uuid);
-						anim->setAnimationResource(anim_deff.uuid);
-						set_animation_menu = false;
-						break;
-					}
-				}
+	//			ImGui::Begin("Animation selector", &set_animation_menu);
+	//			for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
+	//				resource_deff anim_deff = (*it);
+	//				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+	//					App->resources->deasignResource(anim->getAnimationResource());
+	//					App->resources->assignResource(anim_deff.uuid);
+	//					anim->setAnimationResource(anim_deff.uuid);
+	//					set_animation_menu = false;
+	//					break;
+	//				}
+	//			}
 
-				ImGui::End();
-			}
+	//			ImGui::End();
+	//		}
 
-			static bool animation_active;
-			animation_active = anim->isActive();
+	//		static bool animation_active;
+	//		animation_active = anim->isActive();
 
-			if (ImGui::Checkbox("Active##active animation", &animation_active))
-				anim->setActive(animation_active);
+	//		if (ImGui::Checkbox("Active##active animation", &animation_active))
+	//			anim->setActive(animation_active);
 
-			ImGui::Checkbox("Loop", &anim->loop);
+	//		ImGui::Checkbox("Loop", &anim->loop);
 
-			ImGui::Checkbox("Interpolate", &anim->interpolate);
+	//		ImGui::Checkbox("Interpolate", &anim->interpolate);
 
-			ImGui::InputFloat("Speed", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+	//		ImGui::InputFloat("Speed", &anim->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
-			if (R_anim != nullptr)
-			{
-				if (App->time->getGameState() != GameState::PLAYING)
-				{
-					ImGui::Text("Play");
-					ImGui::SameLine();
-					ImGui::Text("Pause");
-				}
-				else if (anim->isPaused())
-				{
-					if (ImGui::Button("Play"))
-						anim->Play();
-					ImGui::SameLine();
-					ImGui::Text("Pause");
-				}
-				else
-				{
-					ImGui::Text("Play");
-					ImGui::SameLine();
-					if (ImGui::Button("Pause"))
-						anim->Pause();
-				}
+	//		if (R_anim != nullptr)
+	//		{
+	//			if (App->time->getGameState() != GameState::PLAYING)
+	//			{
+	//				ImGui::Text("Play");
+	//				ImGui::SameLine();
+	//				ImGui::Text("Pause");
+	//			}
+	//			else if (anim->isPaused())
+	//			{
+	//				if (ImGui::Button("Play"))
+	//					anim->Play();
+	//				ImGui::SameLine();
+	//				ImGui::Text("Pause");
+	//			}
+	//			else
+	//			{
+	//				ImGui::Text("Play");
+	//				ImGui::SameLine();
+	//				if (ImGui::Button("Pause"))
+	//					anim->Pause();
+	//			}
 
-				ImGui::Text("Animation info:");
-				ImGui::Text(" Duration: %.1f ms", R_anim->getDuration()*1000);
-				ImGui::Text(" Animation Bones: %d", R_anim->numBones);
-			}
+	//			ImGui::Text("Animation info:");
+	//			ImGui::Text(" Duration: %.1f ms", R_anim->getDuration()*1000);
+	//			ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+	//		}
 
-			if (ImGui::Button("AnimEditor"))
-				p_anim->toggleActive();
+	//		if (ImGui::Button("AnimEditor"))
+	//			p_anim->toggleActive();
 
-			if (ImGui::Button("Remove Component##Remove animation"))
-				ret = false;
-		}
-		break;
-	case BONE:
+	//		if (ImGui::Button("Remove Component##Remove animation"))
+	//			ret = false;
+	//	}
+	//	break;
+	/*case BONE:
 		if (ImGui::CollapsingHeader("Bone"))
 		{
 
 		}
 		break;
+*/
+	//case BILLBOARD:
+	//{
+	//	ComponentBillboard * c_billboard = (ComponentBillboard*)&component;
+	//	if (ImGui::CollapsingHeader("Billboard"))
+	//	{
+	//		if (Material* material = c_billboard->billboard->getMaterial())
+	//		{
+	//			static int preview_size = 128;
+	//			ImGui::Text("Id: %d", material->getId());
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("remove material"))
+	//			{
+	//				delete c_billboard->billboard->getMaterial();
+	//				c_billboard->billboard->setMaterial(nullptr);
+	//				ImGui::TreePop();
+	//				return true;
+	//			}
+
+	//			ImGui::Text("Preview size");
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("64")) preview_size = 64;
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("128")) preview_size = 128;
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("256")) preview_size = 256;
+
+	//			Texture* texture = nullptr;
+	//			if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+	//				texture = tex_res->texture;
+
+
+	//			ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+	//			ImGui::SameLine();
+
+	//			int w = 0; int h = 0;
+	//			if (texture)
+	//				texture->getSize(w, h);
+
+	//			ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+	//			//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+	//			//	material->setCheckeredTexture(DIFFUSE);
+	//			//ImGui::SameLine()
+	//		}
+	//		else
+	//			ImGui::TextWrapped("No material assigned");
+
+	//		if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+
+	//				if (Material* material = c_billboard->billboard->getMaterial())
+	//					App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+	//				else
+	//					c_billboard->billboard->setMaterial(new Material());
+
+	//				c_billboard->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+	//			}
+	//		}
+
+	//		ImGui::Checkbox("Use Color", &c_billboard->billboard->useColor);
+
+	//		if (c_billboard->billboard->useColor)
+	//		{
+	//			static bool draw_colorpicker = false;
+	//			static Color reference_color = c_billboard->billboard->color;
+	//			static GameObject* last_selected = c_billboard->getParent();
+
+	//			std::string label = c_billboard->getParent()->getName() + " color picker";
+
+	//			if (last_selected != c_billboard->getParent())
+	//				reference_color = c_billboard->billboard->color;
+
+	//			ImGui::SameLine();
+	//			if (ImGui::ColorButton((label + "button").c_str(), ImVec4(c_billboard->billboard->color.r, c_billboard->billboard->color.g, c_billboard->billboard->color.b, c_billboard->billboard->color.a)))
+	//				draw_colorpicker = !draw_colorpicker;
+
+	//			if (draw_colorpicker)
+	//				DrawColorPickerWindow(label.c_str(), (Color*)&c_billboard->billboard->color, &draw_colorpicker, (Color*)&reference_color);
+	//			else
+	//				reference_color = c_billboard->billboard->color;
+
+	//			last_selected = c_billboard->getParent();
+	//		}
+
+	//		if (ImGui::CollapsingHeader("Alignement"))
+	//		{
+	//			if (ImGui::Selectable("Screen aligned", c_billboard->billboard->alignment == SCREEN_ALIGN))
+	//				c_billboard->billboard->alignment = SCREEN_ALIGN;
+
+	//			if (ImGui::Selectable("World aligned", c_billboard->billboard->alignment == WORLD_ALIGN))
+	//				c_billboard->billboard->alignment = WORLD_ALIGN;
+
+	//			if (ImGui::Selectable("Axis aligned", c_billboard->billboard->alignment == AXIAL_ALIGN))
+	//				c_billboard->billboard->alignment = AXIAL_ALIGN;
+	//		}
+
+	//		if (ImGui::Button("Remove##Remove billboard"))
+	//			return false;
+	//	}
+	//	break;
+	//}
+	//case PARTICLE_EMITTER:
+	//{
+	//	ComponentParticleEmitter* c_emitter = (ComponentParticleEmitter*)&component;
+	//	if (ImGui::CollapsingHeader("Particle emitter"))
+	//	{
+	//		//Emitter Lifetime
+	//		ImGui::Text("Set to -1 for infinite lifetime");
+	//		if (ImGui::SliderFloat("LifeTime", &c_emitter->emitterLifetime, -1, 100))
+	//			c_emitter->time = 0;
 
-	case BILLBOARD:
-	{
-		ComponentBillboard * c_billboard = (ComponentBillboard*)&component;
-		if (ImGui::CollapsingHeader("Billboard"))
-		{
-			if (Material* material = c_billboard->billboard->getMaterial())
-			{
-				static int preview_size = 128;
-				ImGui::Text("Id: %d", material->getId());
-				ImGui::SameLine();
-				if (ImGui::Button("remove material"))
-				{
-					delete c_billboard->billboard->getMaterial();
-					c_billboard->billboard->setMaterial(nullptr);
-					ImGui::TreePop();
-					return true;
-				}
-
-				ImGui::Text("Preview size");
-				ImGui::SameLine();
-				if (ImGui::Button("64")) preview_size = 64;
-				ImGui::SameLine();
-				if (ImGui::Button("128")) preview_size = 128;
-				ImGui::SameLine();
-				if (ImGui::Button("256")) preview_size = 256;
-
-				Texture* texture = nullptr;
-				if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
-					texture = tex_res->texture;
-
-
-				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
-				ImGui::SameLine();
-
-				int w = 0; int h = 0;
-				if (texture)
-					texture->getSize(w, h);
-
-				ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
-
-				//if (ImGui::Button("Load checkered##Dif: Load checkered"))
-				//	material->setCheckeredTexture(DIFFUSE);
-				//ImGui::SameLine()
-			}
-			else
-				ImGui::TextWrapped("No material assigned");
-
-			if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-
-					if (Material* material = c_billboard->billboard->getMaterial())
-						App->resources->deasignResource(material->getTextureResource(DIFFUSE));
-					else
-						c_billboard->billboard->setMaterial(new Material());
-
-					c_billboard->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
-				}
-			}
-
-			ImGui::Checkbox("Use Color", &c_billboard->billboard->useColor);
-
-			if (c_billboard->billboard->useColor)
-			{
-				static bool draw_colorpicker = false;
-				static Color reference_color = c_billboard->billboard->color;
-				static GameObject* last_selected = c_billboard->getParent();
-
-				std::string label = c_billboard->getParent()->getName() + " color picker";
-
-				if (last_selected != c_billboard->getParent())
-					reference_color = c_billboard->billboard->color;
-
-				ImGui::SameLine();
-				if (ImGui::ColorButton((label + "button").c_str(), ImVec4(c_billboard->billboard->color.r, c_billboard->billboard->color.g, c_billboard->billboard->color.b, c_billboard->billboard->color.a)))
-					draw_colorpicker = !draw_colorpicker;
-
-				if (draw_colorpicker)
-					DrawColorPickerWindow(label.c_str(), (Color*)&c_billboard->billboard->color, &draw_colorpicker, (Color*)&reference_color);
-				else
-					reference_color = c_billboard->billboard->color;
-
-				last_selected = c_billboard->getParent();
-			}
-
-			if (ImGui::CollapsingHeader("Alignement"))
-			{
-				if (ImGui::Selectable("Screen aligned", c_billboard->billboard->alignment == SCREEN_ALIGN))
-					c_billboard->billboard->alignment = SCREEN_ALIGN;
-
-				if (ImGui::Selectable("World aligned", c_billboard->billboard->alignment == WORLD_ALIGN))
-					c_billboard->billboard->alignment = WORLD_ALIGN;
-
-				if (ImGui::Selectable("Axis aligned", c_billboard->billboard->alignment == AXIAL_ALIGN))
-					c_billboard->billboard->alignment = AXIAL_ALIGN;
-			}
-
-			if (ImGui::Button("Remove##Remove billboard"))
-				return false;
-		}
-		break;
-	}
-	case PARTICLE_EMITTER:
-	{
-		ComponentParticleEmitter* c_emitter = (ComponentParticleEmitter*)&component;
-		if (ImGui::CollapsingHeader("Particle emitter"))
-		{
-			//Emitter Lifetime
-			ImGui::Text("Set to -1 for infinite lifetime");
-			if (ImGui::SliderFloat("LifeTime", &c_emitter->emitterLifetime, -1, 100))
-				c_emitter->time = 0;
+	//		if (ImGui::Button("Reset"))
+	//			c_emitter->time = 0;
 
-			if (ImGui::Button("Reset"))
-				c_emitter->time = 0;
+	//		ImGui::Text("LifeTime: %.2f", c_emitter->emitterLifetime - c_emitter->time);
 
-			ImGui::Text("LifeTime: %.2f", c_emitter->emitterLifetime - c_emitter->time);
+	//		ImGui::NewLine();
+	//		int particles = c_emitter->maxParticles;
 
-			ImGui::NewLine();
-			int particles = c_emitter->maxParticles;
+	//		ImGui::Text("Set to 0 for uncapped particles");
+	//		if (ImGui::SliderInt("Max particles", &particles, 0, 1000))
+	//			c_emitter->maxParticles = particles;
 
-			ImGui::Text("Set to 0 for uncapped particles");
-			if (ImGui::SliderInt("Max particles", &particles, 0, 1000))
-				c_emitter->maxParticles = particles;
 
+	//		ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
+	//		ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
 
-			ImGui::SliderFloat("Period", &c_emitter->period, MINSPAWNRATE, 10);
-			ImGui::Checkbox("Script Controlled", &c_emitter->script_controlled);
 
+	//		//Area of spawn
 
-			//Area of spawn
+	//		if (ImGui::CollapsingHeader("Spawn Area"))
+	//		{
 
-			if (ImGui::CollapsingHeader("Spawn Area"))
-			{
+	//			if (ImGui::Selectable("AABB", c_emitter->area.type == AAB))
+	//			{
+	//				c_emitter->area.type = AAB;
+	//			}
+	//			if (ImGui::Selectable("Sphere", c_emitter->area.type == SPHERE))
+	//			{
+	//				c_emitter->area.type = SPHERE;
+	//			}
+	//			if (ImGui::Selectable("Point", c_emitter->area.type == AREA_NONE))
+	//			{
+	//				c_emitter->area.type = AREA_NONE;
+	//			}
 
-				if (ImGui::Selectable("AABB", c_emitter->area.type == AAB))
-				{
-					c_emitter->area.type = AAB;
-				}
-				if (ImGui::Selectable("Sphere", c_emitter->area.type == SPHERE))
-				{
-					c_emitter->area.type = SPHERE;
-				}
-				if (ImGui::Selectable("Point", c_emitter->area.type == AREA_NONE))
-				{
-					c_emitter->area.type = AREA_NONE;
-				}
 
+	//			switch (c_emitter->area.type)
+	//			{
+	//			case SPHERE:
 
-				switch (c_emitter->area.type)
-				{
-				case SPHERE:
+	//				ImGui::DragFloat("Radius", &c_emitter->area.sphere.r, 0.1f);
+	//				break;
+	//			case AAB:
+	//			{
+	//				float3 size = c_emitter->area.aabb.Size();
+	//				if (ImGui::DragFloat3("Size", (float*)&size, 0.1f))
+	//				{
+	//					c_emitter->area.aabb.SetFromCenterAndSize(c_emitter->area.aabb.CenterPoint(), size);
+	//				}
+	//			}
+	//			break;
+	//			case AREA_NONE:
+	//			default:
+	//				break;
+	//			}
 
-					ImGui::DragFloat("Radius", &c_emitter->area.sphere.r, 0.1f);
-					break;
-				case AAB:
-				{
-					float3 size = c_emitter->area.aabb.Size();
-					if (ImGui::DragFloat3("Size", (float*)&size, 0.1f))
-					{
-						c_emitter->area.aabb.SetFromCenterAndSize(c_emitter->area.aabb.CenterPoint(), size);
-					}
-				}
-				break;
-				case AREA_NONE:
-				default:
-					break;
-				}
+	//			ImGui::Separator();
+	//		}
 
-				ImGui::Separator();
-			}
+	//		if (ImGui::CollapsingHeader("Particle"))
+	//		{
 
-			if (ImGui::CollapsingHeader("Particle"))
-			{
+	//			//Direction
+	//			ImGui::DragFloat3("Direction", (float*)&c_emitter->direction, 0.1f);
+	//			ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
+	//			ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
 
-				//Direction
-				ImGui::DragFloat3("Direction", (float*)&c_emitter->direction, 0.1f);
-				ImGui::SliderFloat("Direction Variation", &c_emitter->dirVartiation, 0, 180);
-				ImGui::DragFloat3("Gravity", (float*)&c_emitter->gravity, 0.1f);
+	//			static bool local_particles = false;
+	//			local_particles = c_emitter->transform_mode == LOCAL;
 
-				static bool local_particles = false;
-				local_particles = c_emitter->transform_mode == LOCAL;
+	//			if (ImGui::Checkbox("Local", &local_particles))
+	//				c_emitter->transform_mode = local_particles ? LOCAL : GLOBAL;
 
-				if (ImGui::Checkbox("Local", &local_particles))
-					c_emitter->transform_mode = local_particles ? LOCAL : GLOBAL;
+	//			//LifeTime
+	//			float minlife = c_emitter->particleLifetime.min;
+	//			float maxlife = c_emitter->particleLifetime.max;
 
-				//LifeTime
-				float minlife = c_emitter->particleLifetime.min;
-				float maxlife = c_emitter->particleLifetime.max;
+	//			ImGui::PushID("LT");
 
-				ImGui::PushID("LT");
+	//			ImGui::Text("Particle Life Time");
+	//			ImGui::SliderFloat("Min", &c_emitter->particleLifetime.min, 0, c_emitter->particleLifetime.max);
+	//			ImGui::SliderFloat("Max", &c_emitter->particleLifetime.max, c_emitter->particleLifetime.min, 100);
 
-				ImGui::Text("Particle Life Time");
-				ImGui::SliderFloat("Min", &c_emitter->particleLifetime.min, 0, c_emitter->particleLifetime.max);
-				ImGui::SliderFloat("Max", &c_emitter->particleLifetime.max, c_emitter->particleLifetime.min, 100);
 
+	//			ImGui::PopID();
 
-				ImGui::PopID();
+	//			//Speed
+	//			ImGui::PushID("Speed Variation");
 
-				//Speed
-				ImGui::PushID("Speed Variation");
+	//			ImGui::Text("Speed");
+	//			ImGui::SliderFloat("Min", &c_emitter->speed.min, 0, c_emitter->speed.max);
+	//			ImGui::SliderFloat("Max", &c_emitter->speed.max, c_emitter->speed.min, 100);
 
-				ImGui::Text("Speed");
-				ImGui::SliderFloat("Min", &c_emitter->speed.min, 0, c_emitter->speed.max);
-				ImGui::SliderFloat("Max", &c_emitter->speed.max, c_emitter->speed.min, 100);
+	//			ImGui::PopID();
 
-				ImGui::PopID();
+	//			//Start Size
+	//			ImGui::PushID("SSize");
 
-				//Start Size
-				ImGui::PushID("SSize");
+	//			ImGui::Text("Start Size");
+	//			ImGui::SliderFloat("Min", &c_emitter->startSize.min, 0, c_emitter->startSize.max);
+	//			ImGui::SliderFloat("Max", &c_emitter->startSize.max, c_emitter->startSize.min, 100);
 
-				ImGui::Text("Start Size");
-				ImGui::SliderFloat("Min", &c_emitter->startSize.min, 0, c_emitter->startSize.max);
-				ImGui::SliderFloat("Max", &c_emitter->startSize.max, c_emitter->startSize.min, 100);
+	//			ImGui::PopID();
 
-				ImGui::PopID();
+	//			//End Size
+	//			ImGui::PushID("ESize");
 
-				//End Size
-				ImGui::PushID("ESize");
+	//			ImGui::Text("End Size");
+	//			ImGui::SliderFloat("Min", &c_emitter->endSize.min, 0, c_emitter->endSize.max);
+	//			ImGui::SliderFloat("Max", &c_emitter->endSize.max, c_emitter->endSize.min, 100);
 
-				ImGui::Text("End Size");
-				ImGui::SliderFloat("Min", &c_emitter->endSize.min, 0, c_emitter->endSize.max);
-				ImGui::SliderFloat("Max", &c_emitter->endSize.max, c_emitter->endSize.min, 100);
+	//			ImGui::PopID();
 
-				ImGui::PopID();
+	//			////Start Spin
+	//			//ImGui::PushID("SSpin");
 
-				////Start Spin
-				//ImGui::PushID("SSpin");
+	//			//ImGui::Text("Start Spin");
+	//			//ImGui::SliderFloat("Min", &startSpin.min, 0, startSpin.max);
+	//			//ImGui::SliderFloat("Max", &startSpin.max, startSpin.min, 100);
 
-				//ImGui::Text("Start Spin");
-				//ImGui::SliderFloat("Min", &startSpin.min, 0, startSpin.max);
-				//ImGui::SliderFloat("Max", &startSpin.max, startSpin.min, 100);
+	//			//ImGui::PopID();
 
-				//ImGui::PopID();
+	//			////End Spin
+	//			//ImGui::PushID("ESpin");
 
-				////End Spin
-				//ImGui::PushID("ESpin");
+	//			//ImGui::Text("End Spin");
+	//			//ImGui::SliderFloat("Min", &endSpin.min, 0, endSpin.max);
+	//			//ImGui::SliderFloat("Max", &endSpin.max, endSpin.min, 100);
 
-				//ImGui::Text("End Spin");
-				//ImGui::SliderFloat("Min", &endSpin.min, 0, endSpin.max);
-				//ImGui::SliderFloat("Max", &endSpin.max, endSpin.min, 100);
+	//			//ImGui::PopID();
 
-				//ImGui::PopID();
+	//			//Start Color
+	//			ImGui::PushID("SColor");
 
-				//Start Color
-				ImGui::PushID("SColor");
+	//			ImGui::Text("StartColor");
 
-				ImGui::Text("StartColor");
+	//			ImGui::ColorEdit4("Min", (float*)&c_emitter->startColor.min);
+	//			ImGui::ColorEdit4("Max", (float*)&c_emitter->startColor.max);
 
-				ImGui::ColorEdit4("Min", (float*)&c_emitter->startColor.min);
-				ImGui::ColorEdit4("Max", (float*)&c_emitter->startColor.max);
+	//			ImGui::PopID();
 
-				ImGui::PopID();
+	//			//End Color
+	//			ImGui::PushID("EColor");
 
-				//End Color
-				ImGui::PushID("EColor");
+	//			ImGui::Text("EndColor");
 
-				ImGui::Text("EndColor");
+	//			ImGui::ColorEdit4("Min", (float*)&c_emitter->endColor.min);
+	//			ImGui::ColorEdit4("Max", (float*)&c_emitter->endColor.max);
 
-				ImGui::ColorEdit4("Min", (float*)&c_emitter->endColor.min);
-				ImGui::ColorEdit4("Max", (float*)&c_emitter->endColor.max);
+	//			ImGui::PopID();
+	//		}
 
-				ImGui::PopID();
-			}
 
 
-
-			if (ImGui::CollapsingHeader("Billboard"))
-			{
-				if (Material* material = c_emitter->billboard->getMaterial())
-				{
-					static int preview_size = 128;
-					ImGui::Text("Id: %d", material->getId());
-					ImGui::SameLine();
-					if (ImGui::Button("remove material"))
-					{
-						delete c_emitter->billboard->getMaterial();
-						c_emitter->billboard->setMaterial(nullptr);
-						ImGui::TreePop();
-						return true;
-					}
-
-					ImGui::Text("Preview size");
-					ImGui::SameLine();
-					if (ImGui::Button("64")) preview_size = 64;
-					ImGui::SameLine();
-					if (ImGui::Button("128")) preview_size = 128;
-					ImGui::SameLine();
-					if (ImGui::Button("256")) preview_size = 256;
-
-					Texture* texture = nullptr;
-					if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
-						texture = tex_res->texture;
-
-
-					ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
-					ImGui::SameLine();
-
-					int w = 0; int h = 0;
-					if (texture)
-						texture->getSize(w, h);
-
-					ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
-
-					//if (ImGui::Button("Load checkered##Dif: Load checkered"))
-					//	material->setCheckeredTexture(DIFFUSE);
-					//ImGui::SameLine()
-				}
-				else
-					ImGui::TextWrapped("No material assigned");
-
-				if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
-				{
-					std::string texture_path = openFileWID();
-					uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-					if (new_resource != 0) {
-						App->resources->assignResource(new_resource);
-
-						if (Material* material = c_emitter->billboard->getMaterial())
-							App->resources->deasignResource(material->getTextureResource(DIFFUSE));
-						else
-							c_emitter->billboard->setMaterial(new Material());
-
-						c_emitter->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
-					}
-				}
-
-			}
-
-			if (ImGui::Button("Remove##Remove particle emitter"))
-				return false;
-		}
-		break;
-	}
-	case ANIMATION_EVENT:
-	{
-		if (ImGui::CollapsingHeader("Animation Events"))
-		{
-
-			ComponentAnimationEvent* anim_evt = nullptr;
-			anim_evt = (ComponentAnimationEvent*)&component;
-			//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
-			//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
-
-			static bool set_animation_menu = false;
-
-			
-			if (ImGui::Button("Create Animation"))
-				p_anim_evt->new_anim_set_win = true;
-			if (p_anim_evt->new_anim_set_win)
-			{
-				ImGui::Begin("Name", &p_anim_evt->new_anim_set_win);
-
-				ImGui::InputText("#SetName", p_anim_evt->prov, 50);
-				if (ImGui::Button("Create"))
-				{
-					AnimSet push;
-					push.name = p_anim_evt->prov;
-					p_anim_evt->new_anim_set_win = false;
-
-
-					anim_evt->AnimEvts.push_back(push);
-					if(anim_evt->curr != nullptr)
-						anim_evt->curr->selected = false;
-					anim_evt->curr = &anim_evt->AnimEvts.back();
-					p_anim_evt->curr = --anim_evt->AnimEvts.end();
-					//p_anim_evt->prov = "\0";
-				}
-
-				ImGui::End();
-			}
-			
-			if (anim_evt->curr == nullptr && anim_evt->AnimEvts.size() > 0)
-			{
-				if (ImGui::BeginCombo("Animation Sets", anim_evt->curr->name.c_str()))
-				{
-
-					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
-						if (ImGui::Selectable(it->name.c_str(), &it->selected))
-						{
-							anim_evt->curr->selected = false;
-							anim_evt->curr = &it._Ptr->_Myval;
-							anim_evt->curr->selected = true;
-
-							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
-								if (&it._Ptr->_Myval == anim_evt->curr)
-								{
-									p_anim_evt->curr = it;
-									break;
-								}
-						}
-					ImGui::EndCombo();
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button("Delete"))
-				{
-					anim_evt->AnimEvts.erase(p_anim_evt->curr);
-					anim_evt->curr = nullptr;
-					p_anim_evt->curr = anim_evt->AnimEvts.end();
-				}
-			}
-
-			if (anim_evt->curr != nullptr)
-			{
-				if (ImGui::BeginCombo("Animation Sets##12", anim_evt->curr->name.c_str()))
-				{
-
-					for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
-						if (ImGui::Selectable(it->name.c_str(), &it->selected))
-						{
-							anim_evt->curr->selected = false;
-							anim_evt->curr = &it._Ptr->_Myval;
-							anim_evt->curr->selected = true;
-
-							for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
-								if (&it._Ptr->_Myval == anim_evt->curr)
-								{
-									p_anim_evt->curr = it;
-									break;
-								}
-						}
-					ImGui::EndCombo();
-				}
-				
-				if (ImGui::Button("Link Animation")) p_anim_evt->copy_specs_win = true;
-
-				p_anim_evt->CopySpecs();
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-					auto get = component.getParent()->getComponent(Component_type::ANIMATION);
-					if (get != nullptr)
-						ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
-					else
-						ImGui::TextUnformatted(("No Animation to link to"));
-					ImGui::PopTextWrapPos();
-					ImGui::EndTooltip();
-				}
-
-				static bool animation_active;
-				animation_active = anim_evt->isActive();
-
-				if (ImGui::Checkbox("Active##active animation evt", &animation_active))
-					anim_evt->setActive(animation_active);
-
-				ImGui::Checkbox("Loop", &anim_evt->curr->loop);
-
-
-				ImGui::InputInt("Duration", &anim_evt->curr->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-					ImGui::TextUnformatted("In Frames");
-					ImGui::PopTextWrapPos();
-					ImGui::EndTooltip();
-				}
-				ImGui::InputInt("FrameRate", &anim_evt->curr->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
-
-				ImGui::InputFloat("Speed", &anim_evt->curr->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-					ImGui::TextUnformatted("Animation Speed Multiplier");
-					ImGui::PopTextWrapPos();
-					ImGui::EndTooltip();
-				}
-				//if (R_anim != nullptr)
-				{
-					if (App->time->getGameState() != GameState::PLAYING)
-					{
-						ImGui::Text("Play");
-						ImGui::SameLine();
-						ImGui::Text("Pause");
-					}
-					else if (anim_evt->isPaused())
-					{
-						if (ImGui::Button("Play"))
-							anim_evt->Play();
-						ImGui::SameLine();
-						ImGui::Text("Pause");
-					}
-					else
-					{
-						ImGui::Text("Play");
-						ImGui::SameLine();
-						if (ImGui::Button("Pause"))
-							anim_evt->Pause();
-					}
-
-					ImGui::Text("Animation info:");
-					if(anim_evt->curr->ticksXsecond != 0)
-						ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
-					//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
-				}
-
-				if (ImGui::Button("AnimEditor"))
-					p_anim_evt->toggleActive();
-				if (p_anim_evt->isActive())
-					p_anim_evt->Draw();
-			}
-
-			if (ImGui::Button("Remove Component##Remove animation"))
-				ret = false;			
-		}
-		break;
-	}
-	case ANIMATOR:
-		if (ImGui::CollapsingHeader("Animator"))
-		{
-			ComponentAnimator* animator = (ComponentAnimator*)&component;
-			ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(animator->getAnimationGraphResource());
-			ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
-
-			static bool set_animation_menu = false;
-			if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
-				set_animation_menu = true;
-			}
-
-			if (set_animation_menu) {
-
-				std::list<resource_deff> graph_res;
-				App->resources->getAnimationGraphResourceList(graph_res);
-
-				ImGui::Begin("Animation selector", &set_animation_menu);
-				for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
-					resource_deff anim_deff = (*it);
-					if (ImGui::MenuItem(anim_deff.asset.c_str())) {
-						animator->setAnimationGraphResource(anim_deff.uuid);
-						set_animation_menu = false;
-						break;
-					}
-				}
-
-				ImGui::End();
-			}
-
-			static bool animator_active;
-			animator_active = animator->isActive();
-
-			if (ImGui::Checkbox("Active##active animator", &animator_active))
-				animator->setActive(animator_active);
-		}
-		break;
-	case PHYSICS:
-	{	if (ImGui::CollapsingHeader("Collider"))
-		{
-		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
-		ComponentPhysics* c_phys = (ComponentPhysics*)&component;
-
-		bool toggle_static = c_phys->is_environment;
-
-		//position
-		ImGui::Text("Offset:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p x", &c_phys->offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p y", &c_phys->offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p z", &c_phys->offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		//rotation
-		ImGui::Text("Rotation:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r x", &c_phys->offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r y", &c_phys->offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r z", &c_phys->offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		//scale
-		ImGui::Text("   Scale:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s x", &c_phys->offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s y", &c_phys->offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-		ImGui::Checkbox("is environment", &toggle_static);
-		if (toggle_static != c_phys->is_environment)
-		{
-			c_phys->SetStatic(toggle_static);
-		}
-
-		if (ImGui::Button("Change_shape"))
-		{
-			App->physics->change_shape(c_phys);
-		}
-
-		}
-	}
-	break;
-	case TRIGGER:
-	{	if (ImGui::CollapsingHeader("Trigger"))
-	{
-		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
-		ComponentTrigger* c_phys = (ComponentTrigger*)&component;
-
-		//position
-		ImGui::Text("Offset:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p x", &c_phys->offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p y", &c_phys->offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##p z", &c_phys->offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
-
-		//rotation
-		ImGui::Text("Rotation:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r x", &c_phys->offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r y", &c_phys->offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r z", &c_phys->offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
-
-		//scale
-		ImGui::Text("   Scale:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s x", &c_phys->offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s y", &c_phys->offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
-
-
-		if (ImGui::Button("Change_shape"))
-		{
-			App->physics->change_shape(c_phys);
-		}
-	}
-	}
-	break;
+	//		if (ImGui::CollapsingHeader("Billboard"))
+	//		{
+	//			if (Material* material = c_emitter->billboard->getMaterial())
+	//			{
+	//				static int preview_size = 128;
+	//				ImGui::Text("Id: %d", material->getId());
+	//				ImGui::SameLine();
+	//				if (ImGui::Button("remove material"))
+	//				{
+	//					delete c_emitter->billboard->getMaterial();
+	//					c_emitter->billboard->setMaterial(nullptr);
+	//					ImGui::TreePop();
+	//					return true;
+	//				}
+
+	//				ImGui::Text("Preview size");
+	//				ImGui::SameLine();
+	//				if (ImGui::Button("64")) preview_size = 64;
+	//				ImGui::SameLine();
+	//				if (ImGui::Button("128")) preview_size = 128;
+	//				ImGui::SameLine();
+	//				if (ImGui::Button("256")) preview_size = 256;
+
+	//				Texture* texture = nullptr;
+	//				if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+	//					texture = tex_res->texture;
+
+
+	//				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+	//				ImGui::SameLine();
+
+	//				int w = 0; int h = 0;
+	//				if (texture)
+	//					texture->getSize(w, h);
+
+	//				ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+	//				//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+	//				//	material->setCheckeredTexture(DIFFUSE);
+	//				//ImGui::SameLine()
+	//			}
+	//			else
+	//				ImGui::TextWrapped("No material assigned");
+
+	//			if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
+	//			{
+	//				std::string texture_path = openFileWID();
+	//				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//				if (new_resource != 0) {
+	//					App->resources->assignResource(new_resource);
+
+	//					if (Material* material = c_emitter->billboard->getMaterial())
+	//						App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+	//					else
+	//						c_emitter->billboard->setMaterial(new Material());
+
+	//					c_emitter->billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+	//				}
+	//			}
+
+	//		}
+
+	//		if (ImGui::Button("Remove##Remove particle emitter"))
+	//			return false;
+	//	}
+	//	break;
+	//}
+	//case ANIMATION_EVENT:
+	//{
+	//	if (ImGui::CollapsingHeader("Animation Events"))
+	//	{
+
+	//		ComponentAnimationEvent* anim_evt = nullptr;
+	//		anim_evt = (ComponentAnimationEvent*)&component;
+	//		//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+	//		//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+	//		static bool set_animation_menu = false;
+
+	//		
+	//		if (ImGui::Button("Create Animation"))
+	//			p_anim_evt->new_anim_set_win = true;
+	//		if (p_anim_evt->new_anim_set_win)
+	//		{
+	//			ImGui::Begin("Name", &p_anim_evt->new_anim_set_win);
+
+	//			ImGui::InputText("#SetName", p_anim_evt->prov, 50);
+	//			if (ImGui::Button("Create"))
+	//			{
+	//				AnimSet push;
+	//				push.name = p_anim_evt->prov;
+	//				p_anim_evt->new_anim_set_win = false;
+
+
+	//				anim_evt->AnimEvts.push_back(push);
+	//				if(anim_evt->curr != nullptr)
+	//					anim_evt->curr->selected = false;
+	//				anim_evt->curr = &anim_evt->AnimEvts.back();
+	//				p_anim_evt->curr = --anim_evt->AnimEvts.end();
+	//				//p_anim_evt->prov = "\0";
+	//			}
+
+	//			ImGui::End();
+	//		}
+	//		
+	//		if (anim_evt->curr == nullptr && anim_evt->AnimEvts.size() > 0)
+	//		{
+	//			if (ImGui::BeginCombo("Animation Sets", anim_evt->curr->name.c_str()))
+	//			{
+
+	//				for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+	//					if (ImGui::Selectable(it->name.c_str(), &it->selected))
+	//					{
+	//						anim_evt->curr->selected = false;
+	//						anim_evt->curr = &it._Ptr->_Myval;
+	//						anim_evt->curr->selected = true;
+
+	//						for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+	//							if (&it._Ptr->_Myval == anim_evt->curr)
+	//							{
+	//								p_anim_evt->curr = it;
+	//								break;
+	//							}
+	//					}
+	//				ImGui::EndCombo();
+	//			}
+
+	//			ImGui::SameLine();
+	//			if (ImGui::Button("Delete"))
+	//			{
+	//				anim_evt->AnimEvts.erase(p_anim_evt->curr);
+	//				anim_evt->curr = nullptr;
+	//				p_anim_evt->curr = anim_evt->AnimEvts.end();
+	//			}
+	//		}
+
+	//		if (anim_evt->curr != nullptr)
+	//		{
+	//			if (ImGui::BeginCombo("Animation Sets##12", anim_evt->curr->name.c_str()))
+	//			{
+
+	//				for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+	//					if (ImGui::Selectable(it->name.c_str(), &it->selected))
+	//					{
+	//						anim_evt->curr->selected = false;
+	//						anim_evt->curr = &it._Ptr->_Myval;
+	//						anim_evt->curr->selected = true;
+
+	//						for (auto it = anim_evt->AnimEvts.begin(); it != anim_evt->AnimEvts.end(); ++it)
+	//							if (&it._Ptr->_Myval == anim_evt->curr)
+	//							{
+	//								p_anim_evt->curr = it;
+	//								break;
+	//							}
+	//					}
+	//				ImGui::EndCombo();
+	//			}
+	//			
+	//			if (ImGui::Button("Link Animation")) p_anim_evt->copy_specs_win = true;
+
+	//			p_anim_evt->CopySpecs();
+	//			if (ImGui::IsItemHovered())
+	//			{
+	//				ImGui::BeginTooltip();
+	//				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+	//				auto get = component.getParent()->getComponent(Component_type::ANIMATION);
+	//				if (get != nullptr)
+	//					ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
+	//				else
+	//					ImGui::TextUnformatted(("No Animation to link to"));
+	//				ImGui::PopTextWrapPos();
+	//				ImGui::EndTooltip();
+	//			}
+
+	//			static bool animation_active;
+	//			animation_active = anim_evt->isActive();
+
+	//			if (ImGui::Checkbox("Active##active animation evt", &animation_active))
+	//				anim_evt->setActive(animation_active);
+
+	//			ImGui::Checkbox("Loop", &anim_evt->curr->loop);
+
+
+	//			ImGui::InputInt("Duration", &anim_evt->curr->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+	//			if (ImGui::IsItemHovered())
+	//			{
+	//				ImGui::BeginTooltip();
+	//				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+	//				ImGui::TextUnformatted("In Frames");
+	//				ImGui::PopTextWrapPos();
+	//				ImGui::EndTooltip();
+	//			}
+	//			ImGui::InputInt("FrameRate", &anim_evt->curr->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+
+	//			ImGui::InputFloat("Speed", &anim_evt->curr->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+	//			if (ImGui::IsItemHovered())
+	//			{
+	//				ImGui::BeginTooltip();
+	//				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+	//				ImGui::TextUnformatted("Animation Speed Multiplier");
+	//				ImGui::PopTextWrapPos();
+	//				ImGui::EndTooltip();
+	//			}
+	//			//if (R_anim != nullptr)
+	//			{
+	//				if (App->time->getGameState() != GameState::PLAYING)
+	//				{
+	//					ImGui::Text("Play");
+	//					ImGui::SameLine();
+	//					ImGui::Text("Pause");
+	//				}
+	//				else if (anim_evt->isPaused())
+	//				{
+	//					if (ImGui::Button("Play"))
+	//						anim_evt->Play();
+	//					ImGui::SameLine();
+	//					ImGui::Text("Pause");
+	//				}
+	//				else
+	//				{
+	//					ImGui::Text("Play");
+	//					ImGui::SameLine();
+	//					if (ImGui::Button("Pause"))
+	//						anim_evt->Pause();
+	//				}
+
+	//				ImGui::Text("Animation info:");
+	//				if(anim_evt->curr->ticksXsecond != 0)
+	//					ImGui::Text("Duration: %.1f ms", anim_evt->curr->own_ticks / anim_evt->curr->ticksXsecond * 1000.f);
+	//				//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+	//			}
+
+	//			if (ImGui::Button("AnimEditor"))
+	//				p_anim_evt->toggleActive();
+	//			if (p_anim_evt->isActive())
+	//				p_anim_evt->Draw();
+	//		}
+
+	//		if (ImGui::Button("Remove Component##Remove animation"))
+	//			ret = false;			
+	//	}
+	//	break;
+	//}
+	//case ANIMATOR:
+	//	if (ImGui::CollapsingHeader("Animator"))
+	//	{
+	//		ComponentAnimator* animator = (ComponentAnimator*)&component;
+	//		ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(animator->getAnimationGraphResource());
+	//		ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+	//		static bool set_animation_menu = false;
+	//		if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+	//			set_animation_menu = true;
+	//		}
+
+	//		if (set_animation_menu) {
+
+	//			std::list<resource_deff> graph_res;
+	//			App->resources->getAnimationGraphResourceList(graph_res);
+
+	//			ImGui::Begin("Animation selector", &set_animation_menu);
+	//			for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+	//				resource_deff anim_deff = (*it);
+	//				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+	//					animator->setAnimationGraphResource(anim_deff.uuid);
+	//					set_animation_menu = false;
+	//					break;
+	//				}
+	//			}
+
+	//			ImGui::End();
+	//		}
+
+	//		static bool animator_active;
+	//		animator_active = animator->isActive();
+
+	//		if (ImGui::Checkbox("Active##active animator", &animator_active))
+	//			animator->setActive(animator_active);
+	//	}
+	//	break;
+	//case PHYSICS:
+	//{	if (ImGui::CollapsingHeader("Collider"))
+	//	{
+	//	ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+	//	ComponentPhysics* c_phys = (ComponentPhysics*)&component;
+
+	//	bool toggle_static = c_phys->is_environment;
+
+	//	//position
+	//	ImGui::Text("Offset:");
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##p x", &c_phys->offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##p y", &c_phys->offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##p z", &c_phys->offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//	//rotation
+	//	ImGui::Text("Rotation:");
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##r x", &c_phys->offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##r y", &c_phys->offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##r z", &c_phys->offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//	//scale
+	//	ImGui::Text("   Scale:");
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##s x", &c_phys->offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##s y", &c_phys->offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	//	ImGui::SameLine();
+	//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//	ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	//	ImGui::Checkbox("is environment", &toggle_static);
+	//	if (toggle_static != c_phys->is_environment)
+	//	{
+	//		c_phys->SetStatic(toggle_static);
+	//	}
+
+	//	if (ImGui::Button("Change_shape"))
+	//	{
+	//		App->physics->change_shape(c_phys);
+	//	}
+
+	//	}
+	//}
+	//break;
+	//case TRIGGER:
+	//{	
+	//	if (ImGui::CollapsingHeader("Trigger"))
+	//	{
+	//		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+	//		ComponentTrigger* c_phys = (ComponentTrigger*)&component;
+
+	//		//position
+	//		ImGui::Text("Offset:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##p x", &c_phys->offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##p y", &c_phys->offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##p z", &c_phys->offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+	//		//rotation
+	//		ImGui::Text("Rotation:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##r x", &c_phys->offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##r y", &c_phys->offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##r z", &c_phys->offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+	//		//scale
+	//		ImGui::Text("   Scale:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##s x", &c_phys->offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##s y", &c_phys->offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+	//		ImGui::DragFloat("##s z", &c_phys->offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+
+	//		if (ImGui::Button("Change_shape"))
+	//		{
+	//			App->physics->change_shape(c_phys);
+	//		}
+	//	}
+	//}
+	//break;
 	default:
 		break;
 	}
