@@ -10,6 +10,10 @@ ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+	
+	callbacks.push_back(WrenCall("dummy", "test"));
+	callbacks.push_back(WrenCall("dummy22", "test22"));
+	callbacks.push_back(WrenCall("dummy3", "test33"));
 }
 
 ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_BUTTON)
