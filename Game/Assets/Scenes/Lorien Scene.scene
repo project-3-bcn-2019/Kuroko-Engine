@@ -4,7 +4,7 @@
             "name": "Enemy",
             "tag": "undefined",
             "static": false,
-            "UUID": 194702373,
+            "UUID": 796520396,
             "isUI": false,
             "Components": [
                 {
@@ -101,7 +101,7 @@
                         {
                             "name": "MoveSpeed",
                             "type": "number",
-                            "value": 0.20000000298023224,
+                            "value": 30,
                             "public": true,
                             "type_forced": false
                         },
@@ -227,7 +227,7 @@
             "name": "Alita tag",
             "tag": "Alita",
             "static": false,
-            "UUID": 1621705816,
+            "UUID": 1736216700,
             "isUI": false,
             "Components": [
                 {
