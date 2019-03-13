@@ -240,8 +240,6 @@ class AttackState is EnemyState{
 
     Update() {
         super.Update()
-        EngineComunicator.consoleOutput("time: %(super.TotalDuration)")
-        EngineComunicator.consoleOutput("current_time: %(super.CurrentTime)")
         if(super.IsStateFinished()){
             if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
