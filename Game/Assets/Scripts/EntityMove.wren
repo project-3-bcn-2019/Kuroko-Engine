@@ -50,6 +50,16 @@ construct new(){}
 
     }
 
+    SetSpeedUnitary(x,y,z,speed){
+        _speed_vector = Vec3.new(x,y,z)
+        _speed_vector.normalize()
+        _speed_vector*speed
+        EngineComunicator.consoleOutput("%(_speed_vector.x)")
+        EngineComunicator.consoleOutput("%(_speed_vector.y)")
+        EngineComunicator.consoleOutput("%(_speed_vector.z)")
+        _component_collider.setSpeed(_speed_vector)
+    }
+
 
     Break() {
     //This function simulates the friction of the collider with the floor

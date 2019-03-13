@@ -1752,7 +1752,7 @@ void SetSpeed(WrenVM* vm) {
 	ComponentPhysics* component = (ComponentPhysics*)go->getComponentByUUID(componentUUID);
 
 	if (!component) {
-		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		app_log->AddLog("Game Object %s has no ComponentPhysics with %i uuid", go->getName().c_str(), componentUUID);
 		return;
 	}
 
