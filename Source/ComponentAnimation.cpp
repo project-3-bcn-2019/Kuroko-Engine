@@ -82,6 +82,8 @@ bool ComponentAnimation::Update(float dt)
 							anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
 						}
 					}
+					if (doingTransition == nullptr)
+						bool caca = true;
 
 
 					float4x4 local = anim->boneTransformations[i].lastTransform;

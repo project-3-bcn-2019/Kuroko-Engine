@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "ModuleTimeManager.h"
+#include "Applog.h"
 
 ResourceAnimation::ResourceAnimation(resource_deff deff):Resource(deff)
 {
@@ -255,9 +256,12 @@ void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
 
 	blendtrans.Decompose(position_2, rotation_2, scale_2);
 
-	float3 finalpos = position_1.Lerp(position_2, time);
-	Quat finalrot = rotation_1.Slerp(rotation_2, time);
-	float3 finalscale = scale_1.Lerp(scale_2, time);
+	if (time > 1)
+		time = 0;
+
+	float3 finalpos = position_1.Lerp(position_2, (1 - time));
+	Quat finalrot = rotation_1.Slerp(rotation_2, (1 - time));
+	float3 finalscale = scale_1.Lerp(scale_2, (1 - time));
 
 	lastTransform.Set(float4x4::FromTRS(finalpos, finalrot, finalscale));
 }
