@@ -76,12 +76,12 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileProgram(defShaderProgram);
 
 	//Animation Shaders
-	CompileShader(animationShader);
-	CompileShader(animationFragmentShader);
-	animationShaderProgram->shaders.push_back(animationShader->shaderId);
-	animationShaderProgram->shaders.push_back(animationFragmentShader->shaderId);
-	
-	CompileProgram(animationShaderProgram);
+	//CompileShader(animationShader);
+	//CompileShader(animationFragmentShader);
+	//animationShaderProgram->shaders.push_back(animationShader->shaderId);
+	//animationShaderProgram->shaders.push_back(animationFragmentShader->shaderId);
+	//
+	//CompileProgram(animationShaderProgram);
 
 	return true;
 }
@@ -162,14 +162,14 @@ void ModuleShaders::CreateDefVertexShader()
 
 		"mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];	 \n"
 		"BoneTransform += gBones[BoneIDs[1]] * Weights[1];		 \n"
-		"test.x=float(gBones[BoneIDs[1]]==matTest);"
+		/*"test.x=float(gBones[BoneIDs[1]]==matTest);"*/
 
 		"BoneTransform += gBones[BoneIDs[2]] * Weights[2];		 \n"
-		"test.y=float(gBones[BoneIDs[2]]==matTest);"
+	/*	"test.y=float(gBones[BoneIDs[2]]==matTest);"*/
 
 
 		"BoneTransform += gBones[BoneIDs[3]] * Weights[3];		 \n"
-		"test.z=float(gBones[BoneIDs[0]]==matTest);"
+	/*	"test.z=float(gBones[BoneIDs[0]]==matTest);"*/
 
 		"vec4 test2=BoneTransform * vec4(position,1.0);"
 		"gl_Position = projection * view * vec4(test2.xyz,1.0); \n"
@@ -326,6 +326,19 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 		ret = true;
 	}
 
+	return ret;
+}
+
+bool ModuleShaders::CompileAnimationProgram()
+{
+	bool ret = false;
+
+	CompileShader(animationShader);
+	CompileShader(animationFragmentShader);
+	animationShaderProgram->shaders.push_back(animationShader->shaderId);
+	animationShaderProgram->shaders.push_back(animationFragmentShader->shaderId);
+
+	ret = CompileProgram(animationShaderProgram);
 	return ret;
 }
 

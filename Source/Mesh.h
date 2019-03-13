@@ -90,7 +90,7 @@ public:
 private:
 
 	void LoadDataToVRAM();
-	void LoadDataToVRAMShaders();
+	void LoadDataToVRAMShaders(bool animation=false);
 	void BuildCube(float3& size = (float3)float3::one);
 	void BuildPlane(float sx = 1.0f, float sy = 1.0f);
 	void BuildSphere(float radius = 1.0f, float sectorCount = 12.0f, float stackCount = 24.0f);
