@@ -203,7 +203,7 @@ bool BoneTransform::calcCurrentIndex(float time, bool test)
 	return ret;
 }
 
-void BoneTransform::calcTransfrom(float time, bool interpolation)
+void BoneTransform::calcTransfrom(float time, bool interpolation, float duration, int tickxs)
 {
 	float tp, ts, tr;
 
@@ -213,31 +213,39 @@ void BoneTransform::calcTransfrom(float time, bool interpolation)
 	Quat rotation_1 = { RotKeysValues[currentRotIndex * 4], RotKeysValues[currentRotIndex * 4 + 1], RotKeysValues[currentRotIndex * 4 + 2], RotKeysValues[currentRotIndex * 4 + 3] };
 	float3 scale_1 = { ScaleKeysValues[currentScaleIndex * 3], ScaleKeysValues[currentScaleIndex * 3 + 1], ScaleKeysValues[currentScaleIndex * 3 + 2] };
 
+	if (!interpolation)
+	{
+		lastTransform.Set(float4x4::FromTRS(position_1, rotation_1, scale_1));
+		return;
+	}
+
 	float3 position_2 = { PosKeysValues[nextPosIndex * 3], PosKeysValues[nextPosIndex * 3 + 1], PosKeysValues[nextPosIndex * 3 + 2] };
 	Quat rotation_2 = { RotKeysValues[nextRotIndex * 4], RotKeysValues[nextRotIndex * 4 + 1], RotKeysValues[nextRotIndex * 4 + 2], RotKeysValues[nextRotIndex * 4 + 3] };
 	float3 scale_2 = { ScaleKeysValues[nextScaleIndex * 3], ScaleKeysValues[nextScaleIndex * 3 + 1], ScaleKeysValues[nextScaleIndex * 3 + 2] };
-
 
 	tp = ((time - PosKeysTimes[currentPosIndex]) / (PosKeysTimes[nextPosIndex] - PosKeysTimes[currentPosIndex]));
 	tr = ((time - RotKeysTimes[currentRotIndex]) / (RotKeysTimes[nextRotIndex] - RotKeysTimes[currentRotIndex]));
 	ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (ScaleKeysTimes[nextScaleIndex] - ScaleKeysTimes[currentScaleIndex]));
 
-	tp = (tp < 0) ? 0 : tp;
-	tr = (tr < 0) ? 0 : tr;
-	ts = (ts < 0) ? 0 : ts;
+	if (tp < 0) tp = ((time - PosKeysTimes[currentPosIndex]) / (PosKeysTimes[nextPosIndex] - PosKeysTimes[currentPosIndex] + duration));
+	if (tr < 0) tr = ((time - RotKeysTimes[currentRotIndex]) / (RotKeysTimes[nextRotIndex] - RotKeysTimes[currentRotIndex] + duration));
+	if (ts < 0) ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (ScaleKeysTimes[nextScaleIndex] - ScaleKeysTimes[currentScaleIndex] + duration));
 
-	float3 position = position_1.Lerp(position_2, tp);
-	Quat rotation = rotation_1.Slerp(rotation_2, tr);
-	float3 scale = scale_1.Lerp(scale_2, ts);
+	float3 position = position_1, scale = scale_1;
+	Quat rotation = rotation_1;
+	if(nextPosIndex < numPosKeys)
+		position = position_1.Lerp(position_2, tp);
+	if (nextRotIndex < numRotKeys)
+		rotation = rotation_1.Slerp(rotation_2, tr);
+	if (nextScaleIndex < numScaleKeys)
+		scale = scale_1.Lerp(scale_2, ts);
+	/*position = position_2 * tp;
+	position += position_1 * (1 - tp);
 
-	if (interpolation)
-	{
-		lastTransform.Set(float4x4::FromTRS(position, rotation, scale));
-	}
-	else
-	{
-		lastTransform.Set(float4x4::FromTRS(position_1, rotation_1, scale_1));
-	}
+	scale = scale_2 * ts;
+	scale += scale_1 * (1 - ts);*/
+
+	lastTransform.Set(float4x4::FromTRS(position, rotation, scale));
 }
 
 void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
