@@ -123,8 +123,8 @@ void ComponentMesh::Draw() const
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);*/
-
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
+*/
 
 			if (transform)
 				glLoadMatrixf((GLfloat*)view_mat.v);

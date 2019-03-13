@@ -90,6 +90,11 @@ class Vec3{
 		z = vec.z
 	}
 
+	*(num) {
+		x = x*num
+		y = y*num
+		z = z*num
+	}
 }
 
 class EngineComunicator{

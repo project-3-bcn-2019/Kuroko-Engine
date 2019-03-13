@@ -1,10 +1,10 @@
 {
     "Game Objects": [
         {
-            "name": "Alita tag",
-            "tag": "Alita",
+            "name": "Enemy",
+            "tag": "undefined",
             "static": false,
-            "UUID": 703394671,
+            "UUID": 796520396,
             "isUI": false,
             "Components": [
                 {
@@ -19,7 +19,7 @@
                         "qx": 0,
                         "qy": 0,
                         "qz": 0,
-                        "qw": 1
+                        "qw": 0
                     },
                     "global": {
                         "px": 32.444404602050781,
@@ -31,7 +31,7 @@
                         "qx": 0,
                         "qy": 0,
                         "qz": 0,
-                        "qw": 1
+                        "qw": 0
                     },
                     "uuid": 3100623553
                 },
@@ -93,9 +93,15 @@
                             "type_forced": false
                         },
                         {
+                            "name": "MoveScript",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
                             "name": "MoveSpeed",
                             "type": "number",
-                            "value": 0,
+                            "value": 30,
                             "public": true,
                             "type_forced": false
                         },
@@ -109,14 +115,14 @@
                         {
                             "name": "AttackSpeed",
                             "type": "number",
-                            "value": 0,
+                            "value": 300,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "AttackRange",
                             "type": "number",
-                            "value": 10,
+                            "value": 5,
                             "public": true,
                             "type_forced": false
                         },
@@ -137,7 +143,7 @@
                         {
                             "name": "Sight",
                             "type": "number",
-                            "value": 30,
+                            "value": 50,
                             "public": true,
                             "type_forced": false
                         },
@@ -173,15 +179,55 @@
                     "mesh_name": "TankChassis",
                     "Parent3dObject": "Assets\/Meshes\/Tank.fbx",
                     "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
                     "uuid": 1722399917
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/EntityMove.wren",
+                    "variables": [
+                        {
+                            "name": "deceleration",
+                            "type": "number",
+                            "value": 0.0099999997764825821,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 3136885921
+                },
+                {
+                    "type": "physics",
+                    "data": {
+                        "shape": 0,
+                        "is_environment": false
+                    },
+                    "pos": {
+                        "offset_pos_x": 0,
+                        "offset_pos_y": 0,
+                        "offset_pos_z": 0
+                    },
+                    "rot": {
+                        "offset_rot_x": 0,
+                        "offset_rot_y": 0,
+                        "offset_rot_z": 0
+                    },
+                    "scale": {
+                        "offset_scale_x": 1,
+                        "offset_scale_y": 1,
+                        "offset_scale_z": 1
+                    },
+                    "uuid": 1324414752
                 }
             ]
         },
         {
-            "name": "Sphere",
-            "tag": "undefined",
+            "name": "Alita tag",
+            "tag": "Alita",
             "static": false,
-            "UUID": 3857711899,
+            "UUID": 1736216700,
             "isUI": false,
             "Components": [
                 {
@@ -219,6 +265,9 @@
                 {
                     "type": "mesh",
                     "primitive_type": "SPHERE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
                     "uuid": 2856102269
                 }
             ]
