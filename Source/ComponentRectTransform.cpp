@@ -16,10 +16,10 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 	debug_draw = true;
 	
 	static const float vtx[] = {
-		rect.global.x,  rect.global.y, 0,
-		rect.global.x + rect.width, rect.global.y, 0,
-		rect.global.x + rect.width, rect.global.y + rect.height, 0,
-		rect.global.x, rect.global.y + rect.height, 0
+		0, 0, 0,
+		1, 0, 0,
+		1, 1, 0,
+		0, 1, 0
 	};
 	rect.vertex = new float3[4];
 	memcpy(rect.vertex, vtx, sizeof(float3) * 4);
@@ -46,10 +46,10 @@ ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * 
 	rect.depth = json_object_get_number(deff, "depth");
 
 	static const float vtx[] = {
-		rect.global.x,  rect.global.y, 0,
-		rect.global.x + rect.width, rect.global.y, 0,
-		rect.global.x + rect.width, rect.global.y + rect.height, 0,
-		rect.global.x, rect.global.y + rect.height, 0
+		0, 0, 0,
+		1, 0, 0,
+		1, 1, 0,
+		0, 1, 0
 	};
 	   
 	rect.vertex = new float3[4];
@@ -115,7 +115,7 @@ void ComponentRectTransform::Draw() const
 
 void ComponentRectTransform::DrawInspector(int id)
 {
-	if (ImGui::CollapsingHeader("Rect Transform"))
+	
 		if (ImGui::CollapsingHeader("Rect Transform"))
 		{
 			static float2 position;
