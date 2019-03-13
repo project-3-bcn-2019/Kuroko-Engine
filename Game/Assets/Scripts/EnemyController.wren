@@ -251,6 +251,7 @@ class AttackState is EnemyState{
     Update() {
         super.Update()
         if(super.IsStateFinished()){
+            EngineComunicator.consoleOutput("Attack")
             if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
             } else {
@@ -289,6 +290,8 @@ class HitState is EnemyState{
     Update(){
         super.Update()
         if(super.IsStateFinished()){
+
+            _enemy.lookForAlita()
              if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
             } else {
