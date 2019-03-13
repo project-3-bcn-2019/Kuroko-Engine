@@ -167,6 +167,10 @@ void PanelAnimationGraph::Draw()
 		ImGui::Text(node->name.c_str());
 
 		drawAnimationBox(node);
+
+		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
+		ImGui::Checkbox("Do Loop", &node->loop);
+		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)
 			linkingNode = clickedLink;
@@ -317,7 +321,7 @@ void PanelAnimationGraph::drawAnimationBox(Node* node) const
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 	ImVec2 pos = ImGui::GetCursorScreenPos();
-	pos.y += 10.0f;
+	pos.y += 5.0f;
 
 	draw_list->AddRectFilled(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(25, 25, 25, 255), 1.0f);
 	draw_list->AddRect(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(150, 150, 150, 255), 1.0f, 15, 2.0f);
@@ -497,14 +501,21 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 5 });
 	ImGui::BeginGroup();
 	ImGui::Text("Transition");
-	ImGui::InputFloat("Duration", &selected_transition->duration);
+	ImGui::PushItemWidth(50);
+	ImGui::InputFloat("Duration", &selected_transition->duration, 0.0f,0.0f, "%.2f");
+	if (ImGui::InputFloat("Next starts after", &selected_transition->nextStart, 0.0f, 0.0f, "%.2f"))
+	{
+		if (selected_transition->nextStart > selected_transition->duration)
+			selected_transition->nextStart = selected_transition->duration;
+	}
+	ImGui::PopItemWidth();
 	if (ImGui::Button("Add condition"))
 	{
 		selected_transition->conditions.push_back(new Condition());
 	}
-	draw_list->AddLine({ posA.x, posA.y + 70 }, { posB.x, posA.y + 70 }, IM_COL32(150, 150, 150, 255));
+	draw_list->AddLine({ posA.x, posA.y + 90 }, { posB.x, posA.y + 90 }, IM_COL32(150, 150, 150, 255));
 
-	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 75 });
+	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 95 });
 	int count = 0;
 	for (std::list<Condition*>::iterator it = selected_transition->conditions.begin(); it != selected_transition->conditions.end(); ++it)
 	{		

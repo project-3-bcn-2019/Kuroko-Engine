@@ -59,6 +59,7 @@ bool ComponentAnimator::Update(float dt)
 				{
 					currentNode = doingTransition->destination->UID;
 					animation->setAnimationResource(doingTransition->destination->animationUID);
+					animation->loop = doingTransition->destination->loop;
 					doingTransition = nullptr;
 				}
 			}

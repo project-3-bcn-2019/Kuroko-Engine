@@ -65,8 +65,13 @@ bool ResourceAnimationGraph::LoadGraph()
 		memcpy(uids, cursor, bytes);
 		cursor += bytes;
 
+		bool loop;
+		memcpy(&loop, cursor, sizeof(bool));
+		cursor += sizeof(bool);
+
 		Node* node = new Node(name.c_str(), this->uuid, { position[0], position[1] }, uids[0]);
 		node->animationUID = uids[1];
+		node->loop = loop;
 
 		for (int j = 0; j < uids[2]; ++j)
 		{
@@ -97,9 +102,10 @@ bool ResourceAnimationGraph::LoadGraph()
 				NodeLink* linked = getLink((*it_l)->connectedNodeLink);
 				if (linked != nullptr)
 				{
-					float duration;
-					memcpy(&duration, cursor, sizeof(float));
-					cursor += sizeof(float);
+					float durations[2];
+					bytes = sizeof(durations);
+					memcpy(durations, cursor, bytes);
+					cursor += bytes;
 
 					uint numConditions;
 					memcpy(&numConditions, cursor, sizeof(uint));
@@ -107,7 +113,8 @@ bool ResourceAnimationGraph::LoadGraph()
 
 					Transition* trans = new Transition((*it_l), linked, uuid);
 					node->transitions.push_back(trans);
-					trans->duration = duration;
+					trans->duration = durations[0];
+					trans->nextStart = durations[1];
 					for (int k = 0; k < numConditions; ++k)
 					{
 						Condition* cond = new Condition();
@@ -191,7 +198,7 @@ bool ResourceAnimationGraph::saveGraph() const
 	size += sizeof(int);
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
-		size += (*it_n).second->name.length() + 2 * sizeof(float) + 5 * sizeof(uint);
+		size += (*it_n).second->name.length() + 2 * sizeof(float) + 5 * sizeof(uint) + sizeof(bool);
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
@@ -244,6 +251,9 @@ bool ResourceAnimationGraph::saveGraph() const
 		memcpy(cursor, &uids[0], bytes);
 		cursor += bytes;
 
+		memcpy(cursor, &(*it_n).second->loop, sizeof(bool));
+		cursor += sizeof(bool);
+
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
 			int type = (int)(*it_l)->type;
@@ -259,8 +269,10 @@ bool ResourceAnimationGraph::saveGraph() const
 
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			memcpy(cursor, &(*it_t)->duration, sizeof(float));
-			cursor += sizeof(float);
+			float durations[2] = { (*it_t)->duration ,(*it_t)->nextStart };
+			bytes = sizeof(durations);
+			memcpy(cursor, &durations[0], bytes);
+			cursor += bytes;
 
 			uint numConditions = (*it_t)->conditions.size();
 			memcpy(cursor, &numConditions, sizeof(uint));
@@ -372,7 +384,7 @@ Node::Node(const char* name, uint graphUID, float2 pos, float2 size) : name(name
 	addLink(OUTPUT_LINK);
 }
 
-Node::Node(const char * name, uint graphUID, float2 pos, uint forced_UID) : name(name), pos(pos), size({ 150,80 }), UID(forced_UID), graphUID(graphUID)
+Node::Node(const char * name, uint graphUID, float2 pos, uint forced_UID) : name(name), pos(pos), size({ 150,NODE_HEIGHT }), UID(forced_UID), graphUID(graphUID)
 {
 }
 
@@ -471,10 +483,10 @@ void Node::removeLink(NodeLink* link)
 	//Recalculate height
 	int maxCount = (inputCount > outputCount) ? inputCount : outputCount;
 	int height = GRAPH_NODE_WINDOW_PADDING * 2 + GRAPH_LINK_RADIUS * 3 * maxCount;
-	if (height > 80)
+	if (height > NODE_HEIGHT)
 		size.y = height;
 	else
-		size.y = 80;
+		size.y = NODE_HEIGHT;
 }
 
 uint Node::drawLinks() const
