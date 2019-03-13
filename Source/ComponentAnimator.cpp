@@ -57,9 +57,9 @@ bool ComponentAnimator::Update(float dt)
 			{
 				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
 				{
-					currentNode = doingTransition->destination->UID;
-					animation->setAnimationResource(doingTransition->destination->animationUID);
 					doingTransition = nullptr;
+					//animation->blending = false;
+					animation->doingTransition = nullptr;
 				}
 			}
 			else
@@ -73,6 +73,9 @@ bool ComponentAnimator::Update(float dt)
 						doingTransition = (*it);
 						startTransitionTime = App->time->getGameTime();
 						currentNode = 0;
+						animation->doingTransition = doingTransition;
+						currentNode = doingTransition->destination->UID;
+						animation->setAnimationResource(doingTransition->destination->animationUID);
 					}
 				}
 			}

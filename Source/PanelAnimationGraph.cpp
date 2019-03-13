@@ -497,7 +497,11 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 5 });
 	ImGui::BeginGroup();
 	ImGui::Text("Transition");
-	ImGui::InputFloat("Duration", &selected_transition->duration);
+	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(selected_transition->destination->animationUID);
+	if (getAnim != nullptr)
+		ImGui::SliderFloat("Duration", &selected_transition->duration, 0, 1);
+	else
+		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Invalid Animation!");
 	if (ImGui::Button("Add condition"))
 	{
 		selected_transition->conditions.push_back(new Condition());

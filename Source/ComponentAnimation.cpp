@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
+#include "ResourceAnimationGraph.h"
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {
@@ -70,10 +71,25 @@ bool ComponentAnimation::Update(float dt)
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
 					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
+					
+					// Blend
+					if (doingTransition != nullptr)
+					{
+						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(doingTransition->origin->animationUID);
+						if (blendFrom != nullptr)
+						{
+							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];
+							anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
+						}
+					}
+
+
 					float4x4 local = anim->boneTransformations[i].lastTransform;
 					float3 pos, scale;
 					Quat rot;
 					local.Decompose(pos, rot, scale);
+
+					
 					transform->local->Set(pos, rot, scale);
 				}
 

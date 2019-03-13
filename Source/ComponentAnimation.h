@@ -6,6 +6,8 @@
 #include "Globals.h"
 #include "ComponentBone.h"
 
+class Transition;
+
 class ComponentAnimation : public Component
 {
 public:
@@ -34,7 +36,9 @@ public:
 
 	bool loop = false;
 	float speed = 1.0f;
-	bool interpolate = false;
+	bool interpolate = true;
+
+	Transition* doingTransition = nullptr;
 
 private:
 
