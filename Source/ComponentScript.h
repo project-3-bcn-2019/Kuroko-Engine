@@ -16,6 +16,7 @@ public:
 	void assignScriptResource(uint resource_uuid);
 	void LoadResource();
 	void CleanUp();
+	void DrawInspector(int id = 0);
 	void Save(JSON_Object* config);
 
 	ScriptData* instance_data = nullptr;

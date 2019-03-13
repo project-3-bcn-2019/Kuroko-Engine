@@ -926,113 +926,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 	//			ret = false;
 	//	}
 	//	break;
-	case SCRIPT:
-	{
-		ComponentScript* c_script = (ComponentScript*)&component;
-		std::string component_title = c_script->script_name + "(Script)";
-		if (ImGui::CollapsingHeader(component_title.c_str())) {
-
-			if (!c_script->instance_data) {
-				ImGui::Image((void*)ui_textures[WARNING_ICON]->getGLid(), ImVec2(16, 16));
-				ImGui::SameLine();
-				ImGui::Text("Compile error");
-			}
-			else{
-				for (auto it = c_script->instance_data->vars.begin(); it != c_script->instance_data->vars.end(); it++) {
-				
-					if (!(*it).isPublic())
-						continue;
-
-					ImportedVariable* curr = &(*it);
-					std::string unique_tag = "##" + curr->getName();
-
-					static int type = 0;
-
-					if (!curr->isTypeForced())
-					{
-						type = curr->getType() - 1;
-						if (ImGui::Combo(unique_tag.c_str(), &type, "Bool\0String\0Numeral\0"))
-						{
-							curr->setType((ImportedVariable::WrenDataType)(type + 1));
-							Var nuller;
-							switch (curr->getType())
-							{
-							case ImportedVariable::WrenDataType::WREN_BOOL:
-								nuller.value_bool = false;
-								break;
-							case ImportedVariable::WrenDataType::WREN_NUMBER:
-								nuller.value_number = 0;
-								break;
-							case ImportedVariable::WrenDataType::WREN_STRING:
-								curr->value_string = "";
-								break;
-							}
-							curr->SetValue(nuller);
-							curr->setEdited(true);
-						}
-					}
-
-					ImGui::Text(curr->getName().c_str());
-					ImGui::SameLine();
-
-					static char buf[200] = "";
-					Var variable = curr->GetValue();
-
-					switch (curr->getType()) {
-					case ImportedVariable::WREN_NUMBER:
-						if (ImGui::InputFloat((unique_tag + " float").c_str(), &variable.value_number))
-						{
-							curr->SetValue(variable);
-							curr->setEdited(true);
-						}
-						break;
-					case ImportedVariable::WREN_STRING:
-					{
-						strcpy(buf, curr->value_string.c_str());
-
-						if (ImGui::InputText((unique_tag + " string").c_str(), buf, sizeof(buf)))
-						{
-							curr->value_string = buf;
-							curr->SetValue(variable);
-							curr->setEdited(true);
-						}
-					}
-						break;
-					case ImportedVariable::WREN_BOOL:
-						if (ImGui::Checkbox((unique_tag + " bool").c_str(), &variable.value_bool))
-						{
-							curr->SetValue(variable);
-							curr->setEdited(true);
-						}
-						break;
-					}
-
-				}
-			}
-
-			if(ResourceScript* res_script = (ResourceScript*)App->resources->getResource(c_script->getResourceUUID())){ // Check if resource exists
-				if (ImGui::Button("Edit script")) {
-					open_tabs[SCRIPT_EDITOR] = true;
-					open_script_path = res_script->asset;
-
-						if (App->scripting->edited_scripts.find(open_script_path) != App->scripting->edited_scripts.end())
-							script_editor.SetText(App->scripting->edited_scripts.at(open_script_path));
-						else {
-							std::ifstream t(open_script_path.c_str());
-							if (t.good()) {
-								std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-									script_editor.SetText(str);
-							}
-						}
-				}
-			}
-			if (ImGui::Button("Remove##Remove script"))
-				ret = false;
-
-		}
-	
-	}
-	break;
+	//
+	/*break;
 	case AUDIOLISTENER:
 		if (ImGui::CollapsingHeader("Audio Listener"))
 		{
@@ -1049,7 +944,7 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ret = false;
 		}
 		break;
-
+*/
 	/*case AUDIOSOURCE:
 		if (ImGui::CollapsingHeader("Audio Source"))
 		{
@@ -1120,339 +1015,339 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 				ret = false;
 		}
 		break;*/
-	case CANVAS:
+	/*case CANVAS:
 		if (ImGui::CollapsingHeader("Canvas"))
 		{
 			ComponentCanvas* canvas = (ComponentCanvas*)&component;
 			ImGui::Text("Resolution  %.0f x %.0f", canvas->getResolution().x, canvas->getResolution().y);
 			ImGui::Checkbox("Draw cross hair", &canvas->draw_cross);
 		}
-		break;
-	case RECTTRANSFORM:
-		if (ImGui::CollapsingHeader("Rect Transform"))
-		{
-			ComponentRectTransform* rectTrans = (ComponentRectTransform*)&component;
+		break;*/
+	//case RECTTRANSFORM:
+		//if (ImGui::CollapsingHeader("Rect Transform"))
+		//{
+		//	ComponentRectTransform* rectTrans = (ComponentRectTransform*)&component;
 
-			static float2 position;
-			static float width;
-			static float height;
+		//	static float2 position;
+		//	static float width;
+		//	static float height;
 
-			position = rectTrans->getLocalPos();
-			width = rectTrans->getWidth();
-			height = rectTrans->getHeight();
+		//	position = rectTrans->getLocalPos();
+		//	width = rectTrans->getWidth();
+		//	height = rectTrans->getHeight();
 
-			//position
-			ImGui::Text("Position:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { rectTrans->setPos(position); }
-			//Width
-			ImGui::Text("Dimensions:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { rectTrans->setWidth(width); }
-			//Height
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##w", &height, 0.01f, 0.0f, 0.0f, "%.02f")) {
-				rectTrans->setHeight(height);
-			}
-
-
+		//	//position
+		//	ImGui::Text("Position:");
+		//	ImGui::SameLine();
+		//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		//	if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { rectTrans->setPos(position); }
+		//	//Width
+		//	ImGui::Text("Dimensions:");
+		//	ImGui::SameLine();
+		//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		//	if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { rectTrans->setWidth(width); }
+		//	//Height
+		//	ImGui::SameLine();
+		//	ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		//	if (ImGui::DragFloat("##w", &height, 0.01f, 0.0f, 0.0f, "%.02f")) {
+		//		rectTrans->setHeight(height);
+		//	}
 
 
-			ImGui::Checkbox("Debug draw", &rectTrans->debug_draw);
-		}
-		break;
-	case UI_IMAGE:
-		if (ImGui::CollapsingHeader("UI Image"))
-		{
-			ComponentImageUI* image = (ComponentImageUI*)&component;
-
-			ImGui::Image(image->getResourceTexture() != nullptr ? (void*)image->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-
-			int w = 0; int h = 0;
-			if (image->getResourceTexture() != nullptr) {
-				image->getResourceTexture()->texture->getSize(w, h);
-			}
-
-			ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
-
-			ImGui::SliderFloat("Alpha", &image->alpha, 0.0f, 1.0f);
-
-			if (ImGui::Button("Load(from asset folder)##Dif: Load"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (image->getResourceTexture() != nullptr)
-						App->resources->deasignResource(image->getResourceTexture()->uuid);
-					image->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
-				}
-			}
-		}
-		break;
-	case UI_CHECKBOX:
-		if (ImGui::CollapsingHeader("UI CheckBox"))
-		{
-			ComponentCheckBoxUI* chBox = (ComponentCheckBoxUI*)&component;
-
-			ImGui::Image(chBox->getResourceTexture(CH_IDLE) != nullptr ? (void*)chBox->getResourceTexture(CH_IDLE)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-
-			int w = 0; int h = 0;
-			if (chBox->getResourceTexture(CH_IDLE) != nullptr) {
-				chBox->getResourceTexture(CH_IDLE)->texture->getSize(w, h);
-			}
-
-			ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
-
-			if (ImGui::Button("Load(from asset folder)##Dif: Load"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (chBox->getResourceTexture(CH_IDLE) != nullptr)
-						App->resources->deasignResource(chBox->getResourceTexture(CH_IDLE)->uuid);
-					chBox->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_IDLE);
-				}
-			}
-			ImGui::Image(chBox->getResourceTexture(CH_PRESSED) != nullptr ? (void*)chBox->getResourceTexture(CH_PRESSED)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-
-			int w2 = 0; int h2 = 0;
-			if (chBox->getResourceTexture(CH_PRESSED) != nullptr) {
-				chBox->getResourceTexture(CH_PRESSED)->texture->getSize(w2, h2);
-			}
-
-			ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
-
-			if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (chBox->getResourceTexture(CH_PRESSED) != nullptr)
-						App->resources->deasignResource(chBox->getResourceTexture(CH_PRESSED)->uuid);
-					chBox->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_PRESSED);
-				}
-			} // For debug
-			bool pressed = chBox->isPressed();
-			ImGui::Checkbox("Pressed", &pressed);
-			if (pressed != chBox->isPressed()) { chBox->Press(); }
-		}
-		break;
-	case UI_TEXT:
-		if (ImGui::CollapsingHeader("UI Text"))
-		{
-			ComponentTextUI* text = (ComponentTextUI*)&component;
-
-			static const int maxSize = 32;
-			if (ImGui::InputText("Label Text", (char*)text->label.text.c_str(), maxSize)) {
-				text->SetText(text->label.text.c_str());
-			}
-			if (ImGui::SliderFloat("Scale", &(text->label.font->scale), 8, MAX_CHARS, "%0.f")) {
-				text->SetFontScale(text->label.font->scale);
-			}
-			ImGui::Checkbox("Draw Characters Frame", &text->drawCharPanel);
-			ImGui::Checkbox("Draw Label Frame", &text->drawLabelrect);
-			std::string currentFont = text->label.font->fontSrc;
-			if (ImGui::BeginCombo("Fonts", currentFont.c_str()))
-			{
-				std::vector<std::string> fonts = App->fontManager->singleFonts;
-
-				for (int i = 0; i < fonts.size(); i++)
-				{
-					bool isSelected = false;
-
-					if (strcmp(currentFont.c_str(), fonts[i].c_str()) == 0) {
-						isSelected = true;
-					}
-
-					if (ImGui::Selectable(fonts[i].c_str(), isSelected)) {
-						std::string newFontName = std::string(fonts[i].c_str());
-						std::string newFontExtension = std::string(fonts[i].c_str());
-						App->fs.getFileNameFromPath(newFontName);
-						App->fs.getExtension(newFontExtension);
-						newFontName += newFontExtension;
-						text->SetFont(newFontName.c_str());
-
-						if (isSelected) {
-							ImGui::SetItemDefaultFocus();
-						}
-
-					}
-
-				}
-				ImGui::EndCombo();
-
-			}
-			ImGui::Spacing();
-			ImGui::ColorPicker3("Color##2f", (float*)&text->label.color);
-		}
-		break;
-	case UI_BUTTON:
-		if (ImGui::CollapsingHeader("UI Button"))
-		{
-			ComponentButtonUI* button = (ComponentButtonUI*)&component;
-			ButtonState state;//debug
-			ImGui::Image(button->getResourceTexture(B_IDLE) != nullptr ? (void*)button->getResourceTexture(B_IDLE)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-
-			int w = 0; int h = 0;
-			if (button->getResourceTexture(B_IDLE) != nullptr) {
-				button->getResourceTexture(B_IDLE)->texture->getSize(w, h);
-			}
-
-			ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
-
-			if (ImGui::Button("Load(from asset folder)##Dif: Load"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (button->getResourceTexture(B_IDLE) != nullptr)
-						App->resources->deasignResource(button->getResourceTexture(B_IDLE)->uuid);
-					button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_IDLE);
-				}
-			}
-
-			ImGui::Image(button->getResourceTexture(B_MOUSEOVER) != nullptr ? (void*)button->getResourceTexture(B_MOUSEOVER)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-
-			int w3 = 0; int h3 = 0;
-			if (button->getResourceTexture(B_MOUSEOVER) != nullptr) {
-				button->getResourceTexture(B_MOUSEOVER)->texture->getSize(w3, h3);
-			}
-
-			ImGui::Text("Hover texture data: \n x: %d\n y: %d", w3, h3);
-
-			if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (button->getResourceTexture(B_MOUSEOVER) != nullptr)
-						App->resources->deasignResource(button->getResourceTexture(B_MOUSEOVER)->uuid);
-					button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_MOUSEOVER);
-				}
-			}
 
 
-			ImGui::Image(button->getResourceTexture(B_PRESSED) != nullptr ? (void*)button->getResourceTexture(B_PRESSED)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
+		//	ImGui::Checkbox("Debug draw", &rectTrans->debug_draw);
+		//}
+	//	break;
+	//case UI_IMAGE:
+	//	if (ImGui::CollapsingHeader("UI Image"))
+	//	{
+	//		ComponentImageUI* image = (ComponentImageUI*)&component;
 
-			int w2 = 0; int h2 = 0;
-			if (button->getResourceTexture(B_PRESSED) != nullptr) {
-				button->getResourceTexture(B_PRESSED)->texture->getSize(w2, h2);
-			}
+	//		ImGui::Image(image->getResourceTexture() != nullptr ? (void*)image->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
 
-			ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+	//		int w = 0; int h = 0;
+	//		if (image->getResourceTexture() != nullptr) {
+	//			image->getResourceTexture()->texture->getSize(w, h);
+	//		}
 
-			if (ImGui::Button("Load(from asset folder)##Dif: Load3"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (button->getResourceTexture(B_PRESSED) != nullptr)
-						App->resources->deasignResource(button->getResourceTexture(B_PRESSED)->uuid);
-					button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_PRESSED);
-				}
-			}
-			// For debug
-			bool idle = false;
-			bool hover = false;
-			bool pressed = false;
-			ImGui::Separator();
-			if (ImGui::Button("FadeIn")) {
-				button->doFadeIn();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("FadeOut")) {
-				button->doFadeOut();
-			}
-			if (ImGui::Button("Idle")) { button->setState(B_IDLE); } ImGui::SameLine();
-			if (ImGui::Button("Hover")) { button->setState(B_MOUSEOVER); }ImGui::SameLine();
-			if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
-		}
-		break;
-	case UI_PROGRESSBAR:
-		if (ImGui::CollapsingHeader("UI Progress Bar"))
-		{
-			ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
-			static float2 position = pbar->getPos();
-			static float percent = pbar->getPercent();
-			static float width= pbar->getInteriorWidth();
-			static float depth = pbar->getInteriorDepth();
+	//		ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
 
-			ImGui::Text("Percent:");
-			ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
-			ImGui::Text("Position:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { pbar->setPos(position); }
-			ImGui::Text("Interior bar width:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { pbar->setInteriorWidth(width); }
-			ImGui::Text("Interior bar depth:");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { pbar->setInteriorDepth(depth); }
+	//		ImGui::SliderFloat("Alpha", &image->alpha, 0.0f, 1.0f);
 
-			int w = 0; int h = 0;
-			if (pbar->getResourceTexture() != nullptr) {
-				pbar->getResourceTexture()->texture->getSize(w, h);
-			}
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (image->getResourceTexture() != nullptr)
+	//					App->resources->deasignResource(image->getResourceTexture()->uuid);
+	//				image->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+	//			}
+	//		}
+	//	}
+	//	break;
+	//case UI_CHECKBOX:
+	//	if (ImGui::CollapsingHeader("UI CheckBox"))
+	//	{
+	//		ComponentCheckBoxUI* chBox = (ComponentCheckBoxUI*)&component;
 
-			ImGui::Text("Bar texture data: \n x: %d\n y: %d", w, h);
+	//		ImGui::Image(chBox->getResourceTexture(CH_IDLE) != nullptr ? (void*)chBox->getResourceTexture(CH_IDLE)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
 
-			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (pbar->getResourceTexture() != nullptr)
-						App->resources->deasignResource(pbar->getResourceTexture()->uuid);
-					pbar->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
-				}
-			}
+	//		int w = 0; int h = 0;
+	//		if (chBox->getResourceTexture(CH_IDLE) != nullptr) {
+	//			chBox->getResourceTexture(CH_IDLE)->texture->getSize(w, h);
+	//		}
 
-			ImGui::Image(pbar->getResourceTexture() != nullptr ? (void*)pbar->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			
+	//		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
 
-			int w2 = 0; int h2 = 0;
-			if (pbar->getResourceTextureInterior() != nullptr) {
-				pbar->getResourceTextureInterior()->texture->getSize(w2, h2);
-			}
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (chBox->getResourceTexture(CH_IDLE) != nullptr)
+	//					App->resources->deasignResource(chBox->getResourceTexture(CH_IDLE)->uuid);
+	//				chBox->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_IDLE);
+	//			}
+	//		}
+	//		ImGui::Image(chBox->getResourceTexture(CH_PRESSED) != nullptr ? (void*)chBox->getResourceTexture(CH_PRESSED)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
+
+	//		int w2 = 0; int h2 = 0;
+	//		if (chBox->getResourceTexture(CH_PRESSED) != nullptr) {
+	//			chBox->getResourceTexture(CH_PRESSED)->texture->getSize(w2, h2);
+	//		}
+
+	//		ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (chBox->getResourceTexture(CH_PRESSED) != nullptr)
+	//					App->resources->deasignResource(chBox->getResourceTexture(CH_PRESSED)->uuid);
+	//				chBox->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_PRESSED);
+	//			}
+	//		} // For debug
+	//		bool pressed = chBox->isPressed();
+	//		ImGui::Checkbox("Pressed", &pressed);
+	//		if (pressed != chBox->isPressed()) { chBox->Press(); }
+	//	}
+	//	break;
+	//case UI_TEXT:
+	//	if (ImGui::CollapsingHeader("UI Text"))
+	//	{
+	//		ComponentTextUI* text = (ComponentTextUI*)&component;
+
+	//		static const int maxSize = 32;
+	//		if (ImGui::InputText("Label Text", (char*)text->label.text.c_str(), maxSize)) {
+	//			text->SetText(text->label.text.c_str());
+	//		}
+	//		if (ImGui::SliderFloat("Scale", &(text->label.font->scale), 8, MAX_CHARS, "%0.f")) {
+	//			text->SetFontScale(text->label.font->scale);
+	//		}
+	//		ImGui::Checkbox("Draw Characters Frame", &text->drawCharPanel);
+	//		ImGui::Checkbox("Draw Label Frame", &text->drawLabelrect);
+	//		std::string currentFont = text->label.font->fontSrc;
+	//		if (ImGui::BeginCombo("Fonts", currentFont.c_str()))
+	//		{
+	//			std::vector<std::string> fonts = App->fontManager->singleFonts;
+
+	//			for (int i = 0; i < fonts.size(); i++)
+	//			{
+	//				bool isSelected = false;
+
+	//				if (strcmp(currentFont.c_str(), fonts[i].c_str()) == 0) {
+	//					isSelected = true;
+	//				}
+
+	//				if (ImGui::Selectable(fonts[i].c_str(), isSelected)) {
+	//					std::string newFontName = std::string(fonts[i].c_str());
+	//					std::string newFontExtension = std::string(fonts[i].c_str());
+	//					App->fs.getFileNameFromPath(newFontName);
+	//					App->fs.getExtension(newFontExtension);
+	//					newFontName += newFontExtension;
+	//					text->SetFont(newFontName.c_str());
+
+	//					if (isSelected) {
+	//						ImGui::SetItemDefaultFocus();
+	//					}
+
+	//				}
+
+	//			}
+	//			ImGui::EndCombo();
+
+	//		}
+	//		ImGui::Spacing();
+	//		ImGui::ColorPicker3("Color##2f", (float*)&text->label.color);
+	//	}
+	//	break;
+	//case UI_BUTTON:
+	//	if (ImGui::CollapsingHeader("UI Button"))
+	//	{
+	//		ComponentButtonUI* button = (ComponentButtonUI*)&component;
+	//		ButtonState state;//debug
+	//		ImGui::Image(button->getResourceTexture(B_IDLE) != nullptr ? (void*)button->getResourceTexture(B_IDLE)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
+
+	//		int w = 0; int h = 0;
+	//		if (button->getResourceTexture(B_IDLE) != nullptr) {
+	//			button->getResourceTexture(B_IDLE)->texture->getSize(w, h);
+	//		}
+
+	//		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (button->getResourceTexture(B_IDLE) != nullptr)
+	//					App->resources->deasignResource(button->getResourceTexture(B_IDLE)->uuid);
+	//				button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_IDLE);
+	//			}
+	//		}
+
+	//		ImGui::Image(button->getResourceTexture(B_MOUSEOVER) != nullptr ? (void*)button->getResourceTexture(B_MOUSEOVER)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
+
+	//		int w3 = 0; int h3 = 0;
+	//		if (button->getResourceTexture(B_MOUSEOVER) != nullptr) {
+	//			button->getResourceTexture(B_MOUSEOVER)->texture->getSize(w3, h3);
+	//		}
+
+	//		ImGui::Text("Hover texture data: \n x: %d\n y: %d", w3, h3);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (button->getResourceTexture(B_MOUSEOVER) != nullptr)
+	//					App->resources->deasignResource(button->getResourceTexture(B_MOUSEOVER)->uuid);
+	//				button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_MOUSEOVER);
+	//			}
+	//		}
 
 
-			ImGui::Text("Interior Bar texture data: \n x: %d\n y: %d", w2, h2);
+	//		ImGui::Image(button->getResourceTexture(B_PRESSED) != nullptr ? (void*)button->getResourceTexture(B_PRESSED)->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
 
-			if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
-			{
-				std::string texture_path = openFileWID();
-				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
-				if (new_resource != 0) {
-					App->resources->assignResource(new_resource);
-					if (pbar->getResourceTextureInterior() != nullptr)
-						App->resources->deasignResource(pbar->getResourceTextureInterior()->uuid);
-					pbar->setResourceTextureInterior((ResourceTexture*)App->resources->getResource(new_resource));
-				}
-			}
+	//		int w2 = 0; int h2 = 0;
+	//		if (button->getResourceTexture(B_PRESSED) != nullptr) {
+	//			button->getResourceTexture(B_PRESSED)->texture->getSize(w2, h2);
+	//		}
 
-			ImGui::Image(pbar->getResourceTextureInterior() != nullptr ? (void*)pbar->getResourceTextureInterior()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-			ImGui::SameLine();
-		}
-		break;
+	//		ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Load3"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (button->getResourceTexture(B_PRESSED) != nullptr)
+	//					App->resources->deasignResource(button->getResourceTexture(B_PRESSED)->uuid);
+	//				button->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_PRESSED);
+	//			}
+	//		}
+	//		// For debug
+	//		bool idle = false;
+	//		bool hover = false;
+	//		bool pressed = false;
+	//		ImGui::Separator();
+	//		if (ImGui::Button("FadeIn")) {
+	//			button->doFadeIn();
+	//		}
+	//		ImGui::SameLine();
+	//		if (ImGui::Button("FadeOut")) {
+	//			button->doFadeOut();
+	//		}
+	//		if (ImGui::Button("Idle")) { button->setState(B_IDLE); } ImGui::SameLine();
+	//		if (ImGui::Button("Hover")) { button->setState(B_MOUSEOVER); }ImGui::SameLine();
+	//		if (ImGui::Button("Pressed")) { button->setState(B_PRESSED); }
+	//	}
+	//	break;
+	//case UI_PROGRESSBAR:
+	//	if (ImGui::CollapsingHeader("UI Progress Bar"))
+	//	{
+	//		ComponentProgressBarUI* pbar = (ComponentProgressBarUI*)&component;
+	//		static float2 position = pbar->getPos();
+	//		static float percent = pbar->getPercent();
+	//		static float width= pbar->getInteriorWidth();
+	//		static float depth = pbar->getInteriorDepth();
+
+	//		ImGui::Text("Percent:");
+	//		ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {pbar->setPercent(percent); }
+	//		ImGui::Text("Position:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+	//		if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { pbar->setPos(position); }
+	//		ImGui::Text("Interior bar width:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+	//		if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { pbar->setInteriorWidth(width); }
+	//		ImGui::Text("Interior bar depth:");
+	//		ImGui::SameLine();
+	//		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+	//		if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { pbar->setInteriorDepth(depth); }
+
+	//		int w = 0; int h = 0;
+	//		if (pbar->getResourceTexture() != nullptr) {
+	//			pbar->getResourceTexture()->texture->getSize(w, h);
+	//		}
+
+	//		ImGui::Text("Bar texture data: \n x: %d\n y: %d", w, h);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (pbar->getResourceTexture() != nullptr)
+	//					App->resources->deasignResource(pbar->getResourceTexture()->uuid);
+	//				pbar->setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+	//			}
+	//		}
+
+	//		ImGui::Image(pbar->getResourceTexture() != nullptr ? (void*)pbar->getResourceTexture()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		
+
+	//		int w2 = 0; int h2 = 0;
+	//		if (pbar->getResourceTextureInterior() != nullptr) {
+	//			pbar->getResourceTextureInterior()->texture->getSize(w2, h2);
+	//		}
+
+
+	//		ImGui::Text("Interior Bar texture data: \n x: %d\n y: %d", w2, h2);
+
+	//		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
+	//		{
+	//			std::string texture_path = openFileWID();
+	//			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+	//			if (new_resource != 0) {
+	//				App->resources->assignResource(new_resource);
+	//				if (pbar->getResourceTextureInterior() != nullptr)
+	//					App->resources->deasignResource(pbar->getResourceTextureInterior()->uuid);
+	//				pbar->setResourceTextureInterior((ResourceTexture*)App->resources->getResource(new_resource));
+	//			}
+	//		}
+
+	//		ImGui::Image(pbar->getResourceTextureInterior() != nullptr ? (void*)pbar->getResourceTextureInterior()->texture->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+	//		ImGui::SameLine();
+	//	}
+	//	break;
 	case ANIMATION:
 		if (ImGui::CollapsingHeader("Animation"))
 		{
