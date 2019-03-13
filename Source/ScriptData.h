@@ -46,20 +46,15 @@ public:
 struct ImportedMethod
 {
 	friend class ComponentScript;
-	ImportedMethod(std::string name, ImportedVariable::WrenDataType ret_type, std::vector<ImportedVariable> args, WrenHandle* handle);  // for methods
 	ImportedMethod(std::string name, WrenHandle* handle) : method_name(name), method_handle(handle) {};  // for setters
 
 private:
 	std::string method_name;
-	ImportedVariable::WrenDataType return_type = ImportedVariable::WrenDataType::WREN_UNKNOWN;
 	WrenHandle* method_handle = nullptr;
-	std::vector<ImportedVariable> arg_list;
 
 public:
 	std::string getName() { return method_name; };
-	ImportedVariable::WrenDataType getReturnType() { return return_type; }
 	WrenHandle* getWrenHandle() { return method_handle; };
-	std::vector<ImportedVariable> getArgList() { return arg_list; };
 };
 
 enum ScriptState { SCRIPT_STARTING, SCRIPT_UPDATING, SCRIPT_CLOSING, SCRIPT_PAUSED, SCRIPT_STOPPED};

@@ -33,14 +33,6 @@ void ImportedVariable::SetValue(Var value, WrenDataType value_type)
 		this->value = value;
 }
 
-ImportedMethod::ImportedMethod(std::string name, ImportedVariable::WrenDataType ret_type, std::vector<ImportedVariable> args, WrenHandle* handle)
-{
-	method_name = name;
-	return_type = ret_type;
-	arg_list = args;
-	method_handle = handle;
-}
-
 
 ScriptData::~ScriptData()
 {

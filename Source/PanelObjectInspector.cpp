@@ -6,6 +6,7 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleAudio.h"
+#include "ModuleInput.h"
 #include "Include_Wwise.h"
 
 #include "Component.h"
@@ -57,6 +58,9 @@ void PanelObjectInspector::Draw()
 
 				}
 			}
+			
+			if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_D) == KEY_DOWN)
+				App->scene->duplicateGameObject(selected_obj);
 			
 			if (ImGui::CollapsingHeader("Add component"))
 			{
