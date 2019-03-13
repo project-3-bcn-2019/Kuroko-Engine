@@ -113,7 +113,7 @@ void ModuleShaders::CreateDefVertexShader()
 	"{\n"
 		"FragPos=vec3(model_matrix*vec4(position,1.0));\n"
 		"gl_Position = projection * view * model_matrix * vec4(position,1.0f);\n"
-		"ourColor = color;\n"
+		"ourColor = vec4(0.0,0.0,0.0,1.0);\n"
 		"TexCoord = texCoord;\n"
 		"ret_normal = normal;\n"
 	"}\n";
@@ -206,6 +206,11 @@ bool ModuleShaders::CompileShader(Shader* shader)
 {
 	bool ret = false;
 
+	if (shader->shaderId != 0)
+	{
+		glDeleteShader(shader->shaderId);
+	}
+
 	if (shader->type == VERTEX)
 	{
 		shader->shaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -250,6 +255,9 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 {
 	bool ret = false;
 
+	if(program->programID!=0)
+		glDeleteProgram(program->programID);
+
 	program->programID = glCreateProgram();
 
 	for (int i = 0; i < program->shaders.size(); i++)
@@ -276,6 +284,15 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 	}
 
 	return ret;
+}
+
+bool ModuleShaders::RecompileAllPrograms()
+{
+	for (int i = 0; i < shader_programs.size(); ++i)
+	{
+		CompileProgram(shader_programs[i]);
+	}
+	return false;
 }
 
 ShaderProgram * ModuleShaders::GetDefaultShaderProgram() const
