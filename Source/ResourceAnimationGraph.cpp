@@ -208,12 +208,13 @@ bool ResourceAnimationGraph::saveGraph() const
 		{
 			size += sizeof(int) + 2*sizeof(uint);
 		}
+		size += sizeof(uint);
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
 			size += 2*sizeof(float) + 3*sizeof(uint);
 			for (std::list<Condition*>::iterator it_c = (*it_t)->conditions.begin(); it_c != (*it_t)->conditions.end(); ++it_c)
 			{
-				size += 3*sizeof(uint) + (*it_c)->string_conditionant.size()*sizeof(char);
+				size += 3*sizeof(uint) + sizeof(float) + (*it_c)->string_conditionant.size()*sizeof(char);
 			}
 		}
 	}
@@ -318,7 +319,7 @@ bool ResourceAnimationGraph::saveGraph() const
 	}
 
 	App->fs.ExportBuffer(buffer, size, asset.c_str());
-	//RELEASE_ARRAY(buffer);
+	RELEASE_ARRAY(buffer);
 
 	return true;
 }
