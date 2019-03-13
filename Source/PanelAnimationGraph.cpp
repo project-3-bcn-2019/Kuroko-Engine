@@ -203,7 +203,7 @@ void PanelAnimationGraph::Draw()
 						linked->connect(linking->UID);
 
 						originNode->connectLink(linkingNode);
-						originNode->transitions.push_back(new Transition(linking, linked, graph->uuid));
+						originNode->transitions.push_back(new Transition(linking->UID, linked->UID, graph->uuid));
 					}
 				}
 				linkingNode = 0;

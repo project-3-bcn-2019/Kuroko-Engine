@@ -57,9 +57,10 @@ bool ComponentAnimator::Update(float dt)
 			{
 				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
 				{
-					currentNode = doingTransition->destination->UID;
-					animation->setAnimationResource(doingTransition->destination->animationUID);
-					animation->loop = doingTransition->destination->loop;
+					Node* destinationNode = graph->getNode(doingTransition->destination);
+					currentNode = destinationNode->UID;
+					animation->setAnimationResource(destinationNode->animationUID);
+					animation->loop = destinationNode->loop;
 					doingTransition = nullptr;
 				}
 			}
