@@ -4,7 +4,7 @@
             "name": "Enemy",
             "tag": "undefined",
             "static": false,
-            "UUID": 796520396,
+            "UUID": 841384823,
             "isUI": false,
             "Components": [
                 {
@@ -44,16 +44,89 @@
                     "script": "Assets\/Scripts\/EnemyController.wren",
                     "variables": [
                         {
-                            "name": "ShowDebuLogs",
+                            "name": "IdleState",
                             "type": "number",
-                            "value": 0,
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ComponentAnimation",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ComponentAudioSource",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "MoveSpeed",
+                            "type": "number",
+                            "value": 30,
                             "public": true,
                             "type_forced": false
                         },
                         {
-                            "name": "IdleState",
+                            "name": "Damage",
+                            "type": "number",
+                            "value": 10,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AttackRange",
+                            "type": "number",
+                            "value": 5,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Health",
+                            "type": "number",
+                            "value": 50,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Defense",
+                            "type": "number",
+                            "value": 5,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "HitStun",
+                            "type": "number",
+                            "value": 10,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Sight",
+                            "type": "number",
+                            "value": 50,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Damaged",
                             "type": "number",
                             "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Dead",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ShowDebuLogs",
+                            "type": "bool",
+                            "value": true,
+                            "public": true,
                             "type_forced": false
                         },
                         {
@@ -81,69 +154,29 @@
                             "type_forced": false
                         },
                         {
-                            "name": "ComponentAnimation",
-                            "type": "number",
-                            "public": false,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "ComponentAudioSource",
-                            "type": "number",
-                            "public": false,
-                            "type_forced": false
-                        },
-                        {
                             "name": "MoveScript",
                             "type": "number",
                             "public": false,
                             "type_forced": false
                         },
                         {
-                            "name": "MoveSpeed",
+                            "name": "Startup",
                             "type": "number",
-                            "value": 30,
+                            "value": 10,
                             "public": true,
                             "type_forced": false
                         },
                         {
-                            "name": "Damage",
+                            "name": "ActiveMs",
                             "type": "number",
-                            "value": 0,
+                            "value": 100,
                             "public": true,
                             "type_forced": false
                         },
                         {
-                            "name": "AttackSpeed",
+                            "name": "Recovery",
                             "type": "number",
-                            "value": 300,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "AttackRange",
-                            "type": "number",
-                            "value": 5,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "Health",
-                            "type": "number",
-                            "value": 0,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "HitStun",
-                            "type": "number",
-                            "value": 0,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "Sight",
-                            "type": "number",
-                            "value": 50,
+                            "value": 10,
                             "public": true,
                             "type_forced": false
                         },
@@ -155,12 +188,6 @@
                         },
                         {
                             "name": "AlitaInRange",
-                            "type": "number",
-                            "public": false,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "Damaged",
                             "type": "number",
                             "public": false,
                             "type_forced": false
@@ -224,16 +251,67 @@
             ]
         },
         {
-            "name": "Alita tag",
+            "name": "Alita Tag",
             "tag": "Alita",
             "static": false,
-            "UUID": 1736216700,
+            "UUID": 1594262995,
             "isUI": false,
             "Components": [
                 {
                     "type": "transform",
                     "local": {
-                        "px": -26.929676055908203,
+                        "px": 0,
+                        "py": 7.0896387100219727,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 7.0896387100219727,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 2532920913
+                },
+                {
+                    "type": "AABB",
+                    "uuid": 2044905257
+                },
+                {
+                    "type": "mesh",
+                    "mesh_name": "RunningAnimation:Group39255",
+                    "Parent3dObject": "Assets\/Meshes\/PunchingAnimation.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "uuid": 2940485005
+                }
+            ]
+        },
+        {
+            "name": "EnemyCollider",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1617984528,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
                         "py": 0,
                         "pz": 0,
                         "sx": 1,
@@ -245,7 +323,7 @@
                         "qw": 1
                     },
                     "global": {
-                        "px": -26.929676055908203,
+                        "px": 0,
                         "py": 0,
                         "pz": 0,
                         "sx": 1,
@@ -256,19 +334,33 @@
                         "qz": 0,
                         "qw": 1
                     },
-                    "uuid": 288601137
+                    "uuid": 216797730
                 },
                 {
                     "type": "AABB",
-                    "uuid": 724721747
+                    "uuid": 1887268848
                 },
                 {
-                    "type": "mesh",
-                    "primitive_type": "SPHERE",
-                    "material": {
-                        "diffuse": "missing_reference"
+                    "type": "trigger",
+                    "data": {
+                        "shape": 0
                     },
-                    "uuid": 2856102269
+                    "pos": {
+                        "offset_pos_x": 0,
+                        "offset_pos_y": 0,
+                        "offset_pos_z": 0
+                    },
+                    "rot": {
+                        "offset_rot_x": 0,
+                        "offset_rot_y": 0,
+                        "offset_rot_z": 0
+                    },
+                    "scale": {
+                        "offset_scale_x": 1,
+                        "offset_scale_y": 14,
+                        "offset_scale_z": 3.5
+                    },
+                    "uuid": 2816363402
                 }
             ]
         }

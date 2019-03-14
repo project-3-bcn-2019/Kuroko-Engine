@@ -79,7 +79,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	//LoadScene("Assets/Scenes/testGraph.scene");
+	LoadScene("Assets/Scenes/audio.scene");
 
 	return true;
 }
@@ -202,6 +202,21 @@ update_status ModuleScene::Update(float dt)
 	//	component->SetSoundID(AK::EVENTS::FOOTSTEPS);
 	//	component->SetSoundName("Footsteps");
 	//}
+
+	if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
+	{
+		UndoScene();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_Y) == KEY_DOWN)
+	{
+		RedoScene();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		want_autosave = true;
+	}
 
 	//App->physics->UpdatePhysics();
 
@@ -583,7 +598,7 @@ void ModuleScene::AskSceneSaveFile(char * scene_name) {
 	scene_to_save_name = scene_name;
 }
 
-void ModuleScene::AskSceneLoadFile(char * path) {
+void ModuleScene::AskSceneLoadFile(const char * path) {
 	want_load_scene_file = true;
 	path_to_load_scene = path;
 }
@@ -597,6 +612,10 @@ void ModuleScene::ManageSceneSaveLoad() {
 	if (want_load_scene_file) {
 		LoadScene(path_to_load_scene.c_str());
 		want_load_scene_file = false;
+	}
+	if (want_autosave) {
+		AutoSaveScene();
+		want_autosave = false;
 	}
 	if (prefabs_to_spawn.size() > 0) {
 
@@ -829,6 +848,54 @@ GameObject* ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 	}*/
 }
 
+void ModuleScene::AutoSaveScene()
+{
+	// Save current scene with a UUID as name
+	std::string name = std::to_string(random32bits());
+	App->fs.CreateEmptyFile(name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	JSON_Value* scene = serializeScene();
 
+	std::string path;
+	App->fs.FormFullPath(path, name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	json_serialize_to_file_pretty(scene, path.c_str());
+	json_value_free(scene);
 
+	// If there are too many autosaves in the undo remove the oldest
+	undo_list.push_front(path);
+	if (undo_list.size() > MAX_AUTOSAVES)
+	{
+		std::string to_destroy = undo_list.back();
+		App->fs.getFileNameFromPath(to_destroy);
+		App->fs.DestroyFile(to_destroy.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+		undo_list.pop_back();
+	}
 
+	// Clear the redo list because a new action has been made
+	if (!redo_list.empty())
+		redo_list.clear();
+}
+
+void ModuleScene::UndoScene()
+{
+	if (undo_list.size() > 1)
+	{
+		// Load second scene autosave from undo list (the first one would be the actual)
+		std::string path = (std::next(undo_list.begin()))->c_str();
+		AskSceneLoadFile(path.c_str());
+		// Send scene autosave to redo list
+		redo_list.push_front(undo_list.front());
+		undo_list.pop_front();
+	}
+}
+
+void ModuleScene::RedoScene()
+{
+	if (redo_list.size() > 0)
+	{
+		// Load first scene autosave from redo list
+		AskSceneLoadFile(redo_list.front().c_str());
+		// Send scene autosave to undo list
+		undo_list.push_front(redo_list.front());
+		redo_list.pop_front();
+	}
+}

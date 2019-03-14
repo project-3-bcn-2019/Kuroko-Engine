@@ -7,7 +7,7 @@
 #include "MathGeoLib\MathGeoLib.h"
 #include "Random.h"
 
-#define NODE_HEIGHT 90
+#define NODE_HEIGHT 95
 
 struct Node;
 struct NodeLink;
@@ -119,6 +119,7 @@ struct Node
 	uint graphUID = 0;
 	uint animationUID = 0;
 	bool loop = false;
+	float speed = 1.0f;
 
 	std::list<NodeLink*> links;
 	int inputCount = 0;

@@ -9,6 +9,8 @@
 #include "Transform.h"
 #include <list>
 
+#define MAX_AUTOSAVES 50
+
 class GameObject; 
 class Material;
 class Mesh;
@@ -81,9 +83,10 @@ public:
 	void AskPrefabLoadFile(PrefabData data);
 	void SavePrefab(GameObject* root_obj, const char* name);
 	void AskSceneSaveFile(char* scene_name); 
-	void AskSceneLoadFile(char* path);
+	void AskSceneLoadFile(const char* path);
 	void AskLocalSaveScene() { want_local_save = true; }
 	void AskLocalLoadScene() { want_local_load = true; }
+	void AskAutoSaveScene() { want_autosave = true; }
 
 
 	GameObject* MousePicking(GameObject* ignore = nullptr);
@@ -91,17 +94,23 @@ public:
 	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
+
+	void LoadPrefab(PrefabData data);
 private:
 	
 	void ManageSceneSaveLoad();
 	void SaveScene(std::string name);
 	void LoadScene(const char* path);
-	void LoadPrefab(PrefabData data);
+
 	JSON_Value* serializeScene();
 	JSON_Value* serializePrefab(GameObject* root_obj);
 
 	void loadSerializedScene(JSON_Value* scene);
 	GameObject* loadSerializedPrefab(JSON_Value* prefab);
+
+	void AutoSaveScene();
+	void UndoScene();
+	void RedoScene();
 private:
 
 	std::list<GameObject*>	game_objects; 
@@ -117,9 +126,10 @@ private:
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
 
-
 	bool want_local_save      = false;
 	bool want_local_load	  = false;
+
+	bool want_autosave = false;
 
 	bool working_on_existing_scene	  = false;
 
@@ -129,6 +139,9 @@ private:
 	std::string path_to_load_scene;
 
 	std::list<PrefabData> prefabs_to_spawn;
+
+	std::list<std::string> undo_list;
+	std::list<std::string> redo_list;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
 

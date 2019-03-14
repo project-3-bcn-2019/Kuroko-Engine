@@ -41,8 +41,14 @@ MoveSpeed=(v) { _move_speed = v }
 Damage {_damage}
 Damage=(v) { _damage = v }
 
-AttackSpeed {_attack_speed}
-AttackSpeed=(v) { _attack_speed = v }
+Startup {_startup}
+Startup=(v) {_startup = v}
+
+ActiveMs {_active_ms}
+ActiveMs=(v) {_active_ms = v}
+
+Recovery {_recovery}
+Recovery=(v) {_recovery = v}
 
 AttackRange {_attack_range}
 AttackRange=(v) { _attack_range = v }
@@ -99,7 +105,11 @@ State = (new_state) {
      
      _enemy_state.HandleInput()
      _enemy_state.Update()
-     applyDamage()
+    if(_health <= 0){
+        _dead = true
+        this.State = _dead_state
+     }
+     
  }
 
  lookForAlita(){
@@ -126,22 +136,10 @@ State = (new_state) {
  }
 
  dealDamage(damage,multiplier){
-    _health_queue.add((damage*multiplier) - (_defense/2))
+    _health = _health - ((damage*multiplier) - (_defense/2))
     _damaged = true
  }
 
- applyDamage(){
-     for(i in 0..._health_queue.count){
-         _health = _health - _health_queue[i]
-     }
-     _damaged = false
-
-     if(_health <= 0)
-     {
-        _dead = true
-        this.State = _dead_state
-     }
- }
 }
  //State Machine structure taken from Pol Ferrando... 
  //...and his Alita state machine for the sake of clarity
@@ -257,8 +255,12 @@ class ChaseState is EnemyState{
 
 class AttackState is EnemyState{
     construct new(enemy){
-        super(enemy,enemy.AttackSpeed)
+        var time = enemy.Startup + enemy.ActiveMs + enemy.Recovery
+        super(enemy,time)
         _enemy = enemy
+        _startup = enemy.Startup
+        _activeMs = enemy.ActiveMs
+        _recovery = enemy.Recovery
     }
 
     BeginState(){
@@ -279,6 +281,16 @@ class AttackState is EnemyState{
 
     Update() {
         super.Update()
+
+        if(super.CurrentTime >= _startup){
+            var collider = EngineComunicator.Instantiate("EnemyCollider",_enemy.getPos("global"),Vec3.new(0,0,0)).getScript("EnemyCollider")
+        }
+
+        if(collider){
+            collider.Damage = _enemy.Damage
+            collider.DamageMultiplier = 1
+            collider.ActiveMS = _activeMs
+        }
         if(super.IsStateFinished()){
             _enemy.lookForAlita()
             if(_enemy.AlitaInRange){
@@ -289,7 +301,9 @@ class AttackState is EnemyState{
         }
     }
 
-    IsOriented
+    IsOriented{
+        //this function should return true if the enemy is oriented towards the player
+    }
     
 }
 

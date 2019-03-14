@@ -130,9 +130,14 @@ bool ComponentTrigger::DrawInspector(int id)
 		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
 
 
-		if (ImGui::Button("Change_shape"))
+		if (ImGui::Button("Change shape"))
 		{
 			App->physics->ChangeShape(this);
+		}
+
+		if (ImGui::Button("Adapt to OBB"))
+		{
+			App->physics->AdaptToOBB(this);
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
@@ -141,6 +146,7 @@ bool ComponentTrigger::DrawInspector(int id)
 			return false;
 		}
 		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+
 	}
 
 	return true;
