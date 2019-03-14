@@ -567,12 +567,8 @@ void ModuleScene::deleteGameObjectRecursive(GameObject* gobj)
 		deleteGameObjectRecursive(*it);
 }
 
-void ModuleScene::AskPrefabLoadFile(const char * path, float3 pos, float3 eulerang) {
-	want_load_prefab_file = true;
-	prefab_load_spawn.setPosition(pos);
-	prefab_load_spawn.setRotationEuler(eulerang);
-	path_to_load_prefab = path;
-
+void ModuleScene::AskPrefabLoadFile(PrefabData data) {
+	prefabs_to_spawn.push_back(data);
 }
 
 void ModuleScene::AskSceneSaveFile(char * scene_name) {
@@ -595,9 +591,12 @@ void ModuleScene::ManageSceneSaveLoad() {
 		LoadScene(path_to_load_scene.c_str());
 		want_load_scene_file = false;
 	}
-	if (want_load_prefab_file) {
-		LoadPrefab(path_to_load_prefab.c_str());
-		want_load_prefab_file = false;
+	if (prefabs_to_spawn.size() > 0) {
+
+		for(auto it = prefabs_to_spawn.begin(); it != prefabs_to_spawn.end(); it++)
+			LoadPrefab((*it));
+
+		prefabs_to_spawn.clear();
 	}
 	if (want_local_save) {
 		local_scene_save = serializeScene();
@@ -673,16 +672,22 @@ void ModuleScene::LoadScene(const char* path) {
 	json_value_free(scene);
 }
 
-void ModuleScene::LoadPrefab(const char * path) {
-	JSON_Value* prefab = json_parse_file(path);
+void ModuleScene::LoadPrefab(PrefabData data) {
+	JSON_Value* prefab = json_parse_file(data.file.c_str());
 	if (!prefab) {
-		app_log->AddLog("Couldn't load %s, no value", path);
+		app_log->AddLog("Couldn't load %s, no value", data.file.c_str());
 		return;
 	}
 
-	loadSerializedPrefab(prefab);
-	json_value_free(prefab);
+	GameObject* go = loadSerializedPrefab(prefab);
+	Transform trans;
+	trans.setPosition(data.pos);
+	trans.setRotationEuler(data.euler);
 
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+	*c_trans->local = trans;
+
+	json_value_free(prefab);
 }
 
 JSON_Value * ModuleScene::serializeScene() {
@@ -766,7 +771,7 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 	}*/
 }
 
-void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
+GameObject* ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 
 	JSON_Array* objects = json_object_get_array(json_object(prefab), "Game Objects");
 
@@ -804,9 +809,8 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 		}
 	}
 
+	return father_of_all;
 	// Set the spawn position of the prefab
-	ComponentTransform* c_trans = (ComponentTransform*)father_of_all->getComponent(TRANSFORM);
-	*c_trans->local = prefab_load_spawn;
 
 	// Push all gameobjects with handled parenting in the scene
 	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
