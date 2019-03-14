@@ -113,7 +113,7 @@ void ComponentRectTransform::Draw() const
 	}
 }
 
-void ComponentRectTransform::DrawInspector(int id)
+bool ComponentRectTransform::DrawInspector(int id)
 {
 	
 		if (ImGui::CollapsingHeader("Rect Transform"))
@@ -202,6 +202,7 @@ void ComponentRectTransform::DrawInspector(int id)
 				ImGui::TreePop();
 			}
 		}
+		return true;
 }
 
 const float2 ComponentRectTransform::getMid() const

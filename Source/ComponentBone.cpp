@@ -194,11 +194,12 @@ void ComponentBone::ProcessCompAnimations(const uint anim_uuid, const int frame)
 	}
 }
 
-void ComponentBone::DrawInspector(int id)
+bool ComponentBone::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Bone"))
 	{
 
 	}
+	return true;
 }
 

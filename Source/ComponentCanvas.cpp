@@ -50,13 +50,15 @@ void ComponentCanvas::Draw() const
 	}
 }
 
-void ComponentCanvas::DrawInspector(int id)
+bool ComponentCanvas::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Canvas"))
 	{
 		ImGui::Text("Resolution  %.0f x %.0f", getResolution().x, getResolution().y);
 		ImGui::Checkbox("Draw cross hair", &draw_cross);
 	}
+
+	return true;
 }
 
 void ComponentCanvas::Save(JSON_Object * config)

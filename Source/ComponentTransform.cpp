@@ -116,7 +116,7 @@ void ComponentTransform::Draw() const
 		App->debug->directDrawAxis(global->getPosition(), global->getRotation());
 }
 
-void ComponentTransform::DrawInspector(int id)
+bool ComponentTransform::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Transform"))
 	{
@@ -256,6 +256,8 @@ void ComponentTransform::DrawInspector(int id)
 		transform->setRotationEuler(rotation);
 		transform->setScale(scale);
 	}
+
+	return true;
 }
 
 void ComponentTransform::Save(JSON_Object* config) {

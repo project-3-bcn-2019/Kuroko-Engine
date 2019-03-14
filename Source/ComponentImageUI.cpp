@@ -127,7 +127,7 @@ void ComponentImageUI::Draw() const
 
 }
 
-void ComponentImageUI::DrawInspector(int id)
+bool ComponentImageUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Image"))
 	{
@@ -156,6 +156,7 @@ void ComponentImageUI::DrawInspector(int id)
 			}
 		}
 	}
+	return true;
 }
 
 void ComponentImageUI::Save(JSON_Object * config)

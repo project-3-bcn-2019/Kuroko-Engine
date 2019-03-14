@@ -29,6 +29,11 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	intBarTransform->setDepth(-0.1f);
 
 	initWidth = intBarTransform->getWidth();
+
+	//intBarTransform->setInspectorDraw(false);
+	//barTransform->setInspectorDraw(false);
+	intBar->setInspectorDraw(false);
+	bar->setInspectorDraw(false);
 }
 
 
@@ -53,6 +58,9 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 		texBar = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 
+
+	intBar->setInspectorDraw(false);
+	bar->setInspectorDraw(false);
 }
 
 ComponentProgressBarUI::~ComponentProgressBarUI()
@@ -71,7 +79,7 @@ bool ComponentProgressBarUI::Update(float dt)
 	return true;
 }
 
-void ComponentProgressBarUI::DrawInspector(int id)
+bool ComponentProgressBarUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Progress Bar"))
 	{
@@ -140,6 +148,7 @@ void ComponentProgressBarUI::DrawInspector(int id)
 		ImGui::Image(getResourceTextureInterior() != nullptr ? (void*)getResourceTextureInterior()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
 		ImGui::SameLine();
 	}
+	return true;
 }
 
  void ComponentProgressBarUI::setPercent(float _percent)

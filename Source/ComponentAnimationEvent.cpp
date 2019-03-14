@@ -123,7 +123,7 @@ bool ComponentAnimationEvent::Update(float dt)
 	return true;
 }
 
-void ComponentAnimationEvent::DrawInspector(int id)
+bool ComponentAnimationEvent::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Animation Events"))
 	{
@@ -294,6 +294,7 @@ void ComponentAnimationEvent::DrawInspector(int id)
 		/*if (ImGui::Button("Remove Component##Remove animation"))
 			ret = false;*/
 	}
+	return true;
 }
 
 void ComponentAnimationEvent::Save(JSON_Object* config)

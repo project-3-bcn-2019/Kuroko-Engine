@@ -86,7 +86,7 @@ bool ComponentAnimator::Update(float dt)
 	return true;
 }
 
-void ComponentAnimator::DrawInspector(int id)
+bool ComponentAnimator::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Animator"))
 	{
@@ -122,6 +122,7 @@ void ComponentAnimator::DrawInspector(int id)
 		if (ImGui::Checkbox("Active##active animator", &animator_active))
 			setActive(animator_active);
 	}
+	return true;
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
