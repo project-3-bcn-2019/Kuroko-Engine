@@ -79,7 +79,7 @@ update_status ModuleCamera3D::Update(float dt)
 		if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
 			speed = 5.0f * speed;
 
-		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT, true) == KEY_REPEAT)
 		{
 			if (App->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT) { displacement.y += speed; };
 			if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT) { displacement.y -= speed; };
@@ -92,7 +92,7 @@ update_status ModuleCamera3D::Update(float dt)
 		}
 
 		// panning
-		if (App->input->GetMouseButton(SDL_BUTTON_MIDDLE) == KEY_REPEAT && !orbit)
+		if (App->input->GetMouseButton(SDL_BUTTON_MIDDLE, true) == KEY_REPEAT && !orbit)
 		{
 			int dx = App->input->GetMouseXMotion();
 			int dy = App->input->GetMouseYMotion();
@@ -101,11 +101,14 @@ update_status ModuleCamera3D::Update(float dt)
 			if (dy)		displacement += editor_camera->Y * dy * speed;
 		}
 
+		if (!displacement.IsZero())
+			int a = 5;
+
 		editor_camera->Move(displacement);
 
 		// Rotation / Orbit
 
-		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT || (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT && orbit))
+		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT, true) == KEY_REPEAT || (App->input->GetMouseButton(SDL_BUTTON_LEFT, true) == KEY_REPEAT && orbit))
 		{
 			int dx = 0; int dy = 0;
 			dx = -App->input->GetMouseXMotion();
