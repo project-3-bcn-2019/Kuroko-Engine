@@ -393,6 +393,37 @@ void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
 		break;
 	}
 
+	shapes.push_back(colShape);
+	body->body->setCollisionShape(colShape);
+}
+
+void ModulePhysics3D::AdaptToAABB(ComponentTrigger * to_adapt)
+{
+	btGhostObject* body = to_adapt->body;
+
+	AABB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getAABB();
+	to_adapt->offset_scale = float3(1, 1, 1);
+	to_adapt->offset_pos = float3(0, 0, 0);
+
+	delete body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), body->getCollisionShape()), end(shapes));
+
+	btCollisionShape* colShape = nullptr;
+	switch (to_adapt->shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	}
+
+	shapes.push_back(colShape);
+	body->setCollisionShape(colShape);
 }
 
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
@@ -401,7 +432,7 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	if (number_of_bodies == 0)
 		return;
 
-	if (!std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
+	if (!(std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end()))
 		return;
 
 	world->removeCollisionObject(body_to_delete->body);

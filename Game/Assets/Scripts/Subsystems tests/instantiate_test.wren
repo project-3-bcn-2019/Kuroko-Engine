@@ -17,7 +17,13 @@ class instantiate_test is ObjectLinker{
 construct new(){}
 
  Start() {
-      instantiate("Cube", Vec3.new(10,10,0), Vec3.new(0,0,0))
+      _cube = instantiate("Cube", Vec3.new(10,10,0), Vec3.new(0,0,0))
+ }
+
+ Update(){
+   if(InputComunicator.getKey(InputComunicator.SPACE, InputComunicator.KEY_REPEAT)){
+     _cube.modPos(-10,0,0)
+   }
  }
 
 }

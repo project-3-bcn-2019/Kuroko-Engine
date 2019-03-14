@@ -16,7 +16,7 @@ class GameObject
 public:
 
 	GameObject(const char* name, GameObject* parent = nullptr, bool UI = false );
-	GameObject(JSON_Object* deff, uint forced_uuid = 0);
+	GameObject(JSON_Object* deff);
 	~GameObject();
 
 	bool Update(float dt);
@@ -25,6 +25,8 @@ public:
 	
 	uint getId() { return id; }
 	uint getUUID() const{ return uuid; }
+
+	void forceUUID(uint _uuid) { uuid = _uuid; }
 
 	void addComponent(Component* component);
 	Component* addComponent(Component_type type);
