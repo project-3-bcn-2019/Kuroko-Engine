@@ -120,13 +120,6 @@ bool ComponentPhysics::Update(float dt)
 	}*/
 
 	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
-
-	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
-	{
-		//body->GetRigidBody()->ap(btVector3(10,0,0));
-		App->physics->change_shape(this);
-	}
-
 	if (App->time->getGameState() == GameState::PLAYING)
 	{
 		UpdateTransformsFromPhysics();
@@ -227,11 +220,16 @@ void ComponentPhysics::DrawInspector(int id)
 			SetStatic(toggle_static);
 		}
 
-		if (ImGui::Button("Change_shape"))
+		if (ImGui::Button("Change shape"))
 		{
-			App->physics->change_shape(this);
+			App->physics->ChangeShape(this);
 		}
 
+		ImGui::SameLine();
+		if (ImGui::Button("Adapt to AABB"))
+		{
+			App->physics->AdaptToAABB(this);
+		}
 	}
 }
 

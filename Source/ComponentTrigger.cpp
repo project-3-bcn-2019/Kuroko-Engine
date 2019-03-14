@@ -132,7 +132,7 @@ void ComponentTrigger::DrawInspector(int id)
 
 		if (ImGui::Button("Change_shape"))
 		{
-			App->physics->change_shape(this);
+			App->physics->ChangeShape(this);
 		}
 	}
 }

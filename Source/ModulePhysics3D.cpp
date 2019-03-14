@@ -314,7 +314,7 @@ btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_
 	return body;
 }
 
-void ModulePhysics3D::change_shape(ComponentPhysics * to_change)
+void ModulePhysics3D::ChangeShape(ComponentPhysics * to_change)
 {
 
 	delete to_change->body->body->getCollisionShape();
@@ -341,7 +341,7 @@ void ModulePhysics3D::change_shape(ComponentPhysics * to_change)
 
 }
 
-void ModulePhysics3D::change_shape(ComponentTrigger * to_change)
+void ModulePhysics3D::ChangeShape(ComponentTrigger * to_change)
 {
 
 	delete to_change->body->getCollisionShape();
@@ -368,13 +368,40 @@ void ModulePhysics3D::change_shape(ComponentTrigger * to_change)
 
 }
 
+void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
+{
+	PhysBody* body = to_adapt->body;
+
+	AABB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getAABB();
+	to_adapt->offset_scale = float3(1, 1, 1);
+	to_adapt->offset_pos = float3(0, 0, 0);
+
+	delete body->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), body->body->getCollisionShape()), end(shapes));
+
+	btCollisionShape* colShape = nullptr;
+	switch (to_adapt->shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	}
+
+}
+
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 {
 	int number_of_bodies = bodies.size();
 	if (number_of_bodies == 0)
 		return;
 
-	if (std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
+	if (!std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
 		return;
 
 	world->removeCollisionObject(body_to_delete->body);
@@ -384,6 +411,7 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	delete body_to_delete->body->getMotionState();
 	motions.erase(std::remove(begin(motions), end(motions), body_to_delete->body->getMotionState()), end(motions));
 	delete body_to_delete;
+
 	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
 
 }
