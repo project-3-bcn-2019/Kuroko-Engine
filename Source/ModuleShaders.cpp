@@ -76,12 +76,7 @@ bool ModuleShaders::InitializeDefaulShaders()
 	CompileProgram(defShaderProgram);
 
 	//Animation Shaders
-	//CompileShader(animationShader);
-	//CompileShader(animationFragmentShader);
-	//animationShaderProgram->shaders.push_back(animationShader->shaderId);
-	//animationShaderProgram->shaders.push_back(animationFragmentShader->shaderId);
-	//
-	//CompileProgram(animationShaderProgram);
+	CompileAnimationProgram();
 
 	return true;
 }

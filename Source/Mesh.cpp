@@ -168,37 +168,31 @@ void Mesh::LoadDataToVRAMShaders(bool animation)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) *num_tris*3, tris, GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (void*)(offsetof(Vertex,position)));
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex,color )));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(7 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex,tex_coords)));
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(9 * sizeof(float)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex,normal )));
 	glEnableVertexAttribArray(3);
 
-	glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(12 * sizeof(float)));
+	glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex,index )));
 	glEnableVertexAttribArray(4);
 
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(12 * sizeof(float) + 4 * sizeof(int)));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex,weights )));
 	glEnableVertexAttribArray(5);
 
-	glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(16 * sizeof(float) + 4 * sizeof(int)));
+	glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, 16 * sizeof(float) + 5 * sizeof(int), (GLvoid*)(offsetof(Vertex, boneCouinter)));
 	glEnableVertexAttribArray(6);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	if (animation)
-	{
-		App->shaders->CompileAnimationProgram();
-	}
-
 }
 
 
@@ -288,12 +282,6 @@ void Mesh::FillMeshGPU()
 
 void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 {
-	if (iboId != 0)
-		glDeleteBuffers(1, &iboId);
-	if (vboId != 0)
-		glDeleteBuffers(1, &vboId);
-	if (vaoId != 0)
-		glDeleteVertexArrays(1, &vaoId);
 
 	RELEASE_ARRAY(MeshGPU);
 	MeshGPU = new Vertex[num_vertices];
@@ -323,6 +311,15 @@ void Mesh::FillboneVertexInfo(GameObject * parent, std::vector<uint> bones)
 			}
 		}
 	}
+
+	if (iboId != 0)
+		glDeleteBuffers(1, &iboId);
+	if (vboId != 0)
+		glDeleteBuffers(1, &vboId);
+	if (vaoId != 0)
+		glDeleteVertexArrays(1, &vaoId);
+
+	iboId = vboId = vaoId = 0;
 
 	LoadDataToVRAMShaders(true);
 }
@@ -402,7 +399,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 				}
 			} while (err != GL_NO_ERROR);*/
 
-			app_log->AddLog("-----------------------------------------------");
+			/*app_log->AddLog("-----------------------------------------------");
 			for (int i = 0; i < numBones; i++)
 			{
 				app_log->AddLog("%f,%f,%f,%f", boneTrans[i * 16], boneTrans[i * 16 + 1], boneTrans[i * 16 + 2], boneTrans[i * 16 + 3]);
@@ -412,7 +409,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 
 			}
 
-			app_log->AddLog("-----------------------------------------------");
+			app_log->AddLog("-----------------------------------------------");*/
 
 			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
 
@@ -429,7 +426,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 
 
 
-			/*if (diffuse_tex)
+			if (diffuse_tex)
 			{
 				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
 				glUniform1i(texture, 1);
@@ -438,7 +435,7 @@ void Mesh::MaxDrawFunctionTest(Material* mat, ComponentAnimation* animation, flo
 			{
 				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
 				glUniform1i(texture, 0);
-			}*/
+			}
 
 		}
 	}
