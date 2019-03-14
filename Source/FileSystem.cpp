@@ -134,6 +134,9 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 	case ASSETS_SCENES:
 		path = USER_SCENES_FOLDER;
 		break;
+	case ASSETS_AUTOSAVES:
+		path = USER_AUTOSAVES_FOLDER;
+		break;
 	case ASSETS_PREFABS:
 		path = USER_PREFABS_FOLDER;
 		break;
@@ -265,6 +268,7 @@ void FileSystem::createMainDirectories()
 	CreateDirectory(ASSETS_FOLDER, NULL);
 	CreateDirectory(USER_SCENES_FOLDER, NULL);
 	CreateDirectory(USER_SCRIPTS_FOLDER, NULL);
+	CreateDirectory(USER_AUTOSAVES_FOLDER, NULL);
 }
 
 bool FileSystem::removeExtension(std::string& str) {

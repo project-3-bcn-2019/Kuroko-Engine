@@ -77,6 +77,7 @@ public:
 	uint getAudioResourceUuid(const char* name);
 	uint getScriptResourceUuid(const char* name);
 	uint getAnimationGraphResourceUuid(const char* Parent3dObject, const char* name);
+	uint getShaderResourceUuid(const char* name);
 
 	void CleanResources() { cleanResources = true; }
 
@@ -90,6 +91,7 @@ public:
 	void getAnimationGraphResourceList(std::list<resource_deff>& graphs);
 	void getSceneResourceList(std::list<resource_deff>& scenes, std::list<resource_deff> ignore);
 	void getAudioResourceList(std::list<resource_deff>& audio);
+	void getShaderResourceList(std::list<resource_deff>& shader);
 	std::string getPrefabPath(const char* prefab_name); // Retruns the binary file for the given prefab so it can be loaded
 	std::string getScenePath(const char* scene_name); // Retruns the binary file for the given scene so it can be loaded
 	// get texture list

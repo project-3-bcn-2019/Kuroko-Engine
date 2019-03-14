@@ -2,6 +2,7 @@
 #define __MODULE_SHADERS__
 
 #include "Module.h"
+#include <vector>
 
 enum ShaderType
 {
