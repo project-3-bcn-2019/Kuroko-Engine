@@ -687,12 +687,16 @@ void ModuleScene::LoadPrefab(PrefabData data) {
 	}
 
 	GameObject* go = loadSerializedPrefab(prefab);
+
+	// Set transform
 	Transform trans;
 	trans.setPosition(data.pos);
 	trans.setRotationEuler(data.euler);
-
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
 	*c_trans->local = trans;
+
+	// Force uuid
+	go->forceUUID(data.forced_uuid);
 
 	json_value_free(prefab);
 }

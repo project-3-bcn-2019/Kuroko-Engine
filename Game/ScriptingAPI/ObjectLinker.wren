@@ -97,7 +97,7 @@ class Vec3{
 	}
 
 	angleBetween(other){
-		return C_angleBetween(x,y,z,other.x,other.y,other.z)
+		return Math.C_angleBetween(x,y,z,other.x,other.y,other.z)
 	}
 }
 
@@ -123,7 +123,7 @@ class EngineComunicator{
 		var uuids = EngineComunicator.C_FindGameObjectsByTag(tag)
 		var gameObjects = []
 		for(i in 0...uuids.count){
-			gameObjects.insert(i, ObjectLinker.new(uuids[i])
+			gameObjects.insert(i, ObjectLinker.new(uuids[i]))
 		}
 
 		return gameObjects
@@ -137,7 +137,7 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
-        static J {13}
+    static J {13}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}

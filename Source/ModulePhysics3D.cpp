@@ -401,8 +401,8 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	if (number_of_bodies == 0)
 		return;
 
-	if (!std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
-		return;
+	//if (!std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
+	//	return;
 
 	world->removeCollisionObject(body_to_delete->body);
 
