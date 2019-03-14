@@ -32,12 +32,14 @@
 
 #define PREFABS_FOLDER "Library\\Prefabs\\"
 #define SCENES_FOLDER "Library\\Scenes\\"
+//#define AUTOSAVES_FOLDER "Library\\AutoSaves\\"
 
 #define FONTS_FOLDER "Fonts\\"
 #define SETTINGS_FOLDER "Settings\\"
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
 #define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
+#define USER_AUTOSAVES_FOLDER "Assets\\AutoSaves\\"
 #define ASSETS_FOLDER "Assets\\"
 #define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 
@@ -57,6 +59,7 @@ enum lib_dir {
 	ASSETS,
 	ASSETS_SCENES,
 	ASSETS_PREFABS,
+	ASSETS_AUTOSAVES,
 	NO_LIB
 };
 

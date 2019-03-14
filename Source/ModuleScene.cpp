@@ -203,6 +203,16 @@ update_status ModuleScene::Update(float dt)
 	//	component->SetSoundName("Footsteps");
 	//}
 
+	if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
+	{
+		UndoScene();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		want_autosave = true;
+	}
+
 	//App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;
@@ -583,7 +593,7 @@ void ModuleScene::AskSceneSaveFile(char * scene_name) {
 	scene_to_save_name = scene_name;
 }
 
-void ModuleScene::AskSceneLoadFile(char * path) {
+void ModuleScene::AskSceneLoadFile(const char * path) {
 	want_load_scene_file = true;
 	path_to_load_scene = path;
 }
@@ -597,6 +607,10 @@ void ModuleScene::ManageSceneSaveLoad() {
 	if (want_load_scene_file) {
 		LoadScene(path_to_load_scene.c_str());
 		want_load_scene_file = false;
+	}
+	if (want_autosave) {
+		AutoSaveScene();
+		want_autosave = false;
 	}
 	if (prefabs_to_spawn.size() > 0) {
 
@@ -829,6 +843,28 @@ GameObject* ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 	}*/
 }
 
+void ModuleScene::AutoSaveScene()
+{
+	std::string name = std::to_string(random32bits());
+	App->fs.CreateEmptyFile(name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	JSON_Value* scene = serializeScene();
 
+	std::string path;
+	App->fs.FormFullPath(path, name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	json_serialize_to_file_pretty(scene, path.c_str());
+	json_value_free(scene);
 
+	undo_list.push_front(path);
+	if (undo_list.size() > MAX_AUTOSAVES)
+	{
+		std::string to_destroy = undo_list.back();
+		App->fs.getFileNameFromPath(to_destroy);
+		App->fs.DestroyFile(to_destroy.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+		undo_list.pop_back();
+	}
+}
 
+void ModuleScene::UndoScene()
+{
+	AskSceneLoadFile(undo_list.front().c_str());
+}
