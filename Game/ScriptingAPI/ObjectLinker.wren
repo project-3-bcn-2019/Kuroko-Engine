@@ -95,6 +95,10 @@ class Vec3{
 		y = y*num
 		z = z*num
 	}
+
+	angleBetween(other){
+		return C_angleBetween(x,y,z,other.x,other.y,other.z)
+	}
 }
 
 class EngineComunicator{
@@ -182,7 +186,7 @@ class InputComunicator{
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
-        foreign static C_rotate(gameObject, x, y, z)
+    foreign static C_rotate(gameObject, x, y, z)
 	foreign static C_lookAt(gameObject, x, y, z)
 
 	foreign static C_getPosX(gameObject, mode)
@@ -192,6 +196,10 @@ class ObjectComunicator{
 	foreign static C_getPitch(gameObject)
 	foreign static C_getYaw(gameObject)
 	foreign static C_getRoll(gameObject)
+
+	foreign static C_getForwardX(gameObject)
+	foreign static C_getForwardY(gameObject)
+	foreign static C_getForwardZ(gameObject)
 
 	foreign static C_Kill(gameObject)
 	foreign static C_MoveForward(gameObject, speed)
@@ -269,6 +277,10 @@ class ObjectLinker{
 		return ObjectComunicator.C_getRoll(gameObject)
 	}
 
+	getForward(){
+		return Vec3.new(ObjectComunicator.C_getForwardX(),ObjectComunicator.C_getForwardY(),ObjectComunicator.C_getForwardZ())
+	}
+	
 	moveForward(speed){
 		ObjectComunicator.C_MoveForward(gameObject, speed)
 	}

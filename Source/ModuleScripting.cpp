@@ -42,11 +42,17 @@ void getGameObjectPitch(WrenVM* vm);
 void getGameObjectYaw(WrenVM* vm);
 void getGameObjectRoll(WrenVM* vm);
 
+void GetGameObjectForwardX(WrenVM* vm);
+void GetGameObjectForwardY(WrenVM* vm);
+void GetGameObjectForwardZ(WrenVM* vm);
+
 void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
 void GetCollisions(WrenVM* vm);
 void GetScript(WrenVM* vm);
+
+
 
 // Engine comunicator
 void ConsoleLog(WrenVM* vm); 
@@ -590,6 +596,15 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_getRoll(_)") == 0) {
 				return getGameObjectRoll; // C function for ObjectComunicator.C_getRoll
 			}
+			if (strcmp(signature, "C_getForwardX(_)") == 0) {
+				return GetGameObjectForwardX; // C function for ObjectComunicator.C_getForwardX(_)
+			}
+			if (strcmp(signature, "C_getForwardY(_)") == 0) {
+				return GetGameObjectForwardY; // C function for ObjectComunicator.C_getForwardY(_)
+			}
+			if (strcmp(signature, "C_getForwardZ(_)") == 0) {
+				return GetGameObjectForwardZ; // C function for ObjectComunicator.C_getForwardZ(_)
+			}
 			if (strcmp(signature, "C_Kill(_)") == 0) {
 				return KillGameObject; // C function for ObjectComunicator.C_Kill
 			}
@@ -926,6 +941,51 @@ void getGameObjectRoll(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, c_trans->local->getRotationEuler().z);
 }
 
+void GetGameObjectForwardX(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().x);
+}
+
+void GetGameObjectForwardY(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().y);
+}
+
+void GetGameObjectForwardZ(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().z);
+}
+
 void KillGameObject(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 
@@ -1027,6 +1087,7 @@ void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to th
 	
 	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
 }
+
 // Engine comunicator
 void ConsoleLog(WrenVM* vm)
 {
