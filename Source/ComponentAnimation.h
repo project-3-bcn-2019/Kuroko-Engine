@@ -25,7 +25,7 @@ public:
 
 	void Save(JSON_Object* config);
 
-	bool Finished() const { return false; }
+	bool Finished() const;
 	bool isPaused() const { return paused; }
 
 	float GetAnimTime() const { return animTime; }

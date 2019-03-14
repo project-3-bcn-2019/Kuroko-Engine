@@ -55,9 +55,12 @@ bool ComponentAnimation::Update(float dt)
 		if (!paused)
 			animTime += dt * speed;
 
-		if (animTime > anim->getDuration() && loop)
+		if (animTime > anim->getDuration())
 		{
-			animTime -= anim->getDuration();
+			if (loop)
+				animTime -= anim->getDuration();
+			else
+				animTime = anim->getDuration();
 		}
 
 		for (int i = 0; i < anim->numBones; ++i)
@@ -209,4 +212,16 @@ void ComponentAnimation::Save(JSON_Object * config)
 		json_object_set_string(config, "Parent3dObject", "missing reference");
 		}
 	}
+}
+
+bool ComponentAnimation::Finished() const
+{
+	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(animation_resource_uuid);
+
+	if (anim != nullptr)
+	{
+		return !loop && anim->getDuration() >= animTime;
+	}
+
+	return false;
 }
