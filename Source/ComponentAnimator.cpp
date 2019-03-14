@@ -65,6 +65,8 @@ bool ComponentAnimator::Update(float dt)
 					currentNode = destinationNode->UID;
 					animation->setAnimationResource(destinationNode->animationUID);
 					animation->loop = destinationNode->loop;
+					animation->speed = destinationNode->speed;
+					animation->SetAnimTime(0.0f);
 					doingTransition = nullptr;
 				}
 			}
@@ -167,7 +169,9 @@ void ComponentAnimator::setAnimationGraphResource(uint uuid)
 		}
 
 		if (graph->start != nullptr)
+		{
 			animation->setAnimationResource(graph->start->animationUID);
+		}
 	}
 }
 
@@ -381,6 +385,8 @@ void ComponentAnimator::Save(JSON_Object * config)
 		ResourceAnimationGraph* res_graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
 		if (res_graph)
 		{
+			res_graph->saveGraph();
+
 			json_object_set_string(config, "graph_name", res_graph->asset.c_str());
 			json_object_set_string(config, "Parent3dObject", res_graph->Parent3dObject.c_str());
 			

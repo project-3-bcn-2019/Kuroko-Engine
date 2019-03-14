@@ -74,8 +74,8 @@ public:
 	void ChangeShape(ComponentPhysics* to_change);
 	void ChangeShape(ComponentTrigger* to_change);
 
-	void AdaptToAABB(ComponentPhysics* to_adapt);
-	void AdaptToAABB(ComponentTrigger* to_adapt);
+	void AdaptToOBB(ComponentPhysics* to_adapt);
+	void AdaptToOBB(ComponentTrigger* to_adapt);
 
 	std::list<Collision> collisions;
 	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
