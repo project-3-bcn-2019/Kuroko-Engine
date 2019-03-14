@@ -180,9 +180,9 @@ void PanelAnimationGraph::Draw()
 		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
 		ImGui::Text("Speed:");
 		ImGui::SameLine();
-		ImGui::PushItemWidth(50);
+		/*ImGui::PushItemWidth(50);
 		ImGui::InputFloat("##animSpeed", &node->speed);
-		ImGui::PopItemWidth();
+		ImGui::PopItemWidth();*/
 		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)
@@ -514,6 +514,7 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 5 });
 	ImGui::BeginGroup();
 	ImGui::Text("Transition");
+
 	ImGui::SameLine(ImGui::GetContentRegionMax().x - 30);
 	if (ImGui::Button("X", { 20,20 }))
 	{
@@ -533,13 +534,24 @@ void PanelAnimationGraph::drawTransitionMenu()
 		ImGui::SetTooltip("Remove");
 	}
 	ImGui::PushItemWidth(50);
-	ImGui::InputFloat("Duration", &selected_transition->duration, 0.0f,0.0f, "%.2f");
+	
+	
 	if (ImGui::InputFloat("Next starts after", &selected_transition->nextStart, 0.0f, 0.0f, "%.2f"))
 	{
 		if (selected_transition->nextStart > selected_transition->duration)
 			selected_transition->nextStart = selected_transition->duration;
 	}
+	
+	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(graph->getNode(selected_transition->destination)->animationUID);
+	if (!getAnim->IsLoaded())
+	{
+		getAnim->LoadAnimation();
+		getAnim->UnloadFromMemory();
+	}
+	selected_transition->duration = (selected_transition->duration > getAnim->getDuration() + selected_transition->nextStart) ? getAnim->getDuration() + selected_transition->nextStart : selected_transition->duration;
+	ImGui::SliderFloat("Duration", &selected_transition->duration, 0, getAnim->getDuration() + selected_transition->nextStart, "%.2f");
 	ImGui::PopItemWidth();
+
 	if (ImGui::Button("Add condition"))
 	{
 		selected_transition->conditions.push_back(new Condition());

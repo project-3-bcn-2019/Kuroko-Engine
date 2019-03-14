@@ -61,13 +61,11 @@ bool ComponentAnimator::Update(float dt)
 			{
 				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
 				{
-					Node* destinationNode = graph->getNode(doingTransition->destination);
-					currentNode = destinationNode->UID;
-					animation->setAnimationResource(destinationNode->animationUID);
-					animation->loop = destinationNode->loop;
-					animation->speed = destinationNode->speed;
-					animation->SetAnimTime(0.0f);
+					
+					//animation->SetAnimTime(0.0f);
 					doingTransition = nullptr;
+					animation->doingTransition = nullptr;
+					animation->transitionFrom = nullptr;
 				}
 			}
 			else
@@ -81,6 +79,14 @@ bool ComponentAnimator::Update(float dt)
 						doingTransition = (*it);
 						startTransitionTime = App->time->getGameTime();
 						currentNode = 0;
+						animation->doingTransition = doingTransition;
+						
+						Node* destinationNode = graph->getNode(doingTransition->destination);
+						animation->transitionFrom = graph->getNode(doingTransition->origin);
+						currentNode = destinationNode->UID;
+						animation->setAnimationResource(destinationNode->animationUID);
+						animation->loop = destinationNode->loop;
+						animation->SetAnimTime(0.f);
 					}
 				}
 			}
