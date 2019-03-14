@@ -99,7 +99,11 @@ State = (new_state) {
      
      _enemy_state.HandleInput()
      _enemy_state.Update()
-     applyDamage()
+    if(_health <= 0){
+        _dead = true
+        this.State = _dead_state
+     }
+     
  }
 
  lookForAlita(){
@@ -126,22 +130,10 @@ State = (new_state) {
  }
 
  dealDamage(damage,multiplier){
-    _health_queue.add((damage*multiplier) - (_defense/2))
+    _health = _health - ((damage*multiplier) - (_defense/2))
     _damaged = true
  }
 
- applyDamage(){
-     for(i in 0..._health_queue.count){
-         _health = _health - _health_queue[i]
-     }
-     _damaged = false
-
-     if(_health <= 0)
-     {
-        _dead = true
-        this.State = _dead_state
-     }
- }
 }
  //State Machine structure taken from Pol Ferrando... 
  //...and his Alita state machine for the sake of clarity
@@ -289,7 +281,9 @@ class AttackState is EnemyState{
         }
     }
 
-    IsOriented
+    IsOriented{
+        //this function should return true if the enemy is oriented towards the player
+    }
     
 }
 
