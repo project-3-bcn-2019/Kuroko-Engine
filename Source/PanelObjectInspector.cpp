@@ -47,17 +47,18 @@ void PanelObjectInspector::Draw()
 				ImGui::SameLine();
 				if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
 					App->scene->quadtree_reload = true;
-				DrawTagSelection(selected_obj);
-				// Add a new tag
-				static char new_tag[64];
-				ImGui::InputText("New Tag", new_tag, 64);
-				if (ImGui::Button("Add Tag")) {
-					App->scripting->tags.push_back(new_tag);
-					for (int i = 0; i < 64; i++)
-						new_tag[i] = '\0';
-
-				}
 			}
+			DrawTagSelection(selected_obj);
+			// Add a new tag
+			static char new_tag[64];
+			ImGui::InputText("New Tag", new_tag, 64);
+			if (ImGui::Button("Add Tag")) {
+				App->scripting->tags.push_back(new_tag);
+				for (int i = 0; i < 64; i++)
+					new_tag[i] = '\0';
+
+			}
+			ImGui::Separator();
 			
 			if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_D) == KEY_DOWN)
 				App->scene->duplicateGameObject(selected_obj);
@@ -88,7 +89,8 @@ void PanelObjectInspector::Draw()
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
 				ImGui::PushID((*it)->getUUID());
-				(*it)->DrawInspector(id);
+				if((*it)->isInspectorDraw()) 
+					(*it)->DrawInspector(id);
 				ImGui::PopID();
 				/*if (!App->gui->DrawComponent(*(*it), id))
 					components_to_erase.push_back(*it);*/

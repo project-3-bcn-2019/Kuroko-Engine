@@ -157,6 +157,38 @@ void ModulePhysics3D::UpdatePhysics()
 void ModulePhysics3D::CleanUpWorld()
 {
 
+	//for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+	//{
+	//	btCollisionObject* obj = world->getCollisionObjectArray()[i];
+	//	world->removeCollisionObject(obj);
+	//}
+
+	//for (std::vector<btTypedConstraint*>::iterator item = constraints.begin(); item != constraints.end(); item++)
+	//{
+	//	world->removeConstraint((*item));
+	//	delete (*item);
+	//}
+
+	//constraints.clear();
+
+	//for (std::vector<btDefaultMotionState*>::iterator item = motions.begin(); item != motions.end(); item++)
+	//	delete (*item);
+
+	//motions.clear();
+
+	//for (std::vector<btCollisionShape*>::iterator item = shapes.begin(); item != shapes.end(); item++)
+	//	delete (*item);
+
+	//shapes.clear();
+
+	//for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
+	//	delete (*item);
+
+	//bodies.clear();
+}
+
+bool ModulePhysics3D::CleanUp()
+{
 	for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = world->getCollisionObjectArray()[i];
@@ -168,55 +200,31 @@ void ModulePhysics3D::CleanUpWorld()
 		world->removeConstraint((*item));
 		delete (*item);
 	}
-
 	constraints.clear();
 
 	for (std::vector<btDefaultMotionState*>::iterator item = motions.begin(); item != motions.end(); item++)
-		delete (*item);
-
-	motions.clear();
-
-	for (std::vector<btCollisionShape*>::iterator item = shapes.begin(); item != shapes.end(); item++)
-		delete (*item);
-
-	shapes.clear();
-
-	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
-		delete (*item);
-
-	bodies.clear();
-}
-
-bool ModulePhysics3D::CleanUp()
-{
-	//for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
-	//{
-	//	btCollisionObject* obj = world->getCollisionObjectArray()[i];
-	//	world->removeCollisionObject(obj);
-	//}
-
-	for (std::vector<btTypedConstraint*>::iterator item = constraints.begin(); item != constraints.end(); item++)
 	{
-		world->removeConstraint((*item));
 		delete (*item);
 	}
-
-	constraints.clear();
-
-	for (std::vector<btDefaultMotionState*>::iterator item = motions.begin(); item != motions.end(); item++)
-		delete (*item);
-
 	motions.clear();
 
 	for (std::vector<btCollisionShape*>::iterator item = shapes.begin(); item != shapes.end(); item++)
+	{
 		delete (*item);
-
+	}
 	shapes.clear();
 
 	for (std::vector<PhysBody*>::iterator item = bodies.begin(); item != bodies.end(); item++)
+	{
 		delete (*item);
-
+	}
 	bodies.clear();
+
+	for (std::vector<btGhostObject*>::iterator item = triggers.begin(); item != triggers.end(); item++)
+	{
+		delete (*item);
+	}
+	triggers.clear();
 
 	delete world;
 
@@ -306,7 +314,7 @@ btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_
 	return body;
 }
 
-void ModulePhysics3D::change_shape(ComponentPhysics * to_change)
+void ModulePhysics3D::ChangeShape(ComponentPhysics * to_change)
 {
 
 	delete to_change->body->body->getCollisionShape();
@@ -333,9 +341,8 @@ void ModulePhysics3D::change_shape(ComponentPhysics * to_change)
 
 }
 
-void ModulePhysics3D::change_shape(ComponentTrigger * to_change)
+void ModulePhysics3D::ChangeShape(ComponentTrigger * to_change)
 {
-
 
 	delete to_change->body->getCollisionShape();
 	shapes.erase(std::remove(begin(shapes), end(shapes), to_change->body->getCollisionShape()), end(shapes));
@@ -361,8 +368,42 @@ void ModulePhysics3D::change_shape(ComponentTrigger * to_change)
 
 }
 
+void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
+{
+	PhysBody* body = to_adapt->body;
+
+	AABB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getAABB();
+	to_adapt->offset_scale = float3(1, 1, 1);
+	to_adapt->offset_pos = float3(0, 0, 0);
+
+	delete body->body->getCollisionShape();
+	shapes.erase(std::remove(begin(shapes), end(shapes), body->body->getCollisionShape()), end(shapes));
+
+	btCollisionShape* colShape = nullptr;
+	switch (to_adapt->shape)
+	{
+	case COL_CUBE:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	case COL_CYLINDER:
+		colShape = new btCylinderShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	default:
+		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		break;
+	}
+
+}
+
 void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 {
+	int number_of_bodies = bodies.size();
+	if (number_of_bodies == 0)
+		return;
+
+	if (!std::find(bodies.begin(), bodies.end(), body_to_delete) != bodies.end())
+		return;
+
 	world->removeCollisionObject(body_to_delete->body);
 
 	delete body_to_delete->body->getCollisionShape();
@@ -370,12 +411,16 @@ void ModulePhysics3D::DeleteBody(PhysBody * body_to_delete)
 	delete body_to_delete->body->getMotionState();
 	motions.erase(std::remove(begin(motions), end(motions), body_to_delete->body->getMotionState()), end(motions));
 	delete body_to_delete;
+
 	bodies.erase(std::remove(begin(bodies), end(bodies), body_to_delete), end(bodies));
 
 }
 
 void ModulePhysics3D::DeleteTrigger(ComponentTrigger * component)
 {
+	if (!(std::find(triggers.begin(), triggers.end(), component->body) != triggers.end()))
+		return;
+
 	world->removeCollisionObject(component->body);
 	
 	delete component->body->getCollisionShape();

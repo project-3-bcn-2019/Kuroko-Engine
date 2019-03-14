@@ -57,7 +57,7 @@ void ComponentBillboard::Draw() const
 	billboard->Draw();
 }
 
-void ComponentBillboard::DrawInspector(int id)
+bool ComponentBillboard::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Billboard"))
 	{
@@ -158,6 +158,7 @@ void ComponentBillboard::DrawInspector(int id)
 		/*if (ImGui::Button("Remove##Remove billboard"))
 			return false;*/
 	}
+	return true;
 }
 
 void ComponentBillboard::Save(JSON_Object* config)

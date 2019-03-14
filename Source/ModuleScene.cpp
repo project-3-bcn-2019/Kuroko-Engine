@@ -248,6 +248,10 @@ void ModuleScene::DrawInGameUI()
 	GameObject* canvas = getCanvasGameObject();
 	if (canvas != nullptr)
 	{
+		bool light = glIsEnabled(GL_LIGHTING);
+
+		glDisable(GL_LIGHTING);
+
 		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -287,6 +291,9 @@ void ModuleScene::DrawInGameUI()
 		{
 			it->Draw();
 		}
+
+		if (light) { 
+			glEnable(GL_LIGHTING); }
 	}
 }
 

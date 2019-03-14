@@ -123,7 +123,7 @@ void ComponentAABB::Draw() const
 	if (draw_obb && App->camera->current_camera->frustumCull(*getOBB()))	DrawOBB();
 }
 
-void ComponentAABB::DrawInspector(int id)
+bool ComponentAABB::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("AABB"))
 	{
@@ -154,6 +154,7 @@ void ComponentAABB::DrawInspector(int id)
 		}
 
 	}
+	return true;
 }
 
 void ComponentAABB::DrawAABB() const
