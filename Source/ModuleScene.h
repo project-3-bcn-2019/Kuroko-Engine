@@ -94,12 +94,14 @@ public:
 	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
+
+	void LoadPrefab(PrefabData data);
 private:
 	
 	void ManageSceneSaveLoad();
 	void SaveScene(std::string name);
 	void LoadScene(const char* path);
-	void LoadPrefab(PrefabData data);
+
 	JSON_Value* serializeScene();
 	JSON_Value* serializePrefab(GameObject* root_obj);
 

@@ -122,14 +122,29 @@ update_status ModulePhysics3D::Update(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		physics_debug = !physics_debug;
-	//if (App->time->getGameState() == GameState::PLAYING)
-	//{
-	//	UpdateTransformsFromPhysics();
-	//}
-	//else
-	//{
-	//	UpdatePhysicsFromTransforms();
-	//}
+
+
+	if (App->time->getGameState() != GameState::PLAYING)
+	{
+		for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+		{
+			btCollisionObject* obj = world->getCollisionObjectArray()[i];
+			//obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+			obj->forceActivationState(DISABLE_SIMULATION);
+		}
+
+	}
+	else
+	{
+		for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+		{
+			btCollisionObject* obj = world->getCollisionObjectArray()[i];
+			//obj->setCollisionFlags(obj->getCollisionFlags() | ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
+			obj->forceActivationState(ACTIVE_TAG);
+
+		}
+	}
 
 	world->stepSimulation(dt, 1);
 
@@ -368,13 +383,14 @@ void ModulePhysics3D::ChangeShape(ComponentTrigger * to_change)
 
 }
 
-void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
+void ModulePhysics3D::AdaptToOBB(ComponentPhysics * to_adapt)
 {
 	PhysBody* body = to_adapt->body;
 
-	AABB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getAABB();
+	OBB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getOBB();
 	to_adapt->offset_scale = float3(1, 1, 1);
 	to_adapt->offset_pos = float3(0, 0, 0);
+	to_adapt->offset_rot = float3(0, 0, 0);
 
 	delete body->body->getCollisionShape();
 	shapes.erase(std::remove(begin(shapes), end(shapes), body->body->getCollisionShape()), end(shapes));
@@ -383,13 +399,13 @@ void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
 	switch (to_adapt->shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btBoxShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z / 2));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btCylinderShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z / 2));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btBoxShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z / 2));
 		break;
 	}
 
@@ -397,13 +413,14 @@ void ModulePhysics3D::AdaptToAABB(ComponentPhysics * to_adapt)
 	body->body->setCollisionShape(colShape);
 }
 
-void ModulePhysics3D::AdaptToAABB(ComponentTrigger * to_adapt)
+void ModulePhysics3D::AdaptToOBB(ComponentTrigger * to_adapt)
 {
 	btGhostObject* body = to_adapt->body;
 
 	AABB* box = ((ComponentAABB*)(to_adapt->getParent()->getComponent(C_AABB)))->getAABB();
 	to_adapt->offset_scale = float3(1, 1, 1);
 	to_adapt->offset_pos = float3(0, 0, 0);
+	to_adapt->offset_rot = float3(0, 0, 0);
 
 	delete body->getCollisionShape();
 	shapes.erase(std::remove(begin(shapes), end(shapes), body->getCollisionShape()), end(shapes));
@@ -412,13 +429,13 @@ void ModulePhysics3D::AdaptToAABB(ComponentTrigger * to_adapt)
 	switch (to_adapt->shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btBoxShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z /2));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btCylinderShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z / 2));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(box->Size().x, box->Size().y, box->Size().z));
+		colShape = new btBoxShape(btVector3(box->Size().x / 2, box->Size().y / 2, box->Size().z / 2));
 		break;
 	}
 

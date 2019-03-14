@@ -4,6 +4,7 @@
 #include "Resource.h"
 
 enum ShaderType;
+struct Shader;
 
 class ResourceShader : public Resource
 {
@@ -12,12 +13,15 @@ public:
 	ResourceShader(resource_deff deff);
 	~ResourceShader();
 
+	void LoadToMemory();
+	void UnloadFromMemory();
+
+	bool SaveShader();
+	Shader* LoadShader();
+
 public:
 
-	std::string name = "";
-	std::string script = "";
-	//ShaderType type;
-	uint shaderId = 0;
+	Shader* shaderObject = nullptr;
 
 };
 
