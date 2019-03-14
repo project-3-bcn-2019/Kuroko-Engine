@@ -14,6 +14,7 @@
 #include "ResourceBone.h"
 #include "ResourceAudio.h"
 #include "ResourceAnimationGraph.h"
+#include "ResourceShader.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -108,6 +109,9 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
 	case R_ANIMATIONGRAPH:
 		ret = (Resource*) new ResourceAnimationGraph(deff);
+		break;
+	case R_SHADER:
+		ret = (Resource*) new ResourceShader(deff);
 		break;
 	}
 
@@ -341,6 +345,7 @@ void ModuleResourcesManager::GenerateResources()
 	GenerateFromMapFile(assets, R_ANIMATION);
 	GenerateFromMapFile(assets, R_BONE);
 	GenerateFromMapFile(assets, R_AUDIO);
+	GenerateFromMapFile(assets, R_SHADER);
 	//R_UI?
 }
 
@@ -664,6 +669,19 @@ uint ModuleResourcesManager::getAnimationGraphResourceUuid(const char * Parent3d
 	return 0;
 }
 
+uint ModuleResourcesManager::getShaderResourceUuid(const char * name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SHADER) {
+			ResourceShader* res_script = (ResourceShader*)(*it).second;
+			if (res_script->asset == name) {
+				return res_script->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
 void ModuleResourcesManager::CleanMeta() {
 	using std::experimental::filesystem::recursive_directory_iterator;
 	for (auto& it : recursive_directory_iterator(ASSETS_FOLDER)) {
@@ -791,6 +809,17 @@ void ModuleResourcesManager::getAudioResourceList(std::list<resource_deff>& audi
 			Resource* curr = (*it).second;
 			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
 			audio.push_back(deff);
+		}
+	}
+}
+
+void ModuleResourcesManager::getShaderResourceList(std::list<resource_deff>& shader)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_SHADER) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			shader.push_back(deff);
 		}
 	}
 }
