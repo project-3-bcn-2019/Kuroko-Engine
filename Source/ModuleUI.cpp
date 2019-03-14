@@ -2722,7 +2722,7 @@ void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 				Transform* trans = transform->global;
 				guizmoPos += trans->getPosition();
 				guizmoScale += trans->getScale();
-				if(App->scene->selected_obj.size() > 1)
+				if(App->scene->selected_obj.size() == 1)
 					guizmoRot = trans->getRotation();
 			}
 		}
