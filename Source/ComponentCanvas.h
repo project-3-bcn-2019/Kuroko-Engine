@@ -18,13 +18,13 @@ public:
 	void Save(JSON_Object* config) override;
 
 	void setResolution(float2 resolution);	
-	inline const float2 getResolution() { return _resolution; }
+	inline const float2 getResolution();
 
 	bool draw_cross = false;
 
 private:	
 
-	float2 _resolution = float2::zero;
+	//float2 _resolution = float2::zero;
 	ComponentRectTransform* rectTransform = nullptr;
 	
 };
