@@ -28,7 +28,7 @@ public:
 	uint getBoneResource() { return bone_resource_uuid; }
 
 	bool Update(float dt);
-	void DrawInspector(int id = 0) override;
+	bool DrawInspector(int id = 0) override;
 	
 	void ProcessCompAnimations(const uint anim_uuid, const int frame);
 

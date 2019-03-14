@@ -43,7 +43,7 @@ bool ComponentAudioSource::Update(float dt)
 	return true;
 }
 
-void ComponentAudioSource::DrawInspector(int id)
+bool ComponentAudioSource::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Audio Source"))
 	{
@@ -111,6 +111,7 @@ void ComponentAudioSource::DrawInspector(int id)
 			ImGui::End();
 		}
 	}
+	return true;
 }
 
 void ComponentAudioSource::CleanUp()

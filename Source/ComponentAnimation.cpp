@@ -92,7 +92,7 @@ bool ComponentAnimation::Update(float dt)
 	return true;
 }
 
-void ComponentAnimation::DrawInspector(int id)
+bool ComponentAnimation::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Animation"))
 	{
@@ -170,6 +170,7 @@ void ComponentAnimation::DrawInspector(int id)
 		/*if (ImGui::Button("Remove Component##Remove animation"))
 			ret = false;*/
 	}
+	return true;
 }
 
 void ComponentAnimation::setAnimationResource(uint uuid)

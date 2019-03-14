@@ -31,13 +31,16 @@ public:
 	virtual bool Update(float dt) { return true; };
 	virtual void Draw() const {};
 
-	virtual void DrawInspector(int id = 0) { return; };
+	virtual bool DrawInspector(int id = 0) { return true; };
 
 	bool isActive() { return is_active; } const
 	void setActive(bool state) { is_active = state; }
 
-	Component_type getType() const { return type; };
-	GameObject* getParent() const { return parent; };
+	bool isInspectorDraw() { return draw_inspector; } const
+	void setInspectorDraw(bool state) { draw_inspector = state; }
+
+	Component_type getType() const { return type; }
+	GameObject* getParent() const { return parent; }
 	void setParent(GameObject* new_parent) { parent = new_parent; } // Can recieve nullptr
 	uint getUUID() const { return uuid; }
 
@@ -94,6 +97,7 @@ public:
 protected:
 
 	bool is_active = true;
+	bool draw_inspector = true;
 	const Component_type type = NONE;
 	GameObject* parent = nullptr;
 	uint uuid = 0;
