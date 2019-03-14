@@ -32,12 +32,39 @@ class PlayerController is ObjectLinker{
     ComponentAnimation {_component_animation}
     ComponentAudioSource {_component_audio_source}
 
-    Speed {_speed}
 
     PunchButton {_punch_button}
     KickButton {_kick_button}
     DashButton {_dash_button}
 
+    //Stats
+    MoveSpeed {_move_speed}
+    MoveSpeed=(v) { _move_speed = v }
+
+    Damage {_damage}
+    Damage=(v) { _damage = v }
+
+    AttackSpeed {_attack_speed}
+    AttackSpeed=(v) { _attack_speed = v }
+
+    AttackRange {_attack_range}
+    AttackRange=(v) { _attack_range = v }
+
+    Health {_health}    
+    Health=(v) { _health = v }
+
+    Defense {_defense}
+    Defense=(v) { _defense = v }
+
+    HitStun {_hit_stun}
+    HitStun=(v) { _hit_stun = v }
+
+    Sight {_sight}
+    Sight=(v) { _sight = v }
+
+    //Other variables
+    Damaged{_damaged}
+    Dead{_dead}
 
 
     // Setters
@@ -57,7 +84,6 @@ class PlayerController is ObjectLinker{
         _player_state
         _move_direction = Vec3.zero()
         _old_move_direction = Vec3.zero()
-        _speed = 50
 
         _punch_button = InputComunicator.C_X
         _kick_button = InputComunicator.C_Y
@@ -126,6 +152,13 @@ class PlayerController is ObjectLinker{
 
     rotate(x,y,z) {
         super.rotate(x,y,z)
+    }
+
+    dealDamage(damage,multiplier){
+        if(!_damaged){
+        _health = _health - ((damage*multiplier) - (_defense/2))
+        _damaged = true
+        }
     }
 
 }
@@ -232,7 +265,7 @@ class MovingState is State {
     Update() {
         super.Update()
 
-        var movement = Vec3.new(_player.MoveDirection.x*_player.Speed,0,_player.MoveDirection.y*_player.Speed)
+        var movement = Vec3.new(_player.MoveDirection.x*_player.MoveSpeed,0,_player.MoveDirection.y*_player.MoveSpeed)
 
         _player.modPos(movement.x,movement.y,movement.z)
 
@@ -372,6 +405,43 @@ class SpecialAttackState is State {
     construct new(player) {
         super(player)
     }
+}
+
+class HitState is State{
+    construct new(player){
+        super(player,player.HitStun)
+        _player = player
+    }
+
+    BeginState(){
+        _next_state = _player.IdleState
+        // _enemy.ComponentAnimation.setAnimation("HitAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        super.BeginState()
+    }
+
+    EndState(){
+
+    }
+
+    HandleInput() {
+
+    }
+
+    GoToNextState() {
+        _player.State = _next_state
+    }
+
+    Update(){
+        super.Update()
+        if(super.IsStateFinished()){
+            this.GoToNextState()
+            //if alita is in range, attack again.
+            //if not, go to chase alita
+        }
+    }
+
 }
 
 

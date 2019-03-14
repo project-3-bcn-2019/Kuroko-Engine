@@ -30,7 +30,7 @@
     "debug": {},
     "Shaders": {},
     "gui": {
-        "log": false
+        "log": true
     },
     "renderer3d": {},
     "is_game": false,

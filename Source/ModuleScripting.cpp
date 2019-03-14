@@ -1111,7 +1111,7 @@ void InstantiatePrefab(WrenVM* vm) {
 	uint forced_uuid = random32bits();
 	PrefabData prefab_data(prefab_path, float3(x, y, z), float3(pitch, yaw, roll), forced_uuid);
 
-	App->scene->AskPrefabLoadFile(prefab_data);
+	App->scene->LoadPrefab(prefab_data);
 
 	wrenSetSlotDouble(vm, 0, forced_uuid);
 }
