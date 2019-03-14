@@ -1,7 +1,8 @@
 
 import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
-InputComunicator
+InputComunicator,
+Time
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -15,19 +16,28 @@ class EnemyCollider is ObjectLinker{
 
 Damage{_damage}
 DamageMultiplier{_damage_multiplier}
-ActiveFrames{_activeFrames}
+ActiveMS{_active_ms}
 
 construct new(){}
 
- Start() {}
+ Start() {
+     _current_time = 0.0
+ }
 
  Update() {
+
      var collisions = getCollisions()
-     for(i in 0...uuids.count){
+     for(i in 0...collisions.count){
          var Alita = collisions[i].getScript("PlayerController")
          if(Alita){
              Alita.dealDamage(_damage,_damage_multiplier)
          }
      }
+
+    _current_time = _current_time + Time.C_GetDeltaTime()
+    if(_current_time >= _active_ms){
+        kill()
+    }
+
  }
 }

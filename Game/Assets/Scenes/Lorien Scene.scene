@@ -4,7 +4,7 @@
             "name": "Enemy",
             "tag": "undefined",
             "static": false,
-            "UUID": 4094237127,
+            "UUID": 841384823,
             "isUI": false,
             "Components": [
                 {
@@ -71,14 +71,7 @@
                         {
                             "name": "Damage",
                             "type": "number",
-                            "value": 0,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "AttackSpeed",
-                            "type": "number",
-                            "value": 300,
+                            "value": 10,
                             "public": true,
                             "type_forced": false
                         },
@@ -92,21 +85,21 @@
                         {
                             "name": "Health",
                             "type": "number",
-                            "value": 0,
+                            "value": 50,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "Defense",
                             "type": "number",
-                            "value": 0,
+                            "value": 5,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "HitStun",
                             "type": "number",
-                            "value": 0,
+                            "value": 10,
                             "public": true,
                             "type_forced": false
                         },
@@ -131,8 +124,8 @@
                         },
                         {
                             "name": "ShowDebuLogs",
-                            "type": "number",
-                            "value": 0,
+                            "type": "bool",
+                            "value": true,
                             "public": true,
                             "type_forced": false
                         },
@@ -164,6 +157,27 @@
                             "name": "MoveScript",
                             "type": "number",
                             "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Startup",
+                            "type": "number",
+                            "value": 10,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ActiveMs",
+                            "type": "number",
+                            "value": 100,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Recovery",
+                            "type": "number",
+                            "value": 10,
+                            "public": true,
                             "type_forced": false
                         },
                         {
@@ -240,7 +254,7 @@
             "name": "Alita Tag",
             "tag": "Alita",
             "static": false,
-            "UUID": 3262955177,
+            "UUID": 1594262995,
             "isUI": false,
             "Components": [
                 {
@@ -291,7 +305,7 @@
             "name": "EnemyCollider",
             "tag": "undefined",
             "static": false,
-            "UUID": 4195614906,
+            "UUID": 1617984528,
             "isUI": false,
             "Components": [
                 {

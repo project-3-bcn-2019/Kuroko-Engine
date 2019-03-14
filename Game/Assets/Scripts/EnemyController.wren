@@ -41,8 +41,14 @@ MoveSpeed=(v) { _move_speed = v }
 Damage {_damage}
 Damage=(v) { _damage = v }
 
-AttackSpeed {_attack_speed}
-AttackSpeed=(v) { _attack_speed = v }
+Startup {_startup}
+Startup=(v) {_startup = v}
+
+ActiveMs {_active_ms}
+ActiveMs=(v) {_active_ms = v}
+
+Recovery {_recovery}
+Recovery=(v) {_recovery = v}
 
 AttackRange {_attack_range}
 AttackRange=(v) { _attack_range = v }
@@ -249,8 +255,12 @@ class ChaseState is EnemyState{
 
 class AttackState is EnemyState{
     construct new(enemy){
-        super(enemy,enemy.AttackSpeed)
+        var time = enemy.Startup + enemy.ActiveMs + enemy.Recovery
+        super(enemy,time)
         _enemy = enemy
+        _startup = enemy.Startup
+        _activeMs = enemy.ActiveMs
+        _recovery = enemy.Recovery
     }
 
     BeginState(){
@@ -271,6 +281,16 @@ class AttackState is EnemyState{
 
     Update() {
         super.Update()
+
+        if(super.CurrentTime >= _startup){
+            var collider = EngineComunicator.Instantiate("EnemyCollider",_enemy.getPos("global"),Vec3.new(0,0,0)).getScript("EnemyCollider")
+        }
+
+        if(collider){
+            collider.Damage = _enemy.Damage
+            collider.DamageMultiplier = 1
+            collider.ActiveMS = _activeMs
+        }
         if(super.IsStateFinished()){
             _enemy.lookForAlita()
             if(_enemy.AlitaInRange){

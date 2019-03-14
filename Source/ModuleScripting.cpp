@@ -1043,7 +1043,7 @@ void GetCollisions(WrenVM* vm) {
 		return;
 	}
 
-	ComponentTrigger* component = (ComponentTrigger*)go->getComponent(PHYSICS);
+	ComponentTrigger* component = (ComponentTrigger*)go->getComponent(TRIGGER);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentColliderCube", go->getName().c_str());
