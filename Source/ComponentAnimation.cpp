@@ -78,9 +78,9 @@ bool ComponentAnimation::Update(float dt)
 					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
 					
 					// Blend
-					if (doingTransition != nullptr)
+					if (doingTransition != nullptr && transitionFrom != nullptr)
 					{
-						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(doingTransition->origin);
+						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(transitionFrom->animationUID);
 						if (blendFrom != nullptr)
 						{
 							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];

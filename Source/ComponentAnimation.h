@@ -6,6 +6,7 @@
 #include "Globals.h"
 #include "ComponentBone.h"
 
+class Node;
 class Transition;
 
 class ComponentAnimation : public Component
@@ -40,6 +41,7 @@ public:
 	bool interpolate = true;
 
 	Transition* doingTransition = nullptr;
+	Node* transitionFrom = nullptr;
 
 private:
 

@@ -256,10 +256,10 @@ void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
 
 	blendtrans.Decompose(position_2, rotation_2, scale_2);
 
-	if (time > 1)
-		time = 0;
+	time = (time > 1) ? 1 : time;
+	time = (time < 0) ? 0 : time;
 
-	float3 finalpos = position_1.Lerp(position_2, (1 - time));
+	float3 finalpos = position_1.Lerp(position_2, (1 -time));
 	Quat finalrot = rotation_1.Slerp(rotation_2, (1 - time));
 	float3 finalscale = scale_1.Lerp(scale_2, (1 - time));
 

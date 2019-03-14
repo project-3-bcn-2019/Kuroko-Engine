@@ -65,6 +65,7 @@ bool ComponentAnimator::Update(float dt)
 					//animation->SetAnimTime(0.0f);
 					doingTransition = nullptr;
 					animation->doingTransition = nullptr;
+					animation->transitionFrom = nullptr;
 				}
 			}
 			else
@@ -81,6 +82,7 @@ bool ComponentAnimator::Update(float dt)
 						animation->doingTransition = doingTransition;
 						
 						Node* destinationNode = graph->getNode(doingTransition->destination);
+						animation->transitionFrom = graph->getNode(doingTransition->origin);
 						currentNode = destinationNode->UID;
 						animation->setAnimationResource(destinationNode->animationUID);
 						animation->loop = destinationNode->loop;
