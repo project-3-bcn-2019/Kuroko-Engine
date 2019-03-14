@@ -535,14 +535,21 @@ void PanelAnimationGraph::drawTransitionMenu()
 	}
 	ImGui::PushItemWidth(50);
 	
-	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(selected_transition->destination);
-
+	
 	if (ImGui::InputFloat("Next starts after", &selected_transition->nextStart, 0.0f, 0.0f, "%.2f"))
 	{
 		if (selected_transition->nextStart > selected_transition->duration)
 			selected_transition->nextStart = selected_transition->duration;
 	}
-	ImGui::SliderFloat("Duration", &selected_transition->duration, 0, 1 + selected_transition->nextStart, "%.2f");
+	
+	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(graph->getNode(selected_transition->destination)->animationUID);
+	if (!getAnim->IsLoaded())
+	{
+		getAnim->LoadAnimation();
+		getAnim->UnloadFromMemory();
+	}
+	selected_transition->duration = (selected_transition->duration > getAnim->getDuration() + selected_transition->nextStart) ? getAnim->getDuration() + selected_transition->nextStart : selected_transition->duration;
+	ImGui::SliderFloat("Duration", &selected_transition->duration, 0, getAnim->getDuration() + selected_transition->nextStart, "%.2f");
 	ImGui::PopItemWidth();
 
 	if (ImGui::Button("Add condition"))

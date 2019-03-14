@@ -86,7 +86,7 @@ bool ComponentAnimator::Update(float dt)
 						currentNode = destinationNode->UID;
 						animation->setAnimationResource(destinationNode->animationUID);
 						animation->loop = destinationNode->loop;
-						animation->SetAnimTime(0);
+						animation->SetAnimTime(0.f);
 					}
 				}
 			}
