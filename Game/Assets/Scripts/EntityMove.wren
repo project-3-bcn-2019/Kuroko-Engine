@@ -20,9 +20,24 @@ class EntityMove is ObjectLinker{
 construct new(){}
 
     //Put deceleration like 0.01 or will turn crazy (Lerp doesn't work very well)
-
     deceleration {_deceleration}
     deceleration=(v){ _deceleration = v}
+
+    acceleration {_acceleration}
+    acceleration=(v){ _acceleration = v}
+
+    max_speed {_max_speed}
+    max_speed =(v){ _max_speed = v}
+
+    rot_acceleration {_rot_acceleration}
+    rot_acceleration=(v){ _rot_acceleration = v}
+
+    //Bool to check if you want the entity to always look forward
+    face_movement {_face_movement}
+    face_movement=(v){ _face_movement = v}
+
+    //Direction of the rotation
+    direction {_direction}
 
     Start() {
          _component_collider = getComponent(ComponentType.PHYSICS)
@@ -40,13 +55,27 @@ construct new(){}
 
     Update() {
 
+        
         this.Break()
+
+
+        //Update Speed
+        if (_speed_vector.magnitude > 0){
+
+            _component_collider.setSpeed(_speed_vector)
+        }
+
     }
 
     SetSpeed(x,y,z) {
 
         _speed_vector = Vec3.new(x,y,z)
-        _component_collider.setSpeed(_speed_vector)
+
+    }
+
+
+    SetSpeed(vec) {
+        _speed_vector = vec
 
     }
 
@@ -54,9 +83,45 @@ construct new(){}
         _speed_vector = Vec3.new(x,y,z)
         _speed_vector.normalize()
         _speed_vector*speed
-        _component_collider.setSpeed(_speed_vector)
+
     }
 
+    AccelerateTo(x,y,z){
+
+        //Update Speed 
+        _speed_vector.x = _speed_vector.x + (acceleration * x * Time.C_GetDeltaTime())
+        _speed_vector.y = _speed_vector.y + (acceleration * y * Time.C_GetDeltaTime())
+        _speed_vector.z = _speed_vector.z + (acceleration * z * Time.C_GetDeltaTime())
+
+        
+        //Clamp 
+        _speed_vector.x = Math.clamp(_speed_vector.x, -max_speed, max_speed)
+        _speed_vector.y = Math.clamp(_speed_vector.y, -max_speed, max_speed)
+        _speed_vector.z = Math.clamp(_speed_vector.z, -max_speed, max_speed)
+    }
+
+    AccelerateTo(vec){
+
+        //Update Speed 
+        _speed_vector.x = _speed_vector.x + (acceleration * vec.x * Time.C_GetDeltaTime())
+        _speed_vector.y = _speed_vector.y + (acceleration * vec.y * Time.C_GetDeltaTime())
+        _speed_vector.z = _speed_vector.z + (acceleration * vec.z * Time.C_GetDeltaTime())
+
+        
+        //Clamp 
+        _speed_vector.x = Math.clamp(_speed_vector.x, -max_speed, max_speed)
+        _speed_vector.y = Math.clamp(_speed_vector.y, -max_speed, max_speed)
+        _speed_vector.z = Math.clamp(_speed_vector.z, -max_speed, max_speed)
+    }
+
+    Steer(vec){
+
+        diff = Vec3.substract(vec, this.getPos("global"))
+        diff = diff.normalized * acceleration
+
+        //WIP
+        //AccelerateTo(diff)
+    }
 
     Break() {
     //This function simulates the friction of the collider with the floor
@@ -70,8 +135,12 @@ construct new(){}
     
     }
 
-    SetDeceleration(value) {
-        _deceleration = value
+    RotateTo(target){
+        //WIP
+    }
+
+    RotateTo(x,y,z){
+        
     }
   
 }
