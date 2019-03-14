@@ -105,7 +105,6 @@ bool ResourceAnimationGraph::LoadGraph()
 			cursor += bytes;
 
 			Transition* trans = new Transition(transitionUids[0], transitionUids[1], uuid);
-			node->transitions.push_back(trans);
 			trans->duration = durations[0];
 			trans->nextStart = durations[1];
 			for (int k = 0; k < transitionUids[2]; ++k)
@@ -621,8 +620,13 @@ Transition::Transition(uint output, uint input, uint graphUID) : output(output),
 
 	if (outputLink != nullptr && inputLink != nullptr)
 	{
-		origin = graph->getNode(outputLink->nodeUID)->UID;
-		destination = graph->getNode(inputLink->nodeUID)->UID;
+		Node* outputNode = graph->getNode(outputLink->nodeUID);
+		Node* inputNode = graph->getNode(inputLink->nodeUID);
+		if (outputNode != nullptr && inputNode != nullptr)
+		{
+			origin = outputNode->UID;
+			destination = inputNode->UID;
+		}
 	}
 }
 
@@ -669,11 +673,14 @@ bool Transition::drawLine(bool selected, bool inTransition)
 	draw_list->AddTriangleFilled(destinationPos, { destinationPos.x - triangleSize, destinationPos.y + triangleSize / 2 }, { destinationPos.x - triangleSize, destinationPos.y - triangleSize / 2 }, color);
 	draw_list->ChannelsSetCurrent(0);
 
-	if (ImGui::IsMouseClicked(0) && App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+	if (ImGui::IsMouseClicked(0))
 	{
-		float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
-		if (distance <= 15.0f)
-			ret = true;
+		if (App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+		{
+			float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
+			if (distance <= 15.0f)
+				ret = true;
+		}
 	}
 
 	return ret;
@@ -686,8 +693,19 @@ void Transition::setConnection(uint output, uint input)
 
 	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graphUID);
 
-	origin = graph->getNode(graph->getLink(output)->nodeUID)->UID;
-	destination = graph->getNode(graph->getLink(input)->nodeUID)->UID;
+	NodeLink* outputLink = graph->getLink(output);
+	NodeLink* inputLink = graph->getLink(input);
+
+	if (outputLink != nullptr && inputLink != nullptr)
+	{
+		Node* outputNode = graph->getNode(outputLink->nodeUID);
+		Node* inputNode = graph->getNode(inputLink->nodeUID);
+		if (outputNode != nullptr && inputNode != nullptr)
+		{
+			origin = outputNode->UID;
+			destination = inputNode->UID;
+		}
+	}
 }
 
 inline static float ImVec2Dot(const ImVec2& S1, const ImVec2& S2) { return (S1.x*S2.x + S1.y*S2.y); }
