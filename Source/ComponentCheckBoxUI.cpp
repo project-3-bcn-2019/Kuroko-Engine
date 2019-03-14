@@ -64,18 +64,15 @@ bool ComponentCheckBoxUI::Update(float dt)
 bool ComponentCheckBoxUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI CheckBox"))
-	{
+	{		
 		
-
-		ImGui::Image(getResourceTexture(CH_IDLE) != nullptr ? (void*)getResourceTexture(CH_IDLE)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-		ImGui::SameLine();
-
 		int w = 0; int h = 0;
 		if (getResourceTexture(CH_IDLE) != nullptr) {
 			getResourceTexture(CH_IDLE)->texture->getSize(w, h);
 		}
 
-		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
+		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h); 
+		ImGui::Image(getResourceTexture(CH_IDLE) != nullptr ? (void*)getResourceTexture(CH_IDLE)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
 
 		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
 		{
@@ -88,8 +85,8 @@ bool ComponentCheckBoxUI::DrawInspector(int id)
 				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_IDLE);
 			}
 		}
-		ImGui::Image(getResourceTexture(CH_PRESSED) != nullptr ? (void*)getResourceTexture(CH_PRESSED)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
-		ImGui::SameLine();
+		ImGui::Separator();
+
 
 		int w2 = 0; int h2 = 0;
 		if (getResourceTexture(CH_PRESSED) != nullptr) {
@@ -97,6 +94,7 @@ bool ComponentCheckBoxUI::DrawInspector(int id)
 		}
 
 		ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+		ImGui::Image(getResourceTexture(CH_PRESSED) != nullptr ? (void*)getResourceTexture(CH_PRESSED)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
 
 		if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
 		{
@@ -108,7 +106,10 @@ bool ComponentCheckBoxUI::DrawInspector(int id)
 					App->resources->deasignResource(getResourceTexture(CH_PRESSED)->uuid);
 				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_PRESSED);
 			}
-		} // For debug
+		}
+
+		ImGui::Separator();
+		// For debug
 		bool pressed = isPressed();
 		ImGui::Checkbox("Pressed", &pressed);
 		if (pressed != isPressed()) { Press(); }

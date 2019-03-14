@@ -30,8 +30,8 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 
 	initWidth = intBarTransform->getWidth();
 
-	//intBarTransform->setInspectorDraw(false);
-	//barTransform->setInspectorDraw(false);
+	intBarTransform->setInspectorDraw(false);
+	barTransform->setInspectorDraw(false);
 	intBar->setInspectorDraw(false);
 	bar->setInspectorDraw(false);
 }
@@ -85,30 +85,45 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 	{
 		static float2 position = getPos();
 		static float percent = getPercent();
-		static float width = getInteriorWidth();
-		static float depth =getInteriorDepth();
+		static float width = barTransform->getWidth();
+		static float height = barTransform->getHeight();
+		static float depth = barTransform->getDepth();
+
+		static float2 positionInt = intBarTransform->getGlobalPos();
+		static float heightInt = intBarTransform->getHeight();
+		static float widthInt = getInteriorWidth();
+		static float depthInt =getInteriorDepth();
 
 		ImGui::Text("Percent:");
 		ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {setPercent(percent); }
+		ImGui::Separator();
+		ImGui::Text("BAR:");
 		ImGui::Text("Position:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat2("##ps", (float*)&position, 0.01f)) { setPos(position); }
-		ImGui::Text("Interior bar width:");
+		if (ImGui::DragFloat2("##ps", (float*)&position, 0.5f)) { setPos(position); }
+		ImGui::Text("Width:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat("##wi", (float*)&width, 0.1f)) { setInteriorWidth(width); }
-		ImGui::Text("Interior bar depth:");
+		if (ImGui::DragFloat("##wi", (float*)&width, 0.5f)) { barTransform->setWidth(width); }
+		ImGui::Text("Height:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat("##dp", (float*)&depth, 0.1f)) { setInteriorDepth(depth); }
+		if (ImGui::DragFloat("##hi", (float*)&height, 0.5f)) { barTransform->setHeight(height); }
+		ImGui::Text("Depth:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##d2", (float*)&depth, 0.1f)) { barTransform->setDepth(depth); }
 
 		int w = 0; int h = 0;
 		if (getResourceTexture() != nullptr) {
 			getResourceTexture()->texture->getSize(w, h);
 		}
 
-		ImGui::Text("Bar texture data: \n x: %d\n y: %d", w, h);
+
+		ImGui::Text("Texture data: \n x: %d\n y: %d", w, h);
+		ImGui::Image(getResourceTexture() != nullptr ? (void*)getResourceTexture()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+
 
 		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
 		{
@@ -122,8 +137,31 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 			}
 		}
 
-		ImGui::Image(getResourceTexture() != nullptr ? (void*)getResourceTexture()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		
 
+		ImGui::Separator();
+
+		ImGui::Text("INTERIOR BAR:");
+		ImGui::Text("Position:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat2("##p2s", (float*)&positionInt, 0.5f)) { intBarTransform->setPos(positionInt); }
+
+		ImGui::Text("Width:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##wi2", (float*)&widthInt, 0.5f)) { setInteriorWidth(widthInt); }
+		ImGui::Text("Height:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##hi2", (float*)&heightInt, 0.5f)) { 
+			intBarTransform->setHeight(heightInt); }
+		ImGui::Text("Depth:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##dp2", (float*)&depthInt, 0.1f)) { setInteriorDepth(depthInt); }
+		
+		
 
 		int w2 = 0; int h2 = 0;
 		if (getResourceTextureInterior() != nullptr) {
@@ -131,7 +169,9 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 		}
 
 
-		ImGui::Text("Interior Bar texture data: \n x: %d\n y: %d", w2, h2);
+		ImGui::Text("Texture data: \n x: %d\n y: %d", w2, h2);
+		ImGui::Image(getResourceTextureInterior() != nullptr ? (void*)getResourceTextureInterior()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+
 
 		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
 		{
@@ -145,7 +185,6 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 			}
 		}
 
-		ImGui::Image(getResourceTextureInterior() != nullptr ? (void*)getResourceTextureInterior()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
 		ImGui::SameLine();
 	}
 	return true;
@@ -160,9 +199,14 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 
 void ComponentProgressBarUI::setPos(float2 _pos)
 {
-	pos = _pos;
-	barTransform->setPos(pos);
+	barPos = _pos;
+	barTransform->setPos(barPos);
 
+}
+void ComponentProgressBarUI::setWidth(float width)
+{
+	barTransform->setWidth(width);
+	intBarTransform->setWidth(initWidth*percent / 100);
 }
 
 void ComponentProgressBarUI::setInteriorWidth(float width)

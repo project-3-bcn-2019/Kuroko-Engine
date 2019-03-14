@@ -23,7 +23,8 @@ public:
 	inline const float getPercent() { return percent; }
 
 	void setPos(float2 pos);
-	inline const float2 getPos() { return pos; }
+	void setWidth(float width);
+	inline const float2 getPos() { return barPos; }
 
 	void setInteriorWidth(float width);
 	inline const float getInteriorWidth() { return initWidth; }
@@ -44,7 +45,7 @@ public:
 
 private:
 
-	float2 pos = float2(0.f, 0.f);
+	float2 barPos = float2(0.f, 0.f);
 	float percent = 100.f;
 	float initWidth;
 
