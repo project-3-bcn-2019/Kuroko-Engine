@@ -64,6 +64,7 @@ public:
 	bool CompileShader(Shader* shader);
 	bool CompileProgram(ShaderProgram* program);
 	bool RecompileAllPrograms();
+	bool IsProgramValid(uint program);
 
 	ShaderProgram* GetDefaultShaderProgram()const;
 	ShaderProgram* GetAnimationShaderProgram()const;

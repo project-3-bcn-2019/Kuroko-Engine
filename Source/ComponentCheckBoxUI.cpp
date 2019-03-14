@@ -9,10 +9,17 @@
 #include "ModuleResourcesManager.h"
 #include "ResourceTexture.h"
 
+#include "ModuleUI.h"
+#include "Material.h"
+
+std::string openFileWID(bool isfile = false);
+
 ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent, UI_CHECKBOX)
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*) parent->getComponent(UI_IMAGE);
+
+	image->setInspectorDraw(false);
 }
 
 ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_CHECKBOX)
@@ -35,6 +42,8 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent
 		pressed = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 	ChangeGOImage();
+
+	image->setInspectorDraw(false);
 }
 
 
@@ -49,6 +58,62 @@ ComponentCheckBoxUI::~ComponentCheckBoxUI()
 bool ComponentCheckBoxUI::Update(float dt)
 {
 	CheckState();
+	return true;
+}
+
+bool ComponentCheckBoxUI::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("UI CheckBox"))
+	{
+		
+
+		ImGui::Image(getResourceTexture(CH_IDLE) != nullptr ? (void*)getResourceTexture(CH_IDLE)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w = 0; int h = 0;
+		if (getResourceTexture(CH_IDLE) != nullptr) {
+			getResourceTexture(CH_IDLE)->texture->getSize(w, h);
+		}
+
+		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture(CH_IDLE) != nullptr)
+					App->resources->deasignResource(getResourceTexture(CH_IDLE)->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_IDLE);
+			}
+		}
+		ImGui::Image(getResourceTexture(CH_PRESSED) != nullptr ? (void*)getResourceTexture(CH_PRESSED)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w2 = 0; int h2 = 0;
+		if (getResourceTexture(CH_PRESSED) != nullptr) {
+			getResourceTexture(CH_PRESSED)->texture->getSize(w2, h2);
+		}
+
+		ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture(CH_PRESSED) != nullptr)
+					App->resources->deasignResource(getResourceTexture(CH_PRESSED)->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), CH_PRESSED);
+			}
+		} // For debug
+		bool pressed = isPressed();
+		ImGui::Checkbox("Pressed", &pressed);
+		if (pressed != isPressed()) { Press(); }
+	}
+
 	return true;
 }
 

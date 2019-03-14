@@ -123,8 +123,8 @@ void ComponentMesh::Draw() const
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);*/
-
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
+*/
 
 			if (transform)
 				glLoadMatrixf((GLfloat*)view_mat.v);
@@ -183,7 +183,7 @@ bool ComponentMesh::Update(float dt)
 	return true;
 }
 
-void ComponentMesh::DrawInspector(int id)
+bool ComponentMesh::DrawInspector(int id)
 {
 	std::string tag;
 	tag = "Mesh##" + std::to_string(id);
@@ -406,7 +406,15 @@ void ComponentMesh::DrawInspector(int id)
 			}
 
 		}
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove mesh")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
+
+	return true;
 }
 
 Mesh* ComponentMesh::getMesh() const {

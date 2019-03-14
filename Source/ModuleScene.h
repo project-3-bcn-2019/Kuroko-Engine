@@ -28,6 +28,15 @@ struct RayHit
 	GameObject* obj = nullptr;
 	float3 intersection_point = float3::zero;
 };
+struct PrefabData {
+
+	PrefabData(std::string _file, float3 _pos, float3 _euler, uint _forced_uuid): file(_file),
+	pos(_pos), euler(_euler), forced_uuid(_forced_uuid){}
+	std::string file;
+	float3 pos;
+	float3 euler;
+	uint forced_uuid;
+};
 
 class ModuleScene : public Module
 {
@@ -69,7 +78,7 @@ public:
 	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
-	void AskPrefabLoadFile(const char* path, float3 pos, float3 eulerang);
+	void AskPrefabLoadFile(PrefabData data);
 	void SavePrefab(GameObject* root_obj, const char* name);
 	void AskSceneSaveFile(char* scene_name); 
 	void AskSceneLoadFile(char* path);
@@ -87,12 +96,12 @@ private:
 	void ManageSceneSaveLoad();
 	void SaveScene(std::string name);
 	void LoadScene(const char* path);
-	void LoadPrefab(const char* path);
+	void LoadPrefab(PrefabData data);
 	JSON_Value* serializeScene();
 	JSON_Value* serializePrefab(GameObject* root_obj);
 
 	void loadSerializedScene(JSON_Value* scene);
-	void loadSerializedPrefab(JSON_Value* prefab);
+	GameObject* loadSerializedPrefab(JSON_Value* prefab);
 private:
 
 	std::list<GameObject*>	game_objects; 
@@ -108,8 +117,7 @@ private:
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
 
-	bool want_load_prefab_file = false;
-	Transform prefab_load_spawn;
+
 	bool want_local_save      = false;
 	bool want_local_load	  = false;
 
@@ -119,7 +127,8 @@ private:
 
 	std::string scene_to_save_name;
 	std::string path_to_load_scene;
-	std::string path_to_load_prefab;
+
+	std::list<PrefabData> prefabs_to_spawn;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
 

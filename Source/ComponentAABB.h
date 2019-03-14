@@ -19,7 +19,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
-	void DrawInspector(int id = 0);
+	bool DrawInspector(int id = 0)override;
 	void Reload();
 
 	math::AABB* getAABB() const { return aabb; };

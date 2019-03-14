@@ -43,7 +43,7 @@ bool ComponentAudioSource::Update(float dt)
 	return true;
 }
 
-void ComponentAudioSource::DrawInspector(int id)
+bool ComponentAudioSource::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Audio Source"))
 	{
@@ -110,7 +110,15 @@ void ComponentAudioSource::DrawInspector(int id)
 			}
 			ImGui::End();
 		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio source")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
+	return true;
 }
 
 void ComponentAudioSource::CleanUp()

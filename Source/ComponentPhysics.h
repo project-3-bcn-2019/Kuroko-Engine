@@ -24,7 +24,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
-	void DrawInspector(int id = 0);
+	bool DrawInspector(int id = 0) override;
 
 	virtual ~ComponentPhysics();
 	PhysBody* body;

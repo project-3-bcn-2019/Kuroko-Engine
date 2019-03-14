@@ -14,17 +14,17 @@ public:
 
 	bool Update(float dt) override;
 	void Draw() const override;
-	void DrawInspector(int id = 0);
+	bool DrawInspector(int id = 0)override;
 	void Save(JSON_Object* config) override;
 
 	void setResolution(float2 resolution);	
-	inline const float2 getResolution() { return _resolution; }
+	inline const float2 getResolution();
 
 	bool draw_cross = false;
 
 private:	
 
-	float2 _resolution = float2::zero;
+	//float2 _resolution = float2::zero;
 	ComponentRectTransform* rectTransform = nullptr;
 	
 };

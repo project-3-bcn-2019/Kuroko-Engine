@@ -15,6 +15,7 @@
 #include "ModuleTimeManager.h"
 
 #include "SDL/include/SDL_opengl.h"
+#include "ImGui/imgui.h"
 
 
 ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape _shape, bool _is_environment) :Component(_parent, PHYSICS)
@@ -119,13 +120,6 @@ bool ComponentPhysics::Update(float dt)
 	}*/
 
 	//the objective is to get the transform from the physics object and apply it to the obb and then to the object in the engine
-
-	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
-	{
-		//body->GetRigidBody()->ap(btVector3(10,0,0));
-		App->physics->change_shape(this);
-	}
-
 	if (App->time->getGameState() == GameState::PLAYING)
 	{
 		UpdateTransformsFromPhysics();
@@ -170,8 +164,82 @@ void ComponentPhysics::Draw() const
 
 }
 
-void ComponentPhysics::DrawInspector(int id)
+bool ComponentPhysics::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Collider"))
+	{
+		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+		
+		bool toggle_static = is_environment;
+
+		//position
+		ImGui::Text("Offset:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p x", &offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p y", &offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p z", &offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		//rotation
+		ImGui::Text("Rotation:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r x", &offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r y", &offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r z", &offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		//scale
+		ImGui::Text("   Scale:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s x", &offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s y", &offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::Checkbox("is environment", &toggle_static);
+		if (toggle_static != is_environment)
+		{
+			SetStatic(toggle_static);
+		}
+
+		if (ImGui::Button("Change shape"))
+		{
+			App->physics->ChangeShape(this);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Adapt to AABB"))
+		{
+			App->physics->AdaptToAABB(this);
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove physics")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
+
+	return true;
 }
 
 void ComponentPhysics::Save(JSON_Object* config)

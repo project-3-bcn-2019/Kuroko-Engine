@@ -42,11 +42,17 @@ void getGameObjectPitch(WrenVM* vm);
 void getGameObjectYaw(WrenVM* vm);
 void getGameObjectRoll(WrenVM* vm);
 
+void GetGameObjectForwardX(WrenVM* vm);
+void GetGameObjectForwardY(WrenVM* vm);
+void GetGameObjectForwardZ(WrenVM* vm);
+
 void KillGameObject(WrenVM* vm);
 void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
 void GetCollisions(WrenVM* vm);
 void GetScript(WrenVM* vm);
+
+
 
 // Engine comunicator
 void ConsoleLog(WrenVM* vm); 
@@ -307,6 +313,20 @@ std::string ModuleScripting::enum2component(Component_type type) {
 
 	}
 	return std::string();
+}
+
+WrenCall ModuleScripting::DisplayMethods(GameObject * go) {
+	std::list<Component*> scripts;
+	go->getComponents(SCRIPT, scripts);
+
+	ImGui::Begin("Script Selector");
+	//for (auto it = scripts.begin(); it != scripts.end(); it++) {
+	//	ScriptData* script = ((ComponentScript*)(*it))->instance_data;
+	//	std::string display = script->methods;
+	//}
+	ImGui::End();
+
+	return WrenCall("hello", "everyone");
 }
 
 
@@ -575,6 +595,15 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			}
 			if (strcmp(signature, "C_getRoll(_)") == 0) {
 				return getGameObjectRoll; // C function for ObjectComunicator.C_getRoll
+			}
+			if (strcmp(signature, "C_getForwardX(_)") == 0) {
+				return GetGameObjectForwardX; // C function for ObjectComunicator.C_getForwardX(_)
+			}
+			if (strcmp(signature, "C_getForwardY(_)") == 0) {
+				return GetGameObjectForwardY; // C function for ObjectComunicator.C_getForwardY(_)
+			}
+			if (strcmp(signature, "C_getForwardZ(_)") == 0) {
+				return GetGameObjectForwardZ; // C function for ObjectComunicator.C_getForwardZ(_)
 			}
 			if (strcmp(signature, "C_Kill(_)") == 0) {
 				return KillGameObject; // C function for ObjectComunicator.C_Kill
@@ -912,6 +941,51 @@ void getGameObjectRoll(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, c_trans->local->getRotationEuler().z);
 }
 
+void GetGameObjectForwardX(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().x);
+}
+
+void GetGameObjectForwardY(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().y);
+}
+
+void GetGameObjectForwardZ(WrenVM * vm)
+{
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+
+	wrenSetSlotDouble(vm, 0, c_trans->global->Forward().z);
+}
+
 void KillGameObject(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 
@@ -1013,6 +1087,7 @@ void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to th
 	
 	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
 }
+
 // Engine comunicator
 void ConsoleLog(WrenVM* vm)
 {
@@ -1033,7 +1108,12 @@ void InstantiatePrefab(WrenVM* vm) {
 
 	std::string prefab_path = App->resources->getPrefabPath(prefab_name.c_str());
 
-	App->scene->AskPrefabLoadFile(prefab_path.c_str(), float3(x, y, z), float3(pitch, yaw, roll));
+	uint forced_uuid = random32bits();
+	PrefabData prefab_data(prefab_path, float3(x, y, z), float3(pitch, yaw, roll), forced_uuid);
+
+	App->scene->AskPrefabLoadFile(prefab_data);
+
+	wrenSetSlotDouble(vm, 0, forced_uuid);
 }
 void getTime(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, SDL_GetTicks());
@@ -1752,7 +1832,7 @@ void SetSpeed(WrenVM* vm) {
 	ComponentPhysics* component = (ComponentPhysics*)go->getComponentByUUID(componentUUID);
 
 	if (!component) {
-		app_log->AddLog("Game Object %s has no ComponentText with %i uuid", go->getName().c_str(), componentUUID);
+		app_log->AddLog("Game Object %s has no ComponentPhysics with %i uuid", go->getName().c_str(), componentUUID);
 		return;
 	}
 

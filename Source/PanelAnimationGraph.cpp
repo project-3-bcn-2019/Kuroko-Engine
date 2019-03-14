@@ -203,7 +203,7 @@ void PanelAnimationGraph::Draw()
 						linked->connect(linking->UID);
 
 						originNode->connectLink(linkingNode);
-						originNode->transitions.push_back(new Transition(linking, linked, graph->uuid));
+						originNode->transitions.push_back(new Transition(linking->UID, linked->UID, graph->uuid));
 					}
 				}
 				linkingNode = 0;
@@ -502,9 +502,28 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImGui::BeginGroup();
 	ImGui::Text("Transition");
 
-	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(selected_transition->destination->animationUID);
+	ImGui::SameLine(ImGui::GetContentRegionMax().x - 30);
+	if (ImGui::Button("X", { 20,20 }))
+	{
+		ImGui::EndGroup();
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+		Node* origin = graph->getNode(selected_transition->origin);
+		NodeLink* output = graph->getLink(selected_transition->output);
+		origin->transitions.remove(selected_transition);
+		origin->removeLink(output); //It automatically removes input link and transition
+		selected_transition = nullptr;
+		return;
+	}
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::SetTooltip("Remove");
+	}
 	ImGui::PushItemWidth(50);
 	
+	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(selected_transition->destination);
+
 	if (ImGui::InputFloat("Next starts after", &selected_transition->nextStart, 0.0f, 0.0f, "%.2f"))
 	{
 		if (selected_transition->nextStart > selected_transition->duration)
@@ -517,9 +536,9 @@ void PanelAnimationGraph::drawTransitionMenu()
 	{
 		selected_transition->conditions.push_back(new Condition());
 	}
-	draw_list->AddLine({ posA.x, posA.y + 90 }, { posB.x, posA.y + 90 }, IM_COL32(150, 150, 150, 255));
+	draw_list->AddLine({ posA.x, posA.y + 95 }, { posB.x, posA.y + 95 }, IM_COL32(150, 150, 150, 255));
 
-	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 95 });
+	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 100 });
 	int count = 0;
 	for (std::list<Condition*>::iterator it = selected_transition->conditions.begin(); it != selected_transition->conditions.end(); ++it)
 	{		
@@ -530,8 +549,13 @@ void PanelAnimationGraph::drawTransitionMenu()
 		Variable* var = graph->getVariable((*it)->variable_uuid);
 		
 		ImGui::PushItemWidth(80);
-		if (ImGui::BeginCombo(("##Vars" + std::to_string(count)).c_str(), (var == nullptr)? "" : var->name.c_str()))
+		if (ImGui::BeginCombo(("##Vars" + std::to_string(count)).c_str(), (var == nullptr)? (((*it)->type == CONDITION_FINISHED)? "Finished":"") : var->name.c_str()))
 		{
+			if (ImGui::Selectable(("Finished##" + std::to_string(count)).c_str()))
+			{
+				(*it)->type = CONDITION_FINISHED;
+				(*it)->variable_uuid = 0;
+			}
 			for (std::list<Variable*>::iterator it_v = graph->blackboard.begin(); it_v != graph->blackboard.end(); ++it_v)
 			{
 				if (ImGui::Selectable(((*it_v)->name + "##" + std::to_string(count)).c_str()))
@@ -544,7 +568,7 @@ void PanelAnimationGraph::drawTransitionMenu()
 			ImGui::EndCombo();
 		}
 		ImGui::PopItemWidth();
-		if (var != nullptr)
+		if (var != nullptr && (*it)->type != CONDITION_FINISHED)
 		{
 			ImGui::SameLine();
 			static const char* types[6] = { "EQUALS", "DIFERENT", "GREATER", "LESS", "TRUE", "FALSE" };

@@ -88,6 +88,56 @@ bool ResourceAnimationGraph::LoadGraph()
 			NodeLink* link = node->addLink((linkType)type, true, links[0]);
 			link->connect(links[1]);
 		}
+
+		uint transitionAmount;
+		memcpy(&transitionAmount, cursor, sizeof(uint));
+		cursor += sizeof(uint);
+		for (int k = 0; k < transitionAmount; ++k)
+		{
+			float durations[2];
+			bytes = sizeof(durations);
+			memcpy(durations, cursor, bytes);
+			cursor += bytes;
+
+			uint transitionUids[3];
+			bytes = sizeof(transitionUids);
+			memcpy(transitionUids, cursor, bytes);
+			cursor += bytes;
+
+			Transition* trans = new Transition(transitionUids[0], transitionUids[1], uuid);
+			trans->duration = durations[0];
+			trans->nextStart = durations[1];
+			for (int k = 0; k < transitionUids[2]; ++k)
+			{
+				Condition* cond = new Condition();
+
+				uint ranges[3];
+				memcpy(ranges, cursor, sizeof(uint) * 3);
+				cursor += sizeof(uint) * 3;
+
+				memcpy(&cond->conditionant, cursor, sizeof(float));
+				cursor += sizeof(float);
+
+				bytes = sizeof(char)*ranges[2];
+				if (bytes > 0)
+				{
+					char* auxName = new char[ranges[2]];
+					memcpy(auxName, cursor, bytes);
+					std::string name = auxName;
+					name = name.substr(0, ranges[2]);
+					RELEASE_ARRAY(auxName);
+					cond->string_conditionant = name;
+				}
+				cursor += bytes;
+
+				cond->type = (conditionType)ranges[0];
+				cond->variable_uuid = ranges[1];
+
+				trans->conditions.push_back(cond);
+			}
+			node->transitions.push_back(trans);
+		}
+
 		nodes.insert(std::pair<uint, Node*>(uids[0], node));
 	}
 
@@ -95,56 +145,9 @@ bool ResourceAnimationGraph::LoadGraph()
 	{
 		Node* node = (*it_n).second;
 
-		for (std::list<NodeLink*>::iterator it_l = node->links.begin(); it_l != node->links.end(); ++it_l)
+		for (std::list<Transition*>::iterator it_t = node->transitions.begin(); it_t != node->transitions.end(); ++it_t)
 		{
-			if ((*it_l)->type == OUTPUT_LINK)
-			{
-				NodeLink* linked = getLink((*it_l)->connectedNodeLink);
-				if (linked != nullptr)
-				{
-					float durations[2];
-					bytes = sizeof(durations);
-					memcpy(durations, cursor, bytes);
-					cursor += bytes;
-
-					uint numConditions;
-					memcpy(&numConditions, cursor, sizeof(uint));
-					cursor += sizeof(uint);
-
-					Transition* trans = new Transition((*it_l), linked, uuid);
-					node->transitions.push_back(trans);
-					trans->duration = durations[0];
-					trans->nextStart = durations[1];
-					for (int k = 0; k < numConditions; ++k)
-					{
-						Condition* cond = new Condition();
-
-						uint ranges[3];
-						memcpy(ranges, cursor, sizeof(uint) * 3);
-						cursor += sizeof(uint) * 3;
-
-						memcpy(&cond->conditionant, cursor, sizeof(float));
-						cursor += sizeof(float);
-
-						bytes = sizeof(char)*ranges[2];
-						if (bytes > 0)
-						{
-							char* auxName = new char[ranges[2]];
-							memcpy(auxName, cursor, bytes);
-							std::string name = auxName;
-							name = name.substr(0, ranges[2]);
-							RELEASE_ARRAY(auxName);
-							cond->string_conditionant = name;
-						}
-						cursor += bytes;
-
-						cond->type = (conditionType)ranges[0];
-						cond->variable_uuid = ranges[1];
-
-						trans->conditions.push_back(cond);
-					}
-				}
-			}
+			(*it_t)->setConnection((*it_t)->output, (*it_t)->input);
 		}
 	}
 	start = getNode(startUUID);
@@ -194,22 +197,23 @@ void ResourceAnimationGraph::UnloadFromMemory()
 bool ResourceAnimationGraph::saveGraph() const
 {
 	uint size = 0;
-	//Nodes: nameLength, name, position, UID, animation UID, num Links
-	size += sizeof(int);
+	//Nodes: nameLength, name, position, UID, animation UID, num Links, loop
+	size += sizeof(int)+sizeof(uint);
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
-		size += (*it_n).second->name.length() + 2 * sizeof(float) + 5 * sizeof(uint) + sizeof(bool);
+		size += (*it_n).second->name.length()*sizeof(char) + 2*sizeof(float) + 4*sizeof(uint) + sizeof(bool);
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
-			size += sizeof(int) + 2 * sizeof(uint);
+			size += sizeof(int) + 2*sizeof(uint);
 		}
+		size += sizeof(uint);
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
-			size += sizeof(float)+sizeof(uint);
+			size += 2*sizeof(float) + 3*sizeof(uint);
 			for (std::list<Condition*>::iterator it_c = (*it_t)->conditions.begin(); it_c != (*it_t)->conditions.end(); ++it_c)
 			{
-				size += 3 * sizeof(uint) + sizeof(float) + (*it_c)->string_conditionant.size()*sizeof(char);
+				size += 3*sizeof(uint) + sizeof(float) + (*it_c)->string_conditionant.size()*sizeof(char);
 			}
 		}
 	}
@@ -237,6 +241,7 @@ bool ResourceAnimationGraph::saveGraph() const
 		bytes = (*it_n).second->name.length();
 		memcpy(cursor, &bytes, sizeof(uint));
 		cursor += sizeof(uint);
+
 		bytes = sizeof(char)*bytes;
 		memcpy(cursor, (*it_n).second->name.c_str(), bytes);
 		cursor += bytes;
@@ -267,6 +272,10 @@ bool ResourceAnimationGraph::saveGraph() const
 			cursor += bytes;
 		}
 
+		uint transitionAmount = (*it_n).second->transitions.size();
+		memcpy(cursor, &transitionAmount, sizeof(uint));
+		cursor += sizeof(uint);
+
 		for (std::list<Transition*>::iterator it_t = (*it_n).second->transitions.begin(); it_t != (*it_n).second->transitions.end(); ++it_t)
 		{
 			float durations[2] = { (*it_t)->duration ,(*it_t)->nextStart };
@@ -274,9 +283,10 @@ bool ResourceAnimationGraph::saveGraph() const
 			memcpy(cursor, &durations[0], bytes);
 			cursor += bytes;
 
-			uint numConditions = (*it_t)->conditions.size();
-			memcpy(cursor, &numConditions, sizeof(uint));
-			cursor += sizeof(uint);
+			uint transitionUids[3] = { (*it_t)->output, (*it_t)->input, (*it_t)->conditions.size() };
+			bytes = sizeof(transitionUids);
+			memcpy(cursor, transitionUids, bytes);
+			cursor += bytes;
 
 			for (std::list<Condition*>::iterator it_c = (*it_t)->conditions.begin(); it_c != (*it_t)->conditions.end(); ++it_c)
 			{
@@ -307,7 +317,6 @@ bool ResourceAnimationGraph::saveGraph() const
 		cursor += sizeof(char)*ranges[2];
 	}
 
-	//App->fs.ExportBuffer(buffer, size, std::to_string(uuid).c_str(), LIBRARY_GRAPHS, GRAPH_EXTENSION);
 	App->fs.ExportBuffer(buffer, size, asset.c_str());
 	RELEASE_ARRAY(buffer);
 
@@ -458,7 +467,7 @@ void Node::removeLink(NodeLink* link)
 		//Remove transition
 		for (std::list<Transition*>::iterator it = transitions.begin(); it != transitions.end(); ++it)
 		{
-			if ((*it)->output == link)
+			if ((*it)->output == link->UID)
 			{
 				Transition* trans = (*it);
 				transitions.erase(it);
@@ -544,7 +553,7 @@ bool Node::checkLink(Node* node)
 
 	for (std::list<Transition*>::iterator it_t = transitions.begin(); it_t != transitions.end(); ++it_t)
 	{
-		if ((*it_t)->destination == node)
+		if ((*it_t)->destination == node->UID)
 		{
 			ret = true;
 			break;
@@ -602,12 +611,23 @@ NodeLink::~NodeLink()
 	}
 }
 
-Transition::Transition(NodeLink* output, NodeLink* input, uint graphUID) : output(output), input(input), graphUID(graphUID)
+Transition::Transition(uint output, uint input, uint graphUID) : output(output), input(input), graphUID(graphUID)
 {
 	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graphUID);
+	
+	NodeLink* outputLink = graph->getLink(output);
+	NodeLink* inputLink = graph->getLink(input);
 
-	origin = graph->getNode(output->nodeUID);
-	destination = graph->getNode(input->nodeUID);
+	if (outputLink != nullptr && inputLink != nullptr)
+	{
+		Node* outputNode = graph->getNode(outputLink->nodeUID);
+		Node* inputNode = graph->getNode(inputLink->nodeUID);
+		if (outputNode != nullptr && inputNode != nullptr)
+		{
+			origin = outputNode->UID;
+			destination = inputNode->UID;
+		}
+	}
 }
 
 Transition::~Transition()
@@ -624,8 +644,15 @@ bool Transition::drawLine(bool selected, bool inTransition)
 	bool ret = false;
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	ImVec2 originPos = { origin->gridPos.x + output->nodePos.x, origin->gridPos.y + output->nodePos.y };
-	ImVec2 destinationPos = { destination->gridPos.x + input->nodePos.x, destination->gridPos.y + input->nodePos.y };
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graphUID);
+
+	Node* originNode = graph->getNode(origin);
+	Node* destinationNode = graph->getNode(destination);
+	NodeLink* outputLink = graph->getLink(output);
+	NodeLink* inputLink = graph->getLink(input);
+
+	ImVec2 originPos = { originNode->gridPos.x + outputLink->nodePos.x, originNode->gridPos.y + outputLink->nodePos.y };
+	ImVec2 destinationPos = { destinationNode->gridPos.x + inputLink->nodePos.x, destinationNode->gridPos.y + inputLink->nodePos.y };
 
 	float lineThickness = 3.0f;
 	float triangleSize = 10.0f;
@@ -646,14 +673,39 @@ bool Transition::drawLine(bool selected, bool inTransition)
 	draw_list->AddTriangleFilled(destinationPos, { destinationPos.x - triangleSize, destinationPos.y + triangleSize / 2 }, { destinationPos.x - triangleSize, destinationPos.y - triangleSize / 2 }, color);
 	draw_list->ChannelsSetCurrent(0);
 
-	if (ImGui::IsMouseClicked(0) && App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+	if (ImGui::IsMouseClicked(0))
 	{
-		float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
-		if (distance <= 15.0f)
-			ret = true;
+		if (App->gui->p_animation_graph->linkingNode == 0 && containPoint(originPos, destinationPos, ImGui::GetMousePos()))
+		{
+			float distance = GetSquaredDistanceToBezierCurve(ImGui::GetMousePos(), originPos, { originPos.x + 50.0f, originPos.y }, { destinationPos.x - 50.0f, destinationPos.y }, destinationPos);
+			if (distance <= 15.0f)
+				ret = true;
+		}
 	}
 
 	return ret;
+}
+
+void Transition::setConnection(uint output, uint input)
+{
+	this->output = output;
+	this->input = input;
+
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graphUID);
+
+	NodeLink* outputLink = graph->getLink(output);
+	NodeLink* inputLink = graph->getLink(input);
+
+	if (outputLink != nullptr && inputLink != nullptr)
+	{
+		Node* outputNode = graph->getNode(outputLink->nodeUID);
+		Node* inputNode = graph->getNode(inputLink->nodeUID);
+		if (outputNode != nullptr && inputNode != nullptr)
+		{
+			origin = outputNode->UID;
+			destination = inputNode->UID;
+		}
+	}
 }
 
 inline static float ImVec2Dot(const ImVec2& S1, const ImVec2& S2) { return (S1.x*S2.x + S1.y*S2.y); }

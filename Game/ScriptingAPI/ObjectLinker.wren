@@ -90,6 +90,15 @@ class Vec3{
 		z = vec.z
 	}
 
+	*(num) {
+		x = x*num
+		y = y*num
+		z = z*num
+	}
+
+	angleBetween(other){
+		return Math.C_angleBetween(x,y,z,other.x,other.y,other.z)
+	}
 }
 
 class EngineComunicator{
@@ -106,16 +115,15 @@ class EngineComunicator{
 
 	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
-		EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		var go_uuid = EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		return ObjectLinker.new(go_uuid)
 	}
 
 	static FindGameObjectsByTag(tag){
 		var uuids = EngineComunicator.C_FindGameObjectsByTag(tag)
 		var gameObjects = []
 		for(i in 0...uuids.count){
-			var add_obj = ObjectLinker.new()
-			add_obj.gameObject = uuids[i]
-			gameObjects.insert(i, add_obj)
+			gameObjects.insert(i, ObjectLinker.new(uuids[i]))
 		}
 
 		return gameObjects
@@ -129,7 +137,7 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
-        static J {13}
+    static J {13}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}
@@ -177,7 +185,7 @@ class InputComunicator{
 class ObjectComunicator{
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
-        foreign static C_rotate(gameObject, x, y, z)
+    foreign static C_rotate(gameObject, x, y, z)
 	foreign static C_lookAt(gameObject, x, y, z)
 
 	foreign static C_getPosX(gameObject, mode)
@@ -187,6 +195,10 @@ class ObjectComunicator{
 	foreign static C_getPitch(gameObject)
 	foreign static C_getYaw(gameObject)
 	foreign static C_getRoll(gameObject)
+
+	foreign static C_getForwardX(gameObject)
+	foreign static C_getForwardY(gameObject)
+	foreign static C_getForwardZ(gameObject)
 
 	foreign static C_Kill(gameObject)
 	foreign static C_MoveForward(gameObject, speed)
@@ -214,6 +226,10 @@ class ObjectLinker{
 	gameObject=(v){ _gameObject = v}
 
 	construct new(){}
+
+	construct new(uuid){
+		gameObject = uuid
+	}
 
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
@@ -264,6 +280,10 @@ class ObjectLinker{
 		return ObjectComunicator.C_getRoll(gameObject)
 	}
 
+	getForward(){
+		return Vec3.new(ObjectComunicator.C_getForwardX(),ObjectComunicator.C_getForwardY(),ObjectComunicator.C_getForwardZ())
+	}
+	
 	moveForward(speed){
 		ObjectComunicator.C_MoveForward(gameObject, speed)
 	}
@@ -319,6 +339,6 @@ class ObjectLinker{
 
 	instantiate(prefab_name, offset, euler){
 		var pos = Vec3.add(getPos("global"), offset)
-		EngineComunicator.Instantiate(prefab_name, pos, euler)
+		return EngineComunicator.Instantiate(prefab_name, pos, euler)
 	}
 }

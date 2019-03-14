@@ -5,6 +5,8 @@
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
 #include "ComponentAnimation.h"
+#include "ModuleUI.h"
+#include "PanelAnimationEvent.h"
 
 ComponentAnimationEvent::ComponentAnimationEvent(JSON_Object* deff, GameObject* parent) : Component(parent, ANIMATION_EVENT)
 {
@@ -118,6 +120,184 @@ bool ComponentAnimationEvent::Update(float dt)
 		}
 	}
 
+	return true;
+}
+
+bool ComponentAnimationEvent::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Animation Events"))
+	{
+		//ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(anim->getAnimationResource());
+		//ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+
+
+		if (ImGui::Button("Create Animation"))
+			App->gui->p_anim_evt->new_anim_set_win = true;
+		if (App->gui->p_anim_evt->new_anim_set_win)
+		{
+			ImGui::Begin("Name", &App->gui->p_anim_evt->new_anim_set_win);
+
+			ImGui::InputText("#SetName", App->gui->p_anim_evt->prov, 50);
+			if (ImGui::Button("Create"))
+			{
+				AnimSet push;
+				push.name = App->gui->p_anim_evt->prov;
+				App->gui->p_anim_evt->new_anim_set_win = false;
+
+
+				AnimEvts.push_back(push);
+				if (curr != nullptr)
+					curr->selected = false;
+				curr = &AnimEvts.back();
+				App->gui->p_anim_evt->curr = --AnimEvts.end();
+				//p_anim_evt->prov = "\0";
+			}
+
+			ImGui::End();
+		}
+
+		if (curr == nullptr && AnimEvts.size() > 0)
+		{
+			if (ImGui::BeginCombo("Animation Sets", curr->name.c_str()))
+			{
+
+				for (auto it = AnimEvts.begin(); it != AnimEvts.end(); ++it)
+					if (ImGui::Selectable(it->name.c_str(), &it->selected))
+					{
+						curr->selected = false;
+						curr = &it._Ptr->_Myval;
+						curr->selected = true;
+
+						for (auto it = AnimEvts.begin(); it != AnimEvts.end(); ++it)
+							if (&it._Ptr->_Myval == curr)
+							{
+								App->gui->p_anim_evt->curr = it;
+								break;
+							}
+					}
+				ImGui::EndCombo();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Delete"))
+			{
+				AnimEvts.erase(App->gui->p_anim_evt->curr);
+				curr = nullptr;
+				App->gui->p_anim_evt->curr = AnimEvts.end();
+			}
+		}
+
+		if (curr != nullptr)
+		{
+			if (ImGui::BeginCombo("Animation Sets##12", curr->name.c_str()))
+			{
+
+				for (auto it = AnimEvts.begin(); it != AnimEvts.end(); ++it)
+					if (ImGui::Selectable(it->name.c_str(), &it->selected))
+					{
+						curr->selected = false;
+						curr = &it._Ptr->_Myval;
+						curr->selected = true;
+
+						for (auto it = AnimEvts.begin(); it != AnimEvts.end(); ++it)
+							if (&it._Ptr->_Myval == curr)
+							{
+								App->gui->p_anim_evt->curr = it;
+								break;
+							}
+					}
+				ImGui::EndCombo();
+			}
+
+			if (ImGui::Button("Link Animation")) App->gui->p_anim_evt->copy_specs_win = true;
+
+			App->gui->p_anim_evt->CopySpecs();
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				auto get = getParent()->getComponent(Component_type::ANIMATION);
+				if (get != nullptr)
+					ImGui::TextUnformatted(("Link the component animation to the\nskeletal animation, if available\n Currently linked to: " + get->TypeToString()).c_str());
+				else
+					ImGui::TextUnformatted(("No Animation to link to"));
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+
+			static bool animation_active;
+			animation_active = isActive();
+
+			if (ImGui::Checkbox("Active##active animation evt", &animation_active))
+				setActive(animation_active);
+
+			ImGui::Checkbox("Loop", &curr->loop);
+
+
+			ImGui::InputInt("Duration", &curr->own_ticks, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				ImGui::TextUnformatted("In Frames");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+			ImGui::InputInt("FrameRate", &curr->ticksXsecond, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue);
+
+			ImGui::InputFloat("Speed", &curr->speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
+				ImGui::TextUnformatted("Animation Speed Multiplier");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+			//if (R_anim != nullptr)
+			{
+				if (App->time->getGameState() != GameState::PLAYING)
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else if (isPaused())
+				{
+					if (ImGui::Button("Play"))
+						Play();
+					ImGui::SameLine();
+					ImGui::Text("Pause");
+				}
+				else
+				{
+					ImGui::Text("Play");
+					ImGui::SameLine();
+					if (ImGui::Button("Pause"))
+						Pause();
+				}
+
+				ImGui::Text("Animation info:");
+				if (curr->ticksXsecond != 0)
+					ImGui::Text("Duration: %.1f ms", curr->own_ticks / curr->ticksXsecond * 1000.f);
+				//ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+			}
+
+			if (ImGui::Button("AnimEditor"))
+				App->gui->p_anim_evt->toggleActive();
+			if (App->gui->p_anim_evt->isActive())
+				App->gui->p_anim_evt->Draw();
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove animation event")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
 	return true;
 }
 

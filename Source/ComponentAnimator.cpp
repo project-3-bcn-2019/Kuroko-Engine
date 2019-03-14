@@ -4,6 +4,10 @@
 #include "ResourceAnimationGraph.h"
 #include "ModuleTimeManager.h"
 #include "ComponentAnimation.h"
+#include "ModuleUI.h"
+#include "PanelAnimationGraph.h"
+
+#include "ImGui/imgui.h"
 
 ComponentAnimator::ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR)
 {
@@ -57,6 +61,10 @@ bool ComponentAnimator::Update(float dt)
 			{
 				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
 				{
+					Node* destinationNode = graph->getNode(doingTransition->destination);
+					currentNode = destinationNode->UID;
+					animation->setAnimationResource(destinationNode->animationUID);
+					animation->loop = destinationNode->loop;
 					doingTransition = nullptr;
 					animation->doingTransition = nullptr;
 				}
@@ -73,9 +81,6 @@ bool ComponentAnimator::Update(float dt)
 						startTransitionTime = App->time->getGameTime();
 						currentNode = 0;
 						animation->doingTransition = doingTransition;
-						currentNode = doingTransition->destination->UID;
-						animation->setAnimationResource(doingTransition->destination->animationUID);
-						animation->loop = doingTransition->destination->loop;
 						animation->SetAnimTime(0);
 					}
 				}
@@ -86,8 +91,48 @@ bool ComponentAnimator::Update(float dt)
 	return true;
 }
 
-void ComponentAnimator::DrawInspector(int id)
+bool ComponentAnimator::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Animator"))
+	{
+		ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(getAnimationGraphResource());
+		ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+		if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+			set_animation_menu = true;
+		}
+		ImGui::SameLine(ImGui::GetContentRegionMax().x-75.0f);
+		if (ImGui::Button("Edit Graph"))
+		{
+			if (!App->gui->p_animation_graph->isActive())
+				App->gui->p_animation_graph->toggleActive();
+		}
+		if (set_animation_menu) {
+
+			std::list<resource_deff> graph_res;
+			App->resources->getAnimationGraphResourceList(graph_res);
+
+			ImGui::Begin("Animation selector", &set_animation_menu);
+			for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+				resource_deff anim_deff = (*it);
+				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+					setAnimationGraphResource(anim_deff.uuid);
+					set_animation_menu = false;
+					break;
+				}
+			}
+
+			ImGui::End();
+		}
+
+		static bool animator_active;
+		animator_active = isActive();
+
+		if (ImGui::Checkbox("Active##active animator", &animator_active))
+			setActive(animator_active);
+	}
+	return true;
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
@@ -211,6 +256,11 @@ bool ComponentAnimator::conditionSuccess(Transition* transition)
 				}
 				break;
 			}
+		}
+		else if ((*it)->type == CONDITION_FINISHED && animation != nullptr)
+		{
+			if (!animation->Finished())
+				ret = false;
 		}
 		if (!ret)
 			break;

@@ -5,11 +5,26 @@
 #include "GameObject.h"
 #include "ResourceTexture.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleUI.h"
+#include "Material.h"
+
+#include "Application.h"
+#include "ModuleScripting.h"
+
+#include "ImGui/imgui.h"
+
+std::string openFileWID(bool isfile = false);
 
 ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_BUTTON)
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
+	
+	callbacks.push_back(WrenCall("dummy", "test"));
+	callbacks.push_back(WrenCall("dummy22", "test22"));
+	callbacks.push_back(WrenCall("dummy3", "test33"));
+
+	image->setInspectorDraw(false);
 }
 
 ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_BUTTON)
@@ -36,6 +51,8 @@ ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : 
 		pressed = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 	ChangeGOImage();
+
+	image->setInspectorDraw(false);
 }
 
 ComponentButtonUI::~ComponentButtonUI()
@@ -57,6 +74,120 @@ bool ComponentButtonUI::Update(float dt)
 		FadeIn();
 	}
 
+	return true;
+}
+
+bool ComponentButtonUI::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("UI Button"))
+	{
+		ButtonState state;//debug
+		ImGui::Image(getResourceTexture(B_IDLE) != nullptr ? (void*)getResourceTexture(B_IDLE)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w = 0; int h = 0;
+		if (getResourceTexture(B_IDLE) != nullptr) {
+			getResourceTexture(B_IDLE)->texture->getSize(w, h);
+		}
+
+		ImGui::Text("Idle texture data: \n x: %d\n y: %d", w, h);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture(B_IDLE) != nullptr)
+					App->resources->deasignResource(getResourceTexture(B_IDLE)->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_IDLE);
+			}
+		}
+
+		ImGui::Image(getResourceTexture(B_MOUSEOVER) != nullptr ? (void*)getResourceTexture(B_MOUSEOVER)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w3 = 0; int h3 = 0;
+		if (getResourceTexture(B_MOUSEOVER) != nullptr) {
+			getResourceTexture(B_MOUSEOVER)->texture->getSize(w3, h3);
+		}
+
+		ImGui::Text("Hover texture data: \n x: %d\n y: %d", w3, h3);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load2"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture(B_MOUSEOVER) != nullptr)
+					App->resources->deasignResource(getResourceTexture(B_MOUSEOVER)->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_MOUSEOVER);
+			}
+		}
+
+
+		ImGui::Image(getResourceTexture(B_PRESSED) != nullptr ? (void*)getResourceTexture(B_PRESSED)->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+		ImGui::SameLine();
+
+		int w2 = 0; int h2 = 0;
+		if (getResourceTexture(B_PRESSED) != nullptr) {
+			getResourceTexture(B_PRESSED)->texture->getSize(w2, h2);
+		}
+
+		ImGui::Text("Pressed texture data: \n x: %d\n y: %d", w2, h2);
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Load3"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture(B_PRESSED) != nullptr)
+					App->resources->deasignResource(getResourceTexture(B_PRESSED)->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource), B_PRESSED);
+			}
+		}
+		// For debug
+		bool idle = false;
+		bool hover = false;
+		bool pressed = false;
+		ImGui::Separator();
+		if (ImGui::Button("FadeIn")) {
+			doFadeIn();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("FadeOut")) {
+			doFadeOut();
+		}
+		if (ImGui::Button("Idle")) { setState(B_IDLE); } ImGui::SameLine();
+		if (ImGui::Button("Hover")) { setState(B_MOUSEOVER); }ImGui::SameLine();
+		if (ImGui::Button("Pressed")) { setState(B_PRESSED); }
+
+		// Functions
+
+		ImGui::Text("Callbacks:");
+
+		for (auto it = callbacks.begin(); it != callbacks.end(); it++) {
+			std::string display = (*it).method_name + " (" + (*it).script_name + ")";
+			ImGui::Text(display.c_str());
+		}
+
+		static bool display_methods = false;
+		if (ImGui::Button("Add callback")) {
+			display_methods = true;
+		}
+
+		if (display_methods) {
+			callbacks.push_back(App->scripting->DisplayMethods(parent));
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Remove callback")) {
+			if (callbacks.size() > 0)
+				callbacks.pop_back();
+		}
+	}
 	return true;
 }
 

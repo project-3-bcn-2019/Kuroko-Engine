@@ -6,7 +6,13 @@
 #include "GameObject.h"
 #include "MathGeoLib/MathGeoLib.h"
 #include "PCG Random\pcg_basic.h"
+#include "ModuleUI.h"
+#include "Material.h"
+#include "ModuleResourcesManager.h"
+#include "ResourceTexture.h"
 
+
+std::string openFileWID(bool isfile = false);
 
 ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent) : Component(parent, PARTICLE_EMITTER)
 {
@@ -304,9 +310,240 @@ void ComponentParticleEmitter::Draw() const
 
 }
 
-void ComponentParticleEmitter::DrawInspector(int id)
+bool ComponentParticleEmitter::DrawInspector(int id)
 {
+	
+	if (ImGui::CollapsingHeader("Particle emitter"))
+	{
+		//Emitter Lifetime
+		ImGui::Text("Set to -1 for infinite lifetime");
+		if (ImGui::SliderFloat("LifeTime", &emitterLifetime, -1, 100))
+			time = 0;
 
+		if (ImGui::Button("Reset"))
+			time = 0;
+
+		ImGui::Text("LifeTime: %.2f", emitterLifetime - time);
+
+		ImGui::NewLine();
+		int particles = maxParticles;
+
+		ImGui::Text("Set to 0 for uncapped particles");
+		if (ImGui::SliderInt("Max particles", &particles, 0, 1000))
+			maxParticles = particles;
+
+
+		ImGui::SliderFloat("Period", &period, MINSPAWNRATE, 10);
+		ImGui::Checkbox("Script Controlled", &script_controlled);
+
+
+		//Area of spawn
+
+		if (ImGui::CollapsingHeader("Spawn Area"))
+		{
+
+			if (ImGui::Selectable("AABB", area.type == AAB))
+			{
+				area.type = AAB;
+			}
+			if (ImGui::Selectable("Sphere", area.type == SPHERE))
+			{
+				area.type = SPHERE;
+			}
+			if (ImGui::Selectable("Point", area.type == AREA_NONE))
+			{
+				area.type = AREA_NONE;
+			}
+
+
+			switch (area.type)
+			{
+			case SPHERE:
+
+				ImGui::DragFloat("Radius", &area.sphere.r, 0.1f);
+				break;
+			case AAB:
+			{
+				float3 size = area.aabb.Size();
+				if (ImGui::DragFloat3("Size", (float*)&size, 0.1f))
+				{
+					area.aabb.SetFromCenterAndSize(area.aabb.CenterPoint(), size);
+				}
+			}
+			break;
+			case AREA_NONE:
+			default:
+				break;
+			}
+
+			ImGui::Separator();
+		}
+
+		if (ImGui::CollapsingHeader("Particle"))
+		{
+
+			//Direction
+			ImGui::DragFloat3("Direction", (float*)&direction, 0.1f);
+			ImGui::SliderFloat("Direction Variation", &dirVartiation, 0, 180);
+			ImGui::DragFloat3("Gravity", (float*)&gravity, 0.1f);
+
+			static bool local_particles = false;
+			local_particles = transform_mode == LOCAL;
+
+			if (ImGui::Checkbox("Local", &local_particles))
+				transform_mode = local_particles ? LOCAL : GLOBAL;
+
+			//LifeTime
+			float minlife = particleLifetime.min;
+			float maxlife = particleLifetime.max;
+
+			ImGui::PushID("LT");
+
+			ImGui::Text("Particle Life Time");
+			ImGui::SliderFloat("Min", &particleLifetime.min, 0, particleLifetime.max);
+			ImGui::SliderFloat("Max", &particleLifetime.max, particleLifetime.min, 100);
+
+
+			ImGui::PopID();
+
+			//Speed
+			ImGui::PushID("Speed Variation");
+
+			ImGui::Text("Speed");
+			ImGui::SliderFloat("Min", &speed.min, 0, speed.max);
+			ImGui::SliderFloat("Max", &speed.max, speed.min, 100);
+
+			ImGui::PopID();
+
+			//Start Size
+			ImGui::PushID("SSize");
+
+			ImGui::Text("Start Size");
+			ImGui::SliderFloat("Min", &startSize.min, 0, startSize.max);
+			ImGui::SliderFloat("Max", &startSize.max, startSize.min, 100);
+
+			ImGui::PopID();
+
+			//End Size
+			ImGui::PushID("ESize");
+
+			ImGui::Text("End Size");
+			ImGui::SliderFloat("Min", &endSize.min, 0, endSize.max);
+			ImGui::SliderFloat("Max", &endSize.max, endSize.min, 100);
+
+			ImGui::PopID();
+
+			////Start Spin
+			//ImGui::PushID("SSpin");
+
+			//ImGui::Text("Start Spin");
+			//ImGui::SliderFloat("Min", &startSpin.min, 0, startSpin.max);
+			//ImGui::SliderFloat("Max", &startSpin.max, startSpin.min, 100);
+
+			//ImGui::PopID();
+
+			////End Spin
+			//ImGui::PushID("ESpin");
+
+			//ImGui::Text("End Spin");
+			//ImGui::SliderFloat("Min", &endSpin.min, 0, endSpin.max);
+			//ImGui::SliderFloat("Max", &endSpin.max, endSpin.min, 100);
+
+			//ImGui::PopID();
+
+			//Start Color
+			ImGui::PushID("SColor");
+
+			ImGui::Text("StartColor");
+
+			ImGui::ColorEdit4("Min", (float*)&startColor.min);
+			ImGui::ColorEdit4("Max", (float*)&startColor.max);
+
+			ImGui::PopID();
+
+			//End Color
+			ImGui::PushID("EColor");
+
+			ImGui::Text("EndColor");
+
+			ImGui::ColorEdit4("Min", (float*)&endColor.min);
+			ImGui::ColorEdit4("Max", (float*)&endColor.max);
+
+			ImGui::PopID();
+		}
+
+
+
+		if (ImGui::CollapsingHeader("Billboard"))
+		{
+			if (Material* material = billboard->getMaterial())
+			{
+				static int preview_size = 128;
+				ImGui::Text("Id: %d", material->getId());
+				ImGui::SameLine();
+				if (ImGui::Button("remove material"))
+				{
+					delete billboard->getMaterial();
+					billboard->setMaterial(nullptr);
+					ImGui::TreePop();
+				}
+
+				ImGui::Text("Preview size");
+				ImGui::SameLine();
+				if (ImGui::Button("64")) preview_size = 64;
+				ImGui::SameLine();
+				if (ImGui::Button("128")) preview_size = 128;
+				ImGui::SameLine();
+				if (ImGui::Button("256")) preview_size = 256;
+
+				Texture* texture = nullptr;
+				if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+					texture = tex_res->texture;
+
+
+				ImGui::Image(texture ? (void*)texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+				ImGui::SameLine();
+
+				int w = 0; int h = 0;
+				if (texture)
+					texture->getSize(w, h);
+
+				ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+				//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+				//	material->setCheckeredTexture(DIFFUSE);
+				//ImGui::SameLine()
+			}
+			else
+				ImGui::TextWrapped("No material assigned");
+
+			if (ImGui::Button("Load material(from asset folder)##Billboard: Load"))
+			{
+				std::string texture_path = openFileWID();
+				uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+				if (new_resource != 0) {
+					App->resources->assignResource(new_resource);
+
+					if (Material* material = billboard->getMaterial())
+						App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+					else
+						billboard->setMaterial(new Material());
+
+					billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+				}
+			}
+
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove particle emitter")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
+
+	return true;
 }
 
 void ComponentParticleEmitter::Set(float minSpeed, float maxSpeed, float minLife, float maxLife, float minSSize, float maxSSize, float minESize, float maxESize, float minSSpin, float maxSSpin, float minESpin, float maxESpin, Color sColorMin, Color sColorMax, Color eColorMin, Color eColorMax, float variation, float3 direction, float3 gravity)

@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 
+#include "ImGui/imgui.h"
+
 ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(parent, BONE)
 {
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
@@ -192,7 +194,12 @@ void ComponentBone::ProcessCompAnimations(const uint anim_uuid, const int frame)
 	}
 }
 
-void ComponentBone::DrawInspector(int id)
+bool ComponentBone::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Bone"))
+	{
+
+	}
+	return true;
 }
 

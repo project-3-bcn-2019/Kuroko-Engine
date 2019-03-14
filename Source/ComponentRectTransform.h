@@ -27,12 +27,15 @@ public:
 
 	bool Update(float dt) override;
 	void Draw() const override;
+	bool DrawInspector(int id = 0) override;
+	const float2 getMid() const;
 	void Save(JSON_Object* config) override;
 
 
 	void setPos(float2 pos);
 	void setWidth(float width);
 	void setHeight(float height);
+	void setToMid();
 
 	inline const float2 getAnchor() { return rect.anchor; }
 	inline const float2 getLocalPos() { return rect.local; }

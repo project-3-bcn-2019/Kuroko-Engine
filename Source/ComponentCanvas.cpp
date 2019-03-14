@@ -5,6 +5,8 @@
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
 
+#include "ImGui/imgui.h"
+
 ComponentCanvas::ComponentCanvas(GameObject* parent) : Component(parent, CANVAS)
 {
 	
@@ -34,7 +36,7 @@ bool ComponentCanvas::Update(float dt)
 void ComponentCanvas::Draw() const
 {
 	if (draw_cross) {
-		float2 midPoint = float2(_resolution.x / 2, _resolution.y / 2);
+		float2 midPoint = float2(rectTransform->getWidth()/2, rectTransform->getHeight() / 2);
 		glColor3f(1.0f, 0.0f, 0.0f); // red
 		glLineWidth(1.5f);
 		glBegin(GL_LINES);
@@ -48,8 +50,15 @@ void ComponentCanvas::Draw() const
 	}
 }
 
-void ComponentCanvas::DrawInspector(int id)
+bool ComponentCanvas::DrawInspector(int id)
 {
+	if (ImGui::CollapsingHeader("Canvas"))
+	{
+		ImGui::Text("Resolution  %.0f x %.0f", getResolution().x, getResolution().y);
+		ImGui::Checkbox("Draw cross hair", &draw_cross);
+	}
+
+	return true;
 }
 
 void ComponentCanvas::Save(JSON_Object * config)
@@ -58,8 +67,12 @@ void ComponentCanvas::Save(JSON_Object * config)
 }
 
 void ComponentCanvas::setResolution(float2 resolution)
-{	
-	_resolution = resolution;
+{		
 	rectTransform->setWidth(resolution.x);
 	rectTransform->setHeight(resolution.y);
+}
+
+inline const float2 ComponentCanvas::getResolution()
+{
+	return float2(rectTransform->getWidth(), rectTransform->getHeight());
 }

@@ -65,7 +65,7 @@ bool ComponentCamera::Update(float dt)
 	return true;
 }
 
-void ComponentCamera::DrawInspector(int id)
+bool ComponentCamera::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Camera"))
 	{
@@ -108,7 +108,16 @@ void ComponentCamera::DrawInspector(int id)
 
 			offset = _offset;
 		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove camera")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
+
+	return true;
 }
 
 void ComponentCamera::Save(JSON_Object* config) {

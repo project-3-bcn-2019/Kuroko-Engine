@@ -642,6 +642,9 @@
     <ClInclude Include="ComponentPhysics.h">
       <Filter>Sources\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceShader.h">
+      <Filter>Sources\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModuleAudio.cpp">
@@ -1078,6 +1081,9 @@
     </ClCompile>
     <ClCompile Include="ComponentPhysics.cpp">
       <Filter>Sources\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceShader.cpp">
+      <Filter>Sources\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -26,6 +26,8 @@ public:
 	uint getId() { return id; }
 	uint getUUID() const{ return uuid; }
 
+	void forceUUID(uint _uuid) { uuid = _uuid; }
+
 	void addComponent(Component* component);
 	Component* addComponent(Component_type type);
 	void removeComponent(Component* component);

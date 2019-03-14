@@ -42,7 +42,8 @@ enum conditionType
 	CONDITION_EQUALS,
 	CONDITION_DIFERENT,
 	CONDITION_GREATER,
-	CONDITION_LESS
+	CONDITION_LESS,
+	CONDITION_FINISHED
 };
 
 struct Condition
@@ -56,18 +57,21 @@ struct Condition
 
 struct Transition
 {
-	Transition(NodeLink* output, NodeLink* input, uint graphUID);
+	Transition(uint output, uint input, uint graphUID);
 	~Transition();
 
 	bool drawLine(bool selected, bool inTransition);
+	void setConnection(uint output, uint input);
 
 	uint graphUID = 0;
 
-	Node* origin = nullptr;
-	Node* destination = nullptr;
+	//Nodes
+	uint origin = 0; 
+	uint destination = 0;
 
-	NodeLink* output = nullptr;
-	NodeLink* input = nullptr;
+	//Links
+	uint output = 0;
+	uint input = 0;
 
 	float duration = 0.0f;
 	float nextStart = 0.0f;

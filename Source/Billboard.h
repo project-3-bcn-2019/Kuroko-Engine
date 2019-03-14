@@ -41,7 +41,7 @@ public:
 	bool useColor = true;
 	Color color = White;
 	Camera* camera = nullptr;
-
+	Alignment alignment = SCREEN_ALIGN;
 private:
 
 	void WorldAlign();
@@ -50,7 +50,7 @@ private:
 
 	Material* material = nullptr;
 	Mesh* mesh = nullptr;
-	Alignment alignment = SCREEN_ALIGN;
+	
 	Transform* transform = nullptr;
 
 	Component* parent_component = nullptr;
