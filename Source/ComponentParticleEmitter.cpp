@@ -310,7 +310,7 @@ void ComponentParticleEmitter::Draw() const
 
 }
 
-void ComponentParticleEmitter::DrawInspector(int id)
+bool ComponentParticleEmitter::DrawInspector(int id)
 {
 	
 	if (ImGui::CollapsingHeader("Particle emitter"))
@@ -537,6 +537,8 @@ void ComponentParticleEmitter::DrawInspector(int id)
 		//if (ImGui::Button("Remove##Remove particle emitter"))
 		//	return false;
 	}
+
+	return true;
 }
 
 void ComponentParticleEmitter::Set(float minSpeed, float maxSpeed, float minLife, float maxLife, float minSSize, float maxSSize, float minESize, float maxESize, float minSSpin, float maxSSpin, float minESpin, float maxESpin, Color sColorMin, Color sColorMax, Color eColorMin, Color eColorMax, float variation, float3 direction, float3 gravity)

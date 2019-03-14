@@ -82,7 +82,7 @@ void ComponentTrigger::Draw() const
 
 }
 
-void ComponentTrigger::DrawInspector(int id)
+bool ComponentTrigger::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Trigger"))
 	{
@@ -132,9 +132,11 @@ void ComponentTrigger::DrawInspector(int id)
 
 		if (ImGui::Button("Change_shape"))
 		{
-			App->physics->change_shape(this);
+			App->physics->ChangeShape(this);
 		}
 	}
+
+	return true;
 }
 
 void ComponentTrigger::Save(JSON_Object* config)

@@ -50,6 +50,9 @@ AttackRange=(v) { _attack_range = v }
 Health {_health}
 Health=(v) { _health = v }
 
+Defense {_defense}
+Defense=(v) { _defense = v }
+
 HitStun {_hit_stun}
 HitStun=(v) { _hit_stun = v }
 
@@ -62,6 +65,9 @@ AlitaSeen {_alita_seen}
 AlitaInRange {_alita_in_range}
 Damaged{_damaged}
 Target{_target}
+Dead{_dead}
+
+
 
 State = (new_state) {
         if (_enemy_state)  _enemy_state.EndState() //the first time player_state is null
@@ -82,13 +88,18 @@ State = (new_state) {
     _hit_state = HitState.new(this)
     _dead_state = DeadState.new(this)
 
+    //initialize variables
+    _dead = false
+    _damaged = false
+
     this.State = _idle_state
  }
 
  Update() {
-
+     
      _enemy_state.HandleInput()
      _enemy_state.Update()
+     applyDamage()
  }
 
  lookForAlita(){
@@ -111,6 +122,24 @@ State = (new_state) {
          _alita_in_range = true
      } else {
          _alita_in_range = false
+     }
+ }
+
+ dealDamage(damage,multiplier){
+    _health_queue.add((damage*multiplier) - (_defense/2))
+    _damaged = true
+ }
+
+ applyDamage(){
+     for(i in 0..._health_queue.count){
+         _health = _health - _health_queue[i]
+     }
+     _damaged = false
+
+     if(_health <= 0)
+     {
+        _dead = true
+        this.State = _dead_state
      }
  }
 }
@@ -257,12 +286,10 @@ class AttackState is EnemyState{
             } else {
                 _enemy.State = _enemy.ChaseState
             }
-       //had to have something
-        //if alita is still in range, attack again.
-        
-        //if not, go to chase alita
         }
     }
+
+    IsOriented
     
 }
 

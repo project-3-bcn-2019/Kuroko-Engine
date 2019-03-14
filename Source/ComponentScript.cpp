@@ -140,7 +140,7 @@ void ComponentScript::CleanUp() {
 	}
 }
 
-void ComponentScript::DrawInspector(int id)
+bool ComponentScript::DrawInspector(int id)
 {
 	std::string component_title = script_name + "(Script)";
 	if (ImGui::CollapsingHeader(component_title.c_str())) {
@@ -222,6 +222,8 @@ void ComponentScript::DrawInspector(int id)
 			}
 		}
 	}
+
+	return true;
 }
 
 void ComponentScript::Save(JSON_Object * config) {
