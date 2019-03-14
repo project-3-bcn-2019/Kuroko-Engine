@@ -91,9 +91,14 @@ bool ResourceAnimationGraph::LoadGraph()
 		memcpy(&loop, cursor, sizeof(bool));
 		cursor += sizeof(bool);
 
+		float speed;
+		memcpy(&speed, cursor, sizeof(float));
+		cursor += sizeof(float);
+
 		Node* node = new Node(name.c_str(), this->uuid, { position[0], position[1] }, uids[0]);
 		node->animationUID = App->resources->getAnimationResourceUuid(assetName.c_str(), animName.c_str());
 		node->loop = loop;
+		node->speed = speed;
 
 		for (int j = 0; j < uids[3]; ++j)
 		{
@@ -224,7 +229,7 @@ bool ResourceAnimationGraph::saveGraph() const
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
 		ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource((*it_n).second->animationUID);
-		size += (*it_n).second->name.length()*sizeof(char) + 2*sizeof(float) + 5*sizeof(uint) + sizeof(bool);
+		size += (*it_n).second->name.length()*sizeof(char) + 3*sizeof(float) + 5*sizeof(uint) + sizeof(bool);
 
 		if (anim != nullptr)
 		{
@@ -302,6 +307,9 @@ bool ResourceAnimationGraph::saveGraph() const
 
 		memcpy(cursor, &(*it_n).second->loop, sizeof(bool));
 		cursor += sizeof(bool);
+
+		memcpy(cursor, &(*it_n).second->speed, sizeof(float));
+		cursor += sizeof(float);
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
