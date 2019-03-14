@@ -172,6 +172,8 @@ bool ComponentPhysics::DrawInspector(int id)
 		
 		bool toggle_static = is_environment;
 
+		float3 rot_deg = offset_rot * RADTODEG;
+
 		//position
 		ImGui::Text("Offset:");
 		ImGui::SameLine();
@@ -190,15 +192,15 @@ bool ComponentPhysics::DrawInspector(int id)
 		ImGui::Text("Rotation:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r x", &offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+		ImGui::DragFloat("##r x", &rot_deg.x, 0.2f, -180.0f, 180.0f, "%.02f");
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r y", &offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+		ImGui::DragFloat("##r y", &rot_deg.y, 0.2f, -180.0f, 180.0f, "%.02f");
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		ImGui::DragFloat("##r z", &offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+		ImGui::DragFloat("##r z", &rot_deg.z, 0.2f, -180.0f, 180.0f, "%.02f");
 
 		//scale
 		ImGui::Text("   Scale:");
@@ -214,6 +216,8 @@ bool ComponentPhysics::DrawInspector(int id)
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
 
+		offset_rot = DEGTORAD * rot_deg;
+
 		ImGui::Checkbox("is environment", &toggle_static);
 		if (toggle_static != is_environment)
 		{
@@ -226,9 +230,9 @@ bool ComponentPhysics::DrawInspector(int id)
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Adapt to AABB"))
+		if (ImGui::Button("Adapt to OBB"))
 		{
-			App->physics->AdaptToAABB(this);
+			App->physics->AdaptToOBB(this);
 		}
 	}
 
@@ -311,8 +315,13 @@ void ComponentPhysics::UpdatePhysicsFromTransforms()
 			body->GetRigidBody()->getCollisionShape()->setLocalScaling(btVector3(offset_scale.x,offset_scale.y,offset_scale.z));
 
 			btVector3 obj_pos = btVector3(transform->local->getPosition().x + offset_pos.x, transform->local->getPosition().y + offset_pos.y, transform->local->getPosition().z + offset_pos.z);
-			Quat q = Quat::FromEulerXYZ(offset_rot.x, offset_rot.y, offset_rot.z);
-			btQuaternion obj_rot = btQuaternion(transform->local->getRotation().x + q.x, transform->local->getRotation().y+q.y, transform->local->getRotation().z+q.z, transform->local->getRotation().w+q.w);
+			//Quat q = Quat::FromEulerXYZ(RadToDeg(offset_rot.x), RadToDeg(offset_rot.y), RadToDeg(offset_rot.z));
+			Quat q = Quat::FromEulerXYZ(offset_rot.x+ transform->global->getRotation().ToEulerXYZ().x, offset_rot.y + transform->global->getRotation().ToEulerXYZ().y, offset_rot.z + transform->global->getRotation().ToEulerXYZ().z);
+
+			//Quat final_quat = transform->local->getRotation() + q;
+
+			//btQuaternion obj_rot = btQuaternion(transform->local->getRotation().x + q.x, transform->local->getRotation().y+q.y, transform->local->getRotation().z+q.z, transform->local->getRotation().w+q.w);
+			btQuaternion obj_rot = btQuaternion(q.x, q.y, q.z, q.w);
 
 			t.setOrigin(obj_pos);
 			t.setRotation(obj_rot);

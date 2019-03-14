@@ -130,9 +130,14 @@ bool ComponentTrigger::DrawInspector(int id)
 		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
 
 
-		if (ImGui::Button("Change_shape"))
+		if (ImGui::Button("Change shape"))
 		{
 			App->physics->ChangeShape(this);
+		}
+
+		if (ImGui::Button("Adapt to OBB"))
+		{
+			App->physics->AdaptToOBB(this);
 		}
 	}
 
