@@ -221,7 +221,7 @@ bool ComponentAnimation::Finished() const
 
 	if (anim != nullptr)
 	{
-		return !loop && anim->getDuration() >= animTime;
+		return !loop && animTime >= anim->getDuration() ;
 	}
 
 	return false;

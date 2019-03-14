@@ -3,6 +3,7 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "PanelAnimationGraph.h"
+#include "ResourceAnimation.h"
 
 inline static float GetSquaredDistanceToBezierCurve(const ImVec2& point, const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4);
 inline bool containPoint(ImVec2 A, ImVec2 B, ImVec2 point);
@@ -60,20 +61,41 @@ bool ResourceAnimationGraph::LoadGraph()
 		memcpy(position, cursor, bytes);
 		cursor += bytes;
 
-		uint uids[3];
-		bytes = sizeof(uint) * 3;
+		uint uids[4];
+		bytes = sizeof(uint) * 4;
 		memcpy(uids, cursor, bytes);
 		cursor += bytes;
+
+		std::string animName;
+		std::string assetName;
+		if (uids[1] != 0)
+		{
+			bytes = sizeof(char)*uids[1];
+			char* auxAnim = new char[uids[1]];
+			memcpy(auxAnim, cursor, bytes);
+			animName = auxAnim;
+			animName = animName.substr(0, uids[1]);
+			RELEASE_ARRAY(auxAnim);
+			cursor += bytes;
+
+			bytes = sizeof(char)*uids[2];
+			char* auxAsset = new char[uids[2]];
+			memcpy(auxAsset, cursor, bytes);
+			assetName = auxAsset;
+			assetName = assetName.substr(0, uids[2]);
+			RELEASE_ARRAY(auxAsset);
+			cursor += bytes;
+		}
 
 		bool loop;
 		memcpy(&loop, cursor, sizeof(bool));
 		cursor += sizeof(bool);
 
 		Node* node = new Node(name.c_str(), this->uuid, { position[0], position[1] }, uids[0]);
-		node->animationUID = uids[1];
+		node->animationUID = App->resources->getAnimationResourceUuid(assetName.c_str(), animName.c_str());
 		node->loop = loop;
 
-		for (int j = 0; j < uids[2]; ++j)
+		for (int j = 0; j < uids[3]; ++j)
 		{
 			int type;
 			bytes = sizeof(int);
@@ -201,7 +223,14 @@ bool ResourceAnimationGraph::saveGraph() const
 	size += sizeof(int)+sizeof(uint);
 	for (std::map<uint, Node*>::const_iterator it_n = nodes.begin(); it_n != nodes.end(); ++it_n)
 	{
-		size += (*it_n).second->name.length()*sizeof(char) + 2*sizeof(float) + 4*sizeof(uint) + sizeof(bool);
+		ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource((*it_n).second->animationUID);
+		size += (*it_n).second->name.length()*sizeof(char) + 2*sizeof(float) + 5*sizeof(uint) + sizeof(bool);
+
+		if (anim != nullptr)
+		{
+			size += anim->asset.length() * sizeof(char);
+			size += anim->Parent3dObject.length() + sizeof(char);
+		}
 
 		for (std::list<NodeLink*>::iterator it_l = (*it_n).second->links.begin(); it_l != (*it_n).second->links.end(); ++it_l)
 		{
@@ -251,10 +280,25 @@ bool ResourceAnimationGraph::saveGraph() const
 		memcpy(cursor, &position[0], bytes);
 		cursor += bytes;
 
-		uint uids[3] = { (*it_n).second->UID, (*it_n).second->animationUID, (*it_n).second->links.size() };
-		bytes = sizeof(uint) * 3;
+		ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource((*it_n).second->animationUID);
+		uint animNameLength = (anim == nullptr)? 0 : anim->asset.length();
+		uint assetLength = (anim == nullptr) ? 0 : anim->Parent3dObject.length();
+
+		uint uids[4] = { (*it_n).second->UID, animNameLength, assetLength, (*it_n).second->links.size() };
+		bytes = sizeof(uint) * 4;
 		memcpy(cursor, &uids[0], bytes);
 		cursor += bytes;
+
+		if (anim != nullptr)
+		{
+			bytes = animNameLength * sizeof(char);
+			memcpy(cursor, anim->asset.c_str(), bytes);
+			cursor += bytes;
+
+			bytes = assetLength * sizeof(char);
+			memcpy(cursor, anim->Parent3dObject.c_str(), bytes);
+			cursor += bytes;
+		}
 
 		memcpy(cursor, &(*it_n).second->loop, sizeof(bool));
 		cursor += sizeof(bool);
