@@ -52,7 +52,10 @@ GameObject::GameObject(const char* name, GameObject* parent, bool UI) : name(nam
 }
 
 
-GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
+GameObject::GameObject(JSON_Object* deff, uint forced_uuid): uuid(random32bits()) {
+
+	if (forced_uuid != 0)
+		uuid = forced_uuid;
 	name = json_object_get_string(deff, "name");
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");

@@ -16,7 +16,7 @@ class GameObject
 public:
 
 	GameObject(const char* name, GameObject* parent = nullptr, bool UI = false );
-	GameObject(JSON_Object* deff);
+	GameObject(JSON_Object* deff, uint forced_uuid = 0);
 	~GameObject();
 
 	bool Update(float dt);

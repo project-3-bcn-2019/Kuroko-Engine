@@ -15,7 +15,7 @@ public:
 	~ComponentAudioListener();
 
 	bool Update(float dt) override;
-	void DrawInspector(int id = 0);
+	bool DrawInspector(int id = 0)override;
 	void CleanUp();
 	//void SetInspectorInfo() override;
 

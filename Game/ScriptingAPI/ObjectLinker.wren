@@ -115,16 +115,15 @@ class EngineComunicator{
 
 	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
-		EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		var go_uuid = EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		return ObjectLinker.new(go_uuid)
 	}
 
 	static FindGameObjectsByTag(tag){
 		var uuids = EngineComunicator.C_FindGameObjectsByTag(tag)
 		var gameObjects = []
 		for(i in 0...uuids.count){
-			var add_obj = ObjectLinker.new()
-			add_obj.gameObject = uuids[i]
-			gameObjects.insert(i, add_obj)
+			gameObjects.insert(i, ObjectLinker.new(uuids[i])
 		}
 
 		return gameObjects
@@ -227,6 +226,10 @@ class ObjectLinker{
 	gameObject=(v){ _gameObject = v}
 
 	construct new(){}
+
+	construct new(uuid){
+		gameObject = uuid
+	}
 
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
@@ -336,6 +339,6 @@ class ObjectLinker{
 
 	instantiate(prefab_name, offset, euler){
 		var pos = Vec3.add(getPos("global"), offset)
-		EngineComunicator.Instantiate(prefab_name, pos, euler)
+		return EngineComunicator.Instantiate(prefab_name, pos, euler)
 	}
 }

@@ -1108,7 +1108,12 @@ void InstantiatePrefab(WrenVM* vm) {
 
 	std::string prefab_path = App->resources->getPrefabPath(prefab_name.c_str());
 
-	App->scene->AskPrefabLoadFile(prefab_path.c_str(), float3(x, y, z), float3(pitch, yaw, roll));
+	uint forced_uuid = random32bits();
+	PrefabData prefab_data(prefab_path, float3(x, y, z), float3(pitch, yaw, roll), forced_uuid);
+
+	App->scene->AskPrefabLoadFile(prefab_data);
+
+	wrenSetSlotDouble(vm, 0, forced_uuid);
 }
 void getTime(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, SDL_GetTicks());

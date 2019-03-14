@@ -113,7 +113,7 @@ void ComponentRectTransform::Draw() const
 	}
 }
 
-void ComponentRectTransform::DrawInspector(int id)
+bool ComponentRectTransform::DrawInspector(int id)
 {
 	
 		if (ImGui::CollapsingHeader("Rect Transform"))
@@ -121,29 +121,103 @@ void ComponentRectTransform::DrawInspector(int id)
 			static float2 position;
 			static float width;
 			static float height;
+			static float depth;
 
 			position = getLocalPos();
 			width = getWidth();
 			height = getHeight();
+			depth = getDepth();
 
 			//position
 			ImGui::Text("Position:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { setPos(position); }
+			if (ImGui::DragFloat2("##p", (float*)&position, 0.5f)) { setPos(position); }
 			//Width
 			ImGui::Text("Dimensions:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
+			if (ImGui::DragFloat("##h", &width, 0.5f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
 			//Height
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##w", &height, 0.01f, 0.0f, 0.0f, "%.02f")) {
+			if (ImGui::DragFloat("##w", &height, 0.5f, 0.0f, 0.0f, "%.02f")) {
 				setHeight(height);
 			}
+			//Depth
+			ImGui::Text("Depth:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			if (ImGui::DragFloat("##d", &depth, 0.01f, 0.0f, 0.0f, "%.02f")) { setDepth(depth); }
+
 			ImGui::Checkbox("Debug draw", &debug_draw);
+			if (parent->getParent() != nullptr) {
+				ComponentRectTransform* parent_rect_transform = (ComponentRectTransform*)parent->getParent()->getComponent(Component_type::RECTTRANSFORM);
+				if (ImGui::TreeNode("Basic Positions")) {
+					if (ImGui::Button("Top Left")) {
+						float height = parent_rect_transform->getHeight() - rect.height;
+						setPos(float2(0, height));
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Top center")) {
+						float height = parent_rect_transform->getHeight() - rect.height;
+						float width = parent_rect_transform->getWidth() / 2 - (rect.width / 2);
+						setPos(float2(width, height));
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Top Right")) {
+						float height = parent_rect_transform->getHeight() - rect.height;
+						float width = parent_rect_transform->getWidth() - rect.width;
+						setPos(float2(width, height));
+					}
+					if (ImGui::Button("Center Left")) {
+						float height = parent_rect_transform->getHeight() / 2 - (rect.height / 2);
+						setPos(float2(0, height));
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Center")) {
+						setToMid();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Center Right")) {
+						float height = parent_rect_transform->getHeight() / 2 - (rect.height / 2);
+						float width = parent_rect_transform->getWidth() - rect.width;
+						setPos(float2(width, height));
+					}
+					if (ImGui::Button("Down Left")) {
+						setPos(float2(0, 0));
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Down center")) {
+						float width = parent_rect_transform->getWidth() / 2 - (rect.width / 2);
+						setPos(float2(width, 0));
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button("Down Right")) {
+						float width = parent_rect_transform->getWidth() - rect.width;
+						setPos(float2(width, 0));
+					}
+					//ImGui::SameLine();
+					ImGui::TreePop();
+				}
+			}
 		}
+		return true;
+}
+
+const float2 ComponentRectTransform::getMid() const
+{
+	return float2(rect.width / 2, rect.height / 2);
+}
+
+void ComponentRectTransform::setToMid()
+{
+	ComponentRectTransform* parent_rect_transform = (ComponentRectTransform*)parent->getParent()->getComponent(Component_type::RECTTRANSFORM);
+	float2 newPos = parent_rect_transform->getMid();
+	newPos.x -= rect.width / 2;
+	newPos.y -= rect.height / 2;
+	setPos(newPos);
 }
 
 void ComponentRectTransform::Save(JSON_Object * config)

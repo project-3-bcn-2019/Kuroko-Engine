@@ -23,6 +23,8 @@ ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_
 	callbacks.push_back(WrenCall("dummy", "test"));
 	callbacks.push_back(WrenCall("dummy22", "test22"));
 	callbacks.push_back(WrenCall("dummy3", "test33"));
+
+	image->setInspectorDraw(false);
 }
 
 ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_BUTTON)
@@ -49,6 +51,8 @@ ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : 
 		pressed = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 	ChangeGOImage();
+
+	image->setInspectorDraw(false);
 }
 
 ComponentButtonUI::~ComponentButtonUI()
@@ -73,7 +77,7 @@ bool ComponentButtonUI::Update(float dt)
 	return true;
 }
 
-void ComponentButtonUI::DrawInspector(int id)
+bool ComponentButtonUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Button"))
 	{
@@ -184,6 +188,7 @@ void ComponentButtonUI::DrawInspector(int id)
 				callbacks.pop_back();
 		}
 	}
+	return true;
 }
 
 void ComponentButtonUI::WhenPressed()

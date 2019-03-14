@@ -18,6 +18,8 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(GameObject* parent) : Component(parent,
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*) parent->getComponent(UI_IMAGE);
+
+	image->setInspectorDraw(false);
 }
 
 ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent) : Component(parent, UI_CHECKBOX)
@@ -40,6 +42,8 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent
 		pressed = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 	ChangeGOImage();
+
+	image->setInspectorDraw(false);
 }
 
 
@@ -57,7 +61,7 @@ bool ComponentCheckBoxUI::Update(float dt)
 	return true;
 }
 
-void ComponentCheckBoxUI::DrawInspector(int id)
+bool ComponentCheckBoxUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI CheckBox"))
 	{
@@ -109,6 +113,8 @@ void ComponentCheckBoxUI::DrawInspector(int id)
 		ImGui::Checkbox("Pressed", &pressed);
 		if (pressed != isPressed()) { Press(); }
 	}
+
+	return true;
 }
 
 void ComponentCheckBoxUI::Save(JSON_Object * config)
