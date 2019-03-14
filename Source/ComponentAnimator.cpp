@@ -4,6 +4,8 @@
 #include "ResourceAnimationGraph.h"
 #include "ModuleTimeManager.h"
 #include "ComponentAnimation.h"
+#include "ModuleUI.h"
+#include "PanelAnimationGraph.h"
 
 #include "ImGui/imgui.h"
 
@@ -86,7 +88,7 @@ bool ComponentAnimator::Update(float dt)
 	return true;
 }
 
-void ComponentAnimator::DrawInspector(int id)
+bool ComponentAnimator::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Animator"))
 	{
@@ -97,7 +99,12 @@ void ComponentAnimator::DrawInspector(int id)
 		if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
 			set_animation_menu = true;
 		}
-
+		ImGui::SameLine(ImGui::GetContentRegionMax().x-75.0f);
+		if (ImGui::Button("Edit Graph"))
+		{
+			if (!App->gui->p_animation_graph->isActive())
+				App->gui->p_animation_graph->toggleActive();
+		}
 		if (set_animation_menu) {
 
 			std::list<resource_deff> graph_res;
@@ -122,6 +129,7 @@ void ComponentAnimator::DrawInspector(int id)
 		if (ImGui::Checkbox("Active##active animator", &animator_active))
 			setActive(animator_active);
 	}
+	return true;
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
@@ -245,6 +253,11 @@ bool ComponentAnimator::conditionSuccess(Transition* transition)
 				}
 				break;
 			}
+		}
+		else if ((*it)->type == CONDITION_FINISHED && animation != nullptr)
+		{
+			if (!animation->Finished())
+				ret = false;
 		}
 		if (!ret)
 			break;

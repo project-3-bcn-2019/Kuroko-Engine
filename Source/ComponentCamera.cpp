@@ -65,7 +65,7 @@ bool ComponentCamera::Update(float dt)
 	return true;
 }
 
-void ComponentCamera::DrawInspector(int id)
+bool ComponentCamera::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Camera"))
 	{
@@ -109,6 +109,8 @@ void ComponentCamera::DrawInspector(int id)
 			offset = _offset;
 		}
 	}
+
+	return true;
 }
 
 void ComponentCamera::Save(JSON_Object* config) {

@@ -55,9 +55,12 @@ bool ComponentAnimation::Update(float dt)
 		if (!paused)
 			animTime += dt * speed;
 
-		if (animTime > anim->getDuration() && loop)
+		if (animTime > anim->getDuration())
 		{
-			animTime -= anim->getDuration();
+			if (loop)
+				animTime -= anim->getDuration();
+			else
+				animTime = anim->getDuration();
 		}
 
 		for (int i = 0; i < anim->numBones; ++i)
@@ -89,7 +92,7 @@ bool ComponentAnimation::Update(float dt)
 	return true;
 }
 
-void ComponentAnimation::DrawInspector(int id)
+bool ComponentAnimation::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Animation"))
 	{
@@ -167,6 +170,7 @@ void ComponentAnimation::DrawInspector(int id)
 		/*if (ImGui::Button("Remove Component##Remove animation"))
 			ret = false;*/
 	}
+	return true;
 }
 
 void ComponentAnimation::setAnimationResource(uint uuid)
@@ -209,4 +213,16 @@ void ComponentAnimation::Save(JSON_Object * config)
 		json_object_set_string(config, "Parent3dObject", "missing reference");
 		}
 	}
+}
+
+bool ComponentAnimation::Finished() const
+{
+	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(animation_resource_uuid);
+
+	if (anim != nullptr)
+	{
+		return !loop && anim->getDuration() >= animTime;
+	}
+
+	return false;
 }
