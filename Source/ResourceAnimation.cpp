@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "ModuleTimeManager.h"
+#include "Applog.h"
 
 ResourceAnimation::ResourceAnimation(resource_deff deff):Resource(deff)
 {
@@ -231,21 +232,14 @@ void BoneTransform::calcTransfrom(float time, bool interpolation, float duration
 	if (tr < 0) tr = ((time - RotKeysTimes[currentRotIndex]) / (RotKeysTimes[nextRotIndex] - RotKeysTimes[currentRotIndex] + duration));
 	if (ts < 0) ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (ScaleKeysTimes[nextScaleIndex] - ScaleKeysTimes[currentScaleIndex] + duration));
 
-	float3 position = position_1, scale = scale_1;
-	Quat rotation = rotation_1;
 	if(nextPosIndex < numPosKeys)
-		position = position_1.Lerp(position_2, tp);
+		position_1 = position_1.Lerp(position_2, tp);
 	if (nextRotIndex < numRotKeys)
-		rotation = rotation_1.Slerp(rotation_2, tr);
+		rotation_1 = rotation_1.Slerp(rotation_2, tr);
 	if (nextScaleIndex < numScaleKeys)
-		scale = scale_1.Lerp(scale_2, ts);
-	/*position = position_2 * tp;
-	position += position_1 * (1 - tp);
+		scale_1 = scale_1.Lerp(scale_2, ts);
 
-	scale = scale_2 * ts;
-	scale += scale_1 * (1 - ts);*/
-
-	lastTransform.Set(float4x4::FromTRS(position, rotation, scale));
+	lastTransform.Set(float4x4::FromTRS(position_1, rotation_1, scale_1));
 }
 
 void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
@@ -262,9 +256,12 @@ void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
 
 	blendtrans.Decompose(position_2, rotation_2, scale_2);
 
-	float3 finalpos = position_1.Lerp(position_2, time);
-	Quat finalrot = rotation_1.Slerp(rotation_2, time);
-	float3 finalscale = scale_1.Lerp(scale_2, time);
+	time = (time > 1) ? 1 : time;
+	time = (time < 0) ? 0 : time;
+
+	float3 finalpos = position_1.Lerp(position_2, (1 -time));
+	Quat finalrot = rotation_1.Slerp(rotation_2, (1 - time));
+	float3 finalscale = scale_1.Lerp(scale_2, (1 - time));
 
 	lastTransform.Set(float4x4::FromTRS(finalpos, finalrot, finalscale));
 }
