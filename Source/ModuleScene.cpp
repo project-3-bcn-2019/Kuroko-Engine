@@ -37,6 +37,7 @@
 
 #include <array>
 #include <map>
+#include <filesystem>
 
 ModuleScene::ModuleScene(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -101,6 +102,9 @@ bool ModuleScene::CleanUp()
 	}
 	
 	selected_obj.clear();
+	
+	std::experimental::filesystem::remove_all(USER_AUTOSAVES_FOLDER); // Remove AutoSaves folder
+
 	return true;
 }
 
