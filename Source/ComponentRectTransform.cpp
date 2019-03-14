@@ -121,27 +121,35 @@ void ComponentRectTransform::DrawInspector(int id)
 			static float2 position;
 			static float width;
 			static float height;
+			static float depth;
 
 			position = getLocalPos();
 			width = getWidth();
 			height = getHeight();
+			depth = getDepth();
 
 			//position
 			ImGui::Text("Position:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat2("##p", (float*)&position, 0.01f)) { setPos(position); }
+			if (ImGui::DragFloat2("##p", (float*)&position, 0.5f)) { setPos(position); }
 			//Width
 			ImGui::Text("Dimensions:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##h", &width, 0.01f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
+			if (ImGui::DragFloat("##h", &width, 0.5f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
 			//Height
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##w", &height, 0.01f, 0.0f, 0.0f, "%.02f")) {
+			if (ImGui::DragFloat("##w", &height, 0.5f, 0.0f, 0.0f, "%.02f")) {
 				setHeight(height);
 			}
+			//Depth
+			ImGui::Text("Depth:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+			if (ImGui::DragFloat("##d", &depth, 0.01f, 0.0f, 0.0f, "%.02f")) { setDepth(depth); }
+
 			ImGui::Checkbox("Debug draw", &debug_draw);
 		}
 }
