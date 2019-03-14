@@ -9,6 +9,7 @@
 #include "GameObject.h"
 #include "Material.h"
 #include "Applog.h"
+#include <fstream>
 
 
 ComponentScript::ComponentScript(GameObject* g_obj, uint resource_uuid) : Component(g_obj, SCRIPT)
@@ -221,6 +222,22 @@ bool ComponentScript::DrawInspector(int id)
 				}
 			}
 		}
+		if (ResourceScript* res_script = (ResourceScript*)App->resources->getResource(script_resource_uuid)) { // Check if resource exists
+			if (ImGui::Button("Edit script")) {
+				App->gui->open_tabs[SCRIPT_EDITOR] = true;
+				App->gui->open_script_path = res_script->asset;
+
+				if (App->scripting->edited_scripts.find(App->gui->open_script_path) != App->scripting->edited_scripts.end())
+					App->gui->script_editor.SetText(App->scripting->edited_scripts.at(App->gui->open_script_path));
+				else {
+					std::ifstream t(App->gui->open_script_path.c_str());
+					if (t.good()) {
+						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+						App->gui->script_editor.SetText(str);
+					}
+				}
+			}
+		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
 		if (ImGui::Button("Remove##Remove script")) {
@@ -229,6 +246,8 @@ bool ComponentScript::DrawInspector(int id)
 		}
 		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
+
+
 
 	return true;
 }
