@@ -58,8 +58,13 @@ bool ComponentAudioListener::DrawInspector(int id)
 			App->audio->muted = false;
 			App->audio->SetVolume(App->audio->volume);
 		}
-		/*if (ImGui::Button("Remove##Remove audioListener"))
-			ret = false;*/
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio listener")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
 	return true;
 }
