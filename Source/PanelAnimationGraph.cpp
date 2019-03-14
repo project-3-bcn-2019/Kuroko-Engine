@@ -180,9 +180,9 @@ void PanelAnimationGraph::Draw()
 		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
 		ImGui::Text("Speed:");
 		ImGui::SameLine();
-		ImGui::PushItemWidth(50);
+		/*ImGui::PushItemWidth(50);
 		ImGui::InputFloat("##animSpeed", &node->speed);
-		ImGui::PopItemWidth();
+		ImGui::PopItemWidth();*/
 		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)
@@ -216,7 +216,9 @@ void PanelAnimationGraph::Draw()
 						linked->connect(linking->UID);
 
 						originNode->connectLink(linkingNode);
-						originNode->transitions.push_back(new Transition(linking->UID, linked->UID, graph->uuid));
+						Transition* push_trans = new Transition(linking->UID, linked->UID, graph->uuid);
+						push_trans->origin;
+						originNode->transitions.push_back(push_trans);
 					}
 				}
 				linkingNode = 0;
