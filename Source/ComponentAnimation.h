@@ -14,7 +14,7 @@ public:
 	~ComponentAnimation();
 
 	bool Update(float dt);
-	void DrawInspector(int id = 0) override;
+	bool DrawInspector(int id = 0) override;
 
 	uint getAnimationResource() const { return animation_resource_uuid; }
 	void setAnimationResource(uint uuid);
@@ -25,7 +25,7 @@ public:
 
 	void Save(JSON_Object* config);
 
-	bool Finished() const { return false; }
+	bool Finished() const;
 	bool isPaused() const { return paused; }
 
 	float GetAnimTime() const { return animTime; }

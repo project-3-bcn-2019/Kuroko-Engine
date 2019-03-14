@@ -234,7 +234,7 @@ void ComponentTextUI::Draw() const
 	}
 }
 
-void ComponentTextUI::DrawInspector(int id)
+bool ComponentTextUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Text"))
 	{
@@ -281,6 +281,8 @@ void ComponentTextUI::DrawInspector(int id)
 		ImGui::Spacing();
 		ImGui::ColorPicker3("Color##2f", (float*)&label.color);
 	}
+
+	return true;
 }
 
 void ComponentTextUI::Save(JSON_Object * config)

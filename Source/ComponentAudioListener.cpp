@@ -45,7 +45,7 @@ bool ComponentAudioListener::Update(float dt)
 	return true;
 }
 
-void ComponentAudioListener::DrawInspector(int id)
+bool ComponentAudioListener::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Audio Listener"))
 	{
@@ -61,6 +61,7 @@ void ComponentAudioListener::DrawInspector(int id)
 		/*if (ImGui::Button("Remove##Remove audioListener"))
 			ret = false;*/
 	}
+	return true;
 }
 
 void ComponentAudioListener::CleanUp()

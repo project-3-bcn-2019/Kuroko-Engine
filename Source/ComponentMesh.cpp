@@ -183,7 +183,7 @@ bool ComponentMesh::Update(float dt)
 	return true;
 }
 
-void ComponentMesh::DrawInspector(int id)
+bool ComponentMesh::DrawInspector(int id)
 {
 	std::string tag;
 	tag = "Mesh##" + std::to_string(id);
@@ -407,6 +407,8 @@ void ComponentMesh::DrawInspector(int id)
 
 		}
 	}
+
+	return true;
 }
 
 Mesh* ComponentMesh::getMesh() const {

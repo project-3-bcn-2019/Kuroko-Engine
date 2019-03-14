@@ -17,7 +17,7 @@ public:
 	~ComponentProgressBarUI();
 
 	bool Update(float dt)override;
-	void DrawInspector(int id = 0) override;
+	bool DrawInspector(int id = 0) override;
 
 	 void setPercent(float _percent);
 	inline const float getPercent() { return percent; }

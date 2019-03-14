@@ -171,7 +171,7 @@ void ComponentPhysics::Draw() const
 
 }
 
-void ComponentPhysics::DrawInspector(int id)
+bool ComponentPhysics::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Collider"))
 	{
@@ -233,6 +233,8 @@ void ComponentPhysics::DrawInspector(int id)
 		}
 
 	}
+
+	return true;
 }
 
 void ComponentPhysics::Save(JSON_Object* config)

@@ -89,7 +89,8 @@ void PanelObjectInspector::Draw()
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
 				ImGui::PushID((*it)->getUUID());
-				(*it)->DrawInspector(id);
+				if((*it)->isInspectorDraw()) 
+					(*it)->DrawInspector(id);
 				ImGui::PopID();
 				/*if (!App->gui->DrawComponent(*(*it), id))
 					components_to_erase.push_back(*it);*/

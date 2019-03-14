@@ -15,7 +15,7 @@ public:
 	~ComponentCamera();
 
 	bool Update(float dt);
-	void DrawInspector(int id = 0);
+	bool DrawInspector(int id = 0) override;
 	Camera* getCamera() const { return camera; };
 
 	void Save(JSON_Object* config);
