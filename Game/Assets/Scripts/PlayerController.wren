@@ -73,8 +73,8 @@ class PlayerController is ObjectLinker{
         _idle_state = IdleState.new(this)
 
         //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration)
-        _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700)
-        _punch2_state = BasicAttackState.new(this,"punch",2,"PunchingAnimation","Punch",20,0,1000)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700,500)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"PunchingAnimation","Punch",20,0,1000,500)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
@@ -298,7 +298,8 @@ class BasicAttackState is State {
         _player = player
     }
 
-    construct new(player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration) {
+    //when the windup duration finishes the collider will be created, make sure its lower than the total_duration (Its obvious)
+    construct new(player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration,windup_duration) {
         _player = player
         _type = type
         _tier = tier
@@ -306,8 +307,14 @@ class BasicAttackState is State {
         _sound_name = sound_name
         _damage = damage
         _stamina_cost = stamina_cost
+        
+        _windup_duration = windup_duration
 
-        _next_state = _player.IdleState
+        
+        if (windup_duration > total_duration) {
+            EngineComunicator.consoleOutput("Error, the windup duration must not be higher than the total duration")
+        }
+
 
         super(player,total_duration)
     }
@@ -316,6 +323,7 @@ class BasicAttackState is State {
         super.BeginState()
 
         _next_state = _player.IdleState
+        _on_contact_done = false
 
         _player.ComponentAnimation.setAnimation(_animation_name)
         _player.ComponentAnimation.Reset()
@@ -325,7 +333,7 @@ class BasicAttackState is State {
     }
 
     HandleInput() {
-        _margin_to_chain_attack = 200
+        _margin_to_chain_attack = 200 //totally invented 
 
 
         if (super.CurrentTime > (super.TotalDuration - _margin_to_chain_attack)) {
@@ -335,6 +343,12 @@ class BasicAttackState is State {
         }
         
     }
+
+    //This is when the attak will instanciate the collider 
+    OnContactFrames() {
+        EngineComunicator.consoleOutput("Create collider")
+        _player.instantiate("Cube", Vec3.new(10,10,0), Vec3.new(0,0,0))
+    }
     
     GoToNextState() {
         _player.State = _next_state
@@ -343,6 +357,10 @@ class BasicAttackState is State {
     Update() {
         super.Update() 
 
+        if (super.CurrentTime >= _windup_duration && _on_contact_done == false){
+            this.OnContactFrames()
+            _on_contact_done = true
+        } 
 
         if (super.IsStateFinished()) this.GoToNextState()
 
