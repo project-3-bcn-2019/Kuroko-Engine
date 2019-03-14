@@ -110,6 +110,7 @@ private:
 
 	void AutoSaveScene();
 	void UndoScene();
+	void RedoScene();
 private:
 
 	std::list<GameObject*>	game_objects; 
