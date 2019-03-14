@@ -80,7 +80,7 @@ bool ComponentAnimation::Update(float dt)
 					// Blend
 					if (doingTransition != nullptr)
 					{
-						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(doingTransition->origin->animationUID);
+						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(doingTransition->origin);
 						if (blendFrom != nullptr)
 						{
 							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];
