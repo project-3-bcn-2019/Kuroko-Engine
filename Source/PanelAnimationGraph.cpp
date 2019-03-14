@@ -162,14 +162,27 @@ void PanelAnimationGraph::Draw()
 		}
 
 		//Node content
+		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
+		ImGui::SetCursorScreenPos({ node->gridPos.x + node->size.x - 70, node->gridPos.y + GRAPH_NODE_WINDOW_PADDING });
+		ImGui::Text("Loop:");
+		ImGui::SameLine();
+		ImGui::Checkbox("##LoopCheck", &node->loop);
+		ImGui::PopStyleVar();
+
 		ImGui::SetCursorScreenPos({ node->gridPos.x + GRAPH_NODE_WINDOW_PADDING, node->gridPos.y + GRAPH_NODE_WINDOW_PADDING });
 		ImGui::BeginGroup();
 		ImGui::Text(node->name.c_str());
 
+		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
+
 		drawAnimationBox(node);
 
 		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
-		ImGui::Checkbox("Do Loop", &node->loop);
+		ImGui::Text("Speed:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##animSpeed", &node->speed);
+		ImGui::PopItemWidth();
 		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)
