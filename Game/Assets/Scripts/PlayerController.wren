@@ -80,7 +80,7 @@ class PlayerController is ObjectLinker{
     construct new(){}
 
     Start() {
-        _show_debug_logs = true
+        _show_debug_logs = false
         _player_state
         _move_direction = Vec3.zero()
         _old_move_direction = Vec3.zero()
@@ -151,7 +151,7 @@ class PlayerController is ObjectLinker{
     } 
 
     rotate(x,y,z) {
-        super.rotate(x,y,z)
+         //_move_script.RotateTo(x,y,z)
     }
 
     dealDamage(damage,multiplier){

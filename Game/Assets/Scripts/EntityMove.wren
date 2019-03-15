@@ -49,6 +49,7 @@ construct new(){}
         //Vector to keep track of the actual velocity
          _speed_vector = Vec3.zero()
          _angular_speed = Vec3.zero()
+         _angle = 0
 
         if (_component_collider == null){
             EngineComunicator.consoleOutput("Null collider")
@@ -67,11 +68,22 @@ construct new(){}
             _component_collider.setSpeed(_speed_vector)
         }
 
+        if(InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_REPEAT)){
+            _angle = _angle + Math.PI/180
+            EngineComunicator.consoleOutput("Current :%(_angle)")
 
-        
+            var up = Vec3.zero()
+            up.z = 1
+
+            _angular_speed = Math.AngleAxisToEuler(up, _angle)
+
+            EngineComunicator.consoleOutput("Current :%(_angular_speed.x)")
+        }
+                
+        if (face_movement) this.FaceMovement()
 
         //Update rotation
-        this.rotate(_angular_speed.x, _angular_speed.y, _angular_speed.z)
+        this.rotate(_angular_speed.x, _angular_speed.z, _angular_speed.y)
 
     }
 
@@ -156,18 +168,34 @@ construct new(){}
 
     }
 
+
     RotateTo(x,y,z){
         
-        var angle = Math.C_angleBetween(_angular_speed.x, _angular_speed.y, _angular_speed.z, x, y, z)
+        var angle_current = Math.atan2(_angular_speed.x, _angular_speed.z)
 
+        EngineComunicator.consoleOutput("Target X :%(x)")
+        EngineComunicator.consoleOutput("Target Y :%(y)")
 
+        var angle_target = Math.atan2(x, y)
+
+        var angle = Math.lerp(angle_current, angle_target, _angular_acceleration * Time.C_GetDeltaTime())
         //_angular_speed.x = Math.lerp(_speed_vector.x, x, _angular_acceleration * Time.C_GetDeltaTime())
         //_angular_speed.y = Math.lerp(_speed_vector.y, y, _angular_acceleration)
         //_angular_speed.z = Math.lerp(_speed_vector.z, z, _angular_acceleration * Time.C_GetDeltaTime())
 
-        EngineComunicator.consoleOutput("X:%(_angular_speed.x)")
-        EngineComunicator.consoleOutput("Y:%(_angular_speed.y)")
-        EngineComunicator.consoleOutput("Z:%(_angular_speed.z)")
+        EngineComunicator.consoleOutput("Current :%(angle_current)")
+        EngineComunicator.consoleOutput("Target :%(angle_target)")
+        EngineComunicator.consoleOutput("Angle :%(angle)")
+
+        var up = Vec3.zero()
+        up.y = 1
+
+        _angular_speed = Math.AngleAxisToEuler(up, angle)
+
+        
+        //EngineComunicator.consoleOutput("X:%(_angular_speed.x)")
+        //EngineComunicator.consoleOutput("Y:%(_angular_speed.y)")
+        //EngineComunicator.consoleOutput("Z:%(_angular_speed.z)")
 
     }
 
@@ -176,6 +204,10 @@ construct new(){}
 
         _angular_speed = Math.clamp(dir, -max_angular_speed, max_angular_speed)
 
+    }
+
+    FaceMovement(){
+        _angular_speed = _speed_vector
     }
 
   
