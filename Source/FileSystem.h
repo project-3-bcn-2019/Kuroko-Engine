@@ -40,6 +40,7 @@
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
 #define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define USER_AUTOSAVES_FOLDER "Assets\\AutoSaves\\"
+#define USER_GRAPHS_FOLDER "Assets\\AnimationGraphs\\"
 #define ASSETS_FOLDER "Assets\\"
 #define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 
