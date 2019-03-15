@@ -65,6 +65,11 @@ void LoadScene(WrenVM* vm);
 // Math
 void sqrt(WrenVM* vm);
 void angleBetween(WrenVM* vm);
+void sin(WrenVM* vm);
+void cos(WrenVM* vm);
+void tan(WrenVM* vm);
+void asin(WrenVM* vm);
+void atan2(WrenVM* vm);
 
 //Time
 void GetDeltaTime(WrenVM* vm);
@@ -627,6 +632,16 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 
 			if (isStatic && strcmp(signature, "C_angleBetween(_,_,_,_,_,_)") == 0)
 				return angleBetween;
+			if (isStatic && strcmp(signature, "sin(_)") == 0)
+				return sin;
+			if (isStatic && strcmp(signature, "cos(_)") == 0)
+				return cos;
+			if (isStatic && strcmp(signature, "tan(_)") == 0)
+				return tan;
+			if (isStatic && strcmp(signature, "asin(_)") == 0)
+				return asin;
+			if (isStatic && strcmp(signature, "atan2(_,_)") == 0)
+				return atan2;
 		
 		}
 		if (strcmp(className, "Time") == 0) {
@@ -1185,6 +1200,35 @@ void angleBetween(WrenVM * vm)
 	wrenSetSlotDouble(vm, 0, angle);
 }
 
+void sin(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = sin(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+void cos(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = cos(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+void tan(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = tan(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+
+void asin(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = asin(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+
+void atan2(WrenVM* vm) {
+	float x = wrenGetSlotDouble(vm, 1);
+	float y = wrenGetSlotDouble(vm, 2);
+	float ret = atan2(x, y);
+	wrenSetSlotDouble(vm, 0, ret);
+
+}
 // Time
 void GetDeltaTime(WrenVM * vm)
 {

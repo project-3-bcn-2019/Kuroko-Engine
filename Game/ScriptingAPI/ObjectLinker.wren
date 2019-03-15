@@ -5,6 +5,9 @@ import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProg
 import "Physics" for ComponentPhysics
 
 class Math{
+
+	static PI {3.1416}
+
 	foreign static C_sqrt(number)
 
 	static pow(number, power){
@@ -13,6 +16,51 @@ class Math{
 			ret = ret * number
 		}
 		return ret
+	}
+
+	foreign static sin(number)
+	foreign static cos(number)
+	foreign static tan(number)
+	foreign static asin(number)
+	foreign static atan2(x, y)
+
+	static AngleAxisToEuler(axis, angle){
+		var x = axis.x
+		var y = axis.y
+		var z = axis.z
+
+		var s = Math.sin(angle)
+		var c = Math.cos(angle)
+		var t = 1-c
+
+		var magnitude = Math.C_sqrt(x*x + y*y + z*z)
+
+		if(magnitude == 0){
+			EngineComunicator.consoleOutput("AngleAxisToEuler: Magitude of the vector can't be 0")
+			return Vec3.new(0,0,0)
+		}
+
+		if((x*y*t + z*s) > 0.998){ // North pole singularity
+			var yaw = 2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = Math.PI/2
+			var roll = 0
+
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		if ((x*y*t + z*s) < -0.998) { // South pole singularity 
+			var yaw = -2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = -Math.PI/2
+			var roll = 0
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		var yaw = Math.atan2(y * s- x * z * t , 1 - (y*y+ z*z ) * t)
+		var pitch = Math.asin(x * y * t + z * s)
+		var roll =  Math.atan2(x * s - y * z * t , 1 - (x*x + z*z) * t)
+
+		return Vec3.new(yaw, pitch, roll)
+	
 	}
 
 	static lerp(a, b, f){
