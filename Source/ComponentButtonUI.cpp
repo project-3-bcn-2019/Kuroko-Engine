@@ -19,10 +19,6 @@ ComponentButtonUI::ComponentButtonUI(GameObject* parent) : Component(parent, UI_
 {
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 	image = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
-	
-	callbacks.push_back(WrenCall("dummy", "test"));
-	callbacks.push_back(WrenCall("dummy22", "test22"));
-	callbacks.push_back(WrenCall("dummy3", "test33"));
 
 	image->setInspectorDraw(false);
 }
@@ -51,6 +47,13 @@ ComponentButtonUI::ComponentButtonUI(JSON_Object * deff, GameObject * parent) : 
 		pressed = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 	ChangeGOImage();
+
+	JSON_Array* wren_calls = json_object_get_array(deff, "callbacks");
+
+	for (int i = 0; i < json_array_get_count(wren_calls); i++) {
+		JSON_Object* wren_call = json_array_get_object(wren_calls, i);
+		callbacks.push_back(WrenCall(json_object_get_string(wren_call, "script_name"), json_object_get_string(wren_call, "method_name")));
+	}
 
 	image->setInspectorDraw(false);
 }
@@ -285,6 +288,17 @@ void ComponentButtonUI::Save(JSON_Object * config)
 	}
 	json_object_dotset_string(config, "texturePressed", texName.c_str());
 
+	JSON_Value* wren_calls = json_value_init_array();
+	
+	for (auto it = callbacks.begin(); it != callbacks.end(); it++) {
+		JSON_Value* wren_call = json_value_init_object();
+		json_object_set_string(json_object(wren_call), "script_name", (*it).script_name.c_str());
+		json_object_set_string(json_object(wren_call), "method_name", (*it).method_name.c_str());
+		json_array_append_value(json_array(wren_calls), wren_call);
+	}
+
+
+	json_object_set_value(config, "callbacks", wren_calls);
 }
 
 

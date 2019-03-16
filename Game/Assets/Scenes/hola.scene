@@ -1,0 +1,197 @@
+{
+    "Game Objects": [
+        {
+            "name": "Canvas",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2098025151,
+            "isUI": true,
+            "Components": [
+                {
+                    "type": "rectTransform",
+                    "localX": 0,
+                    "localY": 0,
+                    "globalX": 0,
+                    "globalY": 0,
+                    "anchorX": 860,
+                    "anchorY": 440,
+                    "width": 1720,
+                    "height": 880,
+                    "depth": 0,
+                    "debug": true,
+                    "uuid": 685468339
+                },
+                {
+                    "type": "canvas",
+                    "debug": true,
+                    "uuid": 1196836301
+                }
+            ]
+        },
+        {
+            "name": "UI_Button",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1187159740,
+            "isUI": true,
+            "Parent": 2098025151,
+            "Components": [
+                {
+                    "type": "rectTransform",
+                    "localX": 0,
+                    "localY": 0,
+                    "globalX": 0,
+                    "globalY": 0,
+                    "anchorX": 0.5,
+                    "anchorY": 0.5,
+                    "width": 1,
+                    "height": 1,
+                    "depth": 0,
+                    "debug": true,
+                    "uuid": 591416024
+                },
+                {
+                    "type": "UIimage",
+                    "alpha": 1,
+                    "textureName": "missing_reference",
+                    "uuid": 1845180127
+                },
+                {
+                    "type": "UIbutton",
+                    "alpha": 1,
+                    "state": 0,
+                    "textureIdle": "missing_reference",
+                    "textureHover": "missing_reference",
+                    "texturePressed": "missing_reference",
+                    "callbacks": [
+                        {
+                            "method_name": "gameObject=(_)",
+                            "script_name": "PlayerMove"
+                        },
+                        {
+                            "method_name": "Start()",
+                            "script_name": "PlayerMove"
+                        },
+                        {
+                            "method_name": "getPos(_)",
+                            "script_name": "PlayerMove"
+                        }
+                    ],
+                    "uuid": 2247390519
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/PlayerMove.wren",
+                    "variables": [
+                        {
+                            "name": "speed",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "direction",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "old_direction",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dash_speed",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dash_duration",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dash_current_time",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dash_cooldown",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dashing",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "dash_available",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "attack_duration",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "attack_current_time",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "attacking",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "audio_source",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "punch_sound",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "component_animation",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 2631854593
+                }
+            ]
+        }
+    ]
+}
