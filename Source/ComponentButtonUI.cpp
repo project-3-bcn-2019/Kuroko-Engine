@@ -174,7 +174,13 @@ bool ComponentButtonUI::DrawInspector(int id)
 		}
 
 		if (display_methods) {
-			callbacks.push_back(App->scripting->DisplayMethods(parent));
+			WrenCall selected = App->scripting->DisplayMethods(parent, &display_methods);
+
+			if (selected.method_name != "" && selected.script_name != "") { // A valid method has been selected
+				callbacks.push_back(selected);
+				display_methods = false;
+			}
+				
 		}
 
 		ImGui::SameLine();
