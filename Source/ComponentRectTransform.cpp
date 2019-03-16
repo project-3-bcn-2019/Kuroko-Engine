@@ -46,7 +46,7 @@ ComponentRectTransform::ComponentRectTransform(JSON_Object * deff, GameObject * 
 	rect.depth = json_object_get_number(deff, "depth");
 
 
-	debug_draw = true;
+	debug_draw = json_object_get_boolean(deff, "debug");
 
 	static const float vtx[] = {
 		0, 0, 0,
@@ -241,6 +241,9 @@ void ComponentRectTransform::Save(JSON_Object * config)
 	json_object_set_number(config, "width", rect.width);
 	json_object_set_number(config, "height", rect.height);
 	json_object_set_number(config, "depth", rect.depth);
+
+	json_object_set_boolean(config, "debug", debug_draw);
+	
 
 }
 
