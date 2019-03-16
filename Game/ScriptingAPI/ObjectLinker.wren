@@ -185,7 +185,8 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
-    static J {13}
+    	static J {13}
+	static K {14}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}
