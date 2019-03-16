@@ -119,6 +119,7 @@ private:
 	
 	bool docking_background = true;
 	bool draw_guizmo = true;
+	bool using_guizmo = false;
 
 	ImGuiIO* io;
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;

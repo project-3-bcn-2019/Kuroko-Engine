@@ -2444,8 +2444,7 @@ void ModuleUI::DrawGizmoMenuTab() {
 
 void ModuleUI::DrawGuizmo()
 {
-
-	App->gui->DrawGizmoMenuTab();
+	DrawGizmoMenuTab();
 
 	if (draw_guizmo && App->camera->background_camera->getFrustum()->type != math::FrustumType::OrthographicFrustum)
 	{
@@ -2458,10 +2457,8 @@ void ModuleUI::DrawGuizmo()
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		/*
-		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
-		Transform* trans = transform->global;
-*/
+		/*ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
+		Transform* trans = transform->global;*/
 		float3 guizmoPos = float3::zero;
 		float3 guizmoScale = float3::zero;
 		//float3 guizmoRot = float3::zero;
@@ -2496,15 +2493,14 @@ void ModuleUI::DrawGuizmo()
 		guizmoTrans.setScale(guizmoScale);
 
 
-
-
-
 		guizmoTrans.CalculateMatrix();
 		float4x4 newGzmTrans = float4x4(guizmoTrans.getMatrix());
 		newGzmTrans.Transpose();
 		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)newGzmTrans.v);
+
 		if (ImGuizmo::IsUsing())
 		{
+			//using_guizmo = true;
 
 			float3 new_pos = float3::zero;
 			float3 new_rot = float3::zero;
@@ -2529,6 +2525,8 @@ void ModuleUI::DrawGuizmo()
 						new_pos.x = pos.x +displacement.x ;
 						new_pos.y = pos.y +displacement.y ;
 						new_pos.z = 0;
+						if (!Equal(displacement.x, 0.0f) || !Equal(displacement.y, 0.0f))
+							using_guizmo = true;
 						selectedPos->setPos(float2(new_pos.x, new_pos.y));
 						break;
 					
@@ -2536,8 +2534,16 @@ void ModuleUI::DrawGuizmo()
 						new_scale.x = newGzmTrans.GetScale().x;
 						new_scale.y = newGzmTrans.GetScale().y;
 						new_scale.z = 0;
-						if(abs(selectedPos->getHeight()- new_scale.y) < max_graduated_scale){selectedPos->setHeight(new_scale.y);}
-						if (abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale) { selectedPos->setWidth(new_scale.x); }
+						if(!Equal(selectedPos->getHeight(), new_scale.y) && abs(selectedPos->getHeight() - new_scale.y) < max_graduated_scale)
+						{
+							selectedPos->setHeight(new_scale.y);
+							using_guizmo = true;
+						}
+						if (!Equal(selectedPos->getWidth(), new_scale.x) && abs(selectedPos->getWidth() - new_scale.x) < max_graduated_scale)
+						{
+							selectedPos->setWidth(new_scale.x);
+							using_guizmo = true;
+						}
 						
 						app_log->AddLog("%f, %f", new_scale.x, new_scale.y);
 						break;
@@ -2555,6 +2561,8 @@ void ModuleUI::DrawGuizmo()
 						new_pos.x = selectedTrans->constraints[0][0] ? trans->getPosition().x : (trans->getPosition().x + displacement.x);
 						new_pos.y = selectedTrans->constraints[0][1] ? trans->getPosition().y : (trans->getPosition().y + displacement.y);
 						new_pos.z = selectedTrans->constraints[0][2] ? trans->getPosition().z : (trans->getPosition().z + displacement.z);
+						if (!Equal(displacement.x, 0.0f) || !Equal(displacement.y, 0.0f) || !Equal(displacement.z, 0.0f))
+							using_guizmo = true;
 						trans->setPosition(new_pos);
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
@@ -2562,12 +2570,16 @@ void ModuleUI::DrawGuizmo()
 						new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : (newGzmTrans.RotatePart().ToEulerXYZ().y);// changed z to y to set correct the modification 
 						new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : (newGzmTrans.RotatePart().ToEulerXYZ().z);
 						new_rot += trans->getRotation().ToEulerXYZ();
+						if (!Equal(new_rot.x, 0.0f) || !Equal(new_rot.y, 0.0f) || !Equal(new_rot.z, 0.0f))
+							using_guizmo = true;
 						trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						new_scale.x = selectedTrans->constraints[2][0] ? trans->getScale().x : newGzmTrans.GetScale().x;
 						new_scale.y = selectedTrans->constraints[2][1] ? trans->getScale().y : newGzmTrans.GetScale().y; // changed z to y to set correct the modification
 						new_scale.z = selectedTrans->constraints[2][2] ? trans->getScale().z : newGzmTrans.GetScale().z;
+						if (!Equal(trans->getScale().x, new_scale.x) || !Equal(trans->getScale().y, new_scale.y) || !Equal(trans->getScale().z, new_scale.z))
+							using_guizmo = true;
 						trans->setScale(new_scale);
 						break;
 					default:
@@ -2576,11 +2588,13 @@ void ModuleUI::DrawGuizmo()
 					trans->CalculateMatrix();
 					selectedTrans->GlobalToLocal();
 				}
-				//-----
-				
-				
 			}
 
+		}
+		else if (using_guizmo)
+		{
+			App->scene->AskAutoSaveScene();
+			using_guizmo = false;
 		}
 	}
 }
