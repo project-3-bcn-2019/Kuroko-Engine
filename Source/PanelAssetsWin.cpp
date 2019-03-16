@@ -241,6 +241,24 @@ void PanelAssetsWin::Draw()
 							item_hovered = true;
 					}
 				}
+				else if (type == "vertexShader" || type == "fragmentShader")
+				{
+				if (ImGui::IsMouseDoubleClicked(0)) {
+					ImGui::ImageButton((void*)App->gui->ui_textures[SHADER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f));
+					if (ImGui::IsItemHovered())
+					{
+						//Open Shader in shader editor
+					}
+				}
+				else {
+					if (ImGui::ImageButton((void*)App->gui->ui_textures[SHADER_ICON]->getGLid(), ImVec2(element_size, element_size), it.path().generic_string().c_str(), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.7f, 0.7f, selected_asset == it.path().generic_string() ? 1.0f : 0.0f)))
+					{
+						selected_asset = it.path().generic_string();
+					}
+					else if (ImGui::IsItemHovered())
+						item_hovered = true;
+				}
+				}
 			}
 
 			if (draw_warning || draw_caution)
