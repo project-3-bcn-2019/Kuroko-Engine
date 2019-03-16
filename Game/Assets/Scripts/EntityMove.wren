@@ -67,18 +67,6 @@ construct new(){}
 
             _component_collider.setSpeed(_speed_vector)
         }
-
-        if(InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_REPEAT)){
-            _angle = _angle + Math.PI/180
-            EngineComunicator.consoleOutput("Current :%(_angle)")
-
-            var up = Vec3.zero()
-            up.z = 1
-
-            _angular_speed = Math.AngleAxisToEuler(up, _angle)
-
-            EngineComunicator.consoleOutput("Current :%(_angular_speed.x)")
-        }
                 
         if (face_movement) this.FaceMovement()
 
@@ -149,6 +137,8 @@ construct new(){}
     _speed_vector.x = Math.lerp(_speed_vector.x, 0, _deceleration * Time.C_GetDeltaTime())
     _speed_vector.y = Math.lerp(_speed_vector.y, 0, _deceleration * Time.C_GetDeltaTime())
     _speed_vector.z = Math.lerp(_speed_vector.z, 0, _deceleration * Time.C_GetDeltaTime())
+    
+    _component_collider.setSpeed(_speed_vector)
     
     }
 
