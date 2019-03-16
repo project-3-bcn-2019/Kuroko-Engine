@@ -80,7 +80,8 @@ public:
 	std::list<Collision> collisions;
 	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
 
-	
+		btDiscreteDynamicsWorld*			world;
+
 private:
 
 	bool physics_debug = true;
@@ -90,7 +91,7 @@ private:
 	btBroadphaseInterface*				broad_phase;
 	btSequentialImpulseConstraintSolver*solver;
 	PDebugDrawer*						pdebug_draw;
-	btDiscreteDynamicsWorld*			world;
+
 	
 
 	std::vector<btCollisionShape*>		shapes;

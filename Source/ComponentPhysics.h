@@ -44,6 +44,10 @@ public:
 	void SetSpeed(float x, float y, float z);
 	void SetPosition(float x, float y, float z);
 
+	void SetDamping(float new_value, float new_value_angular);
+	void SetMass(float new_value);
+	float mass = 1;
+
 	void SetStatic(bool is_static);
 
 //	bool Update(float dt)override;

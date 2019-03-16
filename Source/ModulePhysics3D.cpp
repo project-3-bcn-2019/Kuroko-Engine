@@ -277,8 +277,11 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	motions.push_back(myMotionState);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);//MASS SHOULD BE 0 BUT 1 WORKS SEND HELP
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0, myMotionState, colShape);
 	btRigidBody* body = new btRigidBody(rbInfo);
+	
+	//0.7 is a default value that I chose because it felt right
+	body->setDamping(0.7,0);
 
 	body->setFlags(DISABLE_DEACTIVATION);
 	body->setActivationState(DISABLE_DEACTIVATION);
