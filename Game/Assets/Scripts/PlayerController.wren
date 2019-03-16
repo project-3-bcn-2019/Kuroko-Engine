@@ -26,6 +26,8 @@ class PlayerController is ObjectLinker{
     DashState {_dash_state}
     Punch1 {_punch1_state}
     Punch2 {_punch2_state}
+    Kick1 {_kick1_state}
+    Kick2 {_kick2_state}
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
@@ -43,12 +45,6 @@ class PlayerController is ObjectLinker{
 
     Damage {_damage}
     Damage=(v) { _damage = v }
-
-    AttackSpeed {_attack_speed}
-    AttackSpeed=(v) { _attack_speed = v }
-
-    AttackRange {_attack_range}
-    AttackRange=(v) { _attack_range = v }
 
     Health {_health}    
     Health=(v) { _health = v }
@@ -98,9 +94,11 @@ class PlayerController is ObjectLinker{
         //Initialize all the states
         _idle_state = IdleState.new(this)
 
-        //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration)
-        _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700,500)
-        _punch2_state = BasicAttackState.new(this,"punch",2,"PunchingAnimation","Punch",20,0,1000,500)
+        //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,total_duration)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"Malita_Punch_Tier_1","Punch","P1Col",700,500)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"Malita_Punch_Tier_2","Punch","P1Col",1000,500)
+        _kick1_state = BasicAttackState.new(this,"kick",1,"Malita_Kick_Tier_1","Punch","P1Col",700,500)
+        _kick2_state = BasicAttackState.new(this,"kick",2,"Malita_Kick_Tier_2","Punch","P1Col",1000,500)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
@@ -227,6 +225,9 @@ class IdleState is State {
         // If X prassed switch to punch
         if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
         if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        // 
+        if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
+        if (InputComunicator.getKey(InputComunicator.K, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
     }
 
     Update() {
@@ -332,14 +333,13 @@ class BasicAttackState is State {
     }
 
     //when the windup duration finishes the collider will be created, make sure its lower than the total_duration (Its obvious)
-    construct new(player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration,windup_duration) {
+    construct new(player,type,tier,animation_name,sound_name,prefav_collider_name,total_duration,windup_duration) {
         _player = player
         _type = type
         _tier = tier
         _animation_name = animation_name
         _sound_name = sound_name
-        _damage = damage
-        _stamina_cost = stamina_cost
+        _prefav_collider_name = prefav_collider_name
         
         _windup_duration = windup_duration
 
@@ -372,6 +372,7 @@ class BasicAttackState is State {
         if (super.CurrentTime > (super.TotalDuration - _margin_to_chain_attack)) {
             if (_tier == 1) {
                 if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _next_state = _player.Punch2
+                if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _next_state = _player.Kick2
             }
         }
         
@@ -380,7 +381,7 @@ class BasicAttackState is State {
     //This is when the attak will instanciate the collider 
     OnContactFrames() {
         EngineComunicator.consoleOutput("Create collider")
-        _player.instantiate("Cube", Vec3.new(10,10,0), Vec3.new(0,0,0))
+        _player.instantiate(_prefav_collider_name, Vec3.new(10,10,0), Vec3.new(0,0,0))
     }
     
     GoToNextState() {
