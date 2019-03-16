@@ -305,34 +305,34 @@ void Mesh::MaxDrawFunctionTest(Material* mat,ComponentAnimation* animation,float
 		
 		if (animation == nullptr)
 		{
-			App->shaders->IsProgramValid(App->shaders->GetDefaultShaderProgram()->programID);
-			glUseProgram(App->shaders->GetDefaultShaderProgram()->programID);
+			//App->shaders->IsProgramValid(App->shaders->GetDefaultShaderProgram()->programID);
+			glUseProgram(mat->getShaderProgramID());
 
-			GLint model_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "model_matrix");
+			GLint model_loc = glGetUniformLocation(mat->getShaderProgramID(), "model_matrix");
 			glUniformMatrix4fv(model_loc, 1, GL_FALSE, global_transform);
-			GLint proj_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "projection");
+			GLint proj_loc = glGetUniformLocation(mat->getShaderProgramID(), "projection");
 			glUniformMatrix4fv(proj_loc, 1, GL_FALSE, App->camera->current_camera->GetProjectionMatrix());
-			GLint view_loc = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "view");
+			GLint view_loc = glGetUniformLocation(mat->getShaderProgramID(), "view");
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, App->camera->current_camera->GetViewMatrix());
-			GLint lightPos = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "lightPos");
+			GLint lightPos = glGetUniformLocation(mat->getShaderProgramID(), "lightPos");
 			glUniform3f(lightPos,lightPosition.x, lightPosition.y, lightPosition.z);
-			GLint lightColor = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "lightColor");
+			GLint lightColor = glGetUniformLocation(mat->getShaderProgramID(), "lightColor");
 			glUniform3f(lightColor, lightColors.x, lightColors.y, lightColors.z);
 
 			if (diffuse_tex)
 			{
-				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
+				GLint texture = glGetUniformLocation(mat->getShaderProgramID(), "test");
 				glUniform1i(texture,1);
 			}
 			else
 			{
-				GLint texture = glGetUniformLocation(App->shaders->GetDefaultShaderProgram()->programID, "test");
+				GLint texture = glGetUniformLocation(mat->getShaderProgramID(), "test");
 				glUniform1i(texture, 0);
 			}
 		}
 		else
 		{
-			glUseProgram(App->shaders->GetAnimationShaderProgram()->programID);
+			glUseProgram(mat->getShaderProgramID());
 
 			/*
 			TODO

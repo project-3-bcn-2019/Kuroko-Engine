@@ -38,6 +38,13 @@ void ResourceShader::UnloadFromMemory()
 	RELEASE(shaderObject);
 }
 
+void ResourceShader::Reload()
+{
+	shaderObject->script = App->fs.ImportFile(binary.c_str());
+	App->shaders->CompileShader(shaderObject);
+	App->shaders->RecompileAllPrograms();
+}
+
 bool ResourceShader::SaveShader()
 {
 	//TODO if we create a new resourceShader we have to take into
@@ -60,7 +67,7 @@ bool ResourceShader::SaveShader()
 
 Shader* ResourceShader::LoadShader()
 {
-	Shader* ret = nullptr;
+	Shader* ret = new Shader();
 
 	if (App->fs.ExistisFile(binary.c_str()))
 	{

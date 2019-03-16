@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "ModuleScene.h"
+#include "ModuleShaders.h"
 #include "Application.h"
 #include "ComponentAABB.h"
 #include "ComponentBone.h"
@@ -18,6 +19,7 @@
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
+#include "ResourceShader.h"
 
 std::string openFileWID(bool isfile = false);
 
@@ -123,8 +125,8 @@ void ComponentMesh::Draw() const
 			//Descoment to use shader render
 			/*ComponentAnimation* animation = nullptr;
 			animation = (ComponentAnimation*)getParent()->getComponent(ANIMATION);
-			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);
-*/
+			mesh_from_resource->MaxDrawFunctionTest(mat, animation,*transform->global->getMatrix().Transposed().v);*/
+
 
 			if (transform)
 				glLoadMatrixf((GLfloat*)view_mat.v);
@@ -310,6 +312,101 @@ bool ComponentMesh::DrawInspector(int id)
 								App->resources->deasignResource(material->getTextureResource(DIFFUSE));
 								material->setTextureResource(DIFFUSE, new_resource);
 							}
+						}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("shader program"))
+					{
+						if (material->getShaderProgram())
+						{
+							ImGui::Text("Vertex:");
+							ImGui::SameLine();
+
+							ResourceShader* vertex_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[0]);
+
+							std::string vertex_name;
+							if (vertex_shader)
+							{
+								vertex_name = vertex_shader->asset;
+							}
+							else
+							{
+								vertex_name = "NONE";
+							}
+
+							ImGui::PushItemWidth(200.0f);
+							ImGui::PushID("Vertex Shader");
+
+							if (ImGui::BeginCombo("", vertex_name.c_str()))
+							{
+								std::list<resource_deff> vertex_Sahders;
+								App->resources->getShaderResourceList(vertex_Sahders);
+
+								for (std::list<resource_deff>::iterator v_it = vertex_Sahders.begin(); v_it != vertex_Sahders.end(); ++v_it)
+								{
+									Shader* shader = nullptr;
+									if (shader=((ResourceShader*)App->resources->getResource((*v_it).uuid))->shaderObject)
+									{
+										bool selected = false;
+
+										if (shader->type == VERTEX)
+										{
+											if (ImGui::Selectable(shader->name.c_str(), &selected))
+											{
+												/*change the shader and recompile the shader program*/
+											}
+										}
+									}			
+								}
+								ImGui::EndCombo();
+							}
+							ImGui::PopID();
+							ImGui::PopItemWidth();
+
+							ImGui::Text("Fragment:");
+							ImGui::SameLine();
+							ResourceShader* fragment_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[0]);
+
+							std::string fragment_name;
+							if (fragment_shader)
+							{
+								fragment_name = fragment_shader->asset;
+							}
+							else
+							{
+								fragment_name = "NONE";
+							}
+
+							ImGui::PushItemWidth(200.0f);
+							ImGui::PushID("Fragment Shader");
+
+							if (ImGui::BeginCombo("", fragment_name.c_str()))
+							{
+								std::list<resource_deff> fragment_Sahders;
+								App->resources->getShaderResourceList(fragment_Sahders);
+
+								for (std::list<resource_deff>::iterator v_it = fragment_Sahders.begin(); v_it != fragment_Sahders.end(); ++v_it)
+								{
+									Shader* shader = nullptr;
+
+									if (shader = ((ResourceShader*)App->resources->getResource((*v_it).uuid))->shaderObject)
+									{
+										bool selected = false;
+										if (shader->type == FRAGMENT)
+										{
+											if (ImGui::Selectable(shader->name.c_str(), &selected))
+											{
+												/*change the shader and recompile the shader program*/
+											}
+										}
+
+									}
+								}
+								ImGui::EndCombo();
+							}
+							ImGui::PopID();
+							ImGui::PopItemWidth();
 						}
 						ImGui::TreePop();
 					}

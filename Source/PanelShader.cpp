@@ -5,6 +5,8 @@
 #include "ModuleInput.h"
 #include "ModuleShaders.h"
 #include "Applog.h"
+#include "ModuleResourcesManager.h"
+#include "ResourceShader.h"
 
 #include <fstream>
 
@@ -21,7 +23,7 @@ PanelShader::PanelShader(const char* name, bool _active): Panel(name,_active)
 		shader_editor.SetText(str);
 	}
 
-	current_shader = nullptr;
+	r_shader = nullptr;
 	selected_type = uniform_types[0];
 }
 
@@ -133,9 +135,10 @@ void PanelShader::Draw()
 
 	//Shader selector-------------------------------------
 	std::string shader_name;
-	if (current_shader)
+	if (r_shader)
 	{
-		shader_name = current_shader->name;
+		shader_name = r_shader->asset;
+		App->fs.getFileNameFromPath(shader_name);
 	}
 	else
 	{
@@ -149,22 +152,30 @@ void PanelShader::Draw()
 	ImGui::PushID("Shader name");
 	if (ImGui::BeginCombo("", shader_name.c_str()))
 	{
-		for (int i=0;i<App->shaders->shaders.size()+1;++i)
+		std::list<resource_deff> shaders;
+		App->resources->getShaderResourceList(shaders);
+		std::list<resource_deff>::iterator s_it = shaders.begin();
+
+		for (int i=0;i< shaders.size()+1;++i)
 		{
 			bool selected = false;
-			if (i < App->shaders->shaders.size())
+			if (i < shaders.size())
 			{
-				if (ImGui::Selectable(App->shaders->shaders[i]->name.c_str(), &selected))
+				std::string aux_name=(*s_it).asset;
+				App->fs.getFileNameFromPath(aux_name);
+
+				if (ImGui::Selectable(aux_name.c_str(), &selected))
 				{
-					current_shader = App->shaders->shaders[i];
-					shader_editor.SetText(current_shader->script);
+					r_shader = (ResourceShader*)App->resources->getResource((*s_it).uuid);
+					shader_editor.SetText(App->fs.GetFileString(r_shader->asset.c_str()));
 				}
+				s_it++;
 			}
 			else
 			{
 				if (ImGui::Selectable("New Shader", &selected))
 				{
-					current_shader = nullptr;
+					r_shader = nullptr;
 					std::string str=" ";
 					shader_editor.SetText(str);
 					fragment = vertex = false;
@@ -177,9 +188,11 @@ void PanelShader::Draw()
 	ImGui::PopItemWidth();
 
 
-	if (current_shader != nullptr)
+	if (r_shader != nullptr)
 	{
-		if (current_shader->type == VERTEX)
+		std::string extension = r_shader->asset;
+		App->fs.getExtension(extension);
+		if (extension == VERTEXSHADER_EXTENSION)
 		{
 			vertex = true;
 			fragment = false;
@@ -191,7 +204,6 @@ void PanelShader::Draw()
 		}
 	}
 	
-
 
 	ImGui::Text("Shader Type:");
 	ImGui::SameLine();
@@ -269,12 +281,12 @@ void PanelShader::Draw()
 	}
 	
 
-	if (current_shader)
+	if (r_shader)
 	{
 		ImGui::BeginChild("Uniform Var", ImVec2(400, 300), true);
-		for (int i = 0; i < current_shader->uniforms.size(); ++i)
+		for (int i = 0; i < r_shader->shaderObject->uniforms.size(); ++i)
 		{
-			std::string uniform_info = current_shader->uniforms[i]->name + " " + current_shader->uniforms[i]->stringType;
+			std::string uniform_info = r_shader->shaderObject->uniforms[i]->name + " " + r_shader->shaderObject->uniforms[i]->stringType;
 			ImGui::Text(uniform_info.c_str());
 		}
 	}
@@ -295,7 +307,7 @@ void PanelShader::Draw()
 
 	if (ImGui::Button("Save"))
 	{
-		SaveShader(current_shader);
+		SaveShader(r_shader);
 	}
 	
 	ImGui::EndGroup();
@@ -306,26 +318,28 @@ void PanelShader::Draw()
 	ImGui::End();
 }
 
-void PanelShader::SaveShader(Shader* shader)
+void PanelShader::SaveShader(ResourceShader* shader)
 {
 	if (shader)
 	{
-		std::string saveCopy = shader->script;
-		shader->script = shader_editor.GetText();
+		Shader* aux_shader = new Shader(vertex == true ? VERTEX : FRAGMENT);
 
-		if (App->shaders->CompileShader(shader))
+		aux_shader->script = shader_editor.GetText();
+
+		if (App->shaders->CompileShader(aux_shader))
 		{
-			App->shaders->RecompileAllPrograms();
+			App->fs.SetFileString(shader->asset.c_str(), aux_shader->script.c_str());
 		}
 		else
 		{
 			app_log->AddLog("Error modifing shader, check the file for errors");
 		}
-
+		
+		RELEASE(aux_shader);
 	}
 	else
 	{
-		if (vertex || fragment)
+		/*if (vertex || fragment)
 		{
 			Shader* aux_shader = new Shader(vertex == true ? VERTEX : FRAGMENT);
 			
@@ -345,7 +359,7 @@ void PanelShader::SaveShader(Shader* shader)
 			{
 				RELEASE(aux_shader);
 			}
-		}
+		}*/
 	}
 
 }
@@ -353,17 +367,15 @@ void PanelShader::SaveShader(Shader* shader)
 void PanelShader::AddUniform()
 {
 	Uniform* aux_uniform = new Uniform(uniform_name, selected_type, uniform_size);
-	if (current_shader)
+	if (r_shader)
 	{
-		current_shader->uniforms.push_back(aux_uniform);
+		r_shader->shaderObject->uniforms.push_back(aux_uniform);
 	}
 	else
 	{
 		shader_uniforms.push_back(aux_uniform);
 	}
 	
-	
-
 	selected_type = uniform_types[0];
 	uniform_size = 1;
 }

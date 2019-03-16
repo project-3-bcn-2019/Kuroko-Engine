@@ -186,7 +186,7 @@ void ModuleResourcesManager::ManageAssetModification() {
 				break;
 			}
 			if (deff.requested_update == R_CREATE || deff.requested_update == R_UPDATE) {
-				if (deff.type == R_SCRIPT)
+				if (deff.type == R_SCRIPT || deff.type==R_SHADER)
 					reloadVM = true;
 			}
 
@@ -578,7 +578,9 @@ uint ModuleResourcesManager::getResourceUuid(const char* name, ResourceType type
 		for (auto it = resources.begin(); it != resources.end(); it++)
 		{
 			if ((*it).second->type == type && (*it).second->asset == name)
+			{
 				return (*it).second->uuid;
+			}
 		}
 	}
 
