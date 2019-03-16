@@ -22,12 +22,12 @@ public:
 	 void setPercent(float _percent);
 	inline const float getPercent() { return percent; }
 
-	void setPos(float2 pos);
+	inline void setPos(float2 pos);
 	void setWidth(float width);
-	inline const float2 getPos() { return barPos; }
+	inline const float2 getPos();
 
 	void setInteriorWidth(float width);
-	inline const float getInteriorWidth() { return initWidth; }
+	inline const float getInteriorWidth() { return initialWidth; }
 	void setInteriorDepth(float depth);
 	const float getInteriorDepth();
 
@@ -45,9 +45,9 @@ public:
 
 private:
 
-	float2 barPos = float2(0.f, 0.f);
+	
 	float percent = 100.f;
-	float initWidth;
+	float initialWidth;
 
 	ComponentRectTransform * barTransform = nullptr;
 	ComponentRectTransform * intBarTransform = nullptr;
