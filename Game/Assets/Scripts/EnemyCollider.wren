@@ -15,8 +15,13 @@ Time
 class EnemyCollider is ObjectLinker{
 
 Damage{_damage}
+Damage=(v){_damage = v}
+
 DamageMultiplier{_damage_multiplier}
+DamageMultiplier=(v) {_damage_multiplier = v}
+
 ActiveMS{_active_ms}
+ActiveMS=(v) {_active_ms = v}
 
 construct new(){}
 
@@ -26,11 +31,14 @@ construct new(){}
 
  Update() {
 
+
      var collisions = getCollisions()
      for(i in 0...collisions.count){
-         var Alita = collisions[i].getScript("PlayerController")
-         if(Alita){
-             Alita.dealDamage(_damage,_damage_multiplier)
+         
+         if(collisions[i].getTag() == "Alita"){
+             EngineComunicator.consoleOutput("Attacking Alita")
+            alita_script = collisions[i].getScript("PlayerController")
+            alita_script.dealDamage(_damage,_damage_multiplier)
          }
      }
 

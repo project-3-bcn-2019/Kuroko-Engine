@@ -28,7 +28,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	intBarTransform->setHeight(1.f);
 	intBarTransform->setDepth(-0.1f);
 
-	initWidth = intBarTransform->getWidth();
+	initialWidth = intBarTransform->getWidth();
 
 	intBarTransform->setInspectorDraw(false);
 	barTransform->setInspectorDraw(false);
@@ -44,7 +44,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 
 	bar = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
 	
-	initWidth = json_object_get_number(deff, "initWidth");
+	initialWidth = json_object_get_number(deff, "initWidth");
 	percent = json_object_get_number(deff, "percent");
 
 	const char* texPath = json_object_dotget_string(deff, "textureBar");
@@ -59,7 +59,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 	}
 
 
-	intBar->setInspectorDraw(false);
+	
 	bar->setInspectorDraw(false);
 }
 
@@ -73,8 +73,8 @@ ComponentProgressBarUI::~ComponentProgressBarUI()
 
 bool ComponentProgressBarUI::Update(float dt)
 {
-	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); }
-	if (!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
+	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); intBar->setInspectorDraw(false);}
+	if(!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
 
 	return true;
 }
@@ -83,13 +83,13 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Progress Bar"))
 	{
-		static float2 position = getPos();
+		float2 position = getPos();
 		static float percent = getPercent();
 		static float width = barTransform->getWidth();
 		static float height = barTransform->getHeight();
 		static float depth = barTransform->getDepth();
 
-		static float2 positionInt = intBarTransform->getGlobalPos();
+		float2 positionInt = intBarTransform->getGlobalPos();
 		static float heightInt = intBarTransform->getHeight();
 		static float widthInt = getInteriorWidth();
 		static float depthInt =getInteriorDepth();
@@ -162,6 +162,8 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 		if (ImGui::DragFloat("##dp2", (float*)&depthInt, 0.1f)) { setInteriorDepth(depthInt); }
 		
 		
+		ImGui::Text("Width: %f", initialWidth);
+		
 
 		int w2 = 0; int h2 = 0;
 		if (getResourceTextureInterior() != nullptr) {
@@ -193,26 +195,29 @@ bool ComponentProgressBarUI::DrawInspector(int id)
  void ComponentProgressBarUI::setPercent(float _percent)
  {
 	 percent = _percent;
-	 intBarTransform->setWidth(initWidth*percent / 100);
+	 intBarTransform->setWidth(initialWidth*percent / 100);
 }
 
 
-void ComponentProgressBarUI::setPos(float2 _pos)
+inline void ComponentProgressBarUI::setPos(float2 _pos)
 {
-	barPos = _pos;
-	barTransform->setPos(barPos);
-
+	barTransform->setPos(_pos);
 }
 void ComponentProgressBarUI::setWidth(float width)
 {
 	barTransform->setWidth(width);
-	intBarTransform->setWidth(initWidth*percent / 100);
+	intBarTransform->setWidth(initialWidth*percent / 100);
+}
+
+inline const float2 ComponentProgressBarUI::getPos()
+{
+	return barTransform->getLocalPos();
 }
 
 void ComponentProgressBarUI::setInteriorWidth(float width)
 {
-	initWidth = width;
-	intBarTransform->setWidth(initWidth*percent / 100);
+	initialWidth = width;
+	intBarTransform->setWidth(initialWidth*percent / 100);
 }
 
 void ComponentProgressBarUI::setInteriorDepth(float depth)
@@ -242,7 +247,7 @@ void ComponentProgressBarUI::setResourceTextureInterior(ResourceTexture * tex)
 void ComponentProgressBarUI::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "UIprogress_bar");
-	json_object_set_number(config, "initWidth", initWidth);
+	json_object_set_number(config, "initWidth", initialWidth);
 	json_object_set_number(config, "percent", percent);
 
 	std::string texName = std::string("missing_reference");
