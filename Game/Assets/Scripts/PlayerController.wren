@@ -156,6 +156,7 @@ class PlayerController is ObjectLinker{
         if(!_damaged){
         _health = _health - ((damage*multiplier) - (_defense/2))
         _damaged = true
+        EngineComunicator.consoleOutput("Dealt%(damage)")
         }
     }
 

@@ -35,13 +35,13 @@ construct new(){}
 
      var collisions = getCollisions()
      EngineComunicator.consoleOutput("count: %(collisions.count)")
-    //  for(i in 0...collisions.count){
+     for(i in 0...collisions.count){
          
-    //      if(Alita.gameObject == collisions[i].gameObject){
-    //         alita_script = collisions[i].getScript("PlayerController")
-    //         alita_script.dealDamage(_damage,_damage_multiplier)
-    //      }
-    //  }
+         if(Alita.gameObject == collisions[i].gameObject){
+            alita_script = collisions[i].getScript("PlayerController")
+            alita_script.dealDamage(_damage,_damage_multiplier)
+         }
+     }
 
     _current_time = _current_time + Time.C_GetDeltaTime()
     if(_current_time >= _active_ms){
