@@ -292,7 +292,8 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		str_type = assetExtension2type(extension.c_str());
 		enum_type = type2enumType(str_type.c_str());
 		uuid_str = uuid2string(uuid_number);
-		binary_path = App->fs.getPathFromLibDir(enumType2libDir(enum_type)) + uuid_str + enumType2binaryExtension(enum_type);
+		binary_path = App->fs.getPathFromLibDir(enumType2libDir(enum_type)) + uuid_str;
+		binary_path += ((str_type == "vertexShader") ? VERTEXSHADER_EXTENSION : ((str_type == "fragmentShader") ? FRAGMENTSHADER_EXTENSION : enumType2binaryExtension(enum_type)));
 		file_last_mod = App->fs.getFileLastTimeMod(full_asset_path.c_str());
 		json_object_set_number(json_object(meta), "resource_uuid", uuid_number); // Brand new uuid
 		json_object_set_string(json_object(meta), "type", str_type.c_str()); // Brand new time
@@ -314,6 +315,9 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		break;
 	case R_SCRIPT:
 		App->importer->ImportScript(full_asset_path.c_str(), uuid_str);
+		break;
+	case R_SHADER:
+		App->importer->ImportShader(full_asset_path.c_str(), uuid_str);
 		break;
 	case R_PREFAB:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_PREFABS, PREFAB_EXTENSION, uuid_str.c_str()); // Copy the file to the library
@@ -880,6 +884,10 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "audio";
 	else if (extension == GRAPH_EXTENSION)
 		ret = "graph";
+	else if (extension == VERTEXSHADER_EXTENSION)
+		ret = "vertexShader";
+	else if (extension == FRAGMENTSHADER_EXTENSION)
+		ret = "fragmentShader";
 
 	return ret;
 }
@@ -902,6 +910,10 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_AUDIO;
 	if (str_type == "graph")
 		ret = R_ANIMATIONGRAPH;
+	if (str_type == "vertexShader")
+		ret = R_SHADER;
+	if (str_type == "fragmentShader")
+		ret = R_SHADER;
 
 	return ret;
 }
@@ -931,7 +943,6 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_ANIMATIONGRAPH:
 			ret = GRAPH_EXTENSION;
 			break;
-
 	}
 
 	return ret;
@@ -963,6 +974,10 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 		break;
 	case R_ANIMATIONGRAPH:
 		ret = LIBRARY_GRAPHS;
+		break;
+	case R_SHADER:
+		ret = LIBRARY_SHADERS;
+		break;
 	}
 	return ret;
 }

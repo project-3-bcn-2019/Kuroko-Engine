@@ -477,6 +477,34 @@ bool ModuleImporter::ImportScript(const char* file_original_name, std::string fi
 	return true;
 }
 
+void ModuleImporter::ImportShader(const char * file_original_name, std::string file_binary_name)
+{
+	std::string file_content = App->fs.GetFileString(file_original_name);
+	int size = file_content.size() + 1;
+	
+	char* buffer = new char[size];
+	strcpy(buffer, file_content.c_str());
+
+	std::string extension = file_original_name;
+	App->fs.getExtension(extension);
+
+	std::string filename = file_original_name;
+	App->fs.getFileNameFromPath(filename);
+
+	if (extension == VERTEXSHADER_EXTENSION)
+	{
+		App->fs.ExportBuffer(buffer, size, file_binary_name.c_str(), LIBRARY_SHADERS, VERTEXSHADER_EXTENSION);
+		app_log->AddLog("Saved Vertex Shader %s as own file format", filename.c_str());
+
+	}
+	if (extension == FRAGMENTSHADER_EXTENSION)
+	{
+		App->fs.ExportBuffer(buffer, size, file_binary_name.c_str(), LIBRARY_SHADERS, FRAGMENTSHADER_EXTENSION);
+		app_log->AddLog("Saved Fragment Shader %s as own file format", filename.c_str());
+
+	}	
+}
+
 void ModuleImporter::ImportMeshToKR(const char * file, Mesh* mesh) {
 
 	uint header[5];
