@@ -351,7 +351,7 @@ void ModuleResourcesManager::GenerateResources()
 	GenerateFromMapFile(assets, R_AUDIO);
 	GenerateFromMapFile(assets, R_SHADER);
 	GenerateFromMapFile(assets, R_ANIMATIONGRAPH);
-	//R_UI?
+	GenerateFromMapFile(assets, R_UI);
 }
 
 void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType type)
@@ -405,6 +405,13 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 		name = "AnimationGraphs";
 		path = GRAPHS_FOLDER;
 		extension = GRAPH_EXTENSION;
+		break;
+	case R_UI:
+		name = "UI";
+		path = TEXTURES_FOLDER;
+		extension = DDS_EXTENSION;
+		type = R_TEXTURE; // As UI folder contains textures, we can add them as TEXTURES resources
+		break;
 	}
 
 	//Generate resources
