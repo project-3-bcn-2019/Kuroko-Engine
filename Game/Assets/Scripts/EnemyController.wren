@@ -155,7 +155,7 @@ class EnemyState {
     construct new(enemy,duration){
         _enemy = enemy
         _total_duration = duration
-                
+        EngineComunicator.consoleOutput("total duration:%(_total_duration)")
     }
 
 
@@ -259,8 +259,12 @@ class AttackState is EnemyState{
         super(enemy,time)
         _enemy = enemy
         _startup = enemy.Startup
+        EngineComunicator.consoleOutput("startup: %(_startup)")
         _activeMs = enemy.ActiveMs
+        EngineComunicator.consoleOutput("activeMs: %(_activeMs)")
         _recovery = enemy.Recovery
+        EngineComunicator.consoleOutput("_recovery: %(_recovery)")
+        _attack_spawned = false
     }
 
     BeginState(){
@@ -282,16 +286,20 @@ class AttackState is EnemyState{
     Update() {
         super.Update()
 
-        if(super.CurrentTime >= _startup){
-            var collider = EngineComunicator.Instantiate("EnemyCollider",_enemy.getPos("global"),Vec3.new(0,0,0)).getScript("EnemyCollider")
+
+        if(super.CurrentTime >= _startup && _attack_spawned == false){
+            EngineComunicator.consoleOutput("%(_attack_spawned)")
+            EngineComunicator.Instantiate("EnemyColliderV2",_enemy.getPos("global"),Vec3.new(0,0,0))
+            _attack_spawned = true
         }
 
-        if(collider){
-            collider.Damage = _enemy.Damage
-            collider.DamageMultiplier = 1
-            collider.ActiveMS = _activeMs
-        }
+        // if(collider){
+        //     collider.Damage = _enemy.Damage
+        //     collider.DamageMultiplier = 1
+        //     collider.ActiveMS = _activeMs
+        // }
         if(super.IsStateFinished()){
+            _attack_spawned = false
             _enemy.lookForAlita()
             if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
