@@ -61,6 +61,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 
 	
 	bar->setInspectorDraw(false);
+	barTransform->setInspectorDraw(false);
 }
 
 ComponentProgressBarUI::~ComponentProgressBarUI()
@@ -74,7 +75,8 @@ ComponentProgressBarUI::~ComponentProgressBarUI()
 bool ComponentProgressBarUI::Update(float dt)
 {
 	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); intBar->setInspectorDraw(false);}
-	if(!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
+	if(!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); intBarTransform->setInspectorDraw(false);
+	}
 
 	return true;
 }
@@ -84,15 +86,15 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 	if (ImGui::CollapsingHeader("UI Progress Bar"))
 	{
 		float2 position = getPos();
-		static float percent = getPercent();
-		static float width = barTransform->getWidth();
-		static float height = barTransform->getHeight();
-		static float depth = barTransform->getDepth();
+		float percent = getPercent();
+		float width = barTransform->getWidth();
+		float height = barTransform->getHeight();
+		float depth = barTransform->getDepth();
 
 		float2 positionInt = intBarTransform->getGlobalPos();
-		static float heightInt = intBarTransform->getHeight();
-		static float widthInt = getInteriorWidth();
-		static float depthInt =getInteriorDepth();
+		float heightInt = intBarTransform->getHeight();
+		float widthInt = getInteriorWidth();
+		float depthInt =getInteriorDepth();
 
 		ImGui::Text("Percent:");
 		ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {setPercent(percent); }
@@ -194,6 +196,8 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 
  void ComponentProgressBarUI::setPercent(float _percent)
  {
+	 if (_percent < 0) { _percent = 0; }
+	 if (_percent > 100) { _percent = 100; }
 	 percent = _percent;
 	 intBarTransform->setWidth(initialWidth*percent / 100);
 }

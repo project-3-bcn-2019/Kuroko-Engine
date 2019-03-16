@@ -322,18 +322,24 @@ std::string ModuleScripting::enum2component(Component_type type) {
 	return std::string();
 }
 
-WrenCall ModuleScripting::DisplayMethods(GameObject * go) {
+WrenCall ModuleScripting::DisplayMethods(GameObject * go, bool* display_bool) {
 	std::list<Component*> scripts;
 	go->getComponents(SCRIPT, scripts);
 
-	ImGui::Begin("Script Selector");
-	//for (auto it = scripts.begin(); it != scripts.end(); it++) {
-	//	ScriptData* script = ((ComponentScript*)(*it))->instance_data;
-	//	std::string display = script->methods;
-	//}
+	WrenCall ret("","");
+	ImGui::Begin("Script Selector", display_bool);
+	for (auto it = scripts.begin(); it != scripts.end(); it++) {
+		ScriptData* script = ((ComponentScript*)(*it))->instance_data;
+		for (auto it = script->methods.begin(); it != script->methods.end(); it++) {
+			std::string display = (*it).getName() + " (" + script->class_name + ")";
+			if (ImGui::MenuItem(display.c_str()))
+				ret = WrenCall(script->class_name, (*it).getName());
+		}
+
+	}
 	ImGui::End();
 
-	return WrenCall("hello", "everyone");
+	return ret;
 }
 
 

@@ -64,12 +64,11 @@ construct new(){}
 
 
  UpdateHpBar(){
-
-    _hp_progress_bar.setProgress(current_health/max_health)
+    _hp_progress_bar.setProgress((current_health/max_health)*100)
  }
 
  UpdateStaminaBar(){
-     _stamina_progress_bar.setProgress(current_stamina/max_stamina)
+     _stamina_progress_bar.setProgress((current_stamina/max_stamina)*100)
  }
 
 }

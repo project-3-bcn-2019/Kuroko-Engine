@@ -180,9 +180,9 @@ void PanelAnimationGraph::Draw()
 		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
 		ImGui::Text("Speed:");
 		ImGui::SameLine();
-		/*ImGui::PushItemWidth(50);
+		ImGui::PushItemWidth(50);
 		ImGui::InputFloat("##animSpeed", &node->speed);
-		ImGui::PopItemWidth();*/
+		ImGui::PopItemWidth();
 		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)

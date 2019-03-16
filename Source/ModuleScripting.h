@@ -43,7 +43,7 @@ public:
 
 	// Helpers
 	std::string enum2component(Component_type type);
-	WrenCall DisplayMethods(GameObject* go);
+	WrenCall DisplayMethods(GameObject* go, bool* display_bool);
 
 public:
 
