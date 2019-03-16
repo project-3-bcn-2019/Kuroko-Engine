@@ -74,7 +74,7 @@ ComponentProgressBarUI::~ComponentProgressBarUI()
 bool ComponentProgressBarUI::Update(float dt)
 {
 	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); intBar->setInspectorDraw(false);}
-	if (!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
+	if(!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
 
 	return true;
 }
@@ -161,6 +161,8 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
 		if (ImGui::DragFloat("##dp2", (float*)&depthInt, 0.1f)) { setInteriorDepth(depthInt); }
 		
+		
+		ImGui::Text("Width: %f", initialWidth);
 		
 
 		int w2 = 0; int h2 = 0;
