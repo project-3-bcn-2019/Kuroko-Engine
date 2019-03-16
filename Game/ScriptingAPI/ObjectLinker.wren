@@ -231,6 +231,7 @@ class InputComunicator{
 }
 
 class ObjectComunicator{
+	foreign static C_setActive(gameObject, active)
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
     foreign static C_rotate(gameObject, x, y, z)
@@ -254,6 +255,8 @@ class ObjectComunicator{
 	foreign static C_GetComponentUUID(gameObject, component_type)
 	foreign static C_GetCollisions(gameObject)
 	foreign static C_GetScript(gameObject, script_name)
+
+	foreign static C_GetTag(gameObject)
 
 }
 
@@ -279,6 +282,9 @@ class ObjectLinker{
 		gameObject = uuid
 	}
 
+	setActive(active){
+		ObjectComunicator.C_setActive(gameObject, active)
+	}
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
 	}
@@ -385,6 +391,9 @@ class ObjectLinker{
 		return ObjectComunicator.C_GetScript(gameObject, script_name)
 	}
 
+	getTag(){
+		return ObjectComunicator.C_GetTag(gameObject)
+	}
 	instantiate(prefab_name, offset, euler){
 		var pos = Vec3.add(getPos("global"), offset)
 		return EngineComunicator.Instantiate(prefab_name, pos, euler)

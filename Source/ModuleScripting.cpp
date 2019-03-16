@@ -30,6 +30,7 @@
 
 
 // Object comunicator
+void SetGameObjectActive(WrenVM* vm);
 void SetGameObjectPos(WrenVM* vm);
 void ModGameObjectPos(WrenVM* vm);
 void lookAt(WrenVM* vm);
@@ -51,6 +52,7 @@ void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
 void GetCollisions(WrenVM* vm);
 void GetScript(WrenVM* vm);
+void GetTag(WrenVM* vm);
 
 
 
@@ -571,6 +573,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 	// OBJECT COMUNICATOR
 	if(strcmp(module, "ObjectLinker") == 0){
 		if(strcmp(className, "ObjectComunicator") == 0){
+			if (strcmp(signature, "C_setActive(_,_)") == 0) {
+				return SetGameObjectActive; //  C function for ObjectComunicator.C_setActive
+			}
 			if (strcmp(signature, "C_setPos(_,_,_,_)") == 0) {
 				return SetGameObjectPos; //  C function for ObjectComunicator.C_setPos
 			}
@@ -624,6 +629,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			}
 			if (strcmp(signature, "C_GetScript(_,_)") == 0) {
 				return GetScript; // C function for ObjectComunicator.C_GetScript
+			}
+			if (strcmp(signature, "C_GetTag(_)") == 0) {
+				return GetTag; // C function for ObjectComunicator.C_GetTag
 			}
 		}
 		if (strcmp(className, "Math") == 0) {
@@ -777,6 +785,20 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 
 
 // Object Comunicator
+
+void SetGameObjectActive(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	bool is_active = wrenGetSlotBool(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing resource");
+		return;
+	}
+
+	go->setActive(is_active);
+}
+
 void SetGameObjectPos(WrenVM* vm) {
 
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
@@ -1101,6 +1123,19 @@ void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to th
 	}
 	
 	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
+}
+
+
+void GetTag(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	wrenSetSlotString(vm, 0, go->tag.c_str());
 }
 
 // Engine comunicator
