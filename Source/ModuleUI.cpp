@@ -334,7 +334,7 @@ update_status ModuleUI::Update(float dt) {
 				if (ImGui::MenuItem("Download latest"))
 					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/releases");
 				if (ImGui::MenuItem("Report a bug"))
-					App->requestBrowser("https://github.com/Skyway666/Kuroko-Engine/issues");
+					App->requestBrowser("https://github.com/RustikTie/project-3-bcn/issues");
 				ImGui::EndMenu();
 			}
 
