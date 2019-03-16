@@ -719,7 +719,7 @@ void ModuleScene::LoadPrefab(PrefabData data) {
 	*c_trans->local = trans;
 
 	// Force uuid
-	go->forceUUID(data.forced_uuid);
+	//go->forceUUID(data.forced_uuid);
 
 	json_value_free(prefab);
 }
