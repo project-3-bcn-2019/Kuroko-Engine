@@ -50,7 +50,7 @@ bool ComponentAnimator::Update(float dt)
 		if (graph->start != nullptr && graph->start->UID == currentNode && graph->start->animationUID != animation->getAnimationResource())
 			animation->setAnimationResource(graph->start->animationUID);
 
-		if (App->time->getGameState() == GameState::STOPPED && graph->start != nullptr)
+		if (graph->start != nullptr && currentNode == 0)
 		{
 			currentNode = graph->start->UID;
 		}
@@ -136,6 +136,13 @@ bool ComponentAnimator::DrawInspector(int id)
 
 		if (ImGui::Checkbox("Active##active animator", &animator_active))
 			setActive(animator_active);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio source")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
 	return true;
 }

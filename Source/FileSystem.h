@@ -28,6 +28,7 @@
 #define SCRIPTS_FOLDER "Library\\Scripts\\"
 #define AUDIO_FOLDER "Library\\Audio\\"
 #define MATERIALS_FOLDER "Library\\Materials\\"
+#define SHADERS_FOLDER "Library\\Shaders\\"
 
 
 #define PREFABS_FOLDER "Library\\Prefabs\\"
@@ -39,7 +40,9 @@
 #define USER_PREFABS_FOLDER "Assets\\Prefabs\\"
 #define USER_SCENES_FOLDER "Assets\\Scenes\\"
 #define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
+#define USER_SHADER_FOLDER "Assets\\Shaders\\"
 #define USER_AUTOSAVES_FOLDER "Assets\\AutoSaves\\"
+#define USER_GRAPHS_FOLDER "Assets\\AnimationGraphs\\"
 #define ASSETS_FOLDER "Assets\\"
 #define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 
@@ -55,6 +58,7 @@ enum lib_dir {
 	LIBRARY_MATERIALS,
 	LIBRARY_AUDIO,
 	LIBRARY_GRAPHS,
+	LIBRARY_SHADERS,
 	SETTINGS,
 	ASSETS,
 	ASSETS_SCENES,

@@ -30,6 +30,7 @@
 
 
 // Object comunicator
+void SetGameObjectActive(WrenVM* vm);
 void SetGameObjectPos(WrenVM* vm);
 void ModGameObjectPos(WrenVM* vm);
 void lookAt(WrenVM* vm);
@@ -51,6 +52,7 @@ void MoveGameObjectForward(WrenVM* vm);
 void GetComponentUUID(WrenVM* vm);
 void GetCollisions(WrenVM* vm);
 void GetScript(WrenVM* vm);
+void GetTag(WrenVM* vm);
 
 
 
@@ -65,6 +67,11 @@ void LoadScene(WrenVM* vm);
 // Math
 void sqrt(WrenVM* vm);
 void angleBetween(WrenVM* vm);
+void sin(WrenVM* vm);
+void cos(WrenVM* vm);
+void tan(WrenVM* vm);
+void asin(WrenVM* vm);
+void atan2(WrenVM* vm);
 
 //Time
 void GetDeltaTime(WrenVM* vm);
@@ -566,6 +573,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 	// OBJECT COMUNICATOR
 	if(strcmp(module, "ObjectLinker") == 0){
 		if(strcmp(className, "ObjectComunicator") == 0){
+			if (strcmp(signature, "C_setActive(_,_)") == 0) {
+				return SetGameObjectActive; //  C function for ObjectComunicator.C_setActive
+			}
 			if (strcmp(signature, "C_setPos(_,_,_,_)") == 0) {
 				return SetGameObjectPos; //  C function for ObjectComunicator.C_setPos
 			}
@@ -620,6 +630,9 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (strcmp(signature, "C_GetScript(_,_)") == 0) {
 				return GetScript; // C function for ObjectComunicator.C_GetScript
 			}
+			if (strcmp(signature, "C_GetTag(_)") == 0) {
+				return GetTag; // C function for ObjectComunicator.C_GetTag
+			}
 		}
 		if (strcmp(className, "Math") == 0) {
 			if (isStatic && strcmp(signature, "C_sqrt(_)") == 0)
@@ -627,6 +640,16 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 
 			if (isStatic && strcmp(signature, "C_angleBetween(_,_,_,_,_,_)") == 0)
 				return angleBetween;
+			if (isStatic && strcmp(signature, "sin(_)") == 0)
+				return sin;
+			if (isStatic && strcmp(signature, "cos(_)") == 0)
+				return cos;
+			if (isStatic && strcmp(signature, "tan(_)") == 0)
+				return tan;
+			if (isStatic && strcmp(signature, "asin(_)") == 0)
+				return asin;
+			if (isStatic && strcmp(signature, "atan2(_,_)") == 0)
+				return atan2;
 		
 		}
 		if (strcmp(className, "Time") == 0) {
@@ -762,6 +785,20 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 
 
 // Object Comunicator
+
+void SetGameObjectActive(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	bool is_active = wrenGetSlotBool(vm, 2);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing resource");
+		return;
+	}
+
+	go->setActive(is_active);
+}
+
 void SetGameObjectPos(WrenVM* vm) {
 
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
@@ -1088,6 +1125,19 @@ void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to th
 	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
 }
 
+
+void GetTag(WrenVM* vm) {
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	wrenSetSlotString(vm, 0, go->tag.c_str());
+}
+
 // Engine comunicator
 void ConsoleLog(WrenVM* vm)
 {
@@ -1185,6 +1235,35 @@ void angleBetween(WrenVM * vm)
 	wrenSetSlotDouble(vm, 0, angle);
 }
 
+void sin(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = sin(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+void cos(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = cos(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+void tan(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = tan(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+
+void asin(WrenVM* vm) {
+	float num = wrenGetSlotDouble(vm, 1);
+	float ret = asin(num);
+	wrenSetSlotDouble(vm, 0, ret);
+}
+
+void atan2(WrenVM* vm) {
+	float x = wrenGetSlotDouble(vm, 1);
+	float y = wrenGetSlotDouble(vm, 2);
+	float ret = atan2(x, y);
+	wrenSetSlotDouble(vm, 0, ret);
+
+}
 // Time
 void GetDeltaTime(WrenVM * vm)
 {

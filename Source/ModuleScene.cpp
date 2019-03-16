@@ -80,7 +80,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	LoadScene("Assets/Scenes/audio.scene");
+	//LoadScene("Assets/Scenes/audio.scene");
 
 	return true;
 }
@@ -719,7 +719,7 @@ void ModuleScene::LoadPrefab(PrefabData data) {
 	*c_trans->local = trans;
 
 	// Force uuid
-	go->forceUUID(data.forced_uuid);
+	//go->forceUUID(data.forced_uuid);
 
 	json_value_free(prefab);
 }

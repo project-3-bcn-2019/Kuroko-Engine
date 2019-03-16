@@ -5,6 +5,9 @@ import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProg
 import "Physics" for ComponentPhysics
 
 class Math{
+
+	static PI {3.1416}
+
 	foreign static C_sqrt(number)
 
 	static pow(number, power){
@@ -13,6 +16,51 @@ class Math{
 			ret = ret * number
 		}
 		return ret
+	}
+
+	foreign static sin(number)
+	foreign static cos(number)
+	foreign static tan(number)
+	foreign static asin(number)
+	foreign static atan2(x, y)
+
+	static AngleAxisToEuler(axis, angle){
+		var x = axis.x
+		var y = axis.y
+		var z = axis.z
+
+		var s = Math.sin(angle)
+		var c = Math.cos(angle)
+		var t = 1-c
+
+		var magnitude = Math.C_sqrt(x*x + y*y + z*z)
+
+		if(magnitude == 0){
+			EngineComunicator.consoleOutput("AngleAxisToEuler: Magitude of the vector can't be 0")
+			return Vec3.new(0,0,0)
+		}
+
+		if((x*y*t + z*s) > 0.998){ // North pole singularity
+			var yaw = 2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = Math.PI/2
+			var roll = 0
+
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		if ((x*y*t + z*s) < -0.998) { // South pole singularity 
+			var yaw = -2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = -Math.PI/2
+			var roll = 0
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		var yaw = Math.atan2(y * s- x * z * t , 1 - (y*y+ z*z ) * t)
+		var pitch = Math.asin(x * y * t + z * s)
+		var roll =  Math.atan2(x * s - y * z * t , 1 - (x*x + z*z) * t)
+
+		return Vec3.new(yaw, pitch, roll)
+	
 	}
 
 	static lerp(a, b, f){
@@ -137,7 +185,8 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
-    static J {13}
+    	static J {13}
+	static K {14}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}
@@ -183,6 +232,7 @@ class InputComunicator{
 }
 
 class ObjectComunicator{
+	foreign static C_setActive(gameObject, active)
 	foreign static C_setPos(gameObject, x, y, z)
 	foreign static C_modPos(gameObject, x, y, z)
     foreign static C_rotate(gameObject, x, y, z)
@@ -206,6 +256,8 @@ class ObjectComunicator{
 	foreign static C_GetComponentUUID(gameObject, component_type)
 	foreign static C_GetCollisions(gameObject)
 	foreign static C_GetScript(gameObject, script_name)
+
+	foreign static C_GetTag(gameObject)
 
 }
 
@@ -231,6 +283,9 @@ class ObjectLinker{
 		gameObject = uuid
 	}
 
+	setActive(active){
+		ObjectComunicator.C_setActive(gameObject, active)
+	}
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
 	}
@@ -337,6 +392,9 @@ class ObjectLinker{
 		return ObjectComunicator.C_GetScript(gameObject, script_name)
 	}
 
+	getTag(){
+		return ObjectComunicator.C_GetTag(gameObject)
+	}
 	instantiate(prefab_name, offset, euler){
 		var pos = Vec3.add(getPos("global"), offset)
 		return EngineComunicator.Instantiate(prefab_name, pos, euler)

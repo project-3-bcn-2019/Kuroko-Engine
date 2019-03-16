@@ -165,6 +165,7 @@ bool ModuleUI::Start()
 		ui_textures[PREFAB_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/prefab_icon.png");
 		ui_textures[GRAPH_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/graph_icon.png");
 		ui_textures[AUDIO_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/audio_icon.png");
+		ui_textures[SHADER_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/shader_icon.png");
 
 		ui_textures[CAUTION_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/caution_icon_32.png");
 		ui_textures[WARNING_ICON] = (Texture*)App->importer->ImportTexturePointer("Editor textures/warning_icon_32.png");

@@ -2,6 +2,7 @@
 #include "ComponentRectTransform.h"
 #include "Application.h"
 #include "ModuleWindow.h"
+#include "ModuleTimeManager.h"
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
 
@@ -18,7 +19,8 @@ ComponentCanvas::ComponentCanvas(GameObject* parent) : Component(parent, CANVAS)
 ComponentCanvas::ComponentCanvas(JSON_Object * deff, GameObject * parent) : Component(parent, CANVAS) {
 	   
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
-	   
+
+	draw_cross = json_object_get_boolean(deff, "debug");
 	
 	setResolution(float2(rectTransform->getWidth(), rectTransform->getHeight()));
 }
@@ -35,7 +37,7 @@ bool ComponentCanvas::Update(float dt)
 
 void ComponentCanvas::Draw() const
 {
-	if (draw_cross) {
+	if (draw_cross && App->time->getGameState() != GameState::PLAYING) {
 		float2 midPoint = float2(rectTransform->getWidth()/2, rectTransform->getHeight() / 2);
 		glColor3f(1.0f, 0.0f, 0.0f); // red
 		glLineWidth(1.5f);
@@ -64,6 +66,8 @@ bool ComponentCanvas::DrawInspector(int id)
 void ComponentCanvas::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "canvas");
+	json_object_set_boolean(config, "debug", draw_cross);
+
 }
 
 void ComponentCanvas::setResolution(float2 resolution)

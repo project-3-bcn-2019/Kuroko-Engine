@@ -23,11 +23,11 @@ construct new(){}
     current_stamina {_stamina}
     current_stamina =(v){ _stamina = v}
 
-    max_health {_health}
-    max_health =(v){ _health = v}
+    max_health {_max_health}
+    max_health =(v){ _max_health = v}
 
-    max_stamina {_stamina}
-    max_stamina =(v){ _stamina = v}
+    max_stamina {_max_stamina}
+    max_stamina =(v){ _max_stamina = v}
 
     health_tag {_health_tag}
     health_tag =(v){ _health_tag = v}
@@ -38,25 +38,32 @@ construct new(){}
  Start() {
 
     _hp_game_object = EngineComunicator.FindGameObjectsByTag(health_tag)[0]
-    _stamina_game_object = EngineComunicator.FindGameObjectsByTag(stamina_tag)[0]
+    //_stamina_game_object = EngineComunicator.FindGameObjectsByTag(stamina_tag)[0]
+
+    if(_hp_game_object == null) EngineComunicator.consoleOutput("hp null")
 
     _hp_progress_bar = _hp_game_object.getComponent(ComponentType.PROGRESS_BAR)
-    _stamina_progress_bar = _stamina_game_object.getComponent(ComponentType.PROGRESS_BAR)
+    //_stamina_progress_bar = _stamina_game_object.getComponent(ComponentType.PROGRESS_BAR)
 
  }
 
  Update() {
 
      this.UpdateHpBar()
-     this.UpdateStaminaBar()
+     //this.UpdateStaminaBar()
+
+    if(InputComunicator.getKey(InputComunicator.LEFT, InputComunicator.KEY_REPEAT)){
+        current_health = current_health - 1
+    }
+
+    if(InputComunicator.getKey(InputComunicator.RIGHT, InputComunicator.KEY_REPEAT)){
+        current_health = current_health + 1
+    }
 
  }
 
 
  UpdateHpBar(){
-     if (_hp_progress_bar == null){
-         EngineComunicator.consoleOutput("hp = null")
-     }
 
     _hp_progress_bar.setProgress(current_health/max_health)
  }

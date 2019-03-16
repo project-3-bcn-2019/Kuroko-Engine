@@ -11,6 +11,7 @@ inline bool containPoint(ImVec2 A, ImVec2 B, ImVec2 point);
 ResourceAnimationGraph::ResourceAnimationGraph(resource_deff deff) :Resource(deff)
 {
 	Parent3dObject = deff.Parent3dObject;
+	App->fs.getFileNameFromPath(asset);
 }
 
 ResourceAnimationGraph::~ResourceAnimationGraph()
@@ -96,7 +97,11 @@ bool ResourceAnimationGraph::LoadGraph()
 		cursor += sizeof(float);
 
 		Node* node = new Node(name.c_str(), this->uuid, { position[0], position[1] }, uids[0]);
-		node->animationUID = App->resources->getAnimationResourceUuid(assetName.c_str(), animName.c_str());
+		if (App->is_game)
+			node->animationUID = App->resources->getResourceUuid(animName.c_str() , R_ANIMATION);
+		else
+			node->animationUID = App->resources->getAnimationResourceUuid(assetName.c_str(), animName.c_str());
+		 
 		node->loop = loop;
 		node->speed = speed;
 
@@ -369,7 +374,7 @@ bool ResourceAnimationGraph::saveGraph() const
 		cursor += sizeof(char)*ranges[2];
 	}
 
-	App->fs.ExportBuffer(buffer, size, asset.c_str());
+	App->fs.ExportBuffer(buffer, size, (USER_GRAPHS_FOLDER + asset + GRAPH_EXTENSION).c_str());
 	RELEASE_ARRAY(buffer);
 
 	return true;

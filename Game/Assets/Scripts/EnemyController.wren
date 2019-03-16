@@ -41,23 +41,14 @@ MoveSpeed=(v) { _move_speed = v }
 Damage {_damage}
 Damage=(v) { _damage = v }
 
-Startup {_startup}
-Startup=(v) {_startup = v}
-
-ActiveMs {_active_ms}
-ActiveMs=(v) {_active_ms = v}
-
-Recovery {_recovery}
-Recovery=(v) {_recovery = v}
+AttackSpeed {_attack_speed}
+AttackSpeed=(v) { _attack_speed = v }
 
 AttackRange {_attack_range}
 AttackRange=(v) { _attack_range = v }
 
 Health {_health}
 Health=(v) { _health = v }
-
-Defense {_defense}
-Defense=(v) { _defense = v }
 
 HitStun {_hit_stun}
 HitStun=(v) { _hit_stun = v }
@@ -71,9 +62,6 @@ AlitaSeen {_alita_seen}
 AlitaInRange {_alita_in_range}
 Damaged{_damaged}
 Target{_target}
-Dead{_dead}
-
-
 
 State = (new_state) {
         if (_enemy_state)  _enemy_state.EndState() //the first time player_state is null
@@ -94,22 +82,13 @@ State = (new_state) {
     _hit_state = HitState.new(this)
     _dead_state = DeadState.new(this)
 
-    //initialize variables
-    _dead = false
-    _damaged = false
-
     this.State = _idle_state
  }
 
  Update() {
-     
+
      _enemy_state.HandleInput()
      _enemy_state.Update()
-    if(_health <= 0){
-        _dead = true
-        this.State = _dead_state
-     }
-     
  }
 
  lookForAlita(){
@@ -134,12 +113,6 @@ State = (new_state) {
          _alita_in_range = false
      }
  }
-
- dealDamage(damage,multiplier){
-    _health = _health - ((damage*multiplier) - (_defense/2))
-    _damaged = true
- }
-
 }
  //State Machine structure taken from Pol Ferrando... 
  //...and his Alita state machine for the sake of clarity
@@ -255,12 +228,8 @@ class ChaseState is EnemyState{
 
 class AttackState is EnemyState{
     construct new(enemy){
-        var time = enemy.Startup + enemy.ActiveMs + enemy.Recovery
-        super(enemy,time)
+        super(enemy,enemy.AttackSpeed)
         _enemy = enemy
-        _startup = enemy.Startup
-        _activeMs = enemy.ActiveMs
-        _recovery = enemy.Recovery
     }
 
     BeginState(){
@@ -281,28 +250,14 @@ class AttackState is EnemyState{
 
     Update() {
         super.Update()
-
-        if(super.CurrentTime >= _startup){
-            var collider = EngineComunicator.Instantiate("EnemyCollider",_enemy.getPos("global"),Vec3.new(0,0,0)).getScript("EnemyCollider")
-        }
-
-        if(collider){
-            collider.Damage = _enemy.Damage
-            collider.DamageMultiplier = 1
-            collider.ActiveMS = _activeMs
-        }
         if(super.IsStateFinished()){
-            _enemy.lookForAlita()
+            EngineComunicator.consoleOutput("Attack")
             if(_enemy.AlitaInRange){
                 _enemy.State = _enemy.AttackState
             } else {
                 _enemy.State = _enemy.ChaseState
             }
         }
-    }
-
-    IsOriented{
-        //this function should return true if the enemy is oriented towards the player
     }
     
 }
