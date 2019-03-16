@@ -277,6 +277,7 @@ void FileSystem::createMainDirectories()
 	CreateDirectory(USER_SCRIPTS_FOLDER, NULL);
 	CreateDirectory(USER_SHADER_FOLDER, NULL);
 	CreateDirectory(USER_AUTOSAVES_FOLDER, NULL);
+	CreateDirectory(USER_GRAPHS_FOLDER, NULL);
 }
 
 bool FileSystem::removeExtension(std::string& str) {

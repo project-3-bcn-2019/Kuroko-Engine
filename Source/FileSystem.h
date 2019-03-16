@@ -42,6 +42,7 @@
 #define USER_SCRIPTS_FOLDER "Assets\\Scripts\\"
 #define USER_SHADER_FOLDER "Assets\\Shaders\\"
 #define USER_AUTOSAVES_FOLDER "Assets\\AutoSaves\\"
+#define USER_GRAPHS_FOLDER "Assets\\AnimationGraphs\\"
 #define ASSETS_FOLDER "Assets\\"
 #define SCRIPTINGAPI_FOLDER "ScriptingAPI\\"
 

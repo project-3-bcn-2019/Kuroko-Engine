@@ -350,6 +350,7 @@ void ModuleResourcesManager::GenerateResources()
 	GenerateFromMapFile(assets, R_BONE);
 	GenerateFromMapFile(assets, R_AUDIO);
 	GenerateFromMapFile(assets, R_SHADER);
+	GenerateFromMapFile(assets, R_ANIMATIONGRAPH);
 	//R_UI?
 }
 
@@ -400,6 +401,10 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 		path = AUDIO_FOLDER;
 		extension = AUDIO_EXTENSION;
 		break;
+	case R_ANIMATIONGRAPH:
+		name = "AnimationGraphs";
+		path = GRAPHS_FOLDER;
+		extension = GRAPH_EXTENSION;
 	}
 
 	//Generate resources
@@ -561,10 +566,13 @@ uint ModuleResourcesManager::getResourceUuid(const char * file) {
 
 uint ModuleResourcesManager::getResourceUuid(const char* name, ResourceType type)
 {
-	for (auto it = resources.begin(); it != resources.end(); it++)
+	if (name != nullptr)
 	{
-		if ((*it).second->type == type && (*it).second->asset == name)
-			return (*it).second->uuid;
+		for (auto it = resources.begin(); it != resources.end(); it++)
+		{
+			if ((*it).second->type == type && (*it).second->asset == name)
+				return (*it).second->uuid;
+		}
 	}
 
 	return 0;
