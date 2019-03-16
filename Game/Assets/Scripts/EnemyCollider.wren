@@ -31,13 +31,12 @@ construct new(){}
 
  Update() {
 
-     var Alita = EngineComunicator.FindGameObjectsByTag("Alita")
 
      var collisions = getCollisions()
-     EngineComunicator.consoleOutput("count: %(collisions.count)")
      for(i in 0...collisions.count){
          
-         if(Alita.gameObject == collisions[i].gameObject){
+         if(collisions[i].getTag() == "Alita"){
+             EngineComunicator.consoleOutput("Attacking Alita")
             alita_script = collisions[i].getScript("PlayerController")
             alita_script.dealDamage(_damage,_damage_multiplier)
          }
