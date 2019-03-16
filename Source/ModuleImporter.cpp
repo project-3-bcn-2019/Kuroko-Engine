@@ -15,7 +15,9 @@
 #include "Timer.h"
 #include "Random.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleShaders.h"
 #include "ResourceAnimation.h"
+#include "ResourceShader.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -503,6 +505,15 @@ void ModuleImporter::ImportShader(const char * file_original_name, std::string f
 		app_log->AddLog("Saved Fragment Shader %s as own file format", filename.c_str());
 
 	}	
+	
+	std::string test = file_binary_name;
+	uint uuid = std::stoi(test.c_str());
+
+	ResourceShader* aux_resource = (ResourceShader*)App->resources->getResource(uuid);
+	if (aux_resource && App->resources->getResource(uuid)->IsLoaded())
+	{
+		aux_resource->Reload();
+	}
 }
 
 void ModuleImporter::ImportMeshToKR(const char * file, Mesh* mesh) {

@@ -7,11 +7,15 @@
 #include "Applog.h"
 #include "ModuleImporter.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleShaders.h"
+#include "ResourceShader.h"
 
 
 Material::Material() : id(App->scene->last_mat_id++) 
 {
+	shader_program = App->shaders->GetDefaultShaderProgram()->programID;
 }
+
 Material::~Material() {
 	if (diffuse_resource != 0) {
 		App->resources->deasignResource(diffuse_resource);
@@ -65,6 +69,23 @@ void Material::setCheckeredTexture(TextureType tex_type)
 	case NORMALS: normals_resource = 0; break;
 	case LIGHTMAP: lightmap_resource = 0; break;
 	}
+}
+
+uint  Material::getShaderProgramID() const
+{
+	return shader_program;
+}
+
+ShaderProgram * Material::getShaderProgram() const
+{
+	for (int i = 0; i < App->shaders->shader_programs.size(); ++i)
+	{
+		if (shader_program == App->shaders->shader_programs[i]->programID)
+		{
+			return App->shaders->shader_programs[i];
+		}
+	}
+	return nullptr;
 }
 
 Texture::Texture() : id(App->scene->last_tex_id++)

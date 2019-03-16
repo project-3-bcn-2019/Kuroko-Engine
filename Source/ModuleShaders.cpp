@@ -2,9 +2,11 @@
 #include "ModuleShaders.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleWindow.h"
+#include "ModuleResourcesManager.h"
 #include "Globals.h"
 #include "Applog.h"
 #include "FileSystem.h"
+#include "ResourceShader.h"
 
 #include "glew-2.1.0/include/GL/glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -43,49 +45,26 @@ bool ModuleShaders::Init(const JSON_Object * config)
 	return ret;
 }
 
-bool ModuleShaders::InitializeDefaulShaders()
+bool ModuleShaders::Start()
 {
-	//Default shaders
-	bool findFile = App->fs.ExistisFile(defaultVertexFile.c_str(), LIBRARY_MATERIALS, ".vex");
-	if (findFile)
-	{
-		defVertexShader->script = App->fs.ImportFile(defaultVertexFile.c_str());
-	}
-	else
-	{
-		CreateDefVertexShader();
-	}
+	//Initializing Shaders
+	app_log->AddLog("Compiling Default Shaders...");
 
-	CompileShader(defVertexShader);
-	defShaderProgram->shaders.push_back(defVertexShader->shaderId);
+	ResourceShader* r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Vertex_Shader.vex", R_SHADER));
+	if (r_Shader && !r_Shader->IsLoaded())
+		r_Shader->LoadToMemory();
 
-	findFile = App->fs.ExistisFile(defaultFragmentFile.c_str(), LIBRARY_MATERIALS, ".frag");
-	if (findFile)
-	{
-		defVertexShader->script = App->fs.ImportFile(defaultVertexFile.c_str());
-	}
-	else
-	{
-		CreateDefFragmentShader();
-	}
+	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
 
-	CompileShader(defFragmentShader);
-	defShaderProgram->shaders.push_back(defFragmentShader->shaderId);
+	r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Fragment_Shader.frag", R_SHADER));
+	if (r_Shader && !r_Shader->IsLoaded())
+		r_Shader->LoadToMemory();
 
-	CompileProgram(defShaderProgram);
+	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
 
-	//Animation Shaders
-	/*CompileShader(animationShader);
-	animationShaderProgram->shaders.push_back(animationShader->shaderId);
-	*/
-	shaders.push_back(defVertexShader);
-	shaders.push_back(defFragmentShader);
-	//shaders.push_back(animationShader);
+	App->shaders->CompileProgramFromResources(defShaderProgram);
 
 	shader_programs.push_back(defShaderProgram);
-	/*shader_programs.push_back(animationShaderProgram);*/
-
-
 
 	return true;
 }
@@ -288,16 +267,54 @@ bool ModuleShaders::CompileProgram(ShaderProgram* program)
 	return ret;
 }
 
+bool ModuleShaders::CompileProgramFromResources(ShaderProgram * program)
+{
+	bool ret = false;
+
+	program->programID = glCreateProgram();
+
+	for (int i = 0; i < program->shaderUUIDS.size(); i++)
+	{
+		ResourceShader* r_shader = (ResourceShader*)App->resources->getResource(program->shaderUUIDS[i]);
+		
+		if(r_shader && r_shader->shaderObject)
+			glAttachShader(program->programID, r_shader->shaderObject->shaderId);
+	}
+
+	glLinkProgram(program->programID);
+
+	for (int i = 0; i < program->shaderUUIDS.size(); i++)
+	{
+		ResourceShader* r_shader = (ResourceShader*)App->resources->getResource(program->shaderUUIDS[i]);
+
+		if (r_shader && r_shader->shaderObject)
+			glDetachShader(program->programID, r_shader->shaderObject->shaderId);
+	}
+
+	int success;
+	char Error[512];
+	glGetProgramiv(program->programID, GL_LINK_STATUS, &success);
+
+	if (!success)
+	{
+		glGetProgramInfoLog(program->programID, 512, NULL, Error);
+		app_log->AddLog(Error);
+		ret = false;
+	}
+	else
+	{
+		app_log->AddLog("Program linked and compiled Successfully!");
+		ret = true;
+	}
+
+	return ret;
+}
+
 bool ModuleShaders::RecompileAllPrograms()
 {
 	for (int i = 0; i < shader_programs.size(); ++i)
 	{
-		for (int j = 0; j < shader_programs[i]->shaders.size(); ++j)
-		{
-			if(shader_programs[i]->shaders[j]== defFragmentShader->shaderId)
-				CompileShader(defFragmentShader);
-		}
-		CompileProgram(shader_programs[i]);
+		CompileProgramFromResources(shader_programs[i]);
 	}
 	return false;
 }

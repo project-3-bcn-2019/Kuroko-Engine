@@ -8,6 +8,7 @@
 class TextEditor;
 struct Shader;
 struct Uniform;
+class ResourceShader;
 
 class PanelShader :
 	public Panel
@@ -18,7 +19,7 @@ public:
 	~PanelShader();
 
 	void Draw();
-	void SaveShader(Shader* shader);
+	void SaveShader(ResourceShader* shader);
 	void AddUniform();
 
 private:
@@ -26,7 +27,7 @@ private:
 	TextEditor shader_editor;		//USED IN SHADER EDITOR
 	std::string open_shader_path;	//USED IN SHADER EDITOR
 
-	Shader* current_shader = nullptr;
+	ResourceShader* r_shader = nullptr;
 	
 	std::vector<Uniform*> shader_uniforms;
 	

@@ -15,6 +15,7 @@ public:
 
 	void LoadToMemory();
 	void UnloadFromMemory();
+	void Reload();
 
 	bool SaveShader();
 	Shader* LoadShader();

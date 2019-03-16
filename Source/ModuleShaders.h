@@ -31,6 +31,7 @@ struct Uniform
 struct Shader
 {
 	Shader(ShaderType type) :type(type) {};
+	Shader() {};
 
 	std::string name = "";
 	std::string script = "";
@@ -44,6 +45,7 @@ struct ShaderProgram
 {
 	uint programID = 0;
 	std::vector<uint> shaders;
+	std::vector<uint> shaderUUIDS;
 };
 
 
@@ -56,14 +58,14 @@ public:
 
 
 	bool Init(const JSON_Object* config);
-
-	bool InitializeDefaulShaders();
+	bool Start();
 
 	void CreateDefVertexShader();
 	void CreateDefFragmentShader();
 
 	bool CompileShader(Shader* shader);
 	bool CompileProgram(ShaderProgram* program);
+	bool CompileProgramFromResources(ShaderProgram* program);
 	bool RecompileAllPrograms();
 	bool IsProgramValid(uint program);
 
