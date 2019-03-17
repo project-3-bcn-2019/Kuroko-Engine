@@ -52,6 +52,7 @@ public:
 	uint getTextureResource(TextureType tex_type) const;
 	void setTextureResource(TextureType tex_type, uint textureResource); 
 	void setCheckeredTexture(TextureType tex_type = DIFFUSE); // TODO: Should get a special resource from resource manager
+	void setShaderProgram(uint shaderID) { shader_program = shaderID; };
 	uint getId() const { return id; };
 	uint getShaderProgramID() const;
 	ShaderProgram* getShaderProgram() const;

@@ -48,23 +48,26 @@ bool ModuleShaders::Init(const JSON_Object * config)
 bool ModuleShaders::Start()
 {
 	//Initializing Shaders
-	app_log->AddLog("Compiling Default Shaders...");
+	if (!App->is_game)
+	{
+		app_log->AddLog("Compiling Default Shaders...");
 
-	ResourceShader* r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Vertex_Shader.vex", R_SHADER));
-	if (r_Shader && !r_Shader->IsLoaded())
-		r_Shader->LoadToMemory();
+		ResourceShader* r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Vertex_Shader.vex", R_SHADER));
+		if (r_Shader && !r_Shader->IsLoaded())
+			r_Shader->LoadToMemory();
 
-	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
+		defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
 
-	r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Fragment_Shader.frag", R_SHADER));
-	if (r_Shader && !r_Shader->IsLoaded())
-		r_Shader->LoadToMemory();
+		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Fragment_Shader.frag", R_SHADER));
+		if (r_Shader && !r_Shader->IsLoaded())
+			r_Shader->LoadToMemory();
 
-	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
+		defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
 
-	App->shaders->CompileProgramFromResources(defShaderProgram);
+		App->shaders->CompileProgramFromResources(defShaderProgram);
 
-	shader_programs.push_back(defShaderProgram);
+		shader_programs.push_back(defShaderProgram);
+	}
 
 	return true;
 }
@@ -335,6 +338,33 @@ bool ModuleShaders::IsProgramValid(uint program)
 		app_log->AddLog("Shader Program is valid");
 		app_log->AddLog("%d", program);
 		ret = true;
+	}
+
+	return ret;
+}
+
+uint ModuleShaders::GetShaderProgramByResources(uint vertex, uint fragment)
+{
+	uint ret = 0;
+	uint counter = 0;
+
+	//Search for the program that has the 2 resources
+	for (int i = 0; i < shader_programs.size(); ++i)
+	{
+		for (int j = 0; j < shader_programs[i]->shaderUUIDS.size(); ++j)
+		{
+			if (shader_programs[i]->shaderUUIDS[j] == vertex || shader_programs[i]->shaderUUIDS[j] == fragment)
+			{
+				counter++;
+			}
+		}
+		
+		//if counter==2 means there is a shader program with the vertex and fragment shaders that we have
+		if (counter == 2)
+		{
+			CompileProgramFromResources(shader_programs[i]);
+			ret = shader_programs[i]->programID;
+		}
 	}
 
 	return ret;
