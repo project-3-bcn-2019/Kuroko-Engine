@@ -336,7 +336,7 @@ class ObjectLinker{
 	}
 
 	getForward(){
-		return Vec3.new(ObjectComunicator.C_getForwardX(),ObjectComunicator.C_getForwardY(),ObjectComunicator.C_getForwardZ())
+		return Vec3.new(ObjectComunicator.C_getForwardX(gameObject),ObjectComunicator.C_getForwardY(gameObject),ObjectComunicator.C_getForwardZ(gameObject))
 	}
 	
 	moveForward(speed){
