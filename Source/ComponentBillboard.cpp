@@ -27,6 +27,7 @@ ComponentBillboard::ComponentBillboard(GameObject* parent, Material* mat) : Comp
 
 ComponentBillboard::ComponentBillboard(JSON_Object* deff, GameObject* parent) : Component(parent, BILLBOARD)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	transform = (ComponentTransform*)getParent()->getComponent(TRANSFORM);
 
 	mesh = new Mesh(Primitive_Plane);
@@ -166,5 +167,6 @@ void ComponentBillboard::Save(JSON_Object* config)
 	// Determine the type of the mesh
 	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "billboard");
+	json_object_set_boolean(config, "active", is_active);
 	billboard->Save(config);
 }

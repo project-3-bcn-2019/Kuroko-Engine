@@ -19,6 +19,7 @@ ComponentScript::ComponentScript(GameObject* g_obj, uint resource_uuid) : Compon
 }
 
 ComponentScript::ComponentScript(JSON_Object * deff, GameObject * parent): Component(parent, SCRIPT) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string s_path = json_object_get_string(deff, "script");
 	if (!App->is_game || App->debug_game)
 		script_resource_uuid = App->resources->getResourceUuid(s_path.c_str());
@@ -254,6 +255,7 @@ bool ComponentScript::DrawInspector(int id)
 
 void ComponentScript::Save(JSON_Object * config) {
 	json_object_set_string(config, "type", "script");
+	json_object_set_boolean(config, "active", is_active);
 
 	ResourceScript* res_script = (ResourceScript*)App->resources->getResource(script_resource_uuid);
 

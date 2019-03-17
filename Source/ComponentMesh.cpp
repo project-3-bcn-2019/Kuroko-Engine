@@ -24,6 +24,7 @@
 std::string openFileWID(bool isfile = false);
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string path;
 
 	// Load mesh from own file format
@@ -698,6 +699,7 @@ void ComponentMesh::Save(JSON_Object* config) {
 	// Determine the type of the mesh
  	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "mesh");
+	json_object_set_boolean(config, "active", is_active);
 
 	if(mesh_resource_uuid != 0){
 		//json_object_set_number(config, "mesh_resource_uuid", mesh_resource_uuid);

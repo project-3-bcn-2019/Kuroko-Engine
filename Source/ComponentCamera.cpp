@@ -18,6 +18,7 @@ ComponentCamera::ComponentCamera(GameObject* parent, Camera* camera) : Component
 
 ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Component(parent, CAMERA){
 
+	is_active = json_object_get_boolean(deff, "active");
 	// Load camera
 	float3 pos(json_object_dotget_number(deff, "camera.pos_x"), json_object_dotget_number(deff, "camera.pos_y"), json_object_dotget_number(deff, "camera.pos_z"));
 	float3 reference(json_object_dotget_number(deff, "camera.ref_x"), json_object_dotget_number(deff, "camera.ref_y"), json_object_dotget_number(deff, "camera.ref_z"));
@@ -123,6 +124,7 @@ bool ComponentCamera::DrawInspector(int id)
 void ComponentCamera::Save(JSON_Object* config) {
 
 	json_object_set_string(config, "type", "camera");
+	json_object_set_boolean(config, "active", is_active);
 
 	JSON_Value* camera_value = json_value_init_object();
 	camera->Save(json_object(camera_value));

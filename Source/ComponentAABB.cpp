@@ -4,6 +4,7 @@
 #include "ComponentBillboard.h"
 #include "GameObject.h"
 #include "Application.h"
+#include "ModuleScene.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleCamera3D.h"
 #include "Transform.h"
@@ -132,7 +133,7 @@ bool ComponentAABB::DrawInspector(int id)
 		aabb_active = isActive();
 
 		if (ImGui::Checkbox("Active##active AABB", &aabb_active))
-			setActive(aabb_active);
+			setActive(aabb_active);	App->scene->AskAutoSaveScene();
 
 		if (aabb_active)
 		{
@@ -140,14 +141,14 @@ bool ComponentAABB::DrawInspector(int id)
 			aabb_drawn = draw_aabb;
 
 			if (ImGui::Checkbox("draw AABB", &aabb_drawn))
-				draw_aabb = aabb_drawn;
+				draw_aabb = aabb_drawn;	App->scene->AskAutoSaveScene();
 
 			static bool obb_drawn;
 			obb_drawn = draw_obb;
 
 			ImGui::SameLine();
 			if (ImGui::Checkbox("draw OBB", &obb_drawn))
-				draw_obb = obb_drawn;
+				draw_obb = obb_drawn;	App->scene->AskAutoSaveScene();
 
 			if (ImGui::Button("Reload##Reload AABB"))
 				Reload();
@@ -198,7 +199,5 @@ void ComponentAABB::DrawOBB() const
 void ComponentAABB::Save(JSON_Object* config) {
 
 	json_object_set_string(config, "type", "AABB");
-
-	
-
+	json_object_set_boolean(config, "active", is_active);
 }

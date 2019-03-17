@@ -44,11 +44,12 @@ ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape _shape,
 
 ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Component(parent, PHYSICS)
 {
+	is_active = json_object_get_boolean(deff, "active");
+
 	JSON_Object* p = json_object_get_object(deff, "pos");
 	JSON_Object* r = json_object_get_object(deff, "rot");
 	JSON_Object* s = json_object_get_object(deff, "scale");
 	JSON_Object* data = json_object_get_object(deff, "data");
-
 
 	offset_pos = float3(json_object_get_number(p, "offset_pos_x"), json_object_get_number(p, "offset_pos_y"), json_object_get_number(p, "offset_pos_z"));
 	offset_rot = float3(json_object_get_number(r, "offset_rot_x"), json_object_get_number(r, "offset_rot_y"), json_object_get_number(r, "offset_rot_z"));
@@ -75,9 +76,6 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 		body->GetRigidBody()->setMassProps(mass, btVector3(0, 0, 0));
 
 	}
-
-
-
 }
 
 bool ComponentPhysics::Update(float dt)
@@ -262,6 +260,7 @@ bool ComponentPhysics::DrawInspector(int id)
 void ComponentPhysics::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "physics");
+	json_object_set_boolean(config, "active", is_active);
 
 	JSON_Value* data = json_value_init_object();
 	json_object_set_number(json_object(data), "shape", shape);
