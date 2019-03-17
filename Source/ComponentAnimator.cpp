@@ -86,6 +86,7 @@ bool ComponentAnimator::Update(float dt)
 						currentNode = destinationNode->UID;
 						animation->setAnimationResource(destinationNode->animationUID);
 						animation->loop = destinationNode->loop;
+						animation->speed = destinationNode->speed;
 						animation->SetAnimTime(0.f);
 					}
 				}
@@ -368,6 +369,11 @@ bool* ComponentAnimator::getBool(uint uuid)
 	if (bools.find(uuid) != bools.end())
 		return &bools[uuid];
 	return nullptr;
+}
+
+void ComponentAnimator::setSpeed(float speed)
+{
+	animation->speed = speed;
 }
 
 void ComponentAnimator::removeValue(variableType type, uint uuid)

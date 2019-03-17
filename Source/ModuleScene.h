@@ -151,6 +151,7 @@ private:
 public:
 
 	std::list<GameObject*> selected_obj;
+	std::list<uint> prev_selected_obj;
 	Skybox* skybox				= nullptr;
 
 	uint last_mat_id			= 0;

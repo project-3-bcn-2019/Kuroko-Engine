@@ -35,6 +35,8 @@ public:
 	void setBool(uint uuid, bool value);
 	bool* getBool(uint uuid);
 
+	void setSpeed(float speed);
+
 	void removeValue(variableType type, uint uuid);
 
 	void Save(JSON_Object* config);

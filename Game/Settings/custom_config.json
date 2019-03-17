@@ -1,0 +1,36 @@
+{
+    "time_manager": {},
+    "window": {
+        "borderless": false,
+        "fullscreen": false,
+        "resizable": true,
+        "fulldesktop": false,
+        "adapt_screen": true,
+        "width": 1920,
+        "height": 1057,
+        "adaptable_offsetx": 200,
+        "adaptable_offsety": 200,
+        "brightness": 1
+    },
+    "camera": {},
+    "input": {},
+    "importer": {},
+    "exporter": {},
+    "resource manager": {},
+    "audio": {},
+    "scripting": {
+        "tags": []
+    },
+    "physics3d": {},
+    "scene": {},
+    "debug": {},
+    "Shaders": {},
+    "gui": {
+        "log": true
+    },
+    "renderer3d": {},
+    "is_game": false,
+    "debug_game": false,
+    "engine_title": "Project Atlas",
+    "game_title": "Malita: Demon of Skirmishes"
+}
