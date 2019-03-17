@@ -57,6 +57,9 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 	name = json_object_get_string(deff, "name");
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");
+	uint saved_uuid = json_object_get_number(deff, "UUID");
+	if (saved_uuid != 0)
+		uuid = saved_uuid;
 
 	if (json_object_has_value(deff, "isUI")) {
 		is_UI = json_object_get_boolean(deff, "isUI");

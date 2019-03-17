@@ -500,11 +500,14 @@ void ModuleScene::getGameObjectsByComponent(Component_type type, std::list<GameO
 
 void ModuleScene::ClearScene()
 {
+	prev_selected_obj.clear();
+	for (auto it = selected_obj.begin(); it != selected_obj.end(); it++)
+		prev_selected_obj.push_back((*it)->getUUID());
+
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		delete *it;
 
 	game_objects.clear();
-
 	selected_obj.clear();
 }
 
@@ -700,6 +703,13 @@ void ModuleScene::LoadScene(const char* path) {
 	quadtree_reload = true;
 	loadSerializedScene(scene);
 	json_value_free(scene);
+
+	for (auto it = prev_selected_obj.begin(); it != prev_selected_obj.end(); it++)
+	{
+		GameObject* go = getGameObject((*it));
+		if (go)
+			selected_obj.push_back(go);
+	}
 }
 
 void ModuleScene::LoadPrefab(PrefabData data) {
