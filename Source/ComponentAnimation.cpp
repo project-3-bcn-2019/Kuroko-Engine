@@ -84,7 +84,9 @@ bool ComponentAnimation::Update(float dt)
 						if (blendFrom != nullptr)
 						{
 							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];
-							getBoneBlend->calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
+							//	This line will proove that it is finding the proper bone as the expected transform can be calculated
+							//	Can't compare to nullptr because we are accessing memory directly
+							//	getBoneBlend->calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
 							anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
 						}
 					}
