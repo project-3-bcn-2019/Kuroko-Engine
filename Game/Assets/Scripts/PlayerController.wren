@@ -382,7 +382,15 @@ class BasicAttackState is State {
     //This is when the attak will instanciate the collider 
     OnContactFrames() {
         EngineComunicator.consoleOutput("Create collider")
-        _player.instantiate(_prefav_collider_name, Vec3.new(10,10,0), Vec3.new(0,0,0))
+
+        var forward = _player.getForward()
+
+        var multiplier = 5
+        var col_height = 10
+        var x_offset = forward.x * multiplier
+        var z_offset = forward.z * multiplier
+
+        _player.instantiate(_prefav_collider_name, Vec3.new(x_offset,col_height,z_offset), Vec3.new(0,0,0))
     }
     
     GoToNextState() {
@@ -399,7 +407,7 @@ class BasicAttackState is State {
 
         if (super.IsStateFinished()) this.GoToNextState()
 
-        EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
+        if (_player.ShowDebugLogs) EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
     }
 }
 
