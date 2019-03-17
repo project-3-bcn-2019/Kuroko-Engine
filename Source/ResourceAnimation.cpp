@@ -142,6 +142,16 @@ float ResourceAnimation::getDuration() const
 	return ticks / ticksXsecond;
 }
 
+BoneTransform* ResourceAnimation::FindBone(std::string& check)
+{
+	BoneTransform* ret = nullptr;
+	for (int i = 0; i < numBones && ret == nullptr; ++i)
+		ret = (check.compare(boneTransformations[i].NodeName) == 0) ? &boneTransformations[i] : nullptr;
+
+	return ret;
+}
+
+
 BoneTransform::~BoneTransform()
 {
 	RELEASE_ARRAY(PosKeysValues);

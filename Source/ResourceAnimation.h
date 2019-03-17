@@ -53,6 +53,7 @@ public:
 	
 	void resetFrames();
 	float getDuration() const;
+	BoneTransform* FindBone(std::string& check);
 
 public:
 
