@@ -48,26 +48,38 @@ bool ModuleShaders::Init(const JSON_Object * config)
 bool ModuleShaders::Start()
 {
 	//Initializing Shaders
-	if (!App->is_game)
+	app_log->AddLog("Compiling Default Shaders...");
+
+	std::string shaderName = "Assets/Shaders/Default_Vertex_Shader.vex";
+	ResourceShader* r_Shader;
+	if (!App->is_game || App->debug_game)
+		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid(shaderName.c_str(), R_SHADER));
+	else
 	{
-		app_log->AddLog("Compiling Default Shaders...");
-
-		ResourceShader* r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Vertex_Shader.vex", R_SHADER));
-		if (r_Shader && !r_Shader->IsLoaded())
-			r_Shader->LoadToMemory();
-
-		defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
-
-		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid("Assets/Shaders/Default_Fragment_Shader.frag", R_SHADER));
-		if (r_Shader && !r_Shader->IsLoaded())
-			r_Shader->LoadToMemory();
-
-		defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
-
-		App->shaders->CompileProgramFromResources(defShaderProgram);
-
-		shader_programs.push_back(defShaderProgram);
+		App->fs.getFileNameFromPath(shaderName);
+		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getShaderResourceUuid(shaderName.c_str()));
 	}
+	if (r_Shader && !r_Shader->IsLoaded())
+		r_Shader->LoadToMemory();
+
+	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
+
+	shaderName = "Assets/Shaders/Default_Fragment_Shader.frag";
+	if (!App->is_game || App->debug_game)
+		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getResourceUuid(shaderName.c_str(), R_SHADER));
+	else
+	{
+		App->fs.getFileNameFromPath(shaderName);
+		r_Shader = (ResourceShader*)App->resources->getResource(App->resources->getShaderResourceUuid(shaderName.c_str()));
+	}
+	if (r_Shader && !r_Shader->IsLoaded())
+		r_Shader->LoadToMemory();
+
+	defShaderProgram->shaderUUIDS.push_back(r_Shader->uuid);
+
+	App->shaders->CompileProgramFromResources(defShaderProgram);
+
+	shader_programs.push_back(defShaderProgram);
 
 	return true;
 }
