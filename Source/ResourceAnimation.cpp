@@ -109,6 +109,24 @@ bool ResourceAnimation::LoadAnimation()
 	return ret;
 }
 
+void ResourceAnimation::LoadDuration()
+{
+	//Get the buffer
+	char* buffer = App->fs.ImportFile(binary.c_str());
+	char* cursor = buffer;
+
+	//Load ranges
+	uint ranges[3];
+	uint bytes = sizeof(ranges);
+	memcpy(ranges, cursor, bytes);
+	cursor += bytes;
+
+	ticks = ranges[0];
+	ticksXsecond = ranges[1];
+
+	RELEASE_ARRAY(buffer);
+}
+
 void ResourceAnimation::resetFrames()
 {
 	for (int i = 0; i < numBones; i++)

@@ -507,13 +507,13 @@ void ModuleImporter::ImportShader(const char * file_original_name, std::string f
 	}	
 	
 	std::string test = file_binary_name;
-	uint uuid = std::stoi(test.c_str());
+	/*uint uuid = std::stoi(test.c_str());
 
 	ResourceShader* aux_resource = (ResourceShader*)App->resources->getResource(uuid);
 	if (aux_resource && App->resources->getResource(uuid)->IsLoaded())
 	{
 		aux_resource->Reload();
-	}
+	}*/
 }
 
 void ModuleImporter::ImportMeshToKR(const char * file, Mesh* mesh) {

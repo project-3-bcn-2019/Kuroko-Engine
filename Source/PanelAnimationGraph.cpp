@@ -543,13 +543,15 @@ void PanelAnimationGraph::drawTransitionMenu()
 	}
 	
 	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(graph->getNode(selected_transition->destination)->animationUID);
-	if (!getAnim->IsLoaded())
+	if (getAnim != nullptr)
 	{
-		getAnim->LoadAnimation();
-		getAnim->UnloadFromMemory();
+		if (!getAnim->IsLoaded())
+		{
+			getAnim->LoadDuration();
+		}
+		selected_transition->duration = (selected_transition->duration > getAnim->getDuration() + selected_transition->nextStart) ? getAnim->getDuration() + selected_transition->nextStart : selected_transition->duration;
+		ImGui::SliderFloat("Duration", &selected_transition->duration, 0, getAnim->getDuration() + selected_transition->nextStart, "%.2f");
 	}
-	selected_transition->duration = (selected_transition->duration > getAnim->getDuration() + selected_transition->nextStart) ? getAnim->getDuration() + selected_transition->nextStart : selected_transition->duration;
-	ImGui::SliderFloat("Duration", &selected_transition->duration, 0, getAnim->getDuration() + selected_transition->nextStart, "%.2f");
 	ImGui::PopItemWidth();
 
 	if (ImGui::Button("Add condition"))
