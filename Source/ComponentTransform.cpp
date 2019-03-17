@@ -120,6 +120,7 @@ bool ComponentTransform::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("Transform"))
 	{
+		static bool want_autosave = false;
 		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
 		/*ComponentTransform* c_trans = (ComponentTransform*)&component;*/
 
@@ -154,56 +155,138 @@ bool ComponentTransform::DrawInspector(int id)
 		ImGui::Text("Position:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[0][0])		ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f");
+		if (!this->constraints[0][0]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##p x", &position.x, 0.01f, 0.0f, 0.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", position.x);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[0][1])	ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f");
+		if (!this->constraints[0][1]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##p y", &position.y, 0.01f, 0.0f, 0.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", position.y);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[0][2])	ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f");
+		if (!this->constraints[0][2]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##p z", &position.z, 0.01f, 0.0f, 0.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", position.z);
 
 		//rotation
 		ImGui::Text("Rotation:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[1][0])	ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f");
+		if (!this->constraints[1][0]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##r x", &rotation.x, 0.2f, -180.0f, 180.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", rotation.z);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[1][1])	ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f");
+		if (!this->constraints[1][1]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##r y", &rotation.y, 0.2f, -180.0f, 180.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", rotation.x);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[1][2])	ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f");
+		if (!this->constraints[1][2]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##r z", &rotation.z, 0.2f, -180.0f, 180.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", rotation.y);
 
 		//scale
 		ImGui::Text("   Scale:");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[2][0])	ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		if (!this->constraints[2][0]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##s x", &scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", scale.x);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[2][1])	ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		if (!this->constraints[2][1]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##s y", &scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", scale.y);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-		if (!this->constraints[2][2])	ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+		if (!this->constraints[2][2]) {
+			static bool changing_value = false;
+			if (ImGui::DragFloat("##s z", &scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value = true;
+			else if (changing_value && !ImGui::IsItemActive())
+			{
+				want_autosave = true;
+				changing_value = false;
+			}
+		}
 		else								ImGui::Text("%.2f", scale.z);
 
 		if (ImGui::Button("Reset Transform"))
 		{
 			position = float3::zero; rotation = float3::zero, scale = float3::one;
+			want_autosave = true;
 		}
 
 		ImGui::Checkbox("Draw axis", &this->draw_axis);
@@ -255,6 +338,12 @@ bool ComponentTransform::DrawInspector(int id)
 		transform->setPosition(position);
 		transform->setRotationEuler(rotation);
 		transform->setScale(scale);
+
+		if (want_autosave)
+		{
+			App->scene->AskAutoSaveScene();
+			want_autosave = false;
+		}
 	}
 
 	return true;
