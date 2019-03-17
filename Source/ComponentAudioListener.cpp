@@ -52,16 +52,19 @@ bool ComponentAudioListener::DrawInspector(int id)
 		if (ImGui::Checkbox("Mute", &App->audio->muted))
 		{
 			App->audio->SetVolume(App->audio->volume);
+			App->scene->AskAutoSaveScene();
 		}
 		if (ImGui::SliderInt("Volume", &App->audio->volume, 0, 100))
 		{
 			App->audio->muted = false;
 			App->audio->SetVolume(App->audio->volume);
+			App->scene->AskAutoSaveScene();
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
 		if (ImGui::Button("Remove##Remove audio listener")) {
 			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			App->scene->AskAutoSaveScene();
 			return false;
 		}
 		ImGui::PopStyleColor(); ImGui::PopStyleColor();

@@ -72,15 +72,16 @@ bool ComponentBillboard::DrawInspector(int id)
 				delete billboard->getMaterial();
 				billboard->setMaterial(nullptr);
 				ImGui::TreePop();
+				App->scene->AskAutoSaveScene();
 			}
 
 			ImGui::Text("Preview size");
 			ImGui::SameLine();
-			if (ImGui::Button("64")) preview_size = 64;
+			if (ImGui::Button("64")) preview_size = 64;		App->scene->AskAutoSaveScene();
 			ImGui::SameLine();
-			if (ImGui::Button("128")) preview_size = 128;
+			if (ImGui::Button("128")) preview_size = 128;	App->scene->AskAutoSaveScene();
 			ImGui::SameLine();
-			if (ImGui::Button("256")) preview_size = 256;
+			if (ImGui::Button("256")) preview_size = 256;	App->scene->AskAutoSaveScene();
 
 			Texture* texture = nullptr;
 			if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
@@ -97,7 +98,7 @@ bool ComponentBillboard::DrawInspector(int id)
 			ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
 
 			//if (ImGui::Button("Load checkered##Dif: Load checkered"))
-			//	material->setCheckeredTexture(DIFFUSE);
+			//	material->setCheckeredTexture(DIFFUSE);	App->scene->AskAutoSaveScene();
 			//ImGui::SameLine()
 		}
 		else
@@ -116,10 +117,12 @@ bool ComponentBillboard::DrawInspector(int id)
 					billboard->setMaterial(new Material());
 
 				billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+
+				App->scene->AskAutoSaveScene();
 			}
 		}
 
-		ImGui::Checkbox("Use Color", &billboard->useColor);
+		if (ImGui::Checkbox("Use Color", &billboard->useColor))	App->scene->AskAutoSaveScene();
 
 		if (billboard->useColor)
 		{
@@ -133,7 +136,7 @@ bool ComponentBillboard::DrawInspector(int id)
 				reference_color = billboard->color;
 
 			ImGui::SameLine();
-			if (ImGui::ColorButton((label + "button").c_str(), ImVec4(billboard->color.r, billboard->color.g, billboard->color.b, billboard->color.a)))
+			if (ImGui::ColorButton((label + " button").c_str(), ImVec4(billboard->color.r, billboard->color.g, billboard->color.b, billboard->color.a)))
 				draw_colorpicker = !draw_colorpicker;
 
 			if (draw_colorpicker)
