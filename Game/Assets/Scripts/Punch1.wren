@@ -1,7 +1,11 @@
 
 import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
-InputComunicator
+InputComunicator,
+Vec3,
+Time,
+ComponentType,
+Math
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -21,7 +25,16 @@ class Punch1 is ObjectLinker{
 
 construct new(){}
 
- Start() {}
+ Start() {
+    _total_time_alive = 1000
+    _current_time_alive = 0
+ }
 
- Update() {}
+ Update() {
+    _current_time_alive = _current_time_alive + Time.C_GetDeltaTime()
+
+    if (_current_time_alive >= _total_time_alive) {
+       kill()
+    }
+ }
 }
