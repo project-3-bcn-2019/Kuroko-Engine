@@ -26,6 +26,8 @@ ComponentPhysics::ComponentPhysics(GameObject * _parent, collision_shape _shape,
 	shape = _shape;
 	is_environment = _is_environment;
 
+	mass = 1;
+
 	if (is_environment)
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
@@ -52,6 +54,10 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 	offset_rot = float3(json_object_get_number(r, "offset_rot_x"), json_object_get_number(r, "offset_rot_y"), json_object_get_number(r, "offset_rot_z"));
 	offset_scale = float3(json_object_get_number(s, "offset_scale_x"), json_object_get_number(s, "offset_scale_y"), json_object_get_number(s, "offset_scale_z"));
 
+	mass = json_object_get_number(data,"mass");
+	if (mass == 0)
+		mass = 1;
+
 	shape = (collision_shape)(int)json_object_get_number(data, "shape");
 	is_environment = json_object_get_boolean(data, "is_environment");
 
@@ -66,7 +72,7 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 	else
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
-		body->GetRigidBody()->setMassProps(1, btVector3(0, 0, 0));
+		body->GetRigidBody()->setMassProps(mass, btVector3(0, 0, 0));
 
 	}
 
@@ -216,6 +222,13 @@ bool ComponentPhysics::DrawInspector(int id)
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
 		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
 
+		ImGui::Text("   Mass");
+		ImGui::DragFloat("##s Mass", &mass, 0.01f, 0.1f, 1000.0f, "%.02f");
+		if (ImGui::Button("Update Mass"))
+		{
+			SetMass(mass);
+		}
+
 		offset_rot = DEGTORAD * rot_deg;
 
 		ImGui::Checkbox("is environment", &toggle_static);
@@ -253,6 +266,7 @@ void ComponentPhysics::Save(JSON_Object* config)
 	JSON_Value* data = json_value_init_object();
 	json_object_set_number(json_object(data), "shape", shape);
 	json_object_set_boolean(json_object(data), "is_environment", is_environment);
+	json_object_set_number(json_object(data), "mass", mass);
 
 	json_object_set_value(config, "data", data);
 
@@ -350,18 +364,40 @@ void ComponentPhysics::SetPosition(float x, float y, float z)
 
 }
 
+void ComponentPhysics::SetDamping(float new_value_linear, float new_value_angular)
+{
+
+	body->GetRigidBody()->setDamping(new_value_linear, new_value_angular);
+
+}
+
+void ComponentPhysics::SetMass(float new_value)
+{
+	mass = new_value;
+	App->physics->world->removeRigidBody(body->GetRigidBody());
+	body->GetRigidBody()->setMassProps(new_value, btVector3(0, 0, 0));
+	App->physics->world->addRigidBody(body->GetRigidBody());
+
+}
+
 void ComponentPhysics::SetStatic(bool is_static)
 {
 	if (is_static)
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_STATIC_OBJECT);
+		App->physics->world->removeRigidBody(body->GetRigidBody());
 		body->GetRigidBody()->setMassProps(0, btVector3(0, 0, 0));
+		App->physics->world->addRigidBody(body->GetRigidBody());
+
 		is_environment = true;
 	}
 	else
 	{
 		body->GetRigidBody()->setCollisionFlags(btRigidBody::CollisionFlags::CF_CHARACTER_OBJECT);
-		body->GetRigidBody()->setMassProps(1, btVector3(0, 0, 0));
+		App->physics->world->removeRigidBody(body->GetRigidBody());
+		body->GetRigidBody()->setMassProps(mass, btVector3(0, 0, 0));
+		App->physics->world->addRigidBody(body->GetRigidBody());
+
 		is_environment = false;
 	}
 }
