@@ -209,7 +209,7 @@ bool ComponentTransform::DrawInspector(int id)
 				changing_value = false;
 			}
 		}
-		else								ImGui::Text("%.2f", rotation.z);
+		else								ImGui::Text("%.2f", rotation.x);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
@@ -223,7 +223,7 @@ bool ComponentTransform::DrawInspector(int id)
 				changing_value = false;
 			}
 		}
-		else								ImGui::Text("%.2f", rotation.x);
+		else								ImGui::Text("%.2f", rotation.y);
 
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
@@ -237,7 +237,7 @@ bool ComponentTransform::DrawInspector(int id)
 				changing_value = false;
 			}
 		}
-		else								ImGui::Text("%.2f", rotation.y);
+		else								ImGui::Text("%.2f", rotation.z);
 
 		//scale
 		ImGui::Text("   Scale:");

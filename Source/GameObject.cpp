@@ -55,6 +55,7 @@ GameObject::GameObject(const char* name, GameObject* parent, bool UI) : name(nam
 GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 
 	name = json_object_get_string(deff, "name");
+	is_active = json_object_get_boolean(deff, "active");
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");
 	uint saved_uuid = json_object_get_number(deff, "UUID");
@@ -594,6 +595,7 @@ void GameObject::Save(JSON_Object * config) {
 
 	// Saving object own variables
 	json_object_set_string(config, "name", name.c_str());
+	json_object_set_boolean(config, "active", is_active);
 	json_object_set_string(config, "tag", tag.c_str());
 	json_object_set_boolean(config, "static", is_static);
 	json_object_set_number(config, "UUID", uuid);

@@ -1,5 +1,6 @@
 #include "ComponentAudioSource.h"
 #include "Application.h"
+#include "ModuleScene.h"
 #include "ModuleAudio.h"
 #include "ModuleTimeManager.h"
 #include "GameObject.h"
@@ -24,6 +25,7 @@ ComponentAudioSource::ComponentAudioSource(JSON_Object* deff, GameObject* parent
 	sound_ID = json_object_get_number(deff, "soundID");
 	name = json_object_get_string(deff, "soundName");
 	volume = json_object_get_number(deff, "volume");
+	pitch = json_object_get_number(deff, "pitch");
 	autoplay = json_object_get_boolean(deff, "autoplay");
 	App->audio->SetVolume(volume, sound_ID);
 }
@@ -76,13 +78,16 @@ bool ComponentAudioSource::DrawInspector(int id)
 			if (ImGui::SliderInt("Volume", &volume, 0, 100))
 			{
 				App->audio->SetVolume(volume, sound_go->GetID());
+				App->scene->AskAutoSaveScene();
 			}
 			if (ImGui::SliderInt("Pitch", &pitch, -100, 100))
 			{
 				App->audio->SetPitch(pitch, sound_go->GetID());
+				App->scene->AskAutoSaveScene();
 			}
 			if (ImGui::Button("Change Audio Event")) select_audio = true;
-			ImGui::Checkbox("Autoplay", &autoplay);
+			if (ImGui::Checkbox("Autoplay", &autoplay))
+				App->scene->AskAutoSaveScene();
 		}
 		else
 		{
@@ -98,6 +103,7 @@ bool ComponentAudioSource::DrawInspector(int id)
 				SetSoundID(0);
 				SetSoundName("Sound");
 				select_audio = false;
+				App->scene->AskAutoSaveScene();
 			}
 			for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
 
@@ -105,6 +111,7 @@ bool ComponentAudioSource::DrawInspector(int id)
 					SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
 					SetSoundName((*it).c_str());
 					select_audio = false;
+					App->scene->AskAutoSaveScene();
 					break;
 				}
 			}
@@ -114,6 +121,7 @@ bool ComponentAudioSource::DrawInspector(int id)
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
 		if (ImGui::Button("Remove##Remove audio source")) {
 			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			App->scene->AskAutoSaveScene();
 			return false;
 		}
 		ImGui::PopStyleColor(); ImGui::PopStyleColor();

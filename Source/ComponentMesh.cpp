@@ -24,6 +24,7 @@
 std::string openFileWID(bool isfile = false);
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string path;
 
 	// Load mesh from own file format
@@ -81,14 +82,14 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	const char* vertex_path = json_object_dotget_string(deff, "vertex_shader");
 	uint vertex_resource = 0;
 	if (vertex_path) { // Means that is being loaded from a scene	
-		if (!App->is_game)
+		if (!App->is_game || App->debug_game)
 			vertex_resource = App->resources->getResourceUuid(vertex_path);
-		/*else
+		else
 		{
-			std::string d_path = vertex_path;
-			App->fs.getFileNameFromPath(d_path);
-			vertex_resource = App->resources->getShaderResourceUuid(d_path.c_str());
-		}*/
+			std::string s_path = vertex_path;
+			App->fs.getFileNameFromPath(s_path);
+			vertex_resource = App->resources->getShaderResourceUuid(s_path.c_str());
+		}
 	}
 	//else // Means it is being loaded from a 3dObject binary
 	//	vertex_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");
@@ -96,14 +97,14 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	const char* fragment_path = json_object_dotget_string(deff, "fragment_shader");
 	uint fragment_resource = 0;
 	if (fragment_path) { // Means that is being loaded from a scene	
-		if (!App->is_game)
+		if (!App->is_game || App->debug_game)
 			fragment_resource = App->resources->getResourceUuid(fragment_path);
-		/*else
+		else
 		{
 			std::string d_path = fragment_path;
 			App->fs.getFileNameFromPath(d_path);
 			fragment_resource = App->resources->getShaderResourceUuid(d_path.c_str());
-		}*/
+		}
 	}
 
 	if(diffuse_resource != 0){
@@ -698,6 +699,7 @@ void ComponentMesh::Save(JSON_Object* config) {
 	// Determine the type of the mesh
  	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "mesh");
+	json_object_set_boolean(config, "active", is_active);
 
 	if(mesh_resource_uuid != 0){
 		//json_object_set_number(config, "mesh_resource_uuid", mesh_resource_uuid);

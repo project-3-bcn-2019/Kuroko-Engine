@@ -12,6 +12,7 @@
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	loop = json_object_get_boolean(deff, "loop");
 	speed = json_object_get_number(deff, "speed");
 
@@ -218,6 +219,7 @@ void ComponentAnimation::setAnimationResource(uint uuid)
 void ComponentAnimation::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "animation");
+	json_object_set_boolean(config, "active", is_active);
 
 	json_object_set_boolean(config, "loop", loop);
 	json_object_set_number(config, "speed", speed);

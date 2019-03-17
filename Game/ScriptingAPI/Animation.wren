@@ -16,6 +16,7 @@ class AnimationComunicator{
     foreign static C_GetString(gameObject, component, name)
 	foreign static C_SetBool(gameObject, component, name, value)
     foreign static C_GetBool(gameObject, component, name)
+	foreign static C_SetSpeed(gameObejct, component, speed)
 
 
 }
@@ -81,6 +82,9 @@ class ComponentAnimator{
 	}
 	getBool(name){
 		return AnimationComunicator.C_GetBool(gameObject, component, name)
+	}
+	setSpeed(speed){
+		AnimationComunicator.C_SetSpeed(gameObject, component, speed)
 	}
 
 }

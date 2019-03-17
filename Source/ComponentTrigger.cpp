@@ -30,6 +30,8 @@ ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape)
 
 ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Component(parent, TRIGGER)
 {
+	is_active = json_object_get_boolean(deff, "active");
+
 	JSON_Object* p = json_object_get_object(deff, "pos");
 	JSON_Object* r = json_object_get_object(deff, "rot");
 	JSON_Object* s = json_object_get_object(deff, "scale");
@@ -48,9 +50,6 @@ ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Com
 
 bool ComponentTrigger::Update(float dt)
 {
-
-
-
 	UpdatePhysicsFromTransforms();
 
 	for (int i = 0; i < body->getNumOverlappingObjects(); i++)
@@ -155,6 +154,7 @@ bool ComponentTrigger::DrawInspector(int id)
 void ComponentTrigger::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "trigger");
+	json_object_set_boolean(config, "active", is_active);
 
 	JSON_Value* data = json_value_init_object();
 	json_object_set_number(json_object(data), "shape", shape);

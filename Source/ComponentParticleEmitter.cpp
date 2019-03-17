@@ -91,6 +91,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, const Com
 ComponentParticleEmitter::ComponentParticleEmitter(JSON_Object* deff, GameObject* parent) : Component(parent, PARTICLE_EMITTER)
 {
 
+	is_active = json_object_get_boolean(deff, "active");
 	transform = ((ComponentTransform*)parent->getComponent(TRANSFORM));
 
 	//Emitter Info
@@ -177,7 +178,7 @@ void ComponentParticleEmitter::Save(JSON_Object * json)
 {
 	json_object_set_string(json, "type", "particle_emitter");
 	json_object_dotset_number(json, "Type", type);
-	json_object_dotset_boolean(json, "Active", isActive());
+	json_object_dotset_boolean(json, "Active", is_active);
 
 	//Emitter Info
 	json_object_dotset_number(json, "Emmision Time", emisionTime);

@@ -20,6 +20,7 @@ ComponentCanvas::ComponentCanvas(JSON_Object * deff, GameObject * parent) : Comp
 	   
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 
+	is_active = json_object_get_boolean(deff, "active");
 	draw_cross = json_object_get_boolean(deff, "debug");
 	
 	setResolution(float2(rectTransform->getWidth(), rectTransform->getHeight()));
@@ -66,6 +67,7 @@ bool ComponentCanvas::DrawInspector(int id)
 void ComponentCanvas::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "canvas");
+	json_object_set_boolean(config, "active", is_active);
 	json_object_set_boolean(config, "debug", draw_cross);
 
 }
