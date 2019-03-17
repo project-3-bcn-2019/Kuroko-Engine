@@ -77,26 +77,27 @@ bool ComponentAnimation::Update(float dt)
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
 					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
-					
+
 					// Blend
 					if (doingTransition != nullptr && transitionFrom != nullptr)
 					{
 						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(transitionFrom->animationUID);
 						if (blendFrom != nullptr)
 						{
-							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];
-							anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
+							BoneTransform* getBoneBlend = blendFrom->FindBone(anim->boneTransformations[i].NodeName);
+							
+							//	This line will proove that it is finding the proper bone as the expected transform can be calculated
+							//	Can't compare to nullptr because we are accessing memory directly
+							//	getBoneBlend->calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
+							if(getBoneBlend != nullptr)
+								anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
 						}
 					}
-					if (doingTransition == nullptr)
-						bool caca = true;
-
 
 					float4x4 local = anim->boneTransformations[i].lastTransform;
 					float3 pos, scale;
 					Quat rot;
 					local.Decompose(pos, rot, scale);
-
 					
 					transform->local->Set(pos, rot, scale);
 				}

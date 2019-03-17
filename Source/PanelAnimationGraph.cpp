@@ -541,8 +541,10 @@ void PanelAnimationGraph::drawTransitionMenu()
 		if (selected_transition->nextStart > selected_transition->duration)
 			selected_transition->nextStart = selected_transition->duration;
 	}
-	
-	ResourceAnimation* getAnim = (ResourceAnimation*)App->resources->getResource(graph->getNode(selected_transition->destination)->animationUID);
+
+	Node* getNode = graph->getNode(selected_transition->destination);
+	ResourceAnimation* getAnim = nullptr;
+	if(getNode!=nullptr) getAnim = (ResourceAnimation*)App->resources->getResource(getNode->animationUID);
 	if (getAnim != nullptr)
 	{
 		if (!getAnim->IsLoaded())
