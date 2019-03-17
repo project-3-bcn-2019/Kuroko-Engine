@@ -76,7 +76,7 @@ bool ComponentAnimation::Update(float dt)
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
 					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
-					
+
 					// Blend
 					if (doingTransition != nullptr && transitionFrom != nullptr)
 					{
@@ -84,11 +84,10 @@ bool ComponentAnimation::Update(float dt)
 						if (blendFrom != nullptr)
 						{
 							BoneTransform* getBoneBlend = &blendFrom->boneTransformations[i];
+							getBoneBlend->calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
 							anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
 						}
 					}
-					if (doingTransition == nullptr)
-						bool caca = true;
 
 
 					float4x4 local = anim->boneTransformations[i].lastTransform;
