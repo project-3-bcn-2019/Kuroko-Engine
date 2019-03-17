@@ -108,6 +108,7 @@ void SetString(WrenVM* vm);
 void GetString(WrenVM* vm);
 void SetBool(WrenVM* vm);
 void GetBool(WrenVM* vm);
+void Animator_SetSpeed(WrenVM* vm);
 
 
 // Particles
@@ -745,7 +746,8 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (isStatic && strcmp(signature, "C_GetBool(_,_,_)") == 0)
 				return GetBool;
 
-
+			if (isStatic && strcmp(signature, "C_SetSpeed(_,_,_)") == 0)
+				return Animator_SetSpeed;
 		}
 	}
 
@@ -1777,6 +1779,30 @@ void GetBool(WrenVM* vm) {
 
 	bool read = *component->getBool(var_uuid);
 	wrenSetSlotBool(vm, 0, read);
+}
+
+
+void Animator_SetSpeed(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	float speed = wrenGetSlotDouble(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->setSpeed(speed);
 }
 // Particles
 void CreateParticles(WrenVM* vm) {

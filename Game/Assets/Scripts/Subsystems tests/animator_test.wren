@@ -16,6 +16,9 @@ import "Animation" for ComponentAnimator
 
 class animator_test is ObjectLinker{
 
+speed {_speed}
+speed=(v) {_speed = v}
+
 construct new(){}
 
  Start() {
@@ -25,6 +28,7 @@ construct new(){}
  Update() {
 	if(InputComunicator.getKey(InputComunicator.DOWN, InputComunicator.KEY_DOWN)){
 		_animator.setBool("Boolean", false)
+		_animator.setSpeed(speed)
 	}
 	if(_animator.getBool("Boolean")){
         EngineComunicator.consoleOutput("Boolean is true")
