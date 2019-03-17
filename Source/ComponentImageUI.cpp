@@ -51,9 +51,17 @@ ComponentImageUI::ComponentImageUI(JSON_Object * deff, GameObject * parent) : Co
 
 	if (texPath) {
 		if (strcmp(texPath, "missing reference") != 0) {
-			uint uuid = App->resources->getResourceUuid(texPath);
-			App->resources->assignResource(uuid);
-			texture = (ResourceTexture*)App->resources->getResource(uuid);
+			uint texUUID = 0;
+			if (!App->is_game || App->debug_game)
+				texUUID = App->resources->getResourceUuid(texPath);
+			else
+			{
+				std::string texName = texPath;
+				App->fs.getFileNameFromPath(texName);
+				texUUID = App->resources->getTextureResourceUuid(texName.c_str());
+			}
+			App->resources->assignResource(texUUID);
+			texture = (ResourceTexture*)App->resources->getResource(texUUID);
 			
 		}
 	}

@@ -32,14 +32,32 @@ ComponentCheckBoxUI::ComponentCheckBoxUI(JSON_Object * deff, GameObject * parent
 
 	const char* texPath = json_object_dotget_string(deff, "textureIdle");
 	if (texPath && strcmp(texPath, "missing reference") != 0) {
-		uint uuid = App->resources->getResourceUuid(texPath);
-		idle = (ResourceTexture*)App->resources->getResource(uuid);
+		uint texUUID = 0;
+		if (!App->is_game || App->debug_game)
+			texUUID = App->resources->getResourceUuid(texPath);
+		else
+		{
+			std::string texName = texPath;
+			App->fs.getFileNameFromPath(texName);
+			texUUID = App->resources->getTextureResourceUuid(texName.c_str());
+		}
+		App->resources->assignResource(texUUID);
+		idle = (ResourceTexture*)App->resources->getResource(texUUID);
 	}
 	
 	texPath = json_object_dotget_string(deff, "texturePressed");
 	if (texPath && strcmp(texPath, "missing reference") != 0) {
-		uint uuid = App->resources->getResourceUuid(texPath);
-		pressed = (ResourceTexture*)App->resources->getResource(uuid);
+		uint texUUID = 0;
+		if (!App->is_game || App->debug_game)
+			texUUID = App->resources->getResourceUuid(texPath);
+		else
+		{
+			std::string texName = texPath;
+			App->fs.getFileNameFromPath(texName);
+			texUUID = App->resources->getTextureResourceUuid(texName.c_str());
+		}
+		App->resources->assignResource(texUUID);
+		pressed = (ResourceTexture*)App->resources->getResource(texUUID);
 	}
 	ChangeGOImage();
 
