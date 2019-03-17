@@ -11,12 +11,14 @@
 struct WrenVM;
 struct WrenHandle;
 struct ScriptData;
+struct WrenCall;
 
 #define OBJECT_LINKER_PATH "ScriptingAPI/ObjectLinker.wren"
 #define AUDIO_PATH "ScriptingAPI/Audio.wren"
 #define ANIMATION_PATH "ScriptingAPI/Animation.wren"
 #define PARTICLES_PATH "ScriptingAPI/Particles.wren"
 #define UI_PATH "ScriptingAPI/UI.wren"
+#define PHYSICS_PATH "ScriptingAPI/Physics.wren"
 
 class ModuleScripting : public Module {
 public:
@@ -41,6 +43,7 @@ public:
 
 	// Helpers
 	std::string enum2component(Component_type type);
+	WrenCall DisplayMethods(GameObject* go, bool* display_bool);
 
 public:
 
@@ -56,6 +59,7 @@ public:
 	std::string animation_code;
 	std::string particles_code;
 	std::string UI_code;
+	std::string physics_code;
 
 
 	virtual void SaveConfig(JSON_Object* config) const;

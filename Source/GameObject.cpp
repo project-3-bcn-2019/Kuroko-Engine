@@ -53,9 +53,14 @@ GameObject::GameObject(const char* name, GameObject* parent, bool UI) : name(nam
 
 
 GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
+
 	name = json_object_get_string(deff, "name");
+	is_active = json_object_get_boolean(deff, "active");
 	tag = json_object_get_string(deff, "tag");
 	is_static = json_object_get_boolean(deff, "static");
+	uint saved_uuid = json_object_get_number(deff, "UUID");
+	if (saved_uuid != 0)
+		uuid = saved_uuid;
 
 	if (json_object_has_value(deff, "isUI")) {
 		is_UI = json_object_get_boolean(deff, "isUI");
@@ -143,7 +148,7 @@ GameObject::GameObject(JSON_Object* deff): uuid(random32bits()) {
 			app_log->AddLog("WARNING! Component of type %s could not be loaded", type.c_str());
 			continue;
 		}
-		component->LoadCompUUID(component_deff);
+		component->LoadCommons(component_deff);
 
 		addComponent(component);
 	}
@@ -289,6 +294,28 @@ GameObject* GameObject::getChild(const char* name, bool  ignoreAssimpNodes) cons
 	return child;
 }
 
+GameObject * GameObject::getChildByUUID(uint cmp_uuid) const
+{
+	GameObject* child = nullptr;
+
+	for (std::list<GameObject*>::const_iterator it = children.begin(); it != children.end(); ++it)
+	{
+		if ((*it)->getUUID() == cmp_uuid)
+		{
+			child = (*it);
+			break;
+		}
+		else
+		{
+			child = (*it)->getChildByUUID(cmp_uuid);
+			if (child != nullptr)
+				break;
+		}
+	}
+
+	return child;
+}
+
 void GameObject::getAllDescendants(std::list<GameObject*>& list_to_fill) const
 {
 	for (auto it = children.begin(); it != children.end(); it++)
@@ -416,7 +443,7 @@ Component* GameObject::addComponent(Component_type type)
 	case PHYSICS:
 		if (!getComponent(PHYSICS))
 		{
-			new_component = new ComponentPhysics(this,collision_shape::COL_CYLINDER, false);
+			new_component = new ComponentPhysics(this,collision_shape::COL_CUBE, false);
 			components.push_back(new_component);
 		}
 		break;
@@ -568,6 +595,7 @@ void GameObject::Save(JSON_Object * config) {
 
 	// Saving object own variables
 	json_object_set_string(config, "name", name.c_str());
+	json_object_set_boolean(config, "active", is_active);
 	json_object_set_string(config, "tag", tag.c_str());
 	json_object_set_boolean(config, "static", is_static);
 	json_object_set_number(config, "UUID", uuid);
@@ -581,7 +609,7 @@ void GameObject::Save(JSON_Object * config) {
 	for (auto it = components.begin(); it != components.end(); it++) {
 		JSON_Value* curr_component = json_value_init_object(); // Create new components 
 		(*it)->Save(json_object(curr_component));			   // Save component
-		(*it)->SaveCompUUID(json_object(curr_component));
+		(*it)->SaveCommons(json_object(curr_component));
 		json_array_append_value(json_array(component_array), curr_component); // Add them to array
 	}
 

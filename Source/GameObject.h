@@ -26,6 +26,8 @@ public:
 	uint getId() { return id; }
 	uint getUUID() const{ return uuid; }
 
+	void forceUUID(uint _uuid) { uuid = _uuid; }
+
 	void addComponent(Component* component);
 	Component* addComponent(Component_type type);
 	void removeComponent(Component* component);
@@ -39,6 +41,7 @@ public:
 
 	inline const GameObject* getFirstChild() const { if (!children.empty()) { return *children.begin(); } }
 	GameObject* getChild(const char* name, bool  ignoreAssimpNodes = false) const;
+	GameObject* getChildByUUID(uint cmp_uuid) const;
 	void getChildren(std::list<GameObject*>& list_to_fill) const { list_to_fill = children; };
 	void getAllDescendants(std::list<GameObject*>& list_to_fill) const;
 	void addChild(GameObject* new_child) {if(new_child) children.push_back(new_child); };

@@ -42,17 +42,19 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		App->fs.CopyFolder("Library\\*", library.c_str(), true, &excludedFiles);
 		excludedFiles.clear();
 		excludedFiles.push_back("memory.log");
-		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles);
-		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name);
+		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles); // Copy files in Game folder (not recursively)
+		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name); // Copy release .exe
 		CreateDirectory((fullPath + "Library\\Scenes\\").c_str(), NULL);
-		std::list<resource_deff> build_scenes = App->gui->GetBuildScenes();
+		std::list<resource_deff> build_scenes = App->gui->GetBuildScenes(); // Get selected scenes to copy them
 		for (auto it = build_scenes.begin(); it != build_scenes.end(); it++) {
 			resource_deff scene_deff = (*it);
 			App->fs.copyFileTo(scene_deff.binary.c_str(), NO_LIB, ".scene", fullPath + "Library\\Scenes\\" + std::to_string(scene_deff.uuid));
 		}
 
 		CreateDirectory((fullPath + SCRIPTINGAPI_FOLDER).c_str(), NULL);
-		App->fs.CopyFolder("ScriptingAPI\\*", (fullPath + SCRIPTINGAPI_FOLDER).c_str(), false);
+		App->fs.CopyFolder("ScriptingAPI\\*", (fullPath + SCRIPTINGAPI_FOLDER).c_str(), false); // Copy scripts
+		CreateDirectory((fullPath + FONTS_FOLDER).c_str(), NULL);
+		App->fs.CopyFolder("Fonts\\*", (fullPath + FONTS_FOLDER).c_str(), true); // Copy fonts
 
 		CreateDirectory((fullPath + SETTINGS_FOLDER).c_str(), NULL);
 		JSON_Value* config_value = json_parse_file(App->config_file_name.c_str());
@@ -76,10 +78,10 @@ void ModuleExporter::AssetsToLibraryJSON()
 	json_object_set_value(json_object(json), "Scripts", GetAssetFolderUUIDs("\\Assets\\Scripts\\*"));
 	json_object_set_value(json_object(json), "Audio", GetAssetFolderUUIDs("\\Assets\\Audio\\*"));
 	json_object_set_value(json_object(json), "UI", GetAssetFolderUUIDs("\\Assets\\UI\\*"));
+	json_object_set_value(json_object(json), "Shaders", GetAssetFolderUUIDs("\\Assets\\Shaders\\*"));
 	json_object_set_value(json_object(json), "AnimationGraphs", GetAssetFolderUUIDs("\\Assets\\AnimationGraphs\\*"));
 	json_object_set_value(json_object(json), "Textures", GetAssetFolderUUIDs("\\Assets\\Textures\\*"));
 	Get3dObjectsUUIDs("\\Assets\\Meshes\\*", json); // Get UUIDs for Meshes, Animations and Bones from 3dObjets
-	//Sounds and UI resources?
 
 	std::string outpath = "Library\\assetsUUIDs.json";
 	json_serialize_to_file_pretty(json, outpath.c_str());
@@ -112,6 +114,8 @@ JSON_Value* ModuleExporter::GetAssetFolderUUIDs(const char* path)
 					filePath.pop_back();
 					filePath += fileName;
 					App->fs.getFileNameFromPath(fileName);
+					std::string fileExtension = fileName;
+					App->fs.getExtension(fileExtension);
 					App->fs.getFileNameFromPath(fileName);
 
 					JSON_Value* json = json_parse_file(filePath.c_str());
@@ -121,6 +125,7 @@ JSON_Value* ModuleExporter::GetAssetFolderUUIDs(const char* path)
 						JSON_Value* res = json_value_init_object();
 						uint resourceUUID = json_object_get_number(json_obj, "resource_uuid");
 						json_object_set_string(json_object(res), "name", fileName.c_str());
+						json_object_set_string(json_object(res), "extension", fileExtension.c_str());
 						json_object_set_number(json_object(res), "uuid", resourceUUID);
 						json_array_append_value(json_array(object), res);
 					}
@@ -186,30 +191,34 @@ void ModuleExporter::Get3dObjectsUUIDs(const char* path, JSON_Value* json_value)
 								{
 									JSON_Object* curr_comp = json_array_get_object(comps, j);
 									std::string c_type = json_object_get_string(curr_comp, "type");
-									if (c_type == "mesh")
+									c_type = '.' + c_type;
+									if (c_type == ".mesh")
 									{
  										const char* c_name = json_object_get_string(curr_comp, "mesh_name");
 										uint c_uuid = json_object_get_number(curr_comp, "mesh_resource_uuid");
 										JSON_Value* res = json_value_init_object();
 										json_object_set_string(json_object(res), "name", c_name);
+										json_object_set_string(json_object(res), "extension", c_type.c_str());
 										json_object_set_number(json_object(res), "uuid", c_uuid);
 										json_array_append_value(json_array(meshes), res);
 									}
-									if (c_type == "animation")
+									if (c_type == ".animation")
 									{
 										const char* c_name = json_object_get_string(curr_comp, "animation_name");
 										uint c_uuid = json_object_get_number(curr_comp, "animation_resource_uuid");
 										JSON_Value* res = json_value_init_object();
 										json_object_set_string(json_object(res), "name", c_name);
+										json_object_set_string(json_object(res), "extension", c_type.c_str());
 										json_object_set_number(json_object(res), "uuid", c_uuid);
 										json_array_append_value(json_array(animations), res);
 									}
-									if (c_type == "bone")
+									if (c_type == ".bone")
 									{
 										const char* c_name = json_object_get_string(curr_comp, "bone_name");
 										uint c_uuid = json_object_get_number(curr_comp, "bone_resource_uuid");
 										JSON_Value* res = json_value_init_object();
 										json_object_set_string(json_object(res), "name", c_name);
+										json_object_set_string(json_object(res), "extension", c_type.c_str());
 										json_object_set_number(json_object(res), "uuid", c_uuid);
 										json_array_append_value(json_array(bones), res);
 									}

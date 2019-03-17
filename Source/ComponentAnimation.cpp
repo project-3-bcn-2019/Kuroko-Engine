@@ -6,9 +6,13 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "ModuleTimeManager.h"
+#include "ResourceAnimationGraph.h"
+#include "ModuleUI.h"
+#include "PanelAnimation.h"
 
 ComponentAnimation::ComponentAnimation(JSON_Object* deff, GameObject* parent): Component(parent, ANIMATION)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	loop = json_object_get_boolean(deff, "loop");
 	speed = json_object_get_number(deff, "speed");
 
@@ -31,6 +35,12 @@ ComponentAnimation::~ComponentAnimation()
 
 bool ComponentAnimation::Update(float dt)
 {
+	if (bones.size() == 0) //If empty try to fill it
+	{
+		setAnimationResource(animation_resource_uuid);
+		app_log->AddLog("Trying to fill component animation with bones");
+	}
+
 	if (App->time->getGameState() != GameState::PLAYING)
 		return true;
 
@@ -47,9 +57,12 @@ bool ComponentAnimation::Update(float dt)
 		if (!paused)
 			animTime += dt * speed;
 
-		if (animTime > anim->getDuration() && loop)
+		if (animTime > anim->getDuration())
 		{
-			animTime -= anim->getDuration();
+			if (loop)
+				animTime -= anim->getDuration();
+			else
+				animTime = anim->getDuration();
 		}
 
 		for (int i = 0; i < anim->numBones; ++i)
@@ -63,17 +76,124 @@ bool ComponentAnimation::Update(float dt)
 				ComponentTransform* transform = (ComponentTransform*)GO->getComponent(TRANSFORM);
 				if (anim->boneTransformations[i].calcCurrentIndex(animTime*anim->ticksXsecond, false))
 				{
-					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, false);
+					anim->boneTransformations[i].calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
+
+					// Blend
+					if (doingTransition != nullptr && transitionFrom != nullptr)
+					{
+						ResourceAnimation* blendFrom = (ResourceAnimation*)App->resources->getResource(transitionFrom->animationUID);
+						if (blendFrom != nullptr)
+						{
+							BoneTransform* getBoneBlend = blendFrom->FindBone(anim->boneTransformations[i].NodeName);
+							
+							//	This line will proove that it is finding the proper bone as the expected transform can be calculated
+							//	Can't compare to nullptr because we are accessing memory directly
+							//	getBoneBlend->calcTransfrom(animTime*anim->ticksXsecond, interpolate, anim->getDuration(), anim->ticksXsecond);
+							if(getBoneBlend != nullptr)
+								anim->boneTransformations[i].smoothBlending(getBoneBlend->lastTransform, (animTime*anim->ticksXsecond) / (doingTransition->duration * blendFrom->ticksXsecond));
+						}
+					}
+
 					float4x4 local = anim->boneTransformations[i].lastTransform;
 					float3 pos, scale;
 					Quat rot;
 					local.Decompose(pos, rot, scale);
+					
 					transform->local->Set(pos, rot, scale);
 				}
+
+				ComponentBone* bone = (ComponentBone*)GO->getComponent(BONE);
+				if (bone != nullptr && getAnimationResource() != 0)
+					bone->ProcessCompAnimations(getAnimationResource(), (animTime * anim->ticksXsecond));
 			}
 		}
 	}
 
+	return true;
+}
+
+bool ComponentAnimation::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Animation"))
+	{
+		ResourceAnimation* R_anim = (ResourceAnimation*)App->resources->getResource(getAnimationResource());
+		ImGui::Text("Resource: %s", (R_anim != nullptr) ? R_anim->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+		if (ImGui::Button((R_anim != nullptr) ? "Change Animation" : "Add Animation")) {
+			set_animation_menu = true;
+		}
+
+		if (set_animation_menu) {
+
+			std::list<resource_deff> anim_res;
+			App->resources->getAnimationResourceList(anim_res);
+
+			ImGui::Begin("Animation selector", &set_animation_menu);
+			for (auto it = anim_res.begin(); it != anim_res.end(); it++) {
+				resource_deff anim_deff = (*it);
+				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+					App->resources->deasignResource(getAnimationResource());
+					App->resources->assignResource(anim_deff.uuid);
+					setAnimationResource(anim_deff.uuid);
+					set_animation_menu = false;
+					break;
+				}
+			}
+
+			ImGui::End();
+		}
+
+		static bool animation_active;
+		animation_active = isActive();
+
+		if (ImGui::Checkbox("Active##active animation", &animation_active))
+			setActive(animation_active);
+
+		ImGui::Checkbox("Loop", &loop);
+
+		ImGui::Checkbox("Interpolate", &interpolate);
+
+		ImGui::InputFloat("Speed", &speed, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+
+		if (R_anim != nullptr)
+		{
+			if (App->time->getGameState() != GameState::PLAYING)
+			{
+				ImGui::Text("Play");
+				ImGui::SameLine();
+				ImGui::Text("Pause");
+			}
+			else if (isPaused())
+			{
+				if (ImGui::Button("Play"))
+					Play();
+				ImGui::SameLine();
+				ImGui::Text("Pause");
+			}
+			else
+			{
+				ImGui::Text("Play");
+				ImGui::SameLine();
+				if (ImGui::Button("Pause"))
+					Pause();
+			}
+
+			ImGui::Text("Animation info:");
+			ImGui::Text(" Duration: %.1f ms", R_anim->getDuration() * 1000);
+			ImGui::Text(" Animation Bones: %d", R_anim->numBones);
+		}
+
+		if (ImGui::Button("AnimEditor"))
+			App->gui->p_anim->toggleActive();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio source")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
 	return true;
 }
 
@@ -99,6 +219,7 @@ void ComponentAnimation::setAnimationResource(uint uuid)
 void ComponentAnimation::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "animation");
+	json_object_set_boolean(config, "active", is_active);
 
 	json_object_set_boolean(config, "loop", loop);
 	json_object_set_number(config, "speed", speed);
@@ -117,4 +238,16 @@ void ComponentAnimation::Save(JSON_Object * config)
 		json_object_set_string(config, "Parent3dObject", "missing reference");
 		}
 	}
+}
+
+bool ComponentAnimation::Finished() const
+{
+	ResourceAnimation* anim = (ResourceAnimation*)App->resources->getResource(animation_resource_uuid);
+
+	if (anim != nullptr)
+	{
+		return !loop && animTime >= anim->getDuration() ;
+	}
+
+	return false;
 }

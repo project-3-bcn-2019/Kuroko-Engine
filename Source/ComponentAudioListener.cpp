@@ -8,6 +8,8 @@
 #include "ComponentCamera.h"
 #include "Camera.h"
 
+#include "ImGui/imgui.h"
+
 
 ComponentAudioListener::ComponentAudioListener(GameObject* parent) : Component(parent, AUDIOLISTENER)
 {
@@ -40,6 +42,33 @@ bool ComponentAudioListener::Update(float dt)
 	float3 top = App->camera->current_camera->getFrustum()->up;
 	sound_go->SetPosition(pos.x, pos.y, pos.z, front.x, front.y, front.z, top.x, top.y, top.z);
 
+	return true;
+}
+
+bool ComponentAudioListener::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Audio Listener"))
+	{
+		if (ImGui::Checkbox("Mute", &App->audio->muted))
+		{
+			App->audio->SetVolume(App->audio->volume);
+			App->scene->AskAutoSaveScene();
+		}
+		if (ImGui::SliderInt("Volume", &App->audio->volume, 0, 100))
+		{
+			App->audio->muted = false;
+			App->audio->SetVolume(App->audio->volume);
+			App->scene->AskAutoSaveScene();
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio listener")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			App->scene->AskAutoSaveScene();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
 	return true;
 }
 

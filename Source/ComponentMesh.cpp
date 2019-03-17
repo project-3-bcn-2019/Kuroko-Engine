@@ -3,11 +3,13 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "ModuleScene.h"
+#include "ModuleShaders.h"
 #include "Application.h"
 #include "ComponentAABB.h"
 #include "ComponentBone.h"
 #include "Material.h"
 #include "ModuleImporter.h"
+#include "ModuleUI.h"
 #include "FileSystem.h"
 #include "glew-2.1.0\include\GL\glew.h"
 #include "ModuleCamera3D.h"
@@ -17,8 +19,12 @@
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
+#include "ResourceShader.h"
+
+std::string openFileWID(bool isfile = false);
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string path;
 
 	// Load mesh from own file format
@@ -73,10 +79,66 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	else // Means it is being loaded from a 3dObject binary
 		diffuse_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");
 
+	const char* vertex_path = json_object_dotget_string(deff, "vertex_shader");
+	uint vertex_resource = 0;
+	if (vertex_path) { // Means that is being loaded from a scene	
+		if (!App->is_game || App->debug_game)
+			vertex_resource = App->resources->getResourceUuid(vertex_path);
+		else
+		{
+			std::string s_path = vertex_path;
+			App->fs.getFileNameFromPath(s_path);
+			vertex_resource = App->resources->getShaderResourceUuid(s_path.c_str());
+		}
+	}
+	//else // Means it is being loaded from a 3dObject binary
+	//	vertex_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");
+
+	const char* fragment_path = json_object_dotget_string(deff, "fragment_shader");
+	uint fragment_resource = 0;
+	if (fragment_path) { // Means that is being loaded from a scene	
+		if (!App->is_game || App->debug_game)
+			fragment_resource = App->resources->getResourceUuid(fragment_path);
+		else
+		{
+			std::string d_path = fragment_path;
+			App->fs.getFileNameFromPath(d_path);
+			fragment_resource = App->resources->getShaderResourceUuid(d_path.c_str());
+		}
+	}
 
 	if(diffuse_resource != 0){
 		App->resources->assignResource(diffuse_resource);
 		mat->setTextureResource(DIFFUSE, diffuse_resource);
+	}
+
+	if (vertex_resource != 0 && fragment_resource != 0)
+	{
+		App->resources->assignResource(vertex_resource);
+		App->resources->assignResource(fragment_resource);
+
+		//first we look for an existent program
+		uint ShaderID = App->shaders->GetShaderProgramByResources(vertex_resource, fragment_resource);
+		if (ShaderID != 0)
+		{
+			mat->setShaderProgram(ShaderID);
+		}
+		else //if we can't find a program we create a new one
+		{
+			ShaderProgram* shader_program = new ShaderProgram();
+			shader_program->shaderUUIDS.push_back(vertex_resource);
+			shader_program->shaderUUIDS.push_back(fragment_resource);
+
+			if (App->shaders->CompileProgramFromResources(shader_program))
+			{
+				App->shaders->shader_programs.push_back(shader_program);
+			}
+			else
+			{
+				//if there is any compiling error we will use the default shader that will be always loaded
+				RELEASE(shader_program)
+			}
+		}
 	}
 }
 
@@ -175,6 +237,337 @@ bool ComponentMesh::Update(float dt)
 	if (components_bones.size() == 0 && parent->getParent() != nullptr && bones_names.size() > 0)
 	{
 		setMeshResourceId(mesh_resource_uuid);
+	}
+
+	return true;
+}
+
+bool ComponentMesh::DrawInspector(int id)
+{
+	std::string tag;
+	tag = "Mesh##" + std::to_string(id);
+	if (ImGui::CollapsingHeader(tag.c_str()))
+	{
+		static bool wireframe_enabled;
+		static bool mesh_active;
+		static bool draw_normals;
+
+		wireframe_enabled = getWireframe();
+		draw_normals = getDrawNormals();
+		mesh_active = isActive();
+
+		if (ImGui::Checkbox("Active## mesh_active", &mesh_active))
+			setActive(mesh_active);
+
+		if (mesh_active)
+		{
+			ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(getMeshResource());
+			ImGui::Text("Resource: %s", (R_mesh != nullptr) ? R_mesh->asset.c_str() : "None");
+
+			if (ImGui::Checkbox("Wireframe", &wireframe_enabled))
+				setWireframe(wireframe_enabled);
+			ImGui::SameLine();
+			if (ImGui::Checkbox("Draw normals", &draw_normals))
+				setDrawNormals(draw_normals);
+
+			if (!getMesh()) {
+				static bool add_mesh_menu = false;
+				if (ImGui::Button("Add mesh")) {
+					add_mesh_menu = true;
+				}
+
+				if (add_mesh_menu) {
+
+					std::list<resource_deff> mesh_res;
+					App->resources->getMeshResourceList(mesh_res);
+
+					ImGui::Begin("Mesh selector", &add_mesh_menu);
+					for (auto it = mesh_res.begin(); it != mesh_res.end(); it++) {
+						resource_deff mesh_deff = (*it);
+						if (ImGui::MenuItem(mesh_deff.asset.c_str())) {
+							App->resources->deasignResource(getMeshResource());
+							App->resources->assignResource(mesh_deff.uuid);
+							setMeshResourceId(mesh_deff.uuid);
+							add_mesh_menu = false;
+							break;
+						}
+					}
+
+					ImGui::End();
+				}
+			}
+
+			if (Mesh* mesh = getMesh())
+			{
+				if (ImGui::TreeNode("Mesh Options"))
+				{
+					uint vert_num, poly_count;
+					bool has_normals, has_colors, has_texcoords;
+					if (ImGui::Button("Remove mesh")) {
+						App->resources->deasignResource(getMeshResource());
+						setMeshResourceId(0);
+					}
+					mesh->getData(vert_num, poly_count, has_normals, has_colors, has_texcoords);
+					ImGui::Text("vertices: %d, poly count: %d, ", vert_num, poly_count);
+					ImGui::Text(has_normals ? "normals: Yes," : "normals: No,");
+					ImGui::Text(has_colors ? "colors: Yes," : "colors: No,");
+					ImGui::Text(has_texcoords ? "tex coords: Yes" : "tex coords: No");
+
+					ImGui::TreePop();
+				}
+			}
+
+
+			if (ImGui::TreeNode("Material"))
+			{
+				if (Material* material = getMaterial())
+				{
+					static int preview_size = 128;
+					ImGui::Text("Id: %d", material->getId());
+					ImGui::SameLine();
+					/*if (ImGui::Button("remove material"))
+					{
+						delete c_mesh->getMaterial();
+						c_mesh->setMaterial(nullptr);
+						ImGui::TreePop();
+						return true;
+					}*/
+
+					ImGui::Text("Preview size");
+					ImGui::SameLine();
+					if (ImGui::Button("64")) preview_size = 64;
+					ImGui::SameLine();
+					if (ImGui::Button("128")) preview_size = 128;
+					ImGui::SameLine();
+					if (ImGui::Button("256")) preview_size = 256;
+
+					if (ImGui::TreeNode("diffuse"))
+					{
+						Texture* texture = nullptr;
+						if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
+							texture = tex_res->texture;
+
+
+						ImGui::Image(texture ? (void*)texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+						ImGui::SameLine();
+
+						int w = 0; int h = 0;
+						if (texture)
+							texture->getSize(w, h);
+
+						ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
+
+						//if (ImGui::Button("Load checkered##Dif: Load checkered"))
+						//	material->setCheckeredTexture(DIFFUSE);
+						//ImGui::SameLine()
+						if (ImGui::Button("Load(from asset folder)##Dif: Load"))
+						{
+							std::string texture_path = openFileWID();
+							uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+							if (new_resource != 0) {
+								App->resources->assignResource(new_resource);
+								App->resources->deasignResource(material->getTextureResource(DIFFUSE));
+								material->setTextureResource(DIFFUSE, new_resource);
+							}
+						}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("shader program"))
+					{
+						if (material->getShaderProgram())
+						{
+							ImGui::Text("Vertex:");
+							ImGui::SameLine();
+
+							ResourceShader* vertex_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[0]);
+
+							std::string vertex_name;
+							if (vertex_shader)
+							{
+								vertex_name = vertex_shader->asset;
+								App->fs.getFileNameFromPath(vertex_name);
+							}
+							else
+							{
+								vertex_name = "NONE";
+							}
+
+							ImGui::PushItemWidth(200.0f);
+							ImGui::PushID("Vertex Shader");
+
+							if (ImGui::BeginCombo("", vertex_name.c_str()))
+							{
+								std::list<resource_deff> vertex_Sahders;
+								App->resources->getShaderResourceList(vertex_Sahders);
+
+								for (std::list<resource_deff>::iterator v_it = vertex_Sahders.begin(); v_it != vertex_Sahders.end(); ++v_it)
+								{
+									Shader* shader = nullptr;
+									if (shader=((ResourceShader*)App->resources->getResource((*v_it).uuid))->shaderObject)
+									{
+										bool selected = false;
+
+										if (shader->type == VERTEX)
+										{
+											if (ImGui::Selectable(shader->name.c_str(), &selected))
+											{
+												/*change the shader and recompile the shader program*/
+											}
+										}
+									}			
+								}
+								ImGui::EndCombo();
+							}
+							ImGui::PopID();
+							ImGui::PopItemWidth();
+
+							ImGui::Text("Fragment:");
+							ImGui::SameLine();
+							ResourceShader* fragment_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[1]);
+
+							std::string fragment_name;
+							if (fragment_shader)
+							{
+								fragment_name = fragment_shader->asset;
+								App->fs.getFileNameFromPath(fragment_name);
+							}
+							else
+							{
+								fragment_name = "NONE";
+							}
+
+							ImGui::PushItemWidth(200.0f);
+							ImGui::PushID("Fragment Shader");
+
+							if (ImGui::BeginCombo("", fragment_name.c_str()))
+							{
+								std::list<resource_deff> fragment_Sahders;
+								App->resources->getShaderResourceList(fragment_Sahders);
+
+								for (std::list<resource_deff>::iterator v_it = fragment_Sahders.begin(); v_it != fragment_Sahders.end(); ++v_it)
+								{
+									Shader* shader = nullptr;
+
+									if (shader = ((ResourceShader*)App->resources->getResource((*v_it).uuid))->shaderObject)
+									{
+										bool selected = false;
+										if (shader->type == FRAGMENT)
+										{
+											if (ImGui::Selectable(shader->name.c_str(), &selected))
+											{
+												/*change the shader and recompile the shader program*/
+											}
+										}
+
+									}
+								}
+								ImGui::EndCombo();
+							}
+							ImGui::PopID();
+							ImGui::PopItemWidth();
+						}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("ambient (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(AMBIENT) ? (void*)material->getTexture(AMBIENT)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Amb: Load checkered"))
+						//	material->setCheckeredTexture(AMBIENT);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Amb: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(AMBIENT, tex);
+						//}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("normals (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(NORMALS) ? (void*)material->getTexture(NORMALS)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Nor: Load checkered"))
+						//	material->setCheckeredTexture(NORMALS);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Nor: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(NORMALS, tex);
+						//}
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("lightmap (feature not avaliable yet)"))
+					{
+						//ImGui::Image(material->getTexture(LIGHTMAP) ? (void*)material->getTexture(LIGHTMAP)->getGLid() : (void*)ui_textures[NO_TEXTURE]->getGLid(), ImVec2(preview_size, preview_size));
+
+						//if (ImGui::Button("Load checkered##Lgm: Load checkered"))
+						//	material->setCheckeredTexture(LIGHTMAP);
+						//ImGui::SameLine();
+						//if (ImGui::Button("Load##Lgm: Load"))
+						//{
+						//	std::string texture_path = openFileWID();
+						//	if (Texture* tex = (Texture*)App->importer->Import(texture_path.c_str(), I_TEXTURE))
+						//		c_mesh->getMaterial()->setTexture(LIGHTMAP, tex);
+						//}
+						ImGui::TreePop();
+					}
+				}
+				else
+				{
+					ImGui::TextWrapped("No material assigned!");
+
+					if (getMesh())
+					{
+						static bool draw_colorpicker = false;
+						static Color reference_color = getMesh()->tint_color;
+						static GameObject* last_selected = getParent();
+
+						std::string label = getParent()->getName() + " color picker";
+
+						if (last_selected != getParent())
+							reference_color = getMesh()->tint_color;
+
+						ImGui::SameLine();
+						if (ImGui::ColorButton((label + "button").c_str(), ImVec4(getMesh()->tint_color.r, getMesh()->tint_color.g, getMesh()->tint_color.b, getMesh()->tint_color.a)))
+							draw_colorpicker = !draw_colorpicker;
+
+						if (draw_colorpicker)
+							App->gui->DrawColorPickerWindow(label.c_str(), (Color*)&getMesh()->tint_color, &draw_colorpicker, (Color*)&reference_color);
+						else
+							reference_color = getMesh()->tint_color;
+
+						last_selected = getParent();
+					}
+
+					if (ImGui::Button("Add material"))
+					{
+						Material* mat = new Material();
+						setMaterial(mat);
+					}
+
+				}
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("Connected Bones"))
+			{
+				ImGui::Text("Num Bones: %d", components_bones.size());
+				ImGui::TreePop();
+			}
+
+		}
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove mesh")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
 	}
 
 	return true;
@@ -306,6 +699,7 @@ void ComponentMesh::Save(JSON_Object* config) {
 	// Determine the type of the mesh
  	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "mesh");
+	json_object_set_boolean(config, "active", is_active);
 
 	if(mesh_resource_uuid != 0){
 		//json_object_set_number(config, "mesh_resource_uuid", mesh_resource_uuid);
@@ -326,6 +720,21 @@ void ComponentMesh::Save(JSON_Object* config) {
 			json_object_dotset_string(config, "material.diffuse",res_diff->asset.c_str());
 		else
 			json_object_dotset_string(config, "material.diffuse", "missing_reference");
+
+		if (mat->getShaderProgramID() != 0)
+		{
+			ShaderProgram* shader = mat->getShaderProgram();
+			if (shader)
+			{
+				ResourceShader* vertex = (ResourceShader*)App->resources->getResource(shader->shaderUUIDS[0]);
+				if(vertex)
+					json_object_dotset_string(config, "vertex_shader", vertex->asset.c_str());
+
+				ResourceShader* fragment = (ResourceShader*)App->resources->getResource(shader->shaderUUIDS[1]);
+				if(fragment)
+					json_object_dotset_string(config, "fragment_shader", fragment->asset.c_str());
+			}
+		}
 	}
 	if (components_bones.size() > 0) //If it has any bone
 	{

@@ -5,7 +5,12 @@
 #include "ComponentRectTransform.h"
 #include "ResourceTexture.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleUI.h"
+#include "Material.h"
 
+#include "ImGui/imgui.h"
+
+std::string openFileWID(bool isfile = false);
 
 
 ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(parent, UI_PROGRESSBAR)
@@ -23,7 +28,12 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	intBarTransform->setHeight(1.f);
 	intBarTransform->setDepth(-0.1f);
 
-	initWidth = intBarTransform->getWidth();
+	initialWidth = intBarTransform->getWidth();
+
+	intBarTransform->setInspectorDraw(false);
+	barTransform->setInspectorDraw(false);
+	intBar->setInspectorDraw(false);
+	bar->setInspectorDraw(false);
 }
 
 
@@ -34,7 +44,7 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 
 	bar = (ComponentImageUI*)parent->getComponent(UI_IMAGE);
 	
-	initWidth = json_object_get_number(deff, "initWidth");
+	initialWidth = json_object_get_number(deff, "initWidth");
 	percent = json_object_get_number(deff, "percent");
 
 	const char* texPath = json_object_dotget_string(deff, "textureBar");
@@ -48,6 +58,10 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 		texBar = (ResourceTexture*)App->resources->getResource(uuid);
 	}
 
+
+	
+	bar->setInspectorDraw(false);
+	barTransform->setInspectorDraw(false);
 }
 
 ComponentProgressBarUI::~ComponentProgressBarUI()
@@ -60,30 +74,154 @@ ComponentProgressBarUI::~ComponentProgressBarUI()
 
 bool ComponentProgressBarUI::Update(float dt)
 {
-	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); }
-	if (!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); }
+	if(!intBar){ intBar = (ComponentImageUI*)parent->getFirstChild()->getComponent(UI_IMAGE); intBar->setInspectorDraw(false);}
+	if(!intBarTransform) { intBarTransform = (ComponentRectTransform*)parent->getFirstChild()->getComponent(RECTTRANSFORM); intBarTransform->setInspectorDraw(false);
+	}
 
+	return true;
+}
+
+bool ComponentProgressBarUI::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("UI Progress Bar"))
+	{
+		float2 position = getPos();
+		float percent = getPercent();
+		float width = barTransform->getWidth();
+		float height = barTransform->getHeight();
+		float depth = barTransform->getDepth();
+
+		float2 positionInt = intBarTransform->getGlobalPos();
+		float heightInt = intBarTransform->getHeight();
+		float widthInt = getInteriorWidth();
+		float depthInt =getInteriorDepth();
+
+		ImGui::Text("Percent:");
+		ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {setPercent(percent); }
+		ImGui::Separator();
+		ImGui::Text("BAR:");
+		ImGui::Text("Position:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat2("##ps", (float*)&position, 0.5f)) { setPos(position); }
+		ImGui::Text("Width:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##wi", (float*)&width, 0.5f)) { barTransform->setWidth(width); }
+		ImGui::Text("Height:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##hi", (float*)&height, 0.5f)) { barTransform->setHeight(height); }
+		ImGui::Text("Depth:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##d2", (float*)&depth, 0.1f)) { barTransform->setDepth(depth); }
+
+		int w = 0; int h = 0;
+		if (getResourceTexture() != nullptr) {
+			getResourceTexture()->texture->getSize(w, h);
+		}
+
+
+		ImGui::Text("Texture data: \n x: %d\n y: %d", w, h);
+		ImGui::Image(getResourceTexture() != nullptr ? (void*)getResourceTexture()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTexture() != nullptr)
+					App->resources->deasignResource(getResourceTexture()->uuid);
+				setResourceTexture((ResourceTexture*)App->resources->getResource(new_resource));
+			}
+		}
+
+		
+
+		ImGui::Separator();
+
+		ImGui::Text("INTERIOR BAR:");
+		ImGui::Text("Position:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat2("##p2s", (float*)&positionInt, 0.5f)) { intBarTransform->setPos(positionInt); }
+
+		ImGui::Text("Width:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##wi2", (float*)&widthInt, 0.5f)) { setInteriorWidth(widthInt); }
+		ImGui::Text("Height:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##hi2", (float*)&heightInt, 0.5f)) { 
+			intBarTransform->setHeight(heightInt); }
+		ImGui::Text("Depth:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+		if (ImGui::DragFloat("##dp2", (float*)&depthInt, 0.1f)) { setInteriorDepth(depthInt); }
+		
+		
+		ImGui::Text("Width: %f", initialWidth);
+		
+
+		int w2 = 0; int h2 = 0;
+		if (getResourceTextureInterior() != nullptr) {
+			getResourceTextureInterior()->texture->getSize(w2, h2);
+		}
+
+
+		ImGui::Text("Texture data: \n x: %d\n y: %d", w2, h2);
+		ImGui::Image(getResourceTextureInterior() != nullptr ? (void*)getResourceTextureInterior()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
+
+
+		if (ImGui::Button("Load(from asset folder)##Dif: Loadtex2"))
+		{
+			std::string texture_path = openFileWID();
+			uint new_resource = App->resources->getResourceUuid(texture_path.c_str());
+			if (new_resource != 0) {
+				App->resources->assignResource(new_resource);
+				if (getResourceTextureInterior() != nullptr)
+					App->resources->deasignResource(getResourceTextureInterior()->uuid);
+				setResourceTextureInterior((ResourceTexture*)App->resources->getResource(new_resource));
+			}
+		}
+
+		ImGui::SameLine();
+	}
 	return true;
 }
 
  void ComponentProgressBarUI::setPercent(float _percent)
  {
+	 if (_percent < 0) { _percent = 0; }
+	 if (_percent > 100) { _percent = 100; }
 	 percent = _percent;
-	 intBarTransform->setWidth(initWidth*percent / 100);
+	 intBarTransform->setWidth(initialWidth*percent / 100);
 }
 
 
-void ComponentProgressBarUI::setPos(float2 _pos)
+inline void ComponentProgressBarUI::setPos(float2 _pos)
 {
-	pos = _pos;
-	barTransform->setPos(pos);
+	barTransform->setPos(_pos);
+}
+void ComponentProgressBarUI::setWidth(float width)
+{
+	barTransform->setWidth(width);
+	intBarTransform->setWidth(initialWidth*percent / 100);
+}
 
+inline const float2 ComponentProgressBarUI::getPos()
+{
+	return barTransform->getLocalPos();
 }
 
 void ComponentProgressBarUI::setInteriorWidth(float width)
 {
-	initWidth = width;
-	intBarTransform->setWidth(initWidth*percent / 100);
+	initialWidth = width;
+	intBarTransform->setWidth(initialWidth*percent / 100);
 }
 
 void ComponentProgressBarUI::setInteriorDepth(float depth)
@@ -113,7 +251,7 @@ void ComponentProgressBarUI::setResourceTextureInterior(ResourceTexture * tex)
 void ComponentProgressBarUI::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "UIprogress_bar");
-	json_object_set_number(config, "initWidth", initWidth);
+	json_object_set_number(config, "initWidth", initialWidth);
 	json_object_set_number(config, "percent", percent);
 
 	std::string texName = std::string("missing_reference");

@@ -17,6 +17,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
+	bool DrawInspector(int id = 0) override;
 
 	void Save(JSON_Object* config);
 

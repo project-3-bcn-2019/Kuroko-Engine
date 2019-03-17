@@ -31,11 +31,16 @@ public:
 	virtual bool Update(float dt) { return true; };
 	virtual void Draw() const {};
 
+	virtual bool DrawInspector(int id = 0) { return true; };
+
 	bool isActive() { return is_active; } const
 	void setActive(bool state) { is_active = state; }
 
-	Component_type getType() const { return type; };
-	GameObject* getParent() const { return parent; };
+	bool isInspectorDraw() { return draw_inspector; } const
+	void setInspectorDraw(bool state) { draw_inspector = state; }
+
+	Component_type getType() const { return type; }
+	GameObject* getParent() const { return parent; }
 	void setParent(GameObject* new_parent) { parent = new_parent; } // Can recieve nullptr
 	uint getUUID() const { return uuid; }
 
@@ -92,6 +97,7 @@ public:
 protected:
 
 	bool is_active = true;
+	bool draw_inspector = true;
 	const Component_type type = NONE;
 	GameObject* parent = nullptr;
 	uint uuid = 0;
@@ -103,8 +109,8 @@ public:
 	// Helper Functions
 	std::string TypeToString();
 
-	void SaveCompUUID(JSON_Object* config);
-	void LoadCompUUID(JSON_Object* deff);
+	void SaveCommons(JSON_Object* config);
+	void LoadCommons(JSON_Object* deff);
 
 	// When Creating animations for components all of these functions
 	// are required in order to process the events for the panel and 
@@ -124,7 +130,10 @@ public:
 	// based struct but for now should not be needed
 
 	// You have to create each ComponentTypeAnimEVT enum, which holds the evt
-	// types for the type of componetn you want to be animated
+	// types for the type of component you want to be animated
+	// please don't make a case ERROR/NONE or put it with value -1
+	// makes no sense as designers will not be able to actually go below or above
+	// the event numbers
 
 	virtual std::string EvTypetoString(int evt) { 
 		//	Template for virtual EvTypetoString
@@ -136,11 +145,11 @@ public:
 		//		.
 		//		.
 		//	}
-		return "Change Active"; 
+		return "NO EVENTS"; 
 	};
 	
 	virtual int getEvAmount() {	
-		return 0 /*ComponentTypeAnimEVT::ANIMEVTMAX*/; 
+		return -1 /*ComponentTypeAnimEVT::ANIMEVTMAX*/; 
 	};
 
 	virtual void ProcessAnimationEvents(std::map<int, void*>& evts) 

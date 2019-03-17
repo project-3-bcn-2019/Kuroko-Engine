@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "ModuleTimeManager.h"
+#include "Applog.h"
 
 ResourceAnimation::ResourceAnimation(resource_deff deff):Resource(deff)
 {
@@ -58,8 +59,8 @@ bool ResourceAnimation::LoadAnimation()
 			boneTransformations[i].numRotKeys = boneRanges[2];
 
 			//Loading Name
-			bytes = boneRanges[3];
-			char* auxName = new char[bytes];
+			bytes = sizeof(char)*boneRanges[3];
+			char* auxName = new char[boneRanges[3]];
 			memcpy(auxName, cursor, bytes);
 			boneTransformations[i].NodeName = auxName;
 			boneTransformations[i].NodeName = boneTransformations[i].NodeName.substr(0, bytes);
@@ -108,6 +109,24 @@ bool ResourceAnimation::LoadAnimation()
 	return ret;
 }
 
+void ResourceAnimation::LoadDuration()
+{
+	//Get the buffer
+	char* buffer = App->fs.ImportFile(binary.c_str());
+	char* cursor = buffer;
+
+	//Load ranges
+	uint ranges[3];
+	uint bytes = sizeof(ranges);
+	memcpy(ranges, cursor, bytes);
+	cursor += bytes;
+
+	ticks = ranges[0];
+	ticksXsecond = ranges[1];
+
+	RELEASE_ARRAY(buffer);
+}
+
 void ResourceAnimation::resetFrames()
 {
 	for (int i = 0; i < numBones; i++)
@@ -122,6 +141,16 @@ float ResourceAnimation::getDuration() const
 {
 	return ticks / ticksXsecond;
 }
+
+BoneTransform* ResourceAnimation::FindBone(std::string& check)
+{
+	BoneTransform* ret = nullptr;
+	for (int i = 0; i < numBones && ret == nullptr; ++i)
+		ret = (check.compare(boneTransformations[i].NodeName) == 0) ? &boneTransformations[i] : nullptr;
+
+	return ret;
+}
+
 
 BoneTransform::~BoneTransform()
 {
@@ -203,7 +232,7 @@ bool BoneTransform::calcCurrentIndex(float time, bool test)
 	return ret;
 }
 
-void BoneTransform::calcTransfrom(float time, bool interpolation)
+void BoneTransform::calcTransfrom(float time, bool interpolation, float duration, int tickxs)
 {
 	float tp, ts, tr;
 
@@ -213,31 +242,36 @@ void BoneTransform::calcTransfrom(float time, bool interpolation)
 	Quat rotation_1 = { RotKeysValues[currentRotIndex * 4], RotKeysValues[currentRotIndex * 4 + 1], RotKeysValues[currentRotIndex * 4 + 2], RotKeysValues[currentRotIndex * 4 + 3] };
 	float3 scale_1 = { ScaleKeysValues[currentScaleIndex * 3], ScaleKeysValues[currentScaleIndex * 3 + 1], ScaleKeysValues[currentScaleIndex * 3 + 2] };
 
-	float3 position_2 = { PosKeysValues[nextPosIndex * 3], PosKeysValues[nextPosIndex * 3 + 1], PosKeysValues[nextPosIndex * 3 + 2] };
-	Quat rotation_2 = { RotKeysValues[nextRotIndex * 4], RotKeysValues[nextRotIndex * 4 + 1], RotKeysValues[nextRotIndex * 4 + 2], RotKeysValues[nextRotIndex * 4 + 3] };
-	float3 scale_2 = { ScaleKeysValues[nextScaleIndex * 3], ScaleKeysValues[nextScaleIndex * 3 + 1], ScaleKeysValues[nextScaleIndex * 3 + 2] };
-
-
-	tp = ((time - PosKeysTimes[currentPosIndex]) / (PosKeysTimes[nextPosIndex] - PosKeysTimes[currentPosIndex]));
-	tr = ((time - RotKeysTimes[currentRotIndex]) / (RotKeysTimes[nextRotIndex] - RotKeysTimes[currentRotIndex]));
-	ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (ScaleKeysTimes[nextScaleIndex] - ScaleKeysTimes[currentScaleIndex]));
-
-	tp = (tp < 0) ? 0 : tp;
-	tr = (tr < 0) ? 0 : tr;
-	ts = (ts < 0) ? 0 : ts;
-
-	float3 position = position_1.Lerp(position_2, tp);
-	Quat rotation = rotation_1.Slerp(rotation_2, tr);
-	float3 scale = scale_1.Lerp(scale_2, ts);
-
-	if (interpolation)
-	{
-		lastTransform.Set(float4x4::FromTRS(position, rotation, scale));
-	}
-	else
+	if (!interpolation)
 	{
 		lastTransform.Set(float4x4::FromTRS(position_1, rotation_1, scale_1));
+		return;
 	}
+
+	float3 position_2 = (numPosKeys > 1) ?  float3(PosKeysValues[nextPosIndex * 3], PosKeysValues[nextPosIndex * 3 + 1], PosKeysValues[nextPosIndex * 3 + 2]) : position_1;
+	Quat rotation_2 = (numRotKeys > 1) ? Quat(RotKeysValues[nextRotIndex * 4], RotKeysValues[nextRotIndex * 4 + 1], RotKeysValues[nextRotIndex * 4 + 2], RotKeysValues[nextRotIndex * 4 + 3]) : rotation_1;
+	float3 scale_2 = (numScaleKeys > 1) ? float3(ScaleKeysValues[nextScaleIndex * 3], ScaleKeysValues[nextScaleIndex * 3 + 1], ScaleKeysValues[nextScaleIndex * 3 + 2]) : scale_1;
+
+	float nextpostime = (numPosKeys > 1) ? PosKeysTimes[nextPosIndex] : PosKeysTimes[currentPosIndex];
+	float nextrottime = (numRotKeys > 1) ? RotKeysTimes[nextRotIndex] : RotKeysTimes[currentRotIndex];
+	float nextscaletime = (numScaleKeys > 1) ? ScaleKeysTimes[nextScaleIndex] : ScaleKeysTimes[currentScaleIndex];
+
+	tp = ((time - PosKeysTimes[currentPosIndex]) / (nextpostime - PosKeysTimes[currentPosIndex]));
+	tr = ((time - RotKeysTimes[currentRotIndex]) / (nextrottime - RotKeysTimes[currentRotIndex]));
+	ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (nextscaletime - ScaleKeysTimes[currentScaleIndex]));
+
+	if (tp < 0) tp = ((time - PosKeysTimes[currentPosIndex]) / (nextpostime - PosKeysTimes[currentPosIndex] + duration));
+	if (tr < 0) tr = ((time - RotKeysTimes[currentRotIndex]) / (nextrottime - RotKeysTimes[currentRotIndex] + duration));
+	if (ts < 0) ts = ((time - ScaleKeysTimes[currentScaleIndex]) / (nextscaletime - ScaleKeysTimes[currentScaleIndex] + duration));
+
+	if(nextPosIndex < numPosKeys)
+		position_1 = position_1.Lerp(position_2, tp);
+	if (nextRotIndex < numRotKeys)
+		rotation_1 = rotation_1.Slerp(rotation_2, tr);
+	if (nextScaleIndex < numScaleKeys)
+		scale_1 = scale_1.Lerp(scale_2, ts);
+
+	lastTransform.Set(float4x4::FromTRS(position_1, rotation_1, scale_1));
 }
 
 void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
@@ -254,9 +288,12 @@ void BoneTransform::smoothBlending(const float4x4& blendtrans, float time)
 
 	blendtrans.Decompose(position_2, rotation_2, scale_2);
 
-	float3 finalpos = position_1.Lerp(position_2, time);
-	Quat finalrot = rotation_1.Slerp(rotation_2, time);
-	float3 finalscale = scale_1.Lerp(scale_2, time);
+	time = (time > 1) ? 1 : time;
+	time = (time < 0) ? 0 : time;
+
+	float3 finalpos = position_1.Lerp(position_2, (1 -time));
+	Quat finalrot = rotation_1.Slerp(rotation_2, (1 - time));
+	float3 finalscale = scale_1.Lerp(scale_2, (1 - time));
 
 	lastTransform.Set(float4x4::FromTRS(finalpos, finalrot, finalscale));
 }

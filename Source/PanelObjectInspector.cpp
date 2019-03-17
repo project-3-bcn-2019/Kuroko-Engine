@@ -6,10 +6,13 @@
 #include "ModuleUI.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleAudio.h"
+#include "ModuleInput.h"
 #include "Include_Wwise.h"
 
+#include "Component.h"
 #include "ComponentScript.h"
 #include "ComponentAudioSource.h"
+
 
 PanelObjectInspector::PanelObjectInspector(const char * name, bool active): Panel(name, active)
 {
@@ -44,17 +47,21 @@ void PanelObjectInspector::Draw()
 				ImGui::SameLine();
 				if (ImGui::Checkbox("Static", &selected_obj->is_static)) // If an object is set/unset static, reload the quadtree
 					App->scene->quadtree_reload = true;
-				DrawTagSelection(selected_obj);
-				// Add a new tag
-				static char new_tag[64];
-				ImGui::InputText("New Tag", new_tag, 64);
-				if (ImGui::Button("Add Tag")) {
-					App->scripting->tags.push_back(new_tag);
-					for (int i = 0; i < 64; i++)
-						new_tag[i] = '\0';
-
-				}
 			}
+			DrawTagSelection(selected_obj);
+			// Add a new tag
+			static char new_tag[64];
+			ImGui::InputText("New Tag", new_tag, 64);
+			if (ImGui::Button("Add Tag")) {
+				App->scripting->tags.push_back(new_tag);
+				for (int i = 0; i < 64; i++)
+					new_tag[i] = '\0';
+
+			}
+			ImGui::Separator();
+			
+			if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_D) == KEY_DOWN)
+				App->scene->duplicateGameObject(selected_obj);
 			
 			if (ImGui::CollapsingHeader("Add component"))
 			{
@@ -70,6 +77,7 @@ void PanelObjectInspector::Draw()
 					if (ImGui::Button("Add Billboard")) selected_obj->addComponent(BILLBOARD);
 					if (ImGui::Button("Add Particle Emitter")) selected_obj->addComponent(PARTICLE_EMITTER);
 					if (ImGui::Button("Add Physic Object Properties")) selected_obj->addComponent(PHYSICS);
+					if (ImGui::Button("Add Trigger")) selected_obj->addComponent(TRIGGER);
 					if (ImGui::Button("Add Animator")) selected_obj->addComponent(ANIMATOR);
 				}
 			}
@@ -80,8 +88,13 @@ void PanelObjectInspector::Draw()
 			std::list<Component*> components_to_erase;
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-				if (!App->gui->DrawComponent(*(*it), id))
-					components_to_erase.push_back(*it);
+				ImGui::PushID((*it)->getUUID());
+				if((*it)->isInspectorDraw())
+					if ((*it)->DrawInspector(id) == false)
+					{
+						components_to_erase.push_back(*it);
+					}
+				ImGui::PopID();
 				id++;
 			}
 
@@ -131,6 +144,116 @@ void PanelObjectInspector::Draw()
 
 	//ImGui::PopFont();
 	ImGui::End();
+}
+
+void PanelObjectInspector::DrawChildedInspector(GameObject* object)
+{
+	ImGui::BeginChild("Object Inspector##ChildedInsp", ImVec2(0,0), true);
+	//ImGui::PushFont(ui_fonts[REGULAR]);
+
+	static bool select_script = false;
+	static bool select_audio = false;
+	if (object != nullptr) {
+
+			ImGui::Text("Name: %s", object->getName().c_str());
+
+			if (object->is_UI) {//if is UI
+				ImGui::SameLine(0.f, 10.0f);
+				ImGui::TextColored(ImVec4(0.25f, 0.25f, 0.25f, 1), "UI GameObject##ChildedInsp");
+			}
+
+			ImGui::Checkbox("Active##ChildedInsp", &object->is_active);
+
+			if (!object->is_UI) { // if it is not UI
+				ImGui::SameLine();
+				if (ImGui::Checkbox("Static##ChildedInsp", &object->is_static)) // If an object is set/unset static, reload the quadtree
+					App->scene->quadtree_reload = true;
+				DrawTagSelection(object);
+				// Add a new tag
+				static char new_tag[64];
+				ImGui::InputText("New Tag##ChildedInsp", new_tag, 64);
+				if (ImGui::Button("Add Tag##ChildedInsp")) {
+					App->scripting->tags.push_back(new_tag);
+					for (int i = 0; i < 64; i++)
+						new_tag[i] = '\0';
+
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Add component##ChildedInsp"))
+			{
+				if (ImGui::Button("Add Script##ChildedInsp")) select_script = true;
+
+				if (!object->is_UI) {
+					if (ImGui::Button("Add Mesh##ChildedInsp"))	object->addComponent(MESH);
+					if (ImGui::Button("Add Camera##ChildedInsp"))  object->addComponent(CAMERA);
+					if (ImGui::Button("Add Animation##ChildedInsp")) object->addComponent(ANIMATION);
+					if (ImGui::Button("Add Animation Event##ChildedInsp")) object->addComponent(ANIMATION_EVENT);
+					if (ImGui::Button("Add Audio Source##ChildedInsp")) select_audio = true;
+					if (ImGui::Button("Add Listener##ChildedInsp")) object->addComponent(AUDIOLISTENER);
+					if (ImGui::Button("Add Billboard##ChildedInsp")) object->addComponent(BILLBOARD);
+					if (ImGui::Button("Add Particle Emitter##ChildedInsp")) object->addComponent(PARTICLE_EMITTER);
+					if (ImGui::Button("Add Physic Object Properties##ChildedInsp")) object->addComponent(PHYSICS);
+					if (ImGui::Button("Add Animator##ChildedInsp")) object->addComponent(ANIMATOR);
+				}
+			}
+
+			std::list<Component*> components;
+			object->getComponents(components);
+
+			std::list<Component*> components_to_erase;
+			int id = 0;
+			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
+				if (!App->gui->DrawComponent(*(*it), id))
+					components_to_erase.push_back(*it);
+				id++;
+			}
+
+			for (std::list<Component*>::iterator it = components_to_erase.begin(); it != components_to_erase.end(); it++)
+				object->removeComponent(*it);
+
+			if (select_script) {
+				std::list<resource_deff> script_res;
+				App->resources->getScriptResourceList(script_res);
+
+				ImGui::Begin("Script selector##ChildedInsp", &select_script);
+				for (auto it = script_res.begin(); it != script_res.end(); it++) {
+					resource_deff script_deff = (*it);
+					if (ImGui::MenuItem(script_deff.asset.c_str())) {
+						ComponentScript* c_script = (ComponentScript*)object->addComponent(SCRIPT);
+						c_script->assignScriptResource(script_deff.uuid);
+						select_script = false;
+						break;
+					}
+				}
+
+				ImGui::End();
+			}
+
+			if (select_audio)
+			{
+				ImGui::Begin("Select Audio Event##ChildedInsp", &select_audio);
+				if (ImGui::MenuItem("NONE##ChildedInsp"))
+				{
+					object->addComponent(AUDIOSOURCE);
+					select_audio = false;
+				}
+				for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+					if (ImGui::MenuItem((*it).c_str())) {
+						ComponentAudioSource* c_source = (ComponentAudioSource*)object->addComponent(AUDIOSOURCE);
+						c_source->SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+						c_source->SetSoundName((*it).c_str());
+						select_audio = false;
+						break;
+					}
+				}
+				ImGui::End();
+			}
+		}
+
+	//ImGui::PopFont();
+	ImGui::EndChild();
 }
 
 void PanelObjectInspector::DrawTagSelection(GameObject* object) {

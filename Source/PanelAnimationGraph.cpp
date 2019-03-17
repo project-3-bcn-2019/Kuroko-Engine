@@ -3,6 +3,7 @@
 #include "ModuleResourcesManager.h"
 #include "ModuleScene.h"
 #include "GameObject.h"
+#include "ModuleTimeManager.h"
 
 #include "ComponentAnimator.h"
 #include "ResourceAnimation.h"
@@ -124,6 +125,7 @@ void PanelAnimationGraph::Draw()
 		//Node box
 		ImU32 borderColor = IM_COL32(100, 100, 100, 255);
 		ImU32 backgroundColor = IM_COL32(45, 45, 45, 230);
+		float thickness = 1.0f;
 
 		if (hovered_node == node)
 		{
@@ -133,6 +135,7 @@ void PanelAnimationGraph::Draw()
 		{
 			borderColor = IM_COL32(255, 255, 75, 255);
 			backgroundColor = IM_COL32(55, 55, 55, 245);
+			thickness = 2.0f;
 		}
 		if (graph->start == node)
 		{
@@ -142,29 +145,51 @@ void PanelAnimationGraph::Draw()
 				borderColor = IM_COL32(150, 150, 255, 255);
 			}
 		}
+		if (App->time->getGameState() != GameState::STOPPED && node->UID == component->currentNode)
+		{
+			borderColor = IM_COL32(75, 255, 255, 255);
+			thickness = 3.0f;
+		}
 
 		draw_list->AddRectFilled({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, backgroundColor, 4.0f);
-		draw_list->AddRect({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, borderColor, 4.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+		draw_list->AddRect({ node->gridPos.x, node->gridPos.y }, { node->gridPos.x + node->size.x, node->gridPos.y + node->size.y }, borderColor, 4.0f, 15, thickness);
 		if (graph->start == node)
 		{
 			draw_list->AddRectFilled({ node->gridPos.x+node->size.x/3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, backgroundColor, 1.0f);
-			draw_list->AddRect({ node->gridPos.x + node->size.x / 3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, borderColor, 1.0f, 15, (selected_node == node) ? 2.0f : 1.0f);
+			draw_list->AddRect({ node->gridPos.x + node->size.x / 3, node->gridPos.y -20}, { node->gridPos.x + node->size.x*2/3, node->gridPos.y+1}, borderColor, 1.0f, 15, thickness);
 			ImGui::SetCursorScreenPos({ node->gridPos.x + node->size.x / 3 + 10, node->gridPos.y - 18 });
 			ImGui::Text("Start");
 		}
 
 		//Node content
+		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 5,5 });
+		ImGui::SetCursorScreenPos({ node->gridPos.x + node->size.x - 70, node->gridPos.y + GRAPH_NODE_WINDOW_PADDING });
+		ImGui::Text("Loop:");
+		ImGui::SameLine();
+		ImGui::Checkbox("##LoopCheck", &node->loop);
+		ImGui::PopStyleVar();
+
 		ImGui::SetCursorScreenPos({ node->gridPos.x + GRAPH_NODE_WINDOW_PADDING, node->gridPos.y + GRAPH_NODE_WINDOW_PADDING });
 		ImGui::BeginGroup();
 		ImGui::Text(node->name.c_str());
 
+		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
+
 		drawAnimationBox(node);
+
+		ImGui::SetCursorScreenPos({ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y + 5 });
+		ImGui::Text("Speed:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##animSpeed", &node->speed);
+		ImGui::PopItemWidth();
+		
 		uint clickedLink = node->drawLinks();
 		if (clickedLink != 0)
 			linkingNode = clickedLink;
 		for (std::list<Transition*>::iterator it_t = node->transitions.begin(); it_t != node->transitions.end(); ++it_t)
 		{
-			if ((*it_t)->drawLine((*it_t) == selected_transition, { offset.x, offset.y }))
+			if ((*it_t)->drawLine((*it_t) == selected_transition, (component->doingTransition != nullptr && component->doingTransition == (*it_t))))
 			{
 				selected_transition = (*it_t);
 				clickedLine = true;
@@ -191,7 +216,7 @@ void PanelAnimationGraph::Draw()
 						linked->connect(linking->UID);
 
 						originNode->connectLink(linkingNode);
-						originNode->transitions.push_back(new Transition(linking, linked, graph->uuid));
+						originNode->transitions.push_back(new Transition(linking->UID, linked->UID, graph->uuid));
 					}
 				}
 				linkingNode = 0;
@@ -309,7 +334,7 @@ void PanelAnimationGraph::drawAnimationBox(Node* node) const
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 	ImVec2 pos = ImGui::GetCursorScreenPos();
-	pos.y += 10.0f;
+	pos.y += 5.0f;
 
 	draw_list->AddRectFilled(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(25, 25, 25, 255), 1.0f);
 	draw_list->AddRect(pos, { pos.x + 120, pos.y + 20 }, IM_COL32(150, 150, 150, 255), 1.0f, 15, 2.0f);
@@ -489,14 +514,55 @@ void PanelAnimationGraph::drawTransitionMenu()
 	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 5 });
 	ImGui::BeginGroup();
 	ImGui::Text("Transition");
-	ImGui::InputFloat("Duration", &selected_transition->duration);
+
+	ImGui::SameLine(ImGui::GetContentRegionMax().x - 30);
+	if (ImGui::Button("X", { 20,20 }))
+	{
+		ImGui::EndGroup();
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+		Node* origin = graph->getNode(selected_transition->origin);
+		NodeLink* output = graph->getLink(selected_transition->output);
+		origin->transitions.remove(selected_transition);
+		origin->removeLink(output); //It automatically removes input link and transition
+		selected_transition = nullptr;
+		return;
+	}
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::SetTooltip("Remove");
+	}
+	ImGui::PushItemWidth(50);
+	
+	
+	if (ImGui::InputFloat("Next starts after", &selected_transition->nextStart, 0.0f, 0.0f, "%.2f"))
+	{
+		if (selected_transition->nextStart > selected_transition->duration)
+			selected_transition->nextStart = selected_transition->duration;
+	}
+
+	Node* getNode = graph->getNode(selected_transition->destination);
+	ResourceAnimation* getAnim = nullptr;
+	if(getNode!=nullptr) getAnim = (ResourceAnimation*)App->resources->getResource(getNode->animationUID);
+	if (getAnim != nullptr)
+	{
+		if (!getAnim->IsLoaded())
+		{
+			getAnim->LoadDuration();
+		}
+		selected_transition->duration = (selected_transition->duration > getAnim->getDuration() + selected_transition->nextStart) ? getAnim->getDuration() + selected_transition->nextStart : selected_transition->duration;
+		ImGui::SliderFloat("Duration", &selected_transition->duration, 0, getAnim->getDuration() + selected_transition->nextStart, "%.2f");
+	}
+	ImGui::PopItemWidth();
+
 	if (ImGui::Button("Add condition"))
 	{
 		selected_transition->conditions.push_back(new Condition());
 	}
-	draw_list->AddLine({ posA.x, posA.y + 70 }, { posB.x, posA.y + 70 }, IM_COL32(150, 150, 150, 255));
+	draw_list->AddLine({ posA.x, posA.y + 95 }, { posB.x, posA.y + 95 }, IM_COL32(150, 150, 150, 255));
 
-	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 75 });
+	ImGui::SetCursorScreenPos({ posA.x + 5, posA.y + 100 });
 	int count = 0;
 	for (std::list<Condition*>::iterator it = selected_transition->conditions.begin(); it != selected_transition->conditions.end(); ++it)
 	{		
@@ -507,8 +573,13 @@ void PanelAnimationGraph::drawTransitionMenu()
 		Variable* var = graph->getVariable((*it)->variable_uuid);
 		
 		ImGui::PushItemWidth(80);
-		if (ImGui::BeginCombo(("##Vars" + std::to_string(count)).c_str(), (var == nullptr)? "" : var->name.c_str()))
+		if (ImGui::BeginCombo(("##Vars" + std::to_string(count)).c_str(), (var == nullptr)? (((*it)->type == CONDITION_FINISHED)? "Finished":"") : var->name.c_str()))
 		{
+			if (ImGui::Selectable(("Finished##" + std::to_string(count)).c_str()))
+			{
+				(*it)->type = CONDITION_FINISHED;
+				(*it)->variable_uuid = 0;
+			}
 			for (std::list<Variable*>::iterator it_v = graph->blackboard.begin(); it_v != graph->blackboard.end(); ++it_v)
 			{
 				if (ImGui::Selectable(((*it_v)->name + "##" + std::to_string(count)).c_str()))
@@ -521,24 +592,22 @@ void PanelAnimationGraph::drawTransitionMenu()
 			ImGui::EndCombo();
 		}
 		ImGui::PopItemWidth();
-		if (var != nullptr)
+		if (var != nullptr && (*it)->type != CONDITION_FINISHED)
 		{
 			ImGui::SameLine();
 			static const char* types[6] = { "EQUALS", "DIFERENT", "GREATER", "LESS", "TRUE", "FALSE" };
 			ImGui::PushItemWidth(75);
 			if (ImGui::BeginCombo(("##Type" + std::to_string(count)).c_str(), (var->type == VAR_BOOL) ? types[(*it)->type + 4] : types[(*it)->type]))
 			{
-				if (var->type == VAR_BOOL)
+				if (var->type == VAR_BOOL || var->type == VAR_STRING)
 				{
 					if (ImGui::Selectable(types[4]))
 					{
 						(*it)->type = CONDITION_EQUALS;
-						(*it)->conditionant = 1.0f;
 					}
 					if (ImGui::Selectable(types[5]))
 					{
 						(*it)->type = CONDITION_DIFERENT;
-						(*it)->conditionant = 0.0f;
 					}
 				}
 				else

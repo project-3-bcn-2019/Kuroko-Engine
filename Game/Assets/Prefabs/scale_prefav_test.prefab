@@ -1,0 +1,59 @@
+{
+    "Game Objects": [
+        {
+            "name": "scale_prefav_test",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 0,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 14.055393218994141,
+                        "py": 32.962795257568359,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 2.309999942779541,
+                        "sz": 3.9500000476837158,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 14.055393218994141,
+                        "py": 32.962795257568359,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 2.309999942779541,
+                        "sz": 3.9500000476837158,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 781656843
+                },
+                {
+                    "type": "AABB",
+                    "uuid": 2090865435
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "uuid": 3111521575
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/AttackCollider.wren",
+                    "variables": [],
+                    "uuid": 235337257
+                }
+            ]
+        }
+    ]
+}

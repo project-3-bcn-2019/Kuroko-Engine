@@ -7,6 +7,8 @@
 #include "MathGeoLib\MathGeoLib.h"
 #include "Random.h"
 
+#define NODE_HEIGHT 95
+
 struct Node;
 struct NodeLink;
 
@@ -40,7 +42,8 @@ enum conditionType
 	CONDITION_EQUALS,
 	CONDITION_DIFERENT,
 	CONDITION_GREATER,
-	CONDITION_LESS
+	CONDITION_LESS,
+	CONDITION_FINISHED
 };
 
 struct Condition
@@ -54,20 +57,24 @@ struct Condition
 
 struct Transition
 {
-	Transition(NodeLink* output, NodeLink* input, uint graphUID);
+	Transition(uint output, uint input, uint graphUID);
 	~Transition();
 
-	bool drawLine(bool selected, float2 offset);
+	bool drawLine(bool selected, bool inTransition);
+	void setConnection(uint output, uint input);
 
 	uint graphUID = 0;
 
-	Node* origin = nullptr;
-	Node* destination = nullptr;
+	//Nodes
+	uint origin = 0; 
+	uint destination = 0;
 
-	NodeLink* output = nullptr;
-	NodeLink* input = nullptr;
+	//Links
+	uint output = 0;
+	uint input = 0;
 
 	float duration = 0.0f;
+	float nextStart = 0.0f;
 	std::list<Condition*> conditions;
 };
 
@@ -92,7 +99,7 @@ struct NodeLink
 
 struct Node
 {
-	Node(const char* name, uint graphUID, float2 pos, float2 size = { 150, 80 });
+	Node(const char* name, uint graphUID, float2 pos, float2 size = { 150, NODE_HEIGHT });
 	Node(const char* name, uint graphUID, float2 pos, uint forced_UID);
 
 	~Node();
@@ -111,6 +118,8 @@ struct Node
 
 	uint graphUID = 0;
 	uint animationUID = 0;
+	bool loop = false;
+	float speed = 1.0f;
 
 	std::list<NodeLink*> links;
 	int inputCount = 0;

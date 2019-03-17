@@ -3,14 +3,17 @@
 
 #include "Panel.h"
 #include <list>
+#include <map>
 
 class Component;
 class ComponentAnimation;
 class ResourceAnimation;
 class GameObject;
+class BoneTransform;
+class ComponentBone;
+class PanelObjectInspector;
 
-class PanelAnimation :
-	public Panel
+class PanelAnimation : public Panel
 {
 public:
 
@@ -22,6 +25,7 @@ public:
 
 	void Draw();
 	void ComponentAnimationDraw();
+	void TryPushKey();
 
 public:
 
@@ -29,8 +33,9 @@ public:
 
 	ComponentAnimation* compAnimation = nullptr;
 	ResourceAnimation* animation = nullptr;
-	Component* selected_component = nullptr;
-
+	BoneTransform* selectedBone = nullptr;
+	ComponentBone* compBone = nullptr;
+	Component* selected_component = nullptr;	
 	std::list<Component*> par_components;
 
 	float numFrames = 1;
@@ -43,6 +48,8 @@ private:
 	float buttonPos = 0.0f;
 	float offset = 0.0f;
 
+	int frames = 0;
+
 	bool dragging = false;
 	bool scrolled = false;
 	bool animplay = false;
@@ -52,19 +59,26 @@ private:
 	float zoom = 50;
 	float speed = 0.0f;
 	float progress = 0.0f;
-	float winSize = 0.0f;
+	float winSize = 400.f;
 
 	// Component Animation
-	bool new_keyframe_win = false;
 	int ev_t = -1;
 	int new_key_frame = 0;
+
+	std::pair<int, void*> PushEvt;
+	Component* sel_comp = nullptr;
+	bool token_false = false;
+
+	bool peek_go = false;
+	PanelObjectInspector* insp;
 
 public:
 	void ResetNewKeyValues()
 	{
-		new_keyframe_win = false;
 		ev_t = -1;
 		new_key_frame = 0;
+		PushEvt.first = -1;
+		sel_comp = nullptr;
 	}
 };
 

@@ -24,6 +24,7 @@ public:
 	void setDrawNormals(bool state)		{ draw_normals = state; };
 
 	bool Update(float dt);
+	bool DrawInspector(int id = 0) override;
 
 	Mesh* getMesh()	const;
 	uint getMeshResource() { return mesh_resource_uuid; }

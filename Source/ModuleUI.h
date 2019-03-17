@@ -36,13 +36,14 @@ class PanelAbout;
 class PanelCameraMenu;
 class PanelViewports;
 class PanelQuadtreeConfig;
+class PanelSkyboxWin;
 
-enum GUI_Tabs { SKYBOX_MENU, SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
+enum GUI_Tabs { SCRIPT_EDITOR, BUILD_MENU, LAST_UI_TAB };  
 				// LAST is an utility value to store the max num of tabs.
 
 enum UI_textures { NO_TEXTURE, PLAY, PAUSE, STOP, ADVANCE, GUIZMO_TRANSLATE, GUIZMO_ROTATE, GUIZMO_SCALE, GUIZMO_LOCAL, GUIZMO_GLOBAL, 
 					GUIZMO_SELECT, FOLDER_ICON, OBJECT_ICON, SCENE_ICON, SCRIPT_ICON, PREFAB_ICON, RETURN_ICON, CAUTION_ICON,
-					WARNING_ICON, GRAPH_ICON, AUDIO_ICON, LAST_UI_TEX};
+					WARNING_ICON, GRAPH_ICON, AUDIO_ICON,SHADER_ICON, LAST_UI_TEX};
 
 enum UI_Fonts {REGULAR, REGULAR_BOLD, REGULAR_ITALIC, REGULAR_BOLDITALIC, TITLES, IMGUI_DEFAULT, LAST_UI_FONT};
 
@@ -63,7 +64,7 @@ public:
 	bool DrawComponent(Component& component, int id);
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
-	void DrawSkyboxWindow();
+	/*void DrawSkyboxWindow();*/
 	void DrawColorPickerWindow(const char* label, Color* color, bool* closing_bool, Color* ref_color = nullptr);
 	void DrawScriptEditor();
 	void DrawBuildMenu();
@@ -86,6 +87,7 @@ public:
 	bool disable_keyboard_control = false;
 
 	// Panels
+	std::list<Panel*> panels;
 	PanelAnimation* p_anim = nullptr;
 	PanelAnimationEvent* p_anim_evt = nullptr;
 	PanelHierarchyTab* p_hierarchy = nullptr;
@@ -100,6 +102,7 @@ public:
 	PanelCameraMenu* p_camera_menu = nullptr;
 	PanelViewports* p_viewports = nullptr;
 	PanelQuadtreeConfig* p_quadtree_config = nullptr;
+	PanelSkyboxWin* p_skybox = nullptr;
 
 public:
 	TextEditor script_editor; //USED IN SCRIPT EDITOR & ASSETS WINDOW
@@ -115,6 +118,7 @@ private:
 	
 	bool docking_background = true;
 	bool draw_guizmo = true;
+	bool using_guizmo = false;
 
 	ImGuiIO* io;
 	ImGuizmo::OPERATION	gizmo_operation = ImGuizmo::TRANSLATE;

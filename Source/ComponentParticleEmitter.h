@@ -13,7 +13,6 @@
 #define MINSPAWNRATE 0.01f
 
 enum ParticleAnimEvents {
-	PARTICLE_NONE,
 	PARTICLE_CREATE,
 	PARTICLE_AMOUNT_OF_EVENTS
 };
@@ -63,6 +62,7 @@ public:
 
 	bool Update(float dt);
 	void Draw() const;
+	bool DrawInspector(int id = 0) override;
 	void Save(JSON_Object* json);
 
 

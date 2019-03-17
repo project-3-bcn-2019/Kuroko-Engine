@@ -115,11 +115,6 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 	// Projection matrix for
 	OnResize(App->window->main_window->width, App->window->main_window->height);
 
-
-	//Initializing Shaders
-	app_log->AddLog("Compiling Default Shaders...");
-	App->shaders->InitializeDefaulShaders();
-
 	return ret;
 }
 

@@ -1,7 +1,11 @@
 
 import "ObjectLinker" for ObjectLinker,
 EngineComunicator,
-InputComunicator
+InputComunicator,
+ComponentType,
+Vec3
+
+import "Physics" for ComponentPhysics
 
 //For each var you declare, remember to create
 //		setters [varname=(v) { __varname = v }]
@@ -15,7 +19,12 @@ class collision_test is ObjectLinker{
 
 construct new(){}
 
+ Start(){
+ _physics = getComponent(ComponentType.PHYSICS)
 
+ var speed = Vec3.new(3,0,0)
+ _physics.setSpeed(speed)
+ }
  Update() {
   var collisions_go = getCollisions()
   EngineComunicator.consoleOutput("%(collisions_go.count)")

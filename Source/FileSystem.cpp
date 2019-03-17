@@ -125,6 +125,9 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 	case LIBRARY_GRAPHS:
 		path = GRAPHS_FOLDER;
 		break;
+	case LIBRARY_SHADERS:
+		path = SHADERS_FOLDER;
+		break;
 	case SETTINGS:
 		path = SETTINGS_FOLDER;
 		break;
@@ -133,6 +136,9 @@ void FileSystem::FormFullPath(std::string & path, const char * file_name, lib_di
 		break;
 	case ASSETS_SCENES:
 		path = USER_SCENES_FOLDER;
+		break;
+	case ASSETS_AUTOSAVES:
+		path = USER_AUTOSAVES_FOLDER;
 		break;
 	case ASSETS_PREFABS:
 		path = USER_PREFABS_FOLDER;
@@ -230,6 +236,9 @@ std::string FileSystem::getPathFromLibDir(lib_dir lib_dir) {
 	case LIBRARY_GRAPHS:
 		ret = GRAPHS_FOLDER;
 		break;
+	case LIBRARY_SHADERS:
+		ret = SHADERS_FOLDER;
+		break;
 	case SETTINGS:
 		ret = SETTINGS_FOLDER;
 		break;
@@ -258,6 +267,7 @@ void FileSystem::createMainDirectories()
 	CreateDirectory(AUDIO_FOLDER, NULL);
 	CreateDirectory(MATERIALS_FOLDER, NULL);
 	CreateDirectory(GRAPHS_FOLDER, NULL);
+	CreateDirectory(SHADERS_FOLDER, NULL);
 
 	CreateDirectory(PREFABS_FOLDER, NULL);
 	CreateDirectory(SCENES_FOLDER, NULL);
@@ -265,6 +275,9 @@ void FileSystem::createMainDirectories()
 	CreateDirectory(ASSETS_FOLDER, NULL);
 	CreateDirectory(USER_SCENES_FOLDER, NULL);
 	CreateDirectory(USER_SCRIPTS_FOLDER, NULL);
+	CreateDirectory(USER_SHADER_FOLDER, NULL);
+	CreateDirectory(USER_AUTOSAVES_FOLDER, NULL);
+	CreateDirectory(USER_GRAPHS_FOLDER, NULL);
 }
 
 bool FileSystem::removeExtension(std::string& str) {

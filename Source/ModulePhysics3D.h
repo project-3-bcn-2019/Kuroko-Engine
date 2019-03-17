@@ -71,10 +71,17 @@ public:
 
 	btGhostObject* AddTrigger(ComponentTrigger* parent, collision_shape shape);
 
+	void ChangeShape(ComponentPhysics* to_change);
+	void ChangeShape(ComponentTrigger* to_change);
+
+	void AdaptToOBB(ComponentPhysics* to_adapt);
+	void AdaptToOBB(ComponentTrigger* to_adapt);
+
 	std::list<Collision> collisions;
 	void GetCollisionsFromObject(std::list<Collision> &list_to_fill,GameObject* to_get);
 
-	
+		btDiscreteDynamicsWorld*			world;
+
 private:
 
 	bool physics_debug = true;
@@ -84,7 +91,7 @@ private:
 	btBroadphaseInterface*				broad_phase;
 	btSequentialImpulseConstraintSolver*solver;
 	PDebugDrawer*						pdebug_draw;
-	btDiscreteDynamicsWorld*			world;
+
 	
 
 	std::vector<btCollisionShape*>		shapes;

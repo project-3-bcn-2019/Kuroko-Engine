@@ -11,7 +11,7 @@ struct BoneTransform
 	~BoneTransform();
 
 	bool calcCurrentIndex(float time, bool test);
-	void calcTransfrom(float time, bool interpolation);
+	void calcTransfrom(float time, bool interpolation, float duration = 0.f, int tickxs = 0);
 
 	void smoothBlending(const float4x4& blendtrans, float time);
 
@@ -49,9 +49,11 @@ public:
 	void LoadToMemory();
 	void UnloadFromMemory();    
 	bool LoadAnimation();
+	void LoadDuration();
 	
 	void resetFrames();
 	float getDuration() const;
+	BoneTransform* FindBone(std::string& check);
 
 public:
 

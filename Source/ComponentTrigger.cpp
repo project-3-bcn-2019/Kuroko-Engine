@@ -15,7 +15,7 @@
 #include "ModuleTimeManager.h"
 
 #include "SDL/include/SDL_opengl.h"
-
+#include "ImGui/imgui.h"
 
 ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape) :Component(_parent, TRIGGER)
 {
@@ -30,6 +30,8 @@ ComponentTrigger::ComponentTrigger(GameObject * _parent, collision_shape _shape)
 
 ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Component(parent, TRIGGER)
 {
+	is_active = json_object_get_boolean(deff, "active");
+
 	JSON_Object* p = json_object_get_object(deff, "pos");
 	JSON_Object* r = json_object_get_object(deff, "rot");
 	JSON_Object* s = json_object_get_object(deff, "scale");
@@ -48,9 +50,6 @@ ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Com
 
 bool ComponentTrigger::Update(float dt)
 {
-
-
-
 	UpdatePhysicsFromTransforms();
 
 	for (int i = 0; i < body->getNumOverlappingObjects(); i++)
@@ -82,9 +81,80 @@ void ComponentTrigger::Draw() const
 
 }
 
+bool ComponentTrigger::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Trigger"))
+	{
+		ImGui::TextWrapped("Drag the parameters to change them, or ctrl+click on one of them to set it's value");
+		//position
+		ImGui::Text("Offset:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p x", &offset_pos.x, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p y", &offset_pos.y, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##p z", &offset_pos.z, 0.01f, 0.0f, 0.0f, "%.02f");
+
+		//rotation
+		ImGui::Text("Rotation:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r x", &offset_rot.x, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r y", &offset_rot.y, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##r z", &offset_rot.z, 0.2f, -180.0f, 180.0f, "%.02f");
+
+		//scale
+		ImGui::Text("   Scale:");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s x", &offset_scale.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s y", &offset_scale.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
+		ImGui::DragFloat("##s z", &offset_scale.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+
+
+		if (ImGui::Button("Change shape"))
+		{
+			App->physics->ChangeShape(this);
+		}
+
+		if (ImGui::Button("Adapt to OBB"))
+		{
+			App->physics->AdaptToOBB(this);
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove trigger")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+
+	}
+
+	return true;
+}
+
 void ComponentTrigger::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "trigger");
+	json_object_set_boolean(config, "active", is_active);
 
 	JSON_Value* data = json_value_init_object();
 	json_object_set_number(json_object(data), "shape", shape);

@@ -2,10 +2,23 @@
 #include "Application.h"
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimationGraph.h"
+#include "ModuleTimeManager.h"
+#include "ComponentAnimation.h"
+#include "ModuleUI.h"
+#include "PanelAnimationGraph.h"
+
+#include "ImGui/imgui.h"
+
+ComponentAnimator::ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR)
+{
+	animation = new ComponentAnimation(gameobject);
+	animation->loop = true;
+}
 
 ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Component(parent, ANIMATOR)
 {
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
+	is_active = json_object_get_boolean(deff, "active");
 	if (App->is_game && !App->debug_game)
 	{
 		graph_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "graph_name"), R_ANIMATIONGRAPH);
@@ -17,11 +30,123 @@ ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Co
 
 	loadValues(deff);
 
+	animation = new ComponentAnimation(deff, parent);
+	animation->loop = true;
+	animation->speed = 1.0f;
+
 	App->resources->assignResource(graph_resource_uuid);
 }
 
 ComponentAnimator::~ComponentAnimator()
 {
+	RELEASE(animation);
+	App->resources->deasignResource(graph_resource_uuid);
+}
+
+bool ComponentAnimator::Update(float dt)
+{
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
+	if (graph != nullptr)
+	{
+		if (graph->start != nullptr && graph->start->UID == currentNode && graph->start->animationUID != animation->getAnimationResource())
+			animation->setAnimationResource(graph->start->animationUID);
+
+		if (graph->start != nullptr && currentNode == 0)
+		{
+			currentNode = graph->start->UID;
+		}
+		else if (App->time->getGameState() == GameState::PLAYING)
+		{
+			animation->Update(dt);
+			if (doingTransition != nullptr)
+			{
+				if (App->time->getGameTime() - startTransitionTime >= doingTransition->duration*1000)
+				{
+					
+					//animation->SetAnimTime(0.0f);
+					doingTransition = nullptr;
+					animation->doingTransition = nullptr;
+					animation->transitionFrom = nullptr;
+				}
+			}
+			else
+			{
+				Node* current = graph->getNode(currentNode);
+
+				for (std::list<Transition*>::iterator it = current->transitions.begin(); it != current->transitions.end(); ++it)
+				{
+					if (conditionSuccess((*it)))
+					{
+						doingTransition = (*it);
+						startTransitionTime = App->time->getGameTime();
+						currentNode = 0;
+						animation->doingTransition = doingTransition;
+						
+						Node* destinationNode = graph->getNode(doingTransition->destination);
+						animation->transitionFrom = graph->getNode(doingTransition->origin);
+						currentNode = destinationNode->UID;
+						animation->setAnimationResource(destinationNode->animationUID);
+						animation->loop = destinationNode->loop;
+						animation->speed = destinationNode->speed;
+						animation->SetAnimTime(0.f);
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+bool ComponentAnimator::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Animator"))
+	{
+		ResourceAnimationGraph* R_graph = (ResourceAnimationGraph*)App->resources->getResource(getAnimationGraphResource());
+		ImGui::Text("Resource: %s", (R_graph != nullptr) ? R_graph->asset.c_str() : "None");
+
+		static bool set_animation_menu = false;
+		if (ImGui::Button((R_graph != nullptr) ? "Change Animation Graph" : "Add Animation Graph")) {
+			set_animation_menu = true;
+		}
+		ImGui::SameLine(ImGui::GetContentRegionMax().x-75.0f);
+		if (ImGui::Button("Edit Graph"))
+		{
+			if (!App->gui->p_animation_graph->isActive())
+				App->gui->p_animation_graph->toggleActive();
+		}
+		if (set_animation_menu) {
+
+			std::list<resource_deff> graph_res;
+			App->resources->getAnimationGraphResourceList(graph_res);
+
+			ImGui::Begin("Animation selector", &set_animation_menu);
+			for (auto it = graph_res.begin(); it != graph_res.end(); it++) {
+				resource_deff anim_deff = (*it);
+				if (ImGui::MenuItem(anim_deff.asset.c_str())) {
+					setAnimationGraphResource(anim_deff.uuid);
+					set_animation_menu = false;
+					break;
+				}
+			}
+
+			ImGui::End();
+		}
+
+		static bool animator_active;
+		animator_active = isActive();
+
+		if (ImGui::Checkbox("Active##active animator", &animator_active))
+			setActive(animator_active);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio source")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
+	return true;
 }
 
 void ComponentAnimator::setAnimationGraphResource(uint uuid)
@@ -57,7 +182,107 @@ void ComponentAnimator::setAnimationGraphResource(uint uuid)
 				break;
 			}
 		}
+
+		if (graph->start != nullptr)
+		{
+			animation->setAnimationResource(graph->start->animationUID);
+		}
 	}
+}
+
+bool ComponentAnimator::conditionSuccess(Transition* transition)
+{
+	bool ret = true;
+
+	ResourceAnimationGraph* graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
+
+	for (std::list<Condition*>::iterator it = transition->conditions.begin(); it != transition->conditions.end(); ++it)
+	{
+		Variable* var = graph->getVariable((*it)->variable_uuid);
+		if (var != nullptr)
+		{
+			switch (var->type)
+			{
+			case VAR_INT:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((int)(*it)->conditionant != ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((int)(*it)->conditionant == ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_GREATER:
+					if ((int)(*it)->conditionant > ints[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_LESS:
+					if ((int)(*it)->conditionant < ints[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_FLOAT:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((*it)->conditionant != floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((*it)->conditionant == floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_GREATER:
+					if ((*it)->conditionant > floats[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_LESS:
+					if ((*it)->conditionant < floats[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_BOOL:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if (!bools[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if (bools[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			case VAR_STRING:
+				switch ((*it)->type)
+				{
+				case CONDITION_EQUALS:
+					if ((*it)->string_conditionant.c_str() != strings[var->uuid])
+						ret = false;
+					break;
+				case CONDITION_DIFERENT:
+					if ((*it)->string_conditionant.c_str() == strings[var->uuid])
+						ret = false;
+					break;
+				}
+				break;
+			}
+		}
+		else if ((*it)->type == CONDITION_FINISHED && animation != nullptr)
+		{
+			if (!animation->Finished())
+				ret = false;
+		}
+		if (!ret)
+			break;
+	}
+
+	return ret;
 }
 
 void ComponentAnimator::loadValues(JSON_Object * deff)
@@ -147,6 +372,11 @@ bool* ComponentAnimator::getBool(uint uuid)
 	return nullptr;
 }
 
+void ComponentAnimator::setSpeed(float speed)
+{
+	animation->speed = speed;
+}
+
 void ComponentAnimator::removeValue(variableType type, uint uuid)
 {
 	switch (type)
@@ -169,12 +399,15 @@ void ComponentAnimator::removeValue(variableType type, uint uuid)
 void ComponentAnimator::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "animator");
+	json_object_set_boolean(config, "active", is_active);
 
 	if (graph_resource_uuid != 0)
 	{
 		ResourceAnimationGraph* res_graph = (ResourceAnimationGraph*)App->resources->getResource(graph_resource_uuid);
 		if (res_graph)
 		{
+			res_graph->saveGraph();
+
 			json_object_set_string(config, "graph_name", res_graph->asset.c_str());
 			json_object_set_string(config, "Parent3dObject", res_graph->Parent3dObject.c_str());
 			

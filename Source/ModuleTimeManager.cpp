@@ -76,6 +76,9 @@ void ModuleTimeManager::ManageGamePlaying() {
 
 	bool state_changed = false;
 
+	if (just_played)
+		just_played = false;
+
 	switch (last_game_state) {
 	case PAUSED:
 		game_time.Resume();
@@ -86,6 +89,7 @@ void ModuleTimeManager::ManageGamePlaying() {
 		game_time.Start();
 		App->scene->AskLocalSaveScene();
 		state_changed = true;
+		just_played = true;
 		break;
 	}
 

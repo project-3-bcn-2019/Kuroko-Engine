@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Random.h"
 #include "ModuleImporter.h"
+#include "ModuleExporter.h"
 #include "ModuleScene.h"
 #include "ResourceTexture.h"
 #include "ResourceMesh.h"
@@ -14,6 +15,7 @@
 #include "ResourceBone.h"
 #include "ResourceAudio.h"
 #include "ResourceAnimationGraph.h"
+#include "ResourceShader.h"
 #include "Applog.h"
 #include "Mesh.h"
 
@@ -50,6 +52,8 @@ bool ModuleResourcesManager::Start()
 
 	CompileAndGenerateScripts();
 	update_timer.Start();
+	//App->exporter->AssetsToLibraryJSON();
+
 	return true;
 }
 
@@ -108,6 +112,9 @@ Resource * ModuleResourcesManager::newResource(resource_deff deff) {
 	case R_AUDIO: ret = (Resource*) new ResourceAudio(deff); break;
 	case R_ANIMATIONGRAPH:
 		ret = (Resource*) new ResourceAnimationGraph(deff);
+		break;
+	case R_SHADER:
+		ret = (Resource*) new ResourceShader(deff);
 		break;
 	}
 
@@ -182,7 +189,7 @@ void ModuleResourcesManager::ManageAssetModification() {
 				break;
 			}
 			if (deff.requested_update == R_CREATE || deff.requested_update == R_UPDATE) {
-				if (deff.type == R_SCRIPT)
+				if (deff.type == R_SCRIPT || deff.type==R_SHADER)
 					reloadVM = true;
 			}
 
@@ -288,7 +295,8 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		str_type = assetExtension2type(extension.c_str());
 		enum_type = type2enumType(str_type.c_str());
 		uuid_str = uuid2string(uuid_number);
-		binary_path = App->fs.getPathFromLibDir(enumType2libDir(enum_type)) + uuid_str + enumType2binaryExtension(enum_type);
+		binary_path = App->fs.getPathFromLibDir(enumType2libDir(enum_type)) + uuid_str;
+		binary_path += ((str_type == "vertexShader") ? VERTEXSHADER_EXTENSION : ((str_type == "fragmentShader") ? FRAGMENTSHADER_EXTENSION : enumType2binaryExtension(enum_type)));
 		file_last_mod = App->fs.getFileLastTimeMod(full_asset_path.c_str());
 		json_object_set_number(json_object(meta), "resource_uuid", uuid_number); // Brand new uuid
 		json_object_set_string(json_object(meta), "type", str_type.c_str()); // Brand new time
@@ -310,6 +318,9 @@ resource_deff ModuleResourcesManager::ManageAsset(std::string path, std::string 
 		break;
 	case R_SCRIPT:
 		App->importer->ImportScript(full_asset_path.c_str(), uuid_str);
+		break;
+	case R_SHADER:
+		App->importer->ImportShader(full_asset_path.c_str(), uuid_str);
 		break;
 	case R_PREFAB:
 		App->fs.copyFileTo(full_asset_path.c_str(), LIBRARY_PREFABS, PREFAB_EXTENSION, uuid_str.c_str()); // Copy the file to the library
@@ -341,55 +352,72 @@ void ModuleResourcesManager::GenerateResources()
 	GenerateFromMapFile(assets, R_ANIMATION);
 	GenerateFromMapFile(assets, R_BONE);
 	GenerateFromMapFile(assets, R_AUDIO);
-	//R_UI?
+	GenerateFromMapFile(assets, R_SHADER);
+	GenerateFromMapFile(assets, R_ANIMATIONGRAPH);
+	GenerateFromMapFile(assets, R_UI);
 }
 
 void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType type)
 {
 	std::string name;
 	std::string path;
-	std::string extension;
+	//std::string extension;
 	switch (type)
 	{
 	case R_MESH:
 		name = "Meshes";
 		path = MESHES_FOLDER;
-		extension = OWN_MESH_EXTENSION;
+		//extension = OWN_MESH_EXTENSION;
 		break;
 	case R_TEXTURE:
 		name = "Textures";
 		path = TEXTURES_FOLDER;
-		extension = DDS_EXTENSION;
+		//extension = DDS_EXTENSION;
 		break;
 	case R_SCENE:
 		name = "Scenes";
 		path = SCENES_FOLDER;
-		extension = SCENE_EXTENSION;
+		//extension = SCENE_EXTENSION;
 		break;
 	case R_PREFAB:
 		name = "Prefabs";
 		path = PREFABS_FOLDER;
-		extension = PREFAB_EXTENSION;
+		//extension = PREFAB_EXTENSION;
 		break;
 	case R_SCRIPT:
 		name = "Scripts";
 		path = SCRIPTS_FOLDER;
-		extension = JSON_EXTENSION;
+		//extension = JSON_EXTENSION;
 		break;
 	case R_ANIMATION:
 		name = "Animations";
 		path = ANIMATIONS_FOLDER;
-		extension = OWN_ANIMATION_EXTENSION;
+		//extension = OWN_ANIMATION_EXTENSION;
 		break;
 	case R_BONE:
 		name = "Bones";
 		path = BONES_FOLDER;
-		extension = OWN_BONE_EXTENSION;
+		//extension = OWN_BONE_EXTENSION;
 		break;
 	case R_AUDIO:
 		name = "Audio";
 		path = AUDIO_FOLDER;
-		extension = AUDIO_EXTENSION;
+		//extension = AUDIO_EXTENSION;
+		break;
+	case R_ANIMATIONGRAPH:
+		name = "AnimationGraphs";
+		path = GRAPHS_FOLDER;
+		//extension = GRAPH_EXTENSION;
+		break;
+	case R_SHADER:
+		name = "Shaders";
+		path = SHADERS_FOLDER;
+		break;
+	case R_UI:
+		name = "UI";
+		path = TEXTURES_FOLDER;
+		//extension = DDS_EXTENSION;
+		type = R_TEXTURE; // As UI folder contains textures, we can add them as TEXTURES resources
 		break;
 	}
 
@@ -401,7 +429,7 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 		deff.asset = json_object_get_string(meshMap, "name");
 		deff.uuid = json_object_get_number(meshMap, "uuid");
 		deff.type = type;
-		deff.binary = path + std::to_string(deff.uuid) + extension;
+		deff.binary = path + std::to_string(deff.uuid) + json_object_get_string(meshMap, "extension");
 
 		newResource(deff);
 	}
@@ -552,10 +580,15 @@ uint ModuleResourcesManager::getResourceUuid(const char * file) {
 
 uint ModuleResourcesManager::getResourceUuid(const char* name, ResourceType type)
 {
-	for (auto it = resources.begin(); it != resources.end(); it++)
+	if (name != nullptr)
 	{
-		if ((*it).second->type == type && (*it).second->asset == name)
-			return (*it).second->uuid;
+		for (auto it = resources.begin(); it != resources.end(); it++)
+		{
+			if ((*it).second->type == type && (*it).second->asset == name)
+			{
+				return (*it).second->uuid;
+			}
+		}
 	}
 
 	return 0;
@@ -658,6 +691,19 @@ uint ModuleResourcesManager::getAnimationGraphResourceUuid(const char * Parent3d
 			ResourceAnimation* res_anim = (ResourceAnimation*)(*it).second;
 			if (res_anim->Parent3dObject == Parent3dObject && res_anim->asset == name) {
 				return res_anim->uuid;
+			}
+		}
+	}
+	return 0;
+}
+
+uint ModuleResourcesManager::getShaderResourceUuid(const char * name)
+{
+	for (auto it = resources.begin(); it != resources.end(); it++) {
+		if ((*it).second->type == R_SHADER) {
+			ResourceShader* res_script = (ResourceShader*)(*it).second;
+			if (res_script->asset == name) {
+				return res_script->uuid;
 			}
 		}
 	}
@@ -795,6 +841,17 @@ void ModuleResourcesManager::getAudioResourceList(std::list<resource_deff>& audi
 	}
 }
 
+void ModuleResourcesManager::getShaderResourceList(std::list<resource_deff>& shader)
+{
+	for (auto it = resources.begin(); it != resources.end(); ++it) {
+		if ((*it).second->type == R_SHADER) {
+			Resource* curr = (*it).second;
+			resource_deff deff(curr->uuid, curr->type, curr->binary, curr->asset);
+			shader.push_back(deff);
+		}
+	}
+}
+
 std::string ModuleResourcesManager::getPrefabPath(const char * prefab_name) {
 	for (auto it = resources.begin(); it != resources.end(); it++) {
 		if ((*it).second->type == R_PREFAB) {
@@ -851,6 +908,10 @@ const char * ModuleResourcesManager::assetExtension2type(const char * _extension
 		ret = "audio";
 	else if (extension == GRAPH_EXTENSION)
 		ret = "graph";
+	else if (extension == VERTEXSHADER_EXTENSION)
+		ret = "vertexShader";
+	else if (extension == FRAGMENTSHADER_EXTENSION)
+		ret = "fragmentShader";
 
 	return ret;
 }
@@ -873,6 +934,10 @@ ResourceType ModuleResourcesManager::type2enumType(const char * type) {
 		ret = R_AUDIO;
 	if (str_type == "graph")
 		ret = R_ANIMATIONGRAPH;
+	if (str_type == "vertexShader")
+		ret = R_SHADER;
+	if (str_type == "fragmentShader")
+		ret = R_SHADER;
 
 	return ret;
 }
@@ -902,7 +967,6 @@ const char * ModuleResourcesManager::enumType2binaryExtension(ResourceType type)
 		case R_ANIMATIONGRAPH:
 			ret = GRAPH_EXTENSION;
 			break;
-
 	}
 
 	return ret;
@@ -934,6 +998,10 @@ lib_dir ModuleResourcesManager::enumType2libDir(ResourceType type) {
 		break;
 	case R_ANIMATIONGRAPH:
 		ret = LIBRARY_GRAPHS;
+		break;
+	case R_SHADER:
+		ret = LIBRARY_SHADERS;
+		break;
 	}
 	return ret;
 }

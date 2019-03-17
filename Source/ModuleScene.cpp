@@ -37,6 +37,7 @@
 
 #include <array>
 #include <map>
+#include <filesystem>
 
 ModuleScene::ModuleScene(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -79,7 +80,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	LoadScene("Assets/Scenes/MainScene.scene");
+	//LoadScene("Assets/Scenes/audio.scene");
 
 	return true;
 }
@@ -101,6 +102,9 @@ bool ModuleScene::CleanUp()
 	}
 	
 	selected_obj.clear();
+	
+	std::experimental::filesystem::remove_all(USER_AUTOSAVES_FOLDER); // Remove AutoSaves folder
+
 	return true;
 }
 
@@ -152,7 +156,6 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
-
 	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
 	{
 		GameObject* obj = new GameObject("TEST");
@@ -192,6 +195,21 @@ update_status ModuleScene::Update(float dt)
 	//	component->SetSoundName("Footsteps");
 	//}
 
+	if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN)
+	{
+		UndoScene();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_LCTRL) == KEY_REPEAT && App->input->GetKey(SDL_SCANCODE_Y) == KEY_DOWN)
+	{
+		RedoScene();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		want_autosave = true;
+	}
+
 	//App->physics->UpdatePhysics();
 
 	return UPDATE_CONTINUE;
@@ -230,6 +248,62 @@ void ModuleScene::DrawScene(float3 camera_pos)
 		(*it)->Draw();
 
 	quadtree_ignored_obj = game_objects.size() - drawable_gameobjects.size();
+}
+
+
+void ModuleScene::DrawInGameUI()
+{
+	GameObject* canvas = getCanvasGameObject();
+	if (canvas != nullptr)
+	{
+		bool light = glIsEnabled(GL_LIGHTING);
+
+		glDisable(GL_LIGHTING);
+
+		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		float left = rectTransform->getGlobalPos().x;
+		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
+		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
+		float bottom = rectTransform->getGlobalPos().y;
+
+		/*float left = rectTransform->GetGlobalPos().x;
+		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
+		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
+		float bottom = rectTransform->GetGlobalPos().y;*/
+		float zNear = -10.f;
+		float zFar = 10.f;
+		float3 min = { left, bottom, zNear };
+		float3 max = { right, top, zFar };
+
+		ui_render_box.minPoint = min;
+		ui_render_box.maxPoint = max;
+
+		glOrtho(left, right, bottom, top, zNear, zFar);
+		float3 corners[8];
+		ui_render_box.GetCornerPoints(corners);
+		App->renderer3D->DrawDirectAABB(ui_render_box);
+		/*glBegin(GL_TRIANGLES);
+		glVertex2f(-1, -1);
+		glVertex2f(1, -1);
+		glVertex2f(1, 1);
+		glEnd();*/
+
+		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
+		for (auto it : UIGameObjects)
+		{
+			it->Draw();
+		}
+
+		if (light) {
+			glEnable(GL_LIGHTING);
+		}
+	}
 }
 
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }
@@ -354,54 +428,6 @@ float3 ModuleScene::MousePickingHit(float x, float y, GameObject* ignore)
 	}
 }
 
-void ModuleScene::DrawInGameUI()
-{
-	GameObject* canvas = getCanvasGameObject();
-	if (canvas != nullptr)
-	{
-		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		float left = rectTransform->getGlobalPos().x;
-		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
-		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
-		float bottom = rectTransform->getGlobalPos().y;
-
-		/*float left = rectTransform->GetGlobalPos().x;
-		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
-		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
-		float bottom = rectTransform->GetGlobalPos().y;*/
-		float zNear = -10.f;
-		float zFar = 10.f;
-		float3 min = { left, bottom, zNear };
-		float3 max = { right, top, zFar };
-
-		ui_render_box.minPoint = min;
-		ui_render_box.maxPoint = max;
-
-		glOrtho(left, right, bottom, top, zNear, zFar);
-		float3 corners[8];
-		ui_render_box.GetCornerPoints(corners);
-		App->renderer3D->DrawDirectAABB(ui_render_box);
-		/*glBegin(GL_TRIANGLES);
-		glVertex2f(-1, -1);
-		glVertex2f(1, -1);
-		glVertex2f(1, 1);
-		glEnd();*/
-
-		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
-		for (auto it : UIGameObjects)
-		{
-			it->Draw();
-		}
-	}
-}
-
-
 GameObject* ModuleScene::duplicateGameObject(GameObject * gobj) {
 
 	if (!gobj)
@@ -459,11 +485,14 @@ void ModuleScene::getGameObjectsByComponent(Component_type type, std::list<GameO
 
 void ModuleScene::ClearScene()
 {
+	prev_selected_obj.clear();
+	for (auto it = selected_obj.begin(); it != selected_obj.end(); it++)
+		prev_selected_obj.push_back((*it)->getUUID());
+
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		delete *it;
 
 	game_objects.clear();
-
 	selected_obj.clear();
 }
 
@@ -570,12 +599,8 @@ void ModuleScene::deleteGameObjectRecursive(GameObject* gobj)
 		deleteGameObjectRecursive(*it);
 }
 
-void ModuleScene::AskPrefabLoadFile(const char * path, float3 pos, float3 eulerang) {
-	want_load_prefab_file = true;
-	prefab_load_spawn.setPosition(pos);
-	prefab_load_spawn.setRotationEuler(eulerang);
-	path_to_load_prefab = path;
-
+void ModuleScene::AskPrefabLoadFile(PrefabData data) {
+	prefabs_to_spawn.push_back(data);
 }
 
 void ModuleScene::AskSceneSaveFile(char * scene_name) {
@@ -583,7 +608,7 @@ void ModuleScene::AskSceneSaveFile(char * scene_name) {
 	scene_to_save_name = scene_name;
 }
 
-void ModuleScene::AskSceneLoadFile(char * path) {
+void ModuleScene::AskSceneLoadFile(const char * path) {
 	want_load_scene_file = true;
 	path_to_load_scene = path;
 }
@@ -598,9 +623,16 @@ void ModuleScene::ManageSceneSaveLoad() {
 		LoadScene(path_to_load_scene.c_str());
 		want_load_scene_file = false;
 	}
-	if (want_load_prefab_file) {
-		LoadPrefab(path_to_load_prefab.c_str());
-		want_load_prefab_file = false;
+	if (want_autosave) {
+		AutoSaveScene();
+		want_autosave = false;
+	}
+	if (prefabs_to_spawn.size() > 0) {
+
+		for(auto it = prefabs_to_spawn.begin(); it != prefabs_to_spawn.end(); it++)
+			LoadPrefab((*it));
+
+		prefabs_to_spawn.clear();
 	}
 	if (want_local_save) {
 		local_scene_save = serializeScene();
@@ -674,18 +706,35 @@ void ModuleScene::LoadScene(const char* path) {
 	quadtree_reload = true;
 	loadSerializedScene(scene);
 	json_value_free(scene);
+
+	for (auto it = prev_selected_obj.begin(); it != prev_selected_obj.end(); it++)
+	{
+		GameObject* go = getGameObject((*it));
+		if (go)
+			selected_obj.push_back(go);
+	}
 }
 
-void ModuleScene::LoadPrefab(const char * path) {
-	JSON_Value* prefab = json_parse_file(path);
+void ModuleScene::LoadPrefab(PrefabData data) {
+	JSON_Value* prefab = json_parse_file(data.file.c_str());
 	if (!prefab) {
-		app_log->AddLog("Couldn't load %s, no value", path);
+		app_log->AddLog("Couldn't load %s, no value", data.file.c_str());
 		return;
 	}
 
-	loadSerializedPrefab(prefab);
-	json_value_free(prefab);
+	GameObject* go = loadSerializedPrefab(prefab);
 
+	// Set transform
+	Transform trans;
+	trans.setPosition(data.pos);
+	trans.setRotationEuler(data.euler);
+	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
+	*c_trans->local = trans;
+
+	// Force uuid
+	//go->forceUUID(data.forced_uuid);
+
+	json_value_free(prefab);
 }
 
 JSON_Value * ModuleScene::serializeScene() {
@@ -769,7 +818,7 @@ void ModuleScene::loadSerializedScene(JSON_Value * scene) {
 	}*/
 }
 
-void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
+GameObject* ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 
 	JSON_Array* objects = json_object_get_array(json_object(prefab), "Game Objects");
 
@@ -807,9 +856,8 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 		}
 	}
 
+	return father_of_all;
 	// Set the spawn position of the prefab
-	ComponentTransform* c_trans = (ComponentTransform*)father_of_all->getComponent(TRANSFORM);
-	*c_trans->local = prefab_load_spawn;
 
 	// Push all gameobjects with handled parenting in the scene
 	/*for (auto it = loaded_gameobjects.begin(); it != loaded_gameobjects.end(); it++) {
@@ -817,6 +865,54 @@ void ModuleScene::loadSerializedPrefab(JSON_Value * prefab) {
 	}*/
 }
 
+void ModuleScene::AutoSaveScene()
+{
+	// Save current scene with a UUID as name
+	std::string name = std::to_string(random32bits());
+	App->fs.CreateEmptyFile(name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	JSON_Value* scene = serializeScene();
 
+	std::string path;
+	App->fs.FormFullPath(path, name.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+	json_serialize_to_file_pretty(scene, path.c_str());
+	json_value_free(scene);
 
+	// If there are too many autosaves in the undo remove the oldest
+	undo_list.push_front(path);
+	if (undo_list.size() > MAX_AUTOSAVES)
+	{
+		std::string to_destroy = undo_list.back();
+		App->fs.getFileNameFromPath(to_destroy);
+		App->fs.DestroyFile(to_destroy.c_str(), ASSETS_AUTOSAVES, SCENE_EXTENSION);
+		undo_list.pop_back();
+	}
 
+	// Clear the redo list because a new action has been made
+	if (!redo_list.empty())
+		redo_list.clear();
+}
+
+void ModuleScene::UndoScene()
+{
+	if (undo_list.size() > 1)
+	{
+		// Load second scene autosave from undo list (the first one would be the actual)
+		std::string path = (std::next(undo_list.begin()))->c_str();
+		AskSceneLoadFile(path.c_str());
+		// Send scene autosave to redo list
+		redo_list.push_front(undo_list.front());
+		undo_list.pop_front();
+	}
+}
+
+void ModuleScene::RedoScene()
+{
+	if (redo_list.size() > 0)
+	{
+		// Load first scene autosave from redo list
+		AskSceneLoadFile(redo_list.front().c_str());
+		// Send scene autosave to undo list
+		undo_list.push_front(redo_list.front());
+		redo_list.pop_front();
+	}
+}

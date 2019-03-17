@@ -3,10 +3,13 @@
 #include "Application.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleTimeManager.h"
+#include "ModuleUI.h"
 
 #include "ModuleInput.h"
 #include "GameObject.h"
+#include "Material.h"
 #include "Applog.h"
+#include <fstream>
 
 
 ComponentScript::ComponentScript(GameObject* g_obj, uint resource_uuid) : Component(g_obj, SCRIPT)
@@ -16,6 +19,7 @@ ComponentScript::ComponentScript(GameObject* g_obj, uint resource_uuid) : Compon
 }
 
 ComponentScript::ComponentScript(JSON_Object * deff, GameObject * parent): Component(parent, SCRIPT) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string s_path = json_object_get_string(deff, "script");
 	if (!App->is_game || App->debug_game)
 		script_resource_uuid = App->resources->getResourceUuid(s_path.c_str());
@@ -131,12 +135,127 @@ void ComponentScript::LinkScriptToObject() {
 
 
 void ComponentScript::CleanUp() {
-	App->scripting->loaded_instances.remove(instance_data);
-	delete instance_data;
+
+	if(instance_data){
+		App->scripting->loaded_instances.remove(instance_data);
+		delete instance_data;
+	}
+}
+
+bool ComponentScript::DrawInspector(int id)
+{
+	std::string component_title = script_name + "(Script)";
+	if (ImGui::CollapsingHeader(component_title.c_str())) {
+
+		if (!instance_data) {
+			ImGui::Image((void*)App->gui->ui_textures[WARNING_ICON]->getGLid(), ImVec2(16, 16));
+			ImGui::SameLine();
+			ImGui::Text("Compile error");
+		}
+		else {
+			for (auto it = instance_data->vars.begin(); it != instance_data->vars.end(); it++) {
+
+				if (!(*it).isPublic())
+					continue;
+
+				ImportedVariable* curr = &(*it);
+				std::string unique_tag = "##" + curr->getName();
+
+				static int type = 0;
+
+				if (!curr->isTypeForced())
+				{
+					type = curr->getType() - 1;
+					if (ImGui::Combo(unique_tag.c_str(), &type, "Bool\0String\0Numeral\0"))
+					{
+						curr->setType((ImportedVariable::WrenDataType)(type + 1));
+						Var nuller;
+						switch (curr->getType())
+						{
+						case ImportedVariable::WrenDataType::WREN_BOOL:
+							nuller.value_bool = false;
+							break;
+						case ImportedVariable::WrenDataType::WREN_NUMBER:
+							nuller.value_number = 0;
+							break;
+						case ImportedVariable::WrenDataType::WREN_STRING:
+							curr->value_string = "";
+							break;
+						}
+						curr->SetValue(nuller);
+						curr->setEdited(true);
+					}
+				}
+
+				ImGui::Text(curr->getName().c_str());
+				ImGui::SameLine();
+
+				static char buf[200] = "";
+				Var variable = curr->GetValue();
+
+				switch (curr->getType()) {
+				case ImportedVariable::WREN_NUMBER:
+					if (ImGui::InputFloat((unique_tag + " float").c_str(), &variable.value_number))
+					{
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+					break;
+				case ImportedVariable::WREN_STRING:
+				{
+					strcpy(buf, curr->value_string.c_str());
+
+					if (ImGui::InputText((unique_tag + " string").c_str(), buf, sizeof(buf)))
+					{
+						curr->value_string = buf;
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+				}
+				break;
+				case ImportedVariable::WREN_BOOL:
+					if (ImGui::Checkbox((unique_tag + " bool").c_str(), &variable.value_bool))
+					{
+						curr->SetValue(variable);
+						curr->setEdited(true);
+					}
+					break;
+				}
+			}
+		}
+		if (ResourceScript* res_script = (ResourceScript*)App->resources->getResource(script_resource_uuid)) { // Check if resource exists
+			if (ImGui::Button("Edit script")) {
+				App->gui->open_tabs[SCRIPT_EDITOR] = true;
+				App->gui->open_script_path = res_script->asset;
+
+				if (App->scripting->edited_scripts.find(App->gui->open_script_path) != App->scripting->edited_scripts.end())
+					App->gui->script_editor.SetText(App->scripting->edited_scripts.at(App->gui->open_script_path));
+				else {
+					std::ifstream t(App->gui->open_script_path.c_str());
+					if (t.good()) {
+						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+						App->gui->script_editor.SetText(str);
+					}
+				}
+			}
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove script")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
+
+
+
+	return true;
 }
 
 void ComponentScript::Save(JSON_Object * config) {
 	json_object_set_string(config, "type", "script");
+	json_object_set_boolean(config, "active", is_active);
 
 	ResourceScript* res_script = (ResourceScript*)App->resources->getResource(script_resource_uuid);
 

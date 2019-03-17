@@ -9,6 +9,8 @@
 #include "Transform.h"
 #include <list>
 
+#define MAX_AUTOSAVES 50
+
 class GameObject; 
 class Material;
 class Mesh;
@@ -27,6 +29,15 @@ struct RayHit
 	float distance = 0.0f;
 	GameObject* obj = nullptr;
 	float3 intersection_point = float3::zero;
+};
+struct PrefabData {
+
+	PrefabData(std::string _file, float3 _pos, float3 _euler, uint _forced_uuid): file(_file),
+	pos(_pos), euler(_euler), forced_uuid(_forced_uuid){}
+	std::string file;
+	float3 pos;
+	float3 euler;
+	uint forced_uuid;
 };
 
 class ModuleScene : public Module
@@ -70,12 +81,13 @@ public:
 	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
-	void AskPrefabLoadFile(const char* path, float3 pos, float3 eulerang);
+	void AskPrefabLoadFile(PrefabData data);
 	void SavePrefab(GameObject* root_obj, const char* name);
 	void AskSceneSaveFile(char* scene_name); 
-	void AskSceneLoadFile(char* path);
+	void AskSceneLoadFile(const char* path);
 	void AskLocalSaveScene() { want_local_save = true; }
 	void AskLocalLoadScene() { want_local_load = true; }
+	void AskAutoSaveScene() { want_autosave = true; }
 
 
 	GameObject* MousePicking(float x, float y, GameObject* ignore = nullptr);
@@ -83,17 +95,23 @@ public:
 	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
+
+	void LoadPrefab(PrefabData data);
 private:
 	
 	void ManageSceneSaveLoad();
 	void SaveScene(std::string name);
 	void LoadScene(const char* path);
-	void LoadPrefab(const char* path);
+
 	JSON_Value* serializeScene();
 	JSON_Value* serializePrefab(GameObject* root_obj);
 
 	void loadSerializedScene(JSON_Value* scene);
-	void loadSerializedPrefab(JSON_Value* prefab);
+	GameObject* loadSerializedPrefab(JSON_Value* prefab);
+
+	void AutoSaveScene();
+	void UndoScene();
+	void RedoScene();
 private:
 
 	std::list<GameObject*>	game_objects; 
@@ -108,10 +126,10 @@ private:
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
 
-	bool want_load_prefab_file = false;
-	Transform prefab_load_spawn;
 	bool want_local_save      = false;
 	bool want_local_load	  = false;
+
+	bool want_autosave = false;
 
 	bool working_on_existing_scene	  = false;
 
@@ -119,7 +137,11 @@ private:
 
 	std::string scene_to_save_name;
 	std::string path_to_load_scene;
-	std::string path_to_load_prefab;
+
+	std::list<PrefabData> prefabs_to_spawn;
+
+	std::list<std::string> undo_list;
+	std::list<std::string> redo_list;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
 	
@@ -129,7 +151,8 @@ private:
 public:
 
 	std::list<GameObject*> selected_obj;
-	GameObject* focused_obj; //USED FOR THE G.O. WITH A COMPONENTBUTTON TO CHANGE THE FOCUS OF THE CONTROLLER
+	std::list<uint> prev_selected_obj;
+
 	Skybox* skybox				= nullptr;
 
 	uint last_mat_id			= 0;

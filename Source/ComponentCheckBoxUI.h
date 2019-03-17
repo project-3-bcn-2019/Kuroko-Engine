@@ -21,6 +21,7 @@ public:
 	~ComponentCheckBoxUI();
 
 	bool Update(float dt)override;
+	bool DrawInspector(int id = 0) override;
 
 	void Save(JSON_Object* config) override;
 

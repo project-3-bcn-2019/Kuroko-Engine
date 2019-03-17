@@ -26,17 +26,41 @@ class PlayerController is ObjectLinker{
     DashState {_dash_state}
     Punch1 {_punch1_state}
     Punch2 {_punch2_state}
+    Kick1 {_kick1_state}
+    Kick2 {_kick2_state}
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
     ComponentAnimation {_component_animation}
     ComponentAudioSource {_component_audio_source}
 
-    Speed {_speed}
 
     PunchButton {_punch_button}
     KickButton {_kick_button}
     DashButton {_dash_button}
+
+    //Stats
+    MoveSpeed {_move_speed}
+    MoveSpeed=(v) { _move_speed = v }
+
+    Damage {_damage}
+    Damage=(v) { _damage = v }
+
+    Health {_health}    
+    Health=(v) { _health = v }
+
+    Defense {_defense}
+    Defense=(v) { _defense = v }
+
+    HitStun {_hit_stun}
+    HitStun=(v) { _hit_stun = v }
+
+    Sight {_sight}
+    Sight=(v) { _sight = v }
+
+    //Other variables
+    Damaged{_damaged}
+    Dead{_dead}
 
 
     // Setters
@@ -52,11 +76,10 @@ class PlayerController is ObjectLinker{
     construct new(){}
 
     Start() {
-        _show_debug_logs = true
+        _show_debug_logs = false
         _player_state
         _move_direction = Vec3.zero()
         _old_move_direction = Vec3.zero()
-        _speed = 0.5
 
         _punch_button = InputComunicator.C_X
         _kick_button = InputComunicator.C_Y
@@ -71,13 +94,18 @@ class PlayerController is ObjectLinker{
         //Initialize all the states
         _idle_state = IdleState.new(this)
 
-        //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration)
-        _punch1_state = BasicAttackState.new(this,"punch",1,"PunchingAnimation","Punch",10,0,700)
-        _punch2_state = BasicAttackState.new(this,"punch",2,"PunchingAnimation","Punch",20,0,1000)
+        //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,total_duration)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"Malita_Punch_Tier_1","Punch","P1Col",700,500)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"Malita_Punch_Tier_2","Punch","P1Col",1000,500)
+        _kick1_state = BasicAttackState.new(this,"kick",1,"Malita_Kick_Tier_1","Punch","P1Col",700,500)
+        _kick2_state = BasicAttackState.new(this,"kick",2,"Malita_Kick_Tier_2","Punch","P1Col",1000,500)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
 
+
+        //Movement
+        _move_script = getScript("EntityMove")
 
         //this "this" I believe that should not be necesary but if removed, script won't compile    -p
         this.State = _idle_state //Reminder that "State" is a setter method
@@ -115,40 +143,23 @@ class PlayerController is ObjectLinker{
     }
 
     modPos(x,y,z) {
-        super.modPos(x,y,z)
+
+        _move_script.SetSpeed(x,y,z)
+        //super.modPos(x,y,z)
     } 
 
     rotate(x,y,z) {
-        super.rotate(x,y,z)
+         //_move_script.RotateTo(x,y,z)
     }
 
-    CheckBoundaries(movement){
-        //Collision stuff delete later
-        var pos_x = getPosX("global")
-        var pos_z = getPosZ("global")
-
-        if (pos_x > 40){
-            if (movement.x > 0){
-                movement.x = 0
-            }
-        }
-        if (pos_x < -40 ){
-            if (movement.x < 0){
-                movement.x = 0
-            }
-        }
-
-        if (pos_z > 40 ){
-            if (movement.z > 0){
-                movement.z = 0
-            }
-        }
-        if (pos_z < -40 ){
-            if (movement.z < 0){
-                movement.z = 0
-            }
+    dealDamage(damage,multiplier){
+        if(!_damaged){
+        _health = _health - ((damage*multiplier) - (_defense/2))
+        _damaged = true
+        EngineComunicator.consoleOutput("Dealt%(damage)")
         }
     }
+
 }
 
 class State {
@@ -215,6 +226,9 @@ class IdleState is State {
         // If X prassed switch to punch
         if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
         if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+        // 
+        if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
+        if (InputComunicator.getKey(InputComunicator.K, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
     }
 
     Update() {
@@ -253,9 +267,7 @@ class MovingState is State {
     Update() {
         super.Update()
 
-        var movement = Vec3.new(_player.MoveDirection.x*_player.Speed,0,_player.MoveDirection.y*_player.Speed)
-
-        _player.CheckBoundaries(movement)
+        var movement = Vec3.new(_player.MoveDirection.x*_player.MoveSpeed,0,_player.MoveDirection.y*_player.MoveSpeed)
 
         _player.modPos(movement.x,movement.y,movement.z)
 
@@ -291,7 +303,7 @@ class DashState is State {
         _player.ComponentAnimation.Reset()
         _player.ComponentAnimation.Play()
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _dash_speed = 1
+        _dash_speed = 100
     }
 
     HandleInput() {
@@ -303,7 +315,6 @@ class DashState is State {
 
         var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
 
-        _player.CheckBoundaries(movement)
         _player.modPos(movement.x,movement.y,movement.z)
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
@@ -322,16 +333,22 @@ class BasicAttackState is State {
         _player = player
     }
 
-    construct new(player,type,tier,animation_name,sound_name,damage,stamina_cost,total_duration) {
+    //when the windup duration finishes the collider will be created, make sure its lower than the total_duration (Its obvious)
+    construct new(player,type,tier,animation_name,sound_name,prefav_collider_name,total_duration,windup_duration) {
         _player = player
         _type = type
         _tier = tier
         _animation_name = animation_name
         _sound_name = sound_name
-        _damage = damage
-        _stamina_cost = stamina_cost
+        _prefav_collider_name = prefav_collider_name
+        
+        _windup_duration = windup_duration
 
-        _next_state = _player.IdleState
+        
+        if (windup_duration > total_duration) {
+            EngineComunicator.consoleOutput("Error, the windup duration must not be higher than the total duration")
+        }
+
 
         super(player,total_duration)
     }
@@ -340,6 +357,7 @@ class BasicAttackState is State {
         super.BeginState()
 
         _next_state = _player.IdleState
+        _on_contact_done = false
 
         _player.ComponentAnimation.setAnimation(_animation_name)
         _player.ComponentAnimation.Reset()
@@ -349,15 +367,30 @@ class BasicAttackState is State {
     }
 
     HandleInput() {
-        _margin_to_chain_attack = 200
+        _margin_to_chain_attack = 200 //totally invented 
 
 
         if (super.CurrentTime > (super.TotalDuration - _margin_to_chain_attack)) {
             if (_tier == 1) {
                 if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _next_state = _player.Punch2
+                if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _next_state = _player.Kick2
             }
         }
         
+    }
+
+    //This is when the attak will instanciate the collider 
+    OnContactFrames() {
+        EngineComunicator.consoleOutput("Create collider")
+
+        var forward = _player.getForward()
+
+        var multiplier = 5
+        var col_height = 10
+        var x_offset = forward.x * multiplier
+        var z_offset = forward.z * multiplier
+
+        _player.instantiate(_prefav_collider_name, Vec3.new(x_offset,col_height,z_offset), Vec3.new(0,0,0))
     }
     
     GoToNextState() {
@@ -367,10 +400,14 @@ class BasicAttackState is State {
     Update() {
         super.Update() 
 
+        if (super.CurrentTime >= _windup_duration && _on_contact_done == false){
+            this.OnContactFrames()
+            _on_contact_done = true
+        } 
 
         if (super.IsStateFinished()) this.GoToNextState()
 
-        EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
+        if (_player.ShowDebugLogs) EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
     }
 }
 
@@ -378,6 +415,43 @@ class SpecialAttackState is State {
     construct new(player) {
         super(player)
     }
+}
+
+class HitState is State{
+    construct new(player){
+        super(player,player.HitStun)
+        _player = player
+    }
+
+    BeginState(){
+        _next_state = _player.IdleState
+        // _enemy.ComponentAnimation.setAnimation("HitAnimation")
+        // _enemy.ComponentAnimation.Reset()
+        // _enemy.ComponentAnimation.Play()
+        super.BeginState()
+    }
+
+    EndState(){
+
+    }
+
+    HandleInput() {
+
+    }
+
+    GoToNextState() {
+        _player.State = _next_state
+    }
+
+    Update(){
+        super.Update()
+        if(super.IsStateFinished()){
+            this.GoToNextState()
+            //if alita is in range, attack again.
+            //if not, go to chase alita
+        }
+    }
+
 }
 
 

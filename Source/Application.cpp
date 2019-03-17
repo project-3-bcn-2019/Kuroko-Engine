@@ -65,15 +65,15 @@ Application::Application()
 	
 	// Scenes
 	list_modules.push_back(audio);
+	list_modules.push_back(scripting);
+	list_modules.push_back(physics);
 	list_modules.push_back(scene);
 	
-	
-	list_modules.push_back(physics);
 
 	list_modules.push_back(debug);
 
 	// Renderer last!
-	list_modules.push_back(scripting);
+	
 	list_modules.push_back(shaders);
 	list_modules.push_back(gui);
 	list_modules.push_back(renderer3D);
@@ -232,6 +232,12 @@ void Application::SaveConfig_Real() {
 		(*it)->SaveConfig(json_object(module_config));
 		json_object_set_value(json_object(config), (*it)->name.c_str(), module_config);
 	}
+
+	json_object_set_boolean(json_object(config), "is_game", false);
+	json_object_set_boolean(json_object(config), "debug_game", false);
+	json_object_set_string(json_object(config), "engine_title", "Project Atlas");
+	json_object_set_string(json_object(config), "game_title", "Malita: Demon of Skirmishes");
+
 	// Fill file with info
 	json_serialize_to_file_pretty(config, custom_config_file_name.c_str());
 	json_value_free(config);

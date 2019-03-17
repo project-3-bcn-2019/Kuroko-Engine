@@ -4,6 +4,10 @@
 #include "Component.h"
 //TMP - substitute by Animation.h
 #include "Globals.h"
+#include "ComponentBone.h"
+
+class Node;
+class Transition;
 
 class ComponentAnimation : public Component
 {
@@ -13,6 +17,7 @@ public:
 	~ComponentAnimation();
 
 	bool Update(float dt);
+	bool DrawInspector(int id = 0) override;
 
 	uint getAnimationResource() const { return animation_resource_uuid; }
 	void setAnimationResource(uint uuid);
@@ -23,13 +28,20 @@ public:
 
 	void Save(JSON_Object* config);
 
-	bool Finished() const { return false; }
+	bool Finished() const;
 	bool isPaused() const { return paused; }
+
+	float GetAnimTime() const { return animTime; }
+	void SetAnimTime(float time) { animTime = time; }
 
 public:
 
 	bool loop = false;
 	float speed = 1.0f;
+	bool interpolate = true;
+
+	Transition* doingTransition = nullptr;
+	Node* transitionFrom = nullptr;
 
 private:
 
@@ -37,8 +49,22 @@ private:
 
 	float animTime = 0.0f;
 	bool paused = false;
-
 	std::map<uint, uint> bones;
+
+	std::map<uint, AnimSetB> AnimSets;
+
+public:
+	// Panel Animation Bound
+	bool TestPlay = false;
+	bool TestPause = false;
+	uint GetCBone(uint index) const 
+	{ 
+		auto get = bones.find(index);
+		if(get != bones.end())
+			return get->second;
+
+		return 0;
+	}
 };
 
 #endif // !_COMPONENT_ANIMATION

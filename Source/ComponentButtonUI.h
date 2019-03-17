@@ -2,7 +2,7 @@
 #define _COMPONENTBUTTONUI_
 
 #include "Component.h"
-
+#include <list>
 
 class ComponentRectTransform;
 class ComponentImageUI;
@@ -21,6 +21,13 @@ enum ButtonState {
 //	ComponentButtonUI right = nullptr;
 //};
 
+struct WrenCall {
+
+	WrenCall(std::string script, std::string method): script_name(script), method_name(method) {}
+	std::string script_name;
+	std::string method_name;
+};
+
 class ComponentButtonUI :public Component
 {
 public:
@@ -29,7 +36,8 @@ public:
 	~ComponentButtonUI();
 
 	bool Update(float dt)override;
-	void ChangeFocus();
+	bool DrawInspector(int id = 0) override;
+	void WhenPressed();
 	void Save(JSON_Object* config) override;
 
 	const ResourceTexture* getResourceTexture(ButtonState state);
@@ -39,15 +47,16 @@ public:
 	ButtonState getState() { return state; };
 	void ChangeGOImage();
 
+	std::list<WrenCall> callbacks;
+
+	ButtonState state = B_IDLE;
+
 	inline void doFadeIn() {	alpha = 0.0f; fadingIn = true;}
 	inline void doFadeOut() { alpha = 1.0f; fadingOut = true; }
 
 	//bool isFocus() const { return focus; }
 	//void setFocus(bool _focus) { focus = _focus; }
 
-public:
-	ButtonState state = B_IDLE;
-	//ButtonLink button_link;
 	
 private:
 

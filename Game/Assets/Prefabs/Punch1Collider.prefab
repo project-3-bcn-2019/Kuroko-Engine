@@ -1,0 +1,96 @@
+{
+    "Game Objects": [
+        {
+            "name": "Punch1Collider",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 0,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 2288871638
+                },
+                {
+                    "type": "AABB",
+                    "uuid": 2711494787
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "CUBE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "uuid": 3039269913
+                },
+                {
+                    "type": "trigger",
+                    "data": {
+                        "shape": 1
+                    },
+                    "pos": {
+                        "offset_pos_x": 0,
+                        "offset_pos_y": 0,
+                        "offset_pos_z": 0
+                    },
+                    "rot": {
+                        "offset_rot_x": 3.1400001049041748,
+                        "offset_rot_y": 0,
+                        "offset_rot_z": 0
+                    },
+                    "scale": {
+                        "offset_scale_x": 0.74000000953674316,
+                        "offset_scale_y": 2,
+                        "offset_scale_z": 1
+                    },
+                    "uuid": 2025589601
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/Punch1.wren",
+                    "variables": [
+                        {
+                            "name": "Damage",
+                            "type": "number",
+                            "value": 10,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AttackSpeed",
+                            "type": "number",
+                            "value": 2,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 3487807223
+                }
+            ]
+        }
+    ]
+}

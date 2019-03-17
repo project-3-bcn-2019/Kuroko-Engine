@@ -1,32 +1,13 @@
 import "Audio" for ComponentAudioSource
-import "Animation" for ComponentAnimation
+import "Animation" for ComponentAnimation, ComponentAnimator
 import "Particles" for ComponentParticleEmitter
 import "UI" for ComponentButton, ComponentCheckbox, ComponentText, ComponentProgressBar
-
-class ObjectComunicator{
-	foreign static C_setPos(gameObject, x, y, z)
-	foreign static C_modPos(gameObject, x, y, z)
-        foreign static C_rotate(gameObject, x, y, z)
-	foreign static C_lookAt(gameObject, x, y, z)
-
-	foreign static C_getPosX(gameObject, mode)
-	foreign static C_getPosY(gameObject, mode)
-	foreign static C_getPosZ(gameObject, mode)
-
-	foreign static C_getPitch(gameObject)
-	foreign static C_getYaw(gameObject)
-	foreign static C_getRoll(gameObject)
-
-	foreign static C_Kill(gameObject)
-	foreign static C_MoveForward(gameObject, speed)
-
-	foreign static C_GetComponentUUID(gameObject, component_type)
-	foreign static C_GetCollisions(gameObject)
-	foreign static C_GetScript(gameObject, script_name)
-
-}
+import "Physics" for ComponentPhysics
 
 class Math{
+
+	static PI {3.1416}
+
 	foreign static C_sqrt(number)
 
 	static pow(number, power){
@@ -35,6 +16,51 @@ class Math{
 			ret = ret * number
 		}
 		return ret
+	}
+
+	foreign static sin(number)
+	foreign static cos(number)
+	foreign static tan(number)
+	foreign static asin(number)
+	foreign static atan2(x, y)
+
+	static AngleAxisToEuler(axis, angle){
+		var x = axis.x
+		var y = axis.y
+		var z = axis.z
+
+		var s = Math.sin(angle)
+		var c = Math.cos(angle)
+		var t = 1-c
+
+		var magnitude = Math.C_sqrt(x*x + y*y + z*z)
+
+		if(magnitude == 0){
+			EngineComunicator.consoleOutput("AngleAxisToEuler: Magitude of the vector can't be 0")
+			return Vec3.new(0,0,0)
+		}
+
+		if((x*y*t + z*s) > 0.998){ // North pole singularity
+			var yaw = 2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = Math.PI/2
+			var roll = 0
+
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		if ((x*y*t + z*s) < -0.998) { // South pole singularity 
+			var yaw = -2*Math.atan2(x*Math.sin(angle/2),Math.cos(angle/2))
+			var pitch = -Math.PI/2
+			var roll = 0
+			return Vec3.new(yaw, pitch, roll)
+		}
+
+		var yaw = Math.atan2(y * s- x * z * t , 1 - (y*y+ z*z ) * t)
+		var pitch = Math.asin(x * y * t + z * s)
+		var roll =  Math.atan2(x * s - y * z * t , 1 - (x*x + z*z) * t)
+
+		return Vec3.new(yaw, pitch, roll)
+	
 	}
 
 	static lerp(a, b, f){
@@ -99,15 +125,28 @@ class Vec3{
 	}
 
 	static add(vec1, vec2){
-		return ret = Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
+		return Vec3.new(vec1.x + vec2.x,vec1.y + vec2.y,vec1.z + vec2.z)
 	}
-	
+
+	static subtract(vec1, vec2){
+		return Vec3.new(vec1.x-vec2.x,vec1.y-vec2.y,vec1.z-vec2.z)
+	}
+
 	copy(vec){
 		x = vec.x
 		y = vec.y
 		z = vec.z
 	}
 
+	*(num) {
+		x = x*num
+		y = y*num
+		z = z*num
+	}
+
+	angleBetween(other){
+		return Math.C_angleBetween(x,y,z,other.x,other.y,other.z)
+	}
 }
 
 class EngineComunicator{
@@ -124,16 +163,15 @@ class EngineComunicator{
 
 	// Static User usable
 	static Instantiate(prefab_name, pos, euler){
-		EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		var go_uuid = EngineComunicator.C_Instantiate(prefab_name, pos.x, pos.y, pos.z, euler.x, euler.y, euler.z)
+		return ObjectLinker.new(go_uuid)
 	}
 
 	static FindGameObjectsByTag(tag){
 		var uuids = EngineComunicator.C_FindGameObjectsByTag(tag)
 		var gameObjects = []
 		for(i in 0...uuids.count){
-			var add_obj = ObjectLinker.new()
-			add_obj.gameObject = uuids[i]
-			gameObjects.insert(i, add_obj)
+			gameObjects.insert(i, ObjectLinker.new(uuids[i]))
 		}
 
 		return gameObjects
@@ -147,7 +185,8 @@ class InputComunicator{
 	static LEFT {80}
 	static RIGHT {79}
 	static SPACE {44}
-        static J {13}
+    	static J {13}
+	static K {14}
 
 	static D_PAD_UP {11}
 	static D_PAD_DOWN {12}
@@ -192,15 +231,46 @@ class InputComunicator{
 	}
 }
 
+class ObjectComunicator{
+	foreign static C_setActive(gameObject, active)
+	foreign static C_setPos(gameObject, x, y, z)
+	foreign static C_modPos(gameObject, x, y, z)
+    foreign static C_rotate(gameObject, x, y, z)
+	foreign static C_lookAt(gameObject, x, y, z)
+
+	foreign static C_getPosX(gameObject, mode)
+	foreign static C_getPosY(gameObject, mode)
+	foreign static C_getPosZ(gameObject, mode)
+
+	foreign static C_getPitch(gameObject)
+	foreign static C_getYaw(gameObject)
+	foreign static C_getRoll(gameObject)
+
+	foreign static C_getForwardX(gameObject)
+	foreign static C_getForwardY(gameObject)
+	foreign static C_getForwardZ(gameObject)
+
+	foreign static C_Kill(gameObject)
+	foreign static C_MoveForward(gameObject, speed)
+
+	foreign static C_GetComponentUUID(gameObject, component_type)
+	foreign static C_GetCollisions(gameObject)
+	foreign static C_GetScript(gameObject, script_name)
+
+	foreign static C_GetTag(gameObject)
+
+}
 
 class ComponentType{
-	static AUDIO_SOURCE {15}
+	static AUDIO_SOURCE {16}
 	static ANIMATION {7}
-	static PARTICLES {18}
+	static PARTICLES {20}
 	static BUTTON {12}
 	static CHECK_BOX {11}
 	static TEXT {13}
 	static PROGRESS_BAR {14}
+	static ANIMATOR {22}
+	static PHYSICS {17}
 }
 
 class ObjectLinker{
@@ -209,15 +279,22 @@ class ObjectLinker{
 
 	construct new(){}
 
+	construct new(uuid){
+		gameObject = uuid
+	}
+
+	setActive(active){
+		ObjectComunicator.C_setActive(gameObject, active)
+	}
 	setPos(x,y,z){
 		ObjectComunicator.C_setPos(gameObject, x, y, z)
 	}
 	modPos(x,y,z){
 		ObjectComunicator.C_modPos(gameObject, x, y, z)
 	}
-        rotate(x,y,z){
-                ObjectComunicator.C_rotate(gameObject, x, y, z)
-        }
+    rotate(x,y,z){
+        ObjectComunicator.C_rotate(gameObject, x, y, z)
+    }
 	lookAt(x,y,z){
 		ObjectComunicator.C_lookAt(gameObject, x, y, z)
 	}
@@ -249,7 +326,7 @@ class ObjectLinker{
 	getPitch(){
 		return ObjectComunicator.C_getPitch(gameObject)
 	}
-
+	 
 	getYaw(){
 		return ObjectComunicator.C_getYaw(gameObject)
 	}
@@ -258,6 +335,10 @@ class ObjectLinker{
 		return ObjectComunicator.C_getRoll(gameObject)
 	}
 
+	getForward(){
+		return Vec3.new(ObjectComunicator.C_getForwardX(gameObject),ObjectComunicator.C_getForwardY(gameObject),ObjectComunicator.C_getForwardZ(gameObject))
+	}
+	
 	moveForward(speed){
 		ObjectComunicator.C_MoveForward(gameObject, speed)
 	}
@@ -299,9 +380,23 @@ class ObjectLinker{
 		if(type == ComponentType.PROGRESS_BAR){
 			return ComponentProgressBar.new(gameObject, component_uuid)
 		}
+		if(type == ComponentType.ANIMATOR){
+			return ComponentAnimator.new(gameObject, component_uuid)
+		}
+		if(type == ComponentType.PHYSICS){
+			return ComponentPhysics.new(gameObject, component_uuid)
+		}
 
 	}
 	getScript(script_name){
 		return ObjectComunicator.C_GetScript(gameObject, script_name)
+	}
+
+	getTag(){
+		return ObjectComunicator.C_GetTag(gameObject)
+	}
+	instantiate(prefab_name, offset, euler){
+		var pos = Vec3.add(getPos("global"), offset)
+		return EngineComunicator.Instantiate(prefab_name, pos, euler)
 	}
 }

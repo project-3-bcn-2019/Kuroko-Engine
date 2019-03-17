@@ -5,17 +5,24 @@
 #include <map>
 
 enum variableType;
+class Transition;
+class ComponentAnimation;
 
 class ComponentAnimator :
 	public Component
 {
 public:
-	ComponentAnimator(GameObject* gameobject) : Component(gameobject, ANIMATOR) {};
+	ComponentAnimator(GameObject* gameobject);
 	ComponentAnimator(JSON_Object* deff, GameObject* parent);
 	~ComponentAnimator();
 
+	bool Update(float dt);
+	bool DrawInspector(int id = 0) override;
+
 	uint getAnimationGraphResource() const { return graph_resource_uuid; }
 	void setAnimationGraphResource(uint uuid);
+
+	bool conditionSuccess(Transition* transition);
 
 	void loadValues(JSON_Object* deff);
 
@@ -28,6 +35,8 @@ public:
 	void setBool(uint uuid, bool value);
 	bool* getBool(uint uuid);
 
+	void setSpeed(float speed);
+
 	void removeValue(variableType type, uint uuid);
 
 	void Save(JSON_Object* config);
@@ -39,6 +48,14 @@ private:
 	std::map<uint, float> floats;
 	std::map<uint, std::string> strings;
 	std::map<uint, bool> bools;
+
+	ComponentAnimation* animation = nullptr;
+
+public:
+
+	uint currentNode = 0;
+	Transition* doingTransition = nullptr;
+	float startTransitionTime = 0.0f;
 };
 
 #endif // !_COMPONENT_ANIMATOR

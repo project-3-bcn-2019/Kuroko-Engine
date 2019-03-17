@@ -1,9 +1,13 @@
 #include "ComponentAudioSource.h"
 #include "Application.h"
+#include "ModuleScene.h"
 #include "ModuleAudio.h"
+#include "ModuleTimeManager.h"
 #include "GameObject.h"
 #include "ComponentTransform.h"
 #include "Transform.h"
+#include "ImGui/imgui.h"
+#include "Include_Wwise.h"
 
 
 ComponentAudioSource::ComponentAudioSource(GameObject* parent) : Component(parent, AUDIOSOURCE)
@@ -21,6 +25,8 @@ ComponentAudioSource::ComponentAudioSource(JSON_Object* deff, GameObject* parent
 	sound_ID = json_object_get_number(deff, "soundID");
 	name = json_object_get_string(deff, "soundName");
 	volume = json_object_get_number(deff, "volume");
+	pitch = json_object_get_number(deff, "pitch");
+	autoplay = json_object_get_boolean(deff, "autoplay");
 	App->audio->SetVolume(volume, sound_ID);
 }
 
@@ -34,7 +40,92 @@ bool ComponentAudioSource::Update(float dt)
 {
 	float3 pos = ((ComponentTransform*)parent->getComponent(Component_type::TRANSFORM))->local->getPosition();
 	sound_go->SetPosition(pos.x, pos.y, pos.z);
+	PlayOnStart();
 
+	return true;
+}
+
+bool ComponentAudioSource::DrawInspector(int id)
+{
+	if (ImGui::CollapsingHeader("Audio Source"))
+	{
+		static bool select_audio = false;
+
+		AkUniqueID ID = sound_ID;
+		if (ID != 0)
+		{
+			ImGui::TextColored({ 0, 1, 0, 1 }, name.c_str());
+
+			if (ImGui::Button("Play"))
+			{
+				sound_go->PlayEvent(ID);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Stop"))
+			{
+				sound_go->StopEvent(ID);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pause"))
+			{
+				sound_go->PauseEvent(ID);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Resume"))
+			{
+				sound_go->ResumeEvent(ID);
+			}
+			if (ImGui::SliderInt("Volume", &volume, 0, 100))
+			{
+				App->audio->SetVolume(volume, sound_go->GetID());
+				App->scene->AskAutoSaveScene();
+			}
+			if (ImGui::SliderInt("Pitch", &pitch, -100, 100))
+			{
+				App->audio->SetPitch(pitch, sound_go->GetID());
+				App->scene->AskAutoSaveScene();
+			}
+			if (ImGui::Button("Change Audio Event")) select_audio = true;
+			if (ImGui::Checkbox("Autoplay", &autoplay))
+				App->scene->AskAutoSaveScene();
+		}
+		else
+		{
+			ImGui::TextColored({ 1, 0, 0, 1 }, "No Audio Event assigned!");
+			if (ImGui::Button("Set Audio Event")) select_audio = true;
+		}
+
+		if (select_audio)
+		{
+			ImGui::Begin("Select Audio Event", &select_audio);
+			if (ImGui::MenuItem("NONE"))
+			{
+				SetSoundID(0);
+				SetSoundName("Sound");
+				select_audio = false;
+				App->scene->AskAutoSaveScene();
+			}
+			for (auto it = App->audio->events.begin(); it != App->audio->events.end(); it++) {
+
+				if (ImGui::MenuItem((*it).c_str())) {
+					SetSoundID(AK::SoundEngine::GetIDFromString((*it).c_str()));
+					SetSoundName((*it).c_str());
+					select_audio = false;
+					App->scene->AskAutoSaveScene();
+					break;
+				}
+			}
+			ImGui::End();
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
+		if (ImGui::Button("Remove##Remove audio source")) {
+			ImGui::PopStyleColor(); ImGui::PopStyleColor();
+			App->scene->AskAutoSaveScene();
+			return false;
+		}
+		ImGui::PopStyleColor(); ImGui::PopStyleColor();
+	}
 	return true;
 }
 
@@ -45,32 +136,6 @@ void ComponentAudioSource::CleanUp()
 	sound_go = nullptr;
 }
 
-//void ComponentAudioSource::SetInspectorInfo()
-//{
-//	ImGui::Spacing();
-//	if (ImGui::CollapsingHeader("Audio Source", ImGuiTreeNodeFlags_DefaultOpen))
-//	{
-//		if (sound_ID != 0)
-//		{
-//			if (ImGui::Button("Play"))
-//			{
-//				sound_go->PlayEvent(sound_ID);
-//			}
-//			if (ImGui::Button("Stop"))
-//			{
-//				sound_go->PauseEvent(sound_ID);
-//			}
-//		}
-//		else
-//		{
-//			ImGui::TextColored({ 1, 0, 0, 1 }, "No Audio Event assigned!");
-//		}
-//		/*ImGui::Text("PosX %f", sound_go->GetPos().x);
-//		ImGui::Text("PosY %f", sound_go->GetPos().y);
-//		ImGui::Text("PosZ %f", sound_go->GetPos().z);*/
-//	}
-//}
-
 void ComponentAudioSource::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "audioSource");
@@ -79,6 +144,7 @@ void ComponentAudioSource::Save(JSON_Object* config)
 	json_object_set_string(config, "soundName", name.c_str());
 	json_object_set_number(config, "volume", volume);
 	json_object_set_number(config, "pitch", pitch);
+	json_object_set_boolean(config, "autoplay", autoplay);
 }
 
 void ComponentAudioSource::Play()
@@ -109,6 +175,12 @@ void ComponentAudioSource::SetSoundID(AkUniqueID ID)
 void ComponentAudioSource::SetSoundName(const char* newName)
 {
 	name = newName;
+}
+
+void ComponentAudioSource::PlayOnStart()
+{
+	if (autoplay && App->time->getJustPlayed())
+		Play();
 }
 
 // --------------------------------------------------------------
