@@ -31,11 +31,11 @@ construct new(){}
 
 
     //Rotation
-    angular_acceleration {_angular_acceleration}
-    angular_acceleration=(v){ _angular_acceleration = v}
+    //angular_acceleration {_angular_acceleration}
+    //angular_acceleration=(v){ _angular_acceleration = v}
 
-    max_angular_speed {_max_angular_speed}
-    max_angular_speed =(v){ _max_angular_speed = v}
+    //max_angular_speed {_max_angular_speed}
+    //max_angular_speed =(v){ _max_angular_speed = v}
     
 
     //Bool to check if you want the entity to always look forward

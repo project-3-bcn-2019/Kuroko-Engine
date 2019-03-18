@@ -140,12 +140,21 @@ class PlayerController is ObjectLinker{
         if(_move_direction.x < 0.2 && _move_direction.x > -0.2)   _move_direction.x = 0.0
     }
 
-    modPos(x,y,z) {
+    SetSpeed(x,y,z) {
 
         _move_script.SetSpeed(x,y,z)
         //super.modPos(x,y,z)
     } 
+ 
+    AccelerateTo(x,y,z) {
+        _move_script.AccelerateTo(x,y,z)
+        //super.modPos(x,y,z)
+    } 
 
+    SetDeceleration(num){
+        _move_script.deceleration = num
+
+    }
     rotate(x,y,z) {
          //_move_script.RotateTo(x,y,z)
     }
@@ -261,13 +270,15 @@ class MovingState is State {
     Update() {
         super.Update()
 
+        //Obsolete 
         var movement = Vec3.new(_player.MoveDirection.x*_player.MoveSpeed,0,_player.MoveDirection.y*_player.MoveSpeed)
 
-        _player.modPos(movement.x,movement.y,movement.z)
+        _player.AccelerateTo(movement.x,movement.y,movement.z)
 
-        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        //var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+       // _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
+
         _player.OldMoveDirection.x = _player.MoveDirection.x
         _player.OldMoveDirection.y = _player.MoveDirection.y
         _player.OldMoveDirection.z = _player.MoveDirection.z
@@ -295,7 +306,9 @@ class DashState is State {
         super.BeginState()
 
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _dash_speed = 100
+        _dash_speed = 600
+        _player.SetDeceleration(0.05)
+
     }
 
     HandleInput() {
@@ -307,7 +320,7 @@ class DashState is State {
 
         var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
 
-        _player.modPos(movement.x,movement.y,movement.z)
+        _player.SetSpeed(movement.x,movement.y,movement.z)
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
 
@@ -317,6 +330,11 @@ class DashState is State {
             EngineComunicator.consoleOutput("Current state: Dash")
         }
     }
+
+    EndState(){
+        _player.SetDeceleration(0.01)
+    }
+
 }
 
 class BasicAttackState is State {

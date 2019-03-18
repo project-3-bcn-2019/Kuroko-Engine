@@ -47,13 +47,6 @@
                     "script": "Assets\/Scripts\/PlayerController.wren",
                     "variables": [
                         {
-                            "name": "Damage",
-                            "type": "number",
-                            "value": 0,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
                             "name": "ShowDebugLogs",
                             "type": "number",
                             "value": 0,
@@ -141,6 +134,13 @@
                         {
                             "name": "MoveSpeed",
                             "type": "number",
+                            "value": 100,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Damage",
+                            "type": "number",
                             "value": 0,
                             "public": true,
                             "type_forced": false
@@ -203,28 +203,14 @@
                         {
                             "name": "acceleration",
                             "type": "number",
-                            "value": 0.0099999997764825821,
+                            "value": 0.019999999552965164,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "max_speed",
                             "type": "number",
-                            "value": 0.10000000149011612,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "angular_acceleration",
-                            "type": "number",
-                            "value": 0.0099999997764825821,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "max_angular_speed",
-                            "type": "number",
-                            "value": 0.10000000149011612,
+                            "value": 100,
                             "public": true,
                             "type_forced": false
                         },
