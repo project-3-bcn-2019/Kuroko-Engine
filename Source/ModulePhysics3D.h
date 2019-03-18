@@ -65,7 +65,7 @@ public:
 	bool CleanUp();
 	void CleanUpWorld();
 
-	PhysBody* AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment);
+	PhysBody* AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment, float3 size = float3(1,1,1));
 	void DeleteBody(PhysBody* body_to_delete);
 	void DeleteTrigger(ComponentTrigger* component);
 

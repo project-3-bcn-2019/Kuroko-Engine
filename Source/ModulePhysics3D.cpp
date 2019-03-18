@@ -253,19 +253,19 @@ bool ModulePhysics3D::CleanUp()
 }
 
 
-PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment)
+PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape shape, bool is_environment, float3 size)
 {
 	btCollisionShape* colShape = nullptr;
 	switch (shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(size.x/2, size.y / 2, size.z / 2));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		colShape = new btCylinderShape(btVector3(size.x / 2, size.y / 2, size.z / 2));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(size.x / 2, size.y / 2, size.z / 2));
 		break;
 	}
 	shapes.push_back(colShape);
