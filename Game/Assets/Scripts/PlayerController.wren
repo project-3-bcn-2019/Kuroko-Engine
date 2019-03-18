@@ -274,6 +274,10 @@ class MovingState is State {
         // If X prassed switch to dash
         if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
         if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+
+        // If Y prassed switch to dash
+        if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
+        if (InputComunicator.getKey(InputComunicator.L, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
     }
     
     Update() {
