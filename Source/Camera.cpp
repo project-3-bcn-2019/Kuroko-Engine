@@ -159,7 +159,7 @@ std::string Camera::getViewportDirString()
 	case VP_FRONT:	ret = "Front"; break;
 	case VP_BACK:	ret = "Back"; break;
 	default: 
-		ret = "Scene"; break;
+		ret = "Editor cam"; break;
 		break;
 	}
 	return ret;

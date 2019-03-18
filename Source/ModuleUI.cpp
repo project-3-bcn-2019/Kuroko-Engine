@@ -2111,6 +2111,8 @@ bool ModuleUI::DrawComponent(Component& component, int id)
 
 void ModuleUI::DrawCameraViewWindow(Camera& camera)
 {
+	App->camera->enable_camera_control = false;
+
 	if (FrameBuffer* frame_buffer = camera.getFrameBuffer())
 	{
 		std::string window_name;
@@ -2124,9 +2126,8 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 			window_name += "(Game camera)";
 
 		ImGui::Begin(window_name.c_str(), &camera.draw_in_UI, ImGuiWindowFlags_NoScrollbar);
-		
-		ImVec2 window_pos = ImGui::GetItemRectMin();
 
+		ImVec2 window_pos = ImGui::GetItemRectMin();
 
 		ImVec2 window_size = ImGui::GetWindowSize();
 		window_size.x -= CAMERA_VIEW_MARGIN_X;
@@ -2168,13 +2169,16 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 
 		if (&camera == App->camera->game_camera)
 			game_window_pos = window_pos;
-
 		if (&camera == App->camera->editor_camera)
+		{
 			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
 			{
 				ImGuizmo::SetDrawlist();
 				App->gui->DrawGuizmo(window_pos, window_size);
 			}
+			
+			App->camera->enable_camera_control = ImGui::IsItemHovered();
+		}
 
 		ImGui::End();
 	}

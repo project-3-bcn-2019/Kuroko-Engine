@@ -27,8 +27,10 @@ public:
 	void Save(JSON_Object* config);
 	uint getBoneResource() { return bone_resource_uuid; }
 
-	bool Update(float dt);
 	bool DrawInspector(int id = 0) override;
+
+	void Draw();
+	void Render() const;
 	
 	void ProcessCompAnimations(const uint anim_uuid, const int frame);
 

@@ -118,10 +118,18 @@ bool ComponentAABB::Update(float dt)
 	return true;
 }
 
-void ComponentAABB::Draw() const
+
+void ComponentAABB::Draw()
 {
-	if (draw_aabb)	DrawAABB();
-	if (draw_obb && App->camera->current_camera->frustumCull(*getOBB()))	DrawOBB();
+	if(draw_aabb || (draw_obb && App->camera->current_camera->frustumCull(*getOBB())))
+		App->renderer3D->opaqueMeshes.push_back(this);
+}
+
+
+void ComponentAABB::Render() const
+{
+	if (draw_aabb)	RenderAABB();
+	if (draw_obb)	RenderOBB();
 }
 
 bool ComponentAABB::DrawInspector(int id)
@@ -158,7 +166,7 @@ bool ComponentAABB::DrawInspector(int id)
 	return true;
 }
 
-void ComponentAABB::DrawAABB() const
+void ComponentAABB::RenderAABB() const
 {
 	glLineWidth(1.5f);
 
@@ -176,7 +184,7 @@ void ComponentAABB::DrawAABB() const
 	glLineWidth(1.0f);
 }
 
-void ComponentAABB::DrawOBB() const
+void ComponentAABB::RenderOBB() const
 {
 	glLineWidth(1.5f);
 

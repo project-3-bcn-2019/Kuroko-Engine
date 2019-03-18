@@ -1,0 +1,228 @@
+{
+    "Game Objects": [
+        {
+            "name": "Empty",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 351157760,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 3566659154
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 2605741326
+                },
+                {
+                    "type": "camera",
+                    "active": true,
+                    "offset": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "camera": {
+                        "pos_x": 0,
+                        "pos_y": 0,
+                        "pos_z": 0,
+                        "ref_x": 0,
+                        "ref_y": 0,
+                        "ref_z": 5,
+                        "frustum_type": 2,
+                        "active": false,
+                        "draw_in_UI": false,
+                        "draw_frustum": false,
+                        "draw_depth": false
+                    },
+                    "game_camera": false,
+                    "uuid": 3322570580
+                }
+            ]
+        },
+        {
+            "name": "BakerHouse",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2028420511,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 523114940
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 3798489525
+                }
+            ]
+        },
+        {
+            "name": "Chimney",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3983570276,
+            "isUI": false,
+            "Parent": 2028420511,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 100,
+                        "sz": 100,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 99.999992370605469,
+                        "sz": 99.999992370605469,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "uuid": 1089440639
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 3604122804
+                },
+                {
+                    "type": "mesh",
+                    "active": true,
+                    "mesh_name": "Chimney",
+                    "Parent3dObject": "Assets\/Meshes\/BakerHouse.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "Assets\/Textures\/Baker_house.png"
+                    },
+                    "vertex_shader": "Assets\/Shaders\/Default_Vertex_Shader.vex",
+                    "fragment_shader": "Assets\/Shaders\/Default_Fragment_Shader.frag",
+                    "uuid": 709343345
+                }
+            ]
+        },
+        {
+            "name": "Baker_house",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 31075729,
+            "isUI": false,
+            "Parent": 2028420511,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 100,
+                        "sz": 100,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 99.999992370605469,
+                        "sz": 99.999992370605469,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "uuid": 660074109
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 3014535362
+                },
+                {
+                    "type": "mesh",
+                    "active": true,
+                    "mesh_name": "Baker_house",
+                    "Parent3dObject": "Assets\/Meshes\/BakerHouse.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "Assets\/Textures\/Baker_house.png"
+                    },
+                    "vertex_shader": "Assets\/Shaders\/Default_Vertex_Shader.vex",
+                    "fragment_shader": "Assets\/Shaders\/Default_Fragment_Shader.frag",
+                    "uuid": 1213440388
+                }
+            ]
+        }
+    ]
+}

@@ -161,16 +161,20 @@ void ComponentBone::Save(JSON_Object * config)
 	}
 }
 
-bool ComponentBone::Update(float dt)
+void ComponentBone::Draw()
 {
 	if (!App->is_game)
 	{
-		float3 size = { 0.05f, 0.05f, 0.05f };
-		float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
-		App->renderer3D->DirectDrawCube(size, pos);
+		App->renderer3D->opaqueMeshes.push_back(this);
 	}
 
-	return true;
+}
+
+void ComponentBone::Render() const
+{
+	float3 size = { 0.05f, 0.05f, 0.05f };
+	float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
+	App->renderer3D->DirectDrawCube(size, pos);
 }
 
 void ComponentBone::ProcessCompAnimations(const uint anim_uuid, const int frame)

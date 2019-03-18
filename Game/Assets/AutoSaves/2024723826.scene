@@ -1,0 +1,161 @@
+{
+    "Game Objects": [
+        {
+            "name": "BakerHouse",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2028420511,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 2075253325
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 388469668
+                }
+            ]
+        },
+        {
+            "name": "Chimney",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3983570276,
+            "isUI": false,
+            "Parent": 2028420511,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 100,
+                        "sz": 100,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 99.999992370605469,
+                        "sz": 99.999992370605469,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "uuid": 2701782703
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 3876852188
+                },
+                {
+                    "type": "mesh",
+                    "active": true,
+                    "mesh_name": "Chimney",
+                    "Parent3dObject": "Assets\/Meshes\/BakerHouse.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "Assets\/Textures\/Baker_house.png"
+                    },
+                    "vertex_shader": "Assets\/Shaders\/Default_Vertex_Shader.vex",
+                    "fragment_shader": "Assets\/Shaders\/Default_Fragment_Shader.frag",
+                    "uuid": 1012600861
+                }
+            ]
+        },
+        {
+            "name": "Baker_house",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 31075729,
+            "isUI": false,
+            "Parent": 2028420511,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 100,
+                        "sz": 100,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 100,
+                        "sy": 99.999992370605469,
+                        "sz": 99.999992370605469,
+                        "qx": -0.7071068286895752,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710670948028564
+                    },
+                    "uuid": 3811574992
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 231961365
+                },
+                {
+                    "type": "mesh",
+                    "active": true,
+                    "mesh_name": "Baker_house",
+                    "Parent3dObject": "Assets\/Meshes\/BakerHouse.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "Assets\/Textures\/Baker_house.png"
+                    },
+                    "vertex_shader": "Assets\/Shaders\/Default_Vertex_Shader.vex",
+                    "fragment_shader": "Assets\/Shaders\/Default_Fragment_Shader.frag",
+                    "uuid": 3781798406
+                }
+            ]
+        }
+    ]
+}

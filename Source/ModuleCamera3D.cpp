@@ -69,7 +69,7 @@ bool ModuleCamera3D::CleanUp()
 update_status ModuleCamera3D::Update(float dt)
 {
 
-	if (editor_camera->active)
+	if (editor_camera->active && enable_camera_control)
 	{
 		// Movement
 		float3 displacement = float3::zero;
