@@ -25,7 +25,7 @@ public:
 	void setTexture(Texture* tex, Direction index);
 	void removeTexture(Direction index);
 	Texture* getTexture(Direction index) { if (index >= 0 && index < 6) return textures[index]; };
-	void Draw() const;
+	void Render() const;
 	void setDistance(float dist);
 
 private:

@@ -31,7 +31,6 @@ class PlayerController is ObjectLinker{
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
-    ComponentAnimation {_component_animation}
     ComponentAudioSource {_component_audio_source}
 
 
@@ -86,9 +85,8 @@ class PlayerController is ObjectLinker{
         _dash_button = InputComunicator.C_A
 
         //Components
-        _component_animation = getComponent(ComponentType.ANIMATION)
         _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
-
+        _component_animator = getComponent(ComponentType.ANIMATOR)
         _component_audio_source.setSound("Footsteps") //This should not be here -Pol
 
         //Initialize all the states
@@ -214,9 +212,7 @@ class IdleState is State {
     }
 
     BeginState() {
-        _player.ComponentAnimation.setAnimation("PunchingAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Pause()
+
         super.BeginState()
     }
 
@@ -249,9 +245,7 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("RunningAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
+
     }
 
     HandleInput() {
@@ -299,9 +293,7 @@ class DashState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("DashingAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
+
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         _dash_speed = 100
     }
@@ -359,9 +351,6 @@ class BasicAttackState is State {
         _next_state = _player.IdleState
         _on_contact_done = false
 
-        _player.ComponentAnimation.setAnimation(_animation_name)
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
         _player.ComponentAudioSource.setSound(_sound_name)
         _player.ComponentAudioSource.Play()
     }

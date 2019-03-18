@@ -10,6 +10,14 @@
 #include "ModuleScene.h"
 #include "ModuleShaders.h"
 #include "ModuleTimeManager.h"
+#include "Particle.h"
+#include "ComponentParticleEmitter.h"
+#include "Billboard.h"
+#include "ComponentMesh.h"
+#include "GameObject.h"
+#include "ComponentRectTransform.h"
+#include "Skybox.h"
+#include "ModuleDebug.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -76,7 +84,7 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		glClearDepth(1.0f);
 		
 		//Initialize clear color
-		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClearColor(0.9f, 0.9f, 0.9f, 1.f);
 
 		//Check for error
 		error = glGetError();
@@ -102,7 +110,6 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glClearDepth(1.0f);
-		glClearColor(0.8f, 0.8f, 0.8f, 1.f);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE); 
@@ -119,26 +126,53 @@ bool ModuleRenderer3D::Init(const JSON_Object* config)
 	return ret;
 }
 
-bool ModuleRenderer3D::Start()
-{
-	return true;
-}
-
 // PreUpdate: clear buffer
 update_status ModuleRenderer3D::PreUpdate(float dt)
 {
-	for (auto cam = App->camera->game_cameras.begin(); cam != App->camera->game_cameras.end(); ++cam)
-	{	
-		if ((!(*cam)->IsViewport() && App->is_game) || (!(*cam)->active && !(*cam)->draw_in_UI) || (*cam) == App->camera->editor_camera)
-			continue;
+	App->scene->DrawScene();
 
-		Draw(*cam);	
+	if (App->is_game)
+	{
+		App->camera->current_camera = App->camera->game_camera;
+		Render();
+	}
+	else
+	{
+		for (auto cam = App->camera->game_cameras.rbegin(); cam != App->camera->game_cameras.rend(); ++cam)
+		{
+			if ((*cam)->active)
+			{
+				glViewport(0, 0, (*cam)->getFrameBuffer()->size_x, (*cam)->getFrameBuffer()->size_y);
+
+				App->camera->current_camera = (*cam);
+
+				std::priority_queue<Particle*, std::vector<Particle*>, ParticlePriority> aux_queue;
+				while (!orderedParticles.empty())
+				{
+					aux_queue.push(orderedParticles.top());
+					orderedParticles.pop();
+				}
+
+				while (!aux_queue.empty())
+				{
+					orderedParticles.push(aux_queue.top());
+					aux_queue.pop();
+				}
+
+				Render();
+			}
+		}
 	}
 
-	if (!App->is_game && App->camera->editor_camera->active)
-		Draw(App->camera->editor_camera);
-	else if (App->is_game && App->camera->game_cameras.size() > 0)
-		Draw(App->camera->game_cameras.back());
+	opaqueMeshes.clear();
+	selected_meshes_to_draw.clear();
+	while (!translucentMeshes.empty())
+		translucentMeshes.pop();
+	while (!orderedParticles.empty())
+		orderedParticles.pop();
+	while (!orderedUI.empty())
+		orderedUI.pop();
+
 
 	return UPDATE_CONTINUE;
 }
@@ -160,54 +194,128 @@ bool ModuleRenderer3D::CleanUp()
 	return true;
 }
 
-void ModuleRenderer3D::Draw(Camera * cam)
+void ModuleRenderer3D::Render()
 {
-	App->camera->current_camera = cam;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf((GLfloat*)cam->getFrustum()->ProjectionMatrix().v);
+	glLoadMatrixf((GLfloat*)App->camera->current_camera->getFrustum()->ProjectionMatrix().v);
 
 	glMatrixMode(GL_MODELVIEW);
-	float4x4 mat(cam->getFrustum()->ViewMatrix());
+	float4x4 mat(App->camera->current_camera->getFrustum()->ViewMatrix());
 	glLoadMatrixf((GLfloat*)mat.Transposed().v);
 
-	lights[0].SetPos(cam->getFrustum()->pos.x, cam->getFrustum()->pos.y, cam->getFrustum()->pos.z);
+	lights[0].SetPos(App->camera->current_camera->getFrustum()->pos.x, App->camera->current_camera->getFrustum()->pos.y,
+		App->camera->current_camera->getFrustum()->pos.z);
 
 	for (uint i = 0; i < MAX_LIGHTS; ++i)
 		lights[i].Render();
 
-	App->scene->DrawScene(cam->getFrustum()->pos);
-
-	if (App->time->getGameState() == GameState::PLAYING)
+	// rendering skybox
+	if (App->scene->skybox)
 	{
-		bool depth_test = glIsEnabled(GL_DEPTH_TEST);
-		bool lighting = glIsEnabled(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		App->scene->DrawInGameUI();
-
-		if (depth_test)
-			glEnable(GL_DEPTH_TEST);
-		if (lighting)
-			glEnable(GL_LIGHTING);
+		App->scene->skybox->updatePosition(App->camera->current_camera->getFrustum()->pos);
+		App->scene->skybox->Render();
 	}
 
-	if (cam != App->camera->background_camera && cam->getFrameBuffer())
+	// rendering meshes
+	for (int i = 0; i < opaqueMeshes.size(); i++)
+		opaqueMeshes[i]->Render();
+
+	while (translucentMeshes.size() != 0)
 	{
-		glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
-		if (cam->draw_depth)
+		Component* first = translucentMeshes.top();
+		first->Render();
+		translucentMeshes.pop();
+	}
+
+	for (int i = 0; i < selected_meshes_to_draw.size(); i++)
+		selected_meshes_to_draw[i]->RenderSelected();
+
+	//  rendering debug elements
+	if (!App->is_game)
+		App->debug->DrawShapes();
+	
+	// rendering particles
+	while (orderedParticles.size() != 0)
+	{
+		Particle* first = orderedParticles.top();
+		first->parent->billboard->UpdateFromParticle(*first);
+		orderedParticles.pop();
+	}
+
+	// rendering in-game UI
+
+	if (!orderedUI.empty())
+	{
+		if (GameObject* canvas = App->scene->getCanvasGameObject())
 		{
-			glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->depth_tex->gl_id);
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
-			glBindTexture(GL_TEXTURE_2D, 0);
+
+			bool depth_test = glIsEnabled(GL_DEPTH_TEST);
+			bool lighting = glIsEnabled(GL_LIGHTING);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_LIGHTING);
+
+			ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+
+			float left = rectTransform->getGlobalPos().x;
+			float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
+			float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
+			float bottom = rectTransform->getGlobalPos().y;
+
+			float zNear = -10.f;
+			float zFar = 10.f;
+			float3 min = { left, bottom, zNear };
+			float3 max = { right, top, zFar };
+
+			App->scene->ui_render_box.minPoint = min;
+			App->scene->ui_render_box.maxPoint = max;
+
+			glOrtho(left, right, bottom, top, zNear, zFar);
+			float3 corners[8];
+			App->scene->ui_render_box.GetCornerPoints(corners);
+			App->renderer3D->DrawDirectAABB(App->scene->ui_render_box);
+
+			while (orderedUI.size() != 0)
+			{
+				Component* first = orderedUI.top();
+				first->Render();
+				orderedUI.pop();
+			}
+
+			if (depth_test)
+				glEnable(GL_DEPTH_TEST);
+			if (lighting)
+				glEnable(GL_LIGHTING);
 		}
-		else
+	}
+
+	if (!App->is_game)
+	{
+
+		if (App->camera->current_camera->getFrameBuffer())
 		{
-			glBindTexture(GL_TEXTURE_2D, cam->getFrameBuffer()->tex->gl_id);
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, cam->getFrameBuffer()->size_x, cam->getFrameBuffer()->size_y, 0);
-			glBindTexture(GL_TEXTURE_2D, 0);
+			glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
+			if (App->camera->current_camera->draw_depth)
+			{
+				glBindTexture(GL_TEXTURE_2D, App->camera->current_camera->getFrameBuffer()->depth_tex->gl_id);
+				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, App->camera->current_camera->getFrameBuffer()->size_x, App->camera->current_camera->getFrameBuffer()->size_y, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, App->camera->current_camera->getFrameBuffer()->tex->gl_id);
+				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, App->camera->current_camera->getFrameBuffer()->size_x, App->camera->current_camera->getFrameBuffer()->size_y, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
 		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 }
 

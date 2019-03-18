@@ -6,6 +6,7 @@
 #include "ComponentBillboard.h"
 #include "Globals.h"
 
+class ComponentParticleEmitter;
 
 class ParticleInfo
 {
@@ -37,8 +38,8 @@ class Particle
 	friend class Billboard;
 	friend class ComponentParticleEmitter;
 public:
-	Particle(ParticleInfo i);
-	Particle() {};
+	Particle(ComponentParticleEmitter* _parent, ParticleInfo i);
+	Particle(ComponentParticleEmitter* _parent) : parent(_parent)  {};
 	~Particle() {};
 
 	void Update(float dt);
@@ -46,6 +47,8 @@ public:
 	void Reset();
 
 	float DistanceToCamera() const;
+
+	ComponentParticleEmitter* parent = nullptr;
 
 private:
 

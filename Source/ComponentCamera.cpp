@@ -19,6 +19,7 @@ ComponentCamera::ComponentCamera(GameObject* parent, Camera* camera) : Component
 
 ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Component(parent, CAMERA){
 
+
 	is_active = json_object_get_boolean(deff, "active");
 
 	JSON_Array* offset_array = json_object_get_array(deff, "offset");
@@ -40,34 +41,35 @@ ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Compon
 
 	transform = (ComponentTransform*)parent->getComponent(TRANSFORM);
 	camera->attached_to = this;
+
+	if (json_object_get_boolean(deff, "game_camera"))
+	{
+		App->camera->game_camera = camera;
+		if (App->is_game)
+			is_active = true;
+	}
 }
 
 ComponentCamera::~ComponentCamera()
 {
-	if (camera != App->camera->editor_camera && !camera->IsViewport())
-	{
-		if (camera == App->camera->override_editor_cam_culling) App->camera->override_editor_cam_culling = nullptr;
-		if (camera == App->camera->selected_camera)				App->camera->selected_camera = App->camera->background_camera;
-		App->camera->game_cameras.remove(camera);
-		delete camera;
-	}
+	if (camera == App->camera->override_editor_cam_culling) App->camera->override_editor_cam_culling = nullptr;
+	if (camera == App->camera->game_camera)					App->camera->game_camera = App->camera->editor_camera;
+	App->camera->game_cameras.remove(camera);
+	delete camera;
 }
 
 bool ComponentCamera::Update(float dt)
 {
-	if (App->camera->selected_camera != camera)
-	{
-		float3 displacement = camera->getFrustum()->pos;
-		camera->getFrustum()->pos = transform->local->getPosition() + offset;
-		displacement = camera->getFrustum()->pos - displacement;
-		camera->Reference += displacement;
-		camera->Reference = camera->getFrustum()->pos + (transform->local->Forward().Normalized() * (camera->Reference - camera->getFrustum()->pos).Length());
-		camera->X = transform->local->Right();
-		camera->Y = transform->local->Up();
-		camera->Z = transform->local->Forward();
-		camera->updateFrustum();
-	}
-
+	float3 displacement = camera->getFrustum()->pos;
+	camera->getFrustum()->pos = transform->local->getPosition() + offset;
+	displacement = camera->getFrustum()->pos - displacement;
+	camera->Reference += displacement;
+	camera->Reference = camera->getFrustum()->pos + (transform->local->Forward().Normalized() * (camera->Reference - camera->getFrustum()->pos).Length());
+	camera->X = transform->local->Right();
+	camera->Y = transform->local->Up();
+	camera->Z = transform->local->Forward();
+	camera->updateFrustum();
+	
 	getCamera()->active = getCamera()->draw_in_UI;
 
 	return true;
@@ -169,4 +171,5 @@ void ComponentCamera::Save(JSON_Object* config) {
 	JSON_Value* camera_value = json_value_init_object();
 	camera->Save(json_object(camera_value));
 	json_object_set_value(config, "camera", camera_value);
+	json_object_set_boolean(config, "game_camera", App->camera->game_camera == camera);
 }

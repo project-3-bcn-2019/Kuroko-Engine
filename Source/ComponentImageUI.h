@@ -2,8 +2,8 @@
 #define _COMPONENTIMAGEUI_
 #include "Component.h"
 #include "MathGeoLib/Math/float2.h"
+#include "ComponentRectTransform.h"
 
-class ComponentRectTransform;
 class ResourceTexture;
 
 class ComponentImageUI : public Component
@@ -14,7 +14,8 @@ public:
 	~ComponentImageUI();
 
 	bool Update(float dt)override;
-	void Draw() const override;
+	void Draw();
+	void Render() const;
 	bool DrawInspector(int id = 0) override;
 
 	void Save(JSON_Object* config) override;
@@ -29,6 +30,8 @@ public:
 	inline void doFadeOut() { alpha = 1.0f; fadingOut = true; }
 	
 	float alpha = 1.0f; //not functional yet
+
+	const float getDepth() const { return rectTransform->getDepth(); };
 private:
 	ComponentRectTransform* rectTransform = nullptr;	
 	ResourceTexture* texture = nullptr;

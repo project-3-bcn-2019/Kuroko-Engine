@@ -1,11 +1,11 @@
 #ifndef __MODULE_SCENE
 #define __MODULE_SCENE
 #include "Module.h"
-#include "MathGeoLib\Geometry\Polygon.h"
 #include "MathGeoLib\MathGeoLib.h"
 #include "MathGeoLib\Geometry\Frustum.h"
 #include "MathGeoLib\Math\float3.h"
 #include "ImGui\ImGuizmo.h"
+#include "MathGeoLib\Geometry\Polygon.h"
 #include "Transform.h"
 #include <list>
 
@@ -53,8 +53,7 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
-	void DrawScene(float3 camera_pos);
-	void DrawInGameUI();
+	void DrawScene(); 
 
 	void addGameObject(GameObject* gobj)	{ game_objects.push_back(gobj); };
 	GameObject* duplicateGameObject(GameObject* gobj);
@@ -77,6 +76,7 @@ public:
 	void LoadScriptComponents();
 
 	std::list<GameObject*>getUIGameObjects();
+	std::list<GameObject*>getGameObjectWithButton();
 	GameObject* getCanvasGameObject(bool createCanvas = false);//creates gameobject with a canvas component if it's not created already (just 1 canvas needed)
 
 
@@ -89,8 +89,8 @@ public:
 	void AskAutoSaveScene() { want_autosave = true; }
 
 
-	GameObject* MousePicking(GameObject* ignore = nullptr);
-	float3 MousePickingHit(GameObject* ignore = nullptr);
+	GameObject* MousePicking(float x, float y, GameObject* ignore = nullptr);
+	float3 MousePickingHit(float x, float y, GameObject* ignore = nullptr);
 	void MouseDragging();
 
 	GameObject* audiolistenerdefault = nullptr;
@@ -118,10 +118,9 @@ private:
 	std::list<GameObject*>	game_objs_to_delete;
 
 	Quadtree * quadtree		= nullptr;
-
 	bool dragging = false;
 	Frustum* dragging_frustum = nullptr;
-	float2 initial_drag;
+	float2 initial_drag = float2::zero;
 
 	bool want_save_scene_file = false;
 	bool want_load_scene_file = false;
@@ -144,14 +143,14 @@ private:
 	std::list<std::string> redo_list;
 
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
-
-	//TESTING GLORTHO AABB:
-	AABB ui_render_box;
+	
+												//TESTING GLORTHO AABB:
 
 public:
 
 	std::list<GameObject*> selected_obj;
 	std::list<uint> prev_selected_obj;
+
 	Skybox* skybox				= nullptr;
 
 	uint last_mat_id			= 0;
@@ -162,11 +161,12 @@ public:
 	bool global_wireframe		= false;
 	bool global_normals			= false;
 	// Dirty bools related to quadtee
-	bool draw_quadtree			= true;
+	bool draw_quadtree			= false;
 	bool quadtree_reload		= false;
 	int quadtree_ignored_obj	= 0;
 	int quadtree_checks			= 0;
 
 	uint main_scene = 0;
+	AABB ui_render_box;
 };
 #endif

@@ -13,6 +13,7 @@
 #include "ResourceTexture.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleUI.h"
+#include "ModuleRenderer3D.h"
 #include "Material.h"
 
 std::string openFileWID(bool isfile = false);
@@ -50,12 +51,25 @@ bool ComponentBillboard::Update(float dt)
 	return true;
 }
 
-void ComponentBillboard::Draw() const
+void ComponentBillboard::Draw()
+{
+	if (billboard->getMaterial())
+	{
+		if (billboard->getMaterial()->translucent)
+		{
+			App->renderer3D->translucentMeshes.push(this);
+			return;
+		}
+	}
+	App->renderer3D->opaqueMeshes.push_back(this);
+}
+
+void ComponentBillboard::Render() const
 {
 	if (billboard->useColor)	mesh->tint_color = billboard->color;
 	else						mesh->tint_color = White;
 
-	billboard->Draw();
+	billboard->Render();
 }
 
 bool ComponentBillboard::DrawInspector(int id)
@@ -74,6 +88,8 @@ bool ComponentBillboard::DrawInspector(int id)
 				ImGui::TreePop();
 				App->scene->AskAutoSaveScene();
 			}
+
+			ImGui::Checkbox("translucent", &material->translucent);
 
 			ImGui::Text("Preview size");
 			ImGui::SameLine();

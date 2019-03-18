@@ -27,7 +27,7 @@ public:
 	Billboard(Component* p_component, const Billboard& other);
 	~Billboard();
 
-	void Draw() const;
+	void Render() const;
 	void Save(JSON_Object* json);
 	void UpdateTransform(float3 pos, float3 scl);
 	void UpdateFromParticle(const Particle& particle);
