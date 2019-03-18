@@ -32,6 +32,7 @@ class PlayerController is ObjectLinker{
     OldMoveDirection {_old_move_direction}
 
     ComponentAudioSource {_component_audio_source}
+    ComponentAnimatior {_component_animator}
 
 
     PunchButton {_punch_button}
@@ -93,10 +94,10 @@ class PlayerController is ObjectLinker{
         _idle_state = IdleState.new(this)
 
         //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,total_duration)
-        _punch1_state = BasicAttackState.new(this,"punch",1,"Malita_Punch_Tier_1","Punch","P1Col",700,500)
-        _punch2_state = BasicAttackState.new(this,"punch",2,"Malita_Punch_Tier_2","Punch","P1Col",1000,500)
-        _kick1_state = BasicAttackState.new(this,"kick",1,"Malita_Kick_Tier_1","Punch","P1Col",700,500)
-        _kick2_state = BasicAttackState.new(this,"kick",2,"Malita_Kick_Tier_2","Punch","P1Col",1000,500)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"punch1","Punch","P1Col",700,500)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"punch2","Punch","P1Col",1000,500)
+        _kick1_state = BasicAttackState.new(this,"kick",1,"kick1","Punch","P1Col",700,500)
+        _kick2_state = BasicAttackState.new(this,"kick",2,"kick2","Punch","P1Col",1000,500)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
@@ -221,8 +222,12 @@ class IdleState is State {
     }
 
     BeginState() {
-
+        _player.ComponentAnimatior.setBool("idle",true)
         super.BeginState()
+    }
+
+    EndState() {
+        _player.ComponentAnimatior.setBool("idle",false)        
     }
 
     HandleInput() {
@@ -254,7 +259,11 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
+        _player.ComponentAnimatior.setBool("moving",true)
+    }
 
+    EndState() {
+        _player.ComponentAnimatior.setBool("moving",false)        
     }
 
     HandleInput() {
@@ -342,7 +351,7 @@ class BasicAttackState is State {
         super(player)
         _player = player
     }
-
+    //The animation name is the name of the variable that the graph uses
     //when the windup duration finishes the collider will be created, make sure its lower than the total_duration (Its obvious)
     construct new(player,type,tier,animation_name,sound_name,prefav_collider_name,total_duration,windup_duration) {
         _player = player
@@ -369,8 +378,14 @@ class BasicAttackState is State {
         _next_state = _player.IdleState
         _on_contact_done = false
 
+        _player.ComponentAnimatior.setBool(_animation_name,true)
+
         _player.ComponentAudioSource.setSound(_sound_name)
         _player.ComponentAudioSource.Play()
+    }
+
+    EndState() {
+        _player.ComponentAnimatior.setBool(_animation_name,false)        
     }
 
     HandleInput() {
