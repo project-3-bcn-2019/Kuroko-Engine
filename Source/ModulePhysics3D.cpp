@@ -152,16 +152,6 @@ update_status ModulePhysics3D::Update(float dt)
 	return UPDATE_CONTINUE;
 }
 
-update_status ModulePhysics3D::PostUpdate(float dt)
-{
-	if (physics_debug)
-	{
-		world->debugDrawWorld();
-	}
-
-
-	return UPDATE_CONTINUE;
-}
 
 void ModulePhysics3D::UpdatePhysics()
 {

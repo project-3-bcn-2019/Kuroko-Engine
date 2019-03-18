@@ -18,6 +18,7 @@
 #include "ComponentRectTransform.h"
 #include "Skybox.h"
 #include "ModuleDebug.h"
+#include "ModulePhysics3D.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
@@ -229,12 +230,17 @@ void ModuleRenderer3D::Render()
 		translucentMeshes.pop();
 	}
 
-	for (int i = 0; i < selected_meshes_to_draw.size(); i++)
-		selected_meshes_to_draw[i]->RenderSelected();
-
 	//  rendering debug elements
 	if (!App->is_game)
+	{
 		App->debug->DrawShapes();
+
+		for (int i = 0; i < selected_meshes_to_draw.size(); i++)
+			selected_meshes_to_draw[i]->RenderSelected();
+
+		if (App->physics->physics_debug)
+			App->physics->world->debugDrawWorld();
+	}
 	
 	// rendering particles
 	while (orderedParticles.size() != 0)

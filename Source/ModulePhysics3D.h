@@ -47,6 +47,7 @@ public:
 };
 class ModulePhysics3D : public Module
 {
+	friend class ModuleRenderer3D;
 public:	
 	ModulePhysics3D(Application* app, bool start_enabled = true);
 	~ModulePhysics3D();
@@ -57,7 +58,6 @@ public:
 
 	update_status PreUpdate(float dt);
 	update_status Update(float dt);
-	update_status PostUpdate(float dt);
 
 	void UpdatePhysics();
 
