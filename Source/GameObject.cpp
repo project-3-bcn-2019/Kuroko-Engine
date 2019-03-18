@@ -617,3 +617,10 @@ void GameObject::Save(JSON_Object * config) {
 
 }
 
+float GameObject::distanceToCamera()
+{
+	ComponentTransform* transform = (ComponentTransform*)getComponent(TRANSFORM);
+	return (transform->global->getPosition().Distance(App->camera->current_camera->getFrustum()->pos));
+}
+
+

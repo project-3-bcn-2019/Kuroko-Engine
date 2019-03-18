@@ -1,8 +1,8 @@
 #include "ComponentTextUI.h"
 #include "GameObject.h"
-#include "ComponentRectTransform.h"
 #include "FontManager.h"
 #include "Application.h"
+#include "ModuleRenderer3D.h"
 #include "MathGeoLib/Math/float4x4.h"
 #include <vector>
 
@@ -74,7 +74,14 @@ bool ComponentTextUI::Update(float dt)
 	return true;
 }
 
-void ComponentTextUI::Draw() const
+
+void ComponentTextUI::Draw()
+{
+	App->renderer3D->orderedUI.push(this);
+}
+
+
+void ComponentTextUI::Render() const
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);

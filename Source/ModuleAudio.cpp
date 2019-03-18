@@ -61,7 +61,7 @@ update_status ModuleAudio::PreUpdate(float dt)
 	// Set camera listener to camera position
 	if (App->scene->audiolistenerdefault)
 	{
-		float3 cam_pos = App->camera->selected_camera->getFrustum()->pos;
+		float3 cam_pos = App->camera->game_camera ? App->camera->game_camera->getFrustum()->pos : App->camera->editor_camera->getFrustum()->pos;
 		((ComponentTransform*)App->scene->audiolistenerdefault->getComponent(TRANSFORM))->local->setPosition(cam_pos);
 		((ComponentTransform*)App->scene->audiolistenerdefault->getComponent(TRANSFORM))->local->CalculateMatrix();
 	}

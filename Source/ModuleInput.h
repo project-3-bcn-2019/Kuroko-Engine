@@ -81,7 +81,7 @@ public:
 
 	KEY_STATE GetKey(int id) const;
 
-	KEY_STATE GetMouseButton(int id) const;
+	KEY_STATE GetMouseButton(int id, bool override_ui = false) const;
 
 	int GetMouseX() const
 	{

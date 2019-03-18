@@ -2,13 +2,14 @@
 #include "Application.h"
 #include "Camera.h"
 #include "ModuleCamera3D.h"
+#include "ComponentParticleEmitter.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "SDL\include\SDL_opengl.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
-Particle::Particle(ParticleInfo i)
+Particle::Particle(ComponentParticleEmitter* _parent, ParticleInfo i) : parent(_parent)
 {
 	info = i;
 	Reset();

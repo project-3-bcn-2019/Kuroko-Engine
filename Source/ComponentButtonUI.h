@@ -14,6 +14,13 @@ enum ButtonState {
 	B_PRESSED
 };
 
+//struct ButtonLink {
+//	ComponentButtonUI up = nullptr;
+//	ComponentButtonUI down = nullptr;
+//	ComponentButtonUI left = nullptr;
+//	ComponentButtonUI right = nullptr;
+//};
+
 struct WrenCall {
 
 	WrenCall(std::string script, std::string method): script_name(script), method_name(method) {}
@@ -46,7 +53,10 @@ public:
 
 	inline void doFadeIn() {	alpha = 0.0f; fadingIn = true;}
 	inline void doFadeOut() { alpha = 1.0f; fadingOut = true; }
-	
+
+	//bool isFocus() const { return focus; }
+	//void setFocus(bool _focus) { focus = _focus; }
+
 	
 private:
 
@@ -61,7 +71,13 @@ private:
 	void FadeOut();
 	bool fadingIn = false;
 	bool fadingOut = false;
+	//bool focus = false;
 	float alpha = 1.0f;
+
+	ComponentButtonUI* up = nullptr;
+	ComponentButtonUI* down = nullptr;
+	ComponentButtonUI* left = nullptr;
+	ComponentButtonUI* right = nullptr;
 };
 
 #endif

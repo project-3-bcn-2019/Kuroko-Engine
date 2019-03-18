@@ -35,13 +35,13 @@ void PanelViewports::Draw()
 
 		if (ImGui::ImageButton((void*)(App->camera->viewports[i]->draw_depth ? fb->depth_tex->gl_id : fb->tex->gl_id), ImVec2(fb->size_x / 4, fb->size_y / 4), nullptr, ImVec2(0, 1), ImVec2(1, 0)))
 		{
-			for (int i = 0; i < 6; i++)
+			/*for (int i = 0; i < 6; i++)
 				App->camera->viewports[i]->active = false;
 
 			App->camera->background_camera->active = false;
 			App->camera->background_camera = App->camera->selected_camera = App->camera->viewports[i];
 			App->camera->background_camera->active = true;
-			active = false;
+			active = false;*/
 		}
 	}
 	ImGui::End();
