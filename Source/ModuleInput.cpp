@@ -327,9 +327,6 @@ KEY_STATE ModuleInput::GetKey(int id) const
 
 KEY_STATE ModuleInput::GetMouseButton(int id, bool override_ui) const
 {
-	if(mouse_buttons[id] == KEY_REPEAT)
-		app_log->AddLog("Key  repeat!");
-
 	if (App->gui->isMouseOnUI() && !override_ui)
 		return KEY_IDLE;
 	else

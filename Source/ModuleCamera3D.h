@@ -38,6 +38,8 @@ public:
 
 	float editor_cam_speed = 2.5f;
 	float editor_cam_rot_speed = 0.25f;
+
+	bool enable_camera_control = false;
 };
 
 #endif

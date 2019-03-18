@@ -18,15 +18,16 @@ public:
 	~ComponentAABB();
 
 	bool Update(float dt);
-	void Draw() const;
+	void Draw();
+	void Render() const;
 	bool DrawInspector(int id = 0)override;
 	void Reload();
 
 	math::AABB* getAABB() const { return aabb; };
 	math::OBB* getOBB() const { return obb; };
 
-	void DrawAABB() const;
-	void DrawOBB() const;
+	void RenderAABB() const;
+	void RenderOBB() const;
 
 	void Save(JSON_Object* config);
 

@@ -1,0 +1,71 @@
+{
+    "Game Objects": [
+        {
+            "name": "Empty",
+            "active": true,
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3422736609,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 2840256847
+                },
+                {
+                    "type": "AABB",
+                    "active": true,
+                    "uuid": 793621764
+                },
+                {
+                    "type": "camera",
+                    "active": true,
+                    "offset": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "camera": {
+                        "pos_x": 0,
+                        "pos_y": 0,
+                        "pos_z": 0,
+                        "ref_x": 0,
+                        "ref_y": 0,
+                        "ref_z": 5,
+                        "frustum_type": 2,
+                        "active": false,
+                        "draw_in_UI": false,
+                        "draw_frustum": false,
+                        "draw_depth": false
+                    },
+                    "game_camera": false,
+                    "uuid": 261038570
+                }
+            ]
+        }
+    ]
+}
