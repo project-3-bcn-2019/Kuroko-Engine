@@ -2135,7 +2135,7 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 
 		frame_buffer->changeTexSize(window_size.x, window_size.y);
 
-		if (ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), window_size, nullptr, ImVec2(0, 1), ImVec2(1, 0), -1))
+		if ((ImGui::ImageButton((void*)(camera.draw_depth ? frame_buffer->depth_tex->gl_id : frame_buffer->tex->gl_id), window_size, nullptr, ImVec2(0, 1), ImVec2(1, 0), -1)) && (draw_guizmo ? !ImGuizmo::IsOver() : true))
 		{
 			if (&camera == App->camera->editor_camera)
 			{
