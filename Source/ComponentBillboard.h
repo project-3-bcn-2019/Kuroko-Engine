@@ -16,7 +16,8 @@ public:
 	~ComponentBillboard();
 
 	bool Update(float dt);
-	void Draw() const;
+	void Render() const;
+	void Draw();
 	bool DrawInspector(int id = 0) override;
 
 	void Save(JSON_Object* config);

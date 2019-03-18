@@ -72,7 +72,7 @@ public:
 	uint getMainScene() const;
 	std::list<resource_deff> GetBuildScenes() { return build_scenes; }
 
-	void DrawGuizmo();
+	void DrawGuizmo(ImVec2 window_pos, ImVec2 window_size);
 	void DrawTagSelection(GameObject* object);
 
 	void InvisibleDockingBegin();
@@ -112,8 +112,7 @@ public:
 
 	std::array<Texture*, LAST_UI_TEX> ui_textures;
 	std::array<ImFont*, LAST_UI_FONT> ui_fonts;
-
-
+	ImVec2 game_window_pos = { 0.0f, 0.0f };
 
 private:
 	
@@ -126,8 +125,8 @@ private:
 	ImGuizmo::MODE gizmo_mode = ImGuizmo::WORLD;
 
 
-	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------
-	std::string selected_asset; //NOT IN USE I GUESS---------------
+	std::string asset_window_path = ASSETS_FOLDER; //NOT IN USE I GUESS---------------(yes it is, in DrawAssetWindow)
+	std::string selected_asset; //NOT IN USE I GUESS--------------- (yes it is, in DrawAssetWindow)
 
 	std::list<resource_deff> build_scenes;
 	std::vector<bool> main_scene;

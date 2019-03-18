@@ -137,7 +137,7 @@ void Skybox::setDistance(float dist)
 }
 
 
-void Skybox::Draw() const
+void Skybox::Render() const
 {//MISSES HERE
 	if (active)
 	{

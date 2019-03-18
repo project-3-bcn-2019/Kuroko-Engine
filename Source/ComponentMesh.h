@@ -15,8 +15,10 @@ public:
 	//ComponentMesh(GameObject* gameobject, Mesh* mesh) : Component(gameobject, MESH), primitive_mesh(mesh) {};
 
 	~ComponentMesh();
-	void Draw() const;
-	void DrawSelected() const;
+	void Draw();
+	void DrawSelected();
+	void Render() const;
+	void RenderSelected() const;
 	bool getWireframe() const			{ return wireframe; };
 	bool getDrawNormals()const			{ return draw_normals; };
 	Material* getMaterial()	const		{ return mat; };

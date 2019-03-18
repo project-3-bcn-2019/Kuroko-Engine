@@ -13,7 +13,7 @@
 
 #include <list>
 
-enum ShapeType { S_UNKNOWN, CUBE, SPHERE, ARROW, AXIS, RAY, FRUSTUM};
+enum ShapeType { S_UNKNOWN, S_CUBE, S_SPHERE, S_ARROW, S_AXIS, S_RAY, S_FRUSTUM};
 
 struct DebugShape
 {

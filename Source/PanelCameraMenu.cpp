@@ -42,6 +42,9 @@ void PanelCameraMenu::Draw()
 				name = "Free camera";
 			else
 				name = (*it)->getViewportDirString();
+
+			if (App->camera->game_camera == (*it))
+				name += "(Game camera)";
 		}
 
 		if (ImGui::TreeNode(name.c_str()))
@@ -50,18 +53,21 @@ void PanelCameraMenu::Draw()
 			else				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unactive");
 
 			ImGui::SameLine();
-			if (*it != App->camera->background_camera)
+
+			static bool is_overriding;
+			is_overriding = ((*it) == App->camera->override_editor_cam_culling);
+			if (ImGui::Checkbox("Override Frustum Culling", &is_overriding))
 			{
-				static bool is_overriding;
-				is_overriding = ((*it) == App->camera->override_editor_cam_culling);
-				if (ImGui::Checkbox("Override Frustum Culling", &is_overriding))
-				{
-					if (!is_overriding)  App->camera->override_editor_cam_culling = nullptr;
-					else				 App->camera->override_editor_cam_culling = *it;
-				}
+				if (!is_overriding)  App->camera->override_editor_cam_culling = nullptr;
+				else				 App->camera->override_editor_cam_culling = *it;
 			}
-			else
-				ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Background camera");
+
+			static bool game_camera;
+			game_camera = (App->camera->game_camera == (*it));
+
+			if (ImGui::Checkbox("Game Camera", &game_camera))
+				App->camera->game_camera = game_camera ? (*it) : App->camera->editor_camera;
+					
 
 			ImGui::Checkbox("Draw camera view", &(*it)->draw_in_UI);
 

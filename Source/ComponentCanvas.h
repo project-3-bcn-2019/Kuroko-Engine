@@ -13,7 +13,8 @@ public:
 	~ComponentCanvas();
 
 	bool Update(float dt) override;
-	void Draw() const override;
+	void Draw();
+	void Render() const;
 	bool DrawInspector(int id = 0)override;
 	void Save(JSON_Object* config) override;
 

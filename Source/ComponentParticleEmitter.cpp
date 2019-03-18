@@ -9,6 +9,7 @@
 #include "ModuleUI.h"
 #include "Material.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleRenderer3D.h"
 #include "ResourceTexture.h"
 
 
@@ -234,7 +235,7 @@ void ComponentParticleEmitter::CreateParticle()
 		dir = (transform->global->getRotation() * direction) + vartiation;
 
 	//Create New Particle
-	Particle* newParticle = new Particle();
+	Particle* newParticle = new Particle(this);
 	newParticle->info.Set(GetRandom(startSize), GetRandom(endSize), GetRandom(startSpin), GetRandom(endSpin), GetRandom(speed), GetRandom(particleLifetime), GetRandomPosition(), dir, gravity, GetRandom(startColor), GetRandom(endColor));
 	newParticle->Reset();
 	particles.push_back(newParticle);
@@ -290,26 +291,32 @@ void ComponentParticleEmitter::UpdateParticles(float dt)
 
 }
 
-void ComponentParticleEmitter::Draw() const
+void ComponentParticleEmitter::Draw()
 {
-	std::priority_queue<Particle*, std::vector<Particle*>, ParticlePriority> orderedParticles;
-
 	for (std::list<Particle*>::const_iterator item = particles.cbegin(); item != particles.cend(); item++)
-		orderedParticles.push(*item);
-
-	while (orderedParticles.size() != 0)
-	{
-		Particle* first = orderedParticles.top();
-
-		float distance = first->DistanceToCamera();
-
-		billboard->UpdateFromParticle(*first);
-		billboard->Draw();
-
-		orderedParticles.pop();
-	}
-
+		App->renderer3D->orderedParticles.push(*item);
 }
+//
+//void ComponentParticleEmitter::Render() const
+//{
+//	std::priority_queue<Particle*, std::vector<Particle*>, ParticlePriority> orderedParticles;
+//
+//	for (std::list<Particle*>::const_iterator item = particles.cbegin(); item != particles.cend(); item++)
+//		orderedParticles.push(*item);
+//
+//	while (orderedParticles.size() != 0)
+//	{
+//		Particle* first = orderedParticles.top();
+//		particles.front().
+//		float distance = first->DistanceToCamera();
+//
+//		billboard->UpdateFromParticle(*first);
+//		billboard->Draw();
+//
+//		orderedParticles.pop();
+//	}
+//
+//}
 
 bool ComponentParticleEmitter::DrawInspector(int id)
 {
