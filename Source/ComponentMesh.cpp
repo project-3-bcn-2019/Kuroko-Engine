@@ -16,6 +16,7 @@
 #include "Camera.h"
 #include "Applog.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleRenderer3D.h"
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
@@ -24,6 +25,7 @@
 std::string openFileWID(bool isfile = false);
 
 ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(parent, MESH) {
+	is_active = json_object_get_boolean(deff, "active");
 	std::string path;
 
 	// Load mesh from own file format
@@ -78,10 +80,66 @@ ComponentMesh::ComponentMesh(JSON_Object * deff, GameObject* parent): Component(
 	else // Means it is being loaded from a 3dObject binary
 		diffuse_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");
 
+	const char* vertex_path = json_object_dotget_string(deff, "vertex_shader");
+	uint vertex_resource = 0;
+	if (vertex_path) { // Means that is being loaded from a scene	
+		if (!App->is_game || App->debug_game)
+			vertex_resource = App->resources->getResourceUuid(vertex_path);
+		else
+		{
+			std::string s_path = vertex_path;
+			App->fs.getFileNameFromPath(s_path);
+			vertex_resource = App->resources->getShaderResourceUuid(s_path.c_str());
+		}
+	}
+	//else // Means it is being loaded from a 3dObject binary
+	//	vertex_resource = json_object_dotget_number(deff, "material.diffuse_resource_uuid");
+
+	const char* fragment_path = json_object_dotget_string(deff, "fragment_shader");
+	uint fragment_resource = 0;
+	if (fragment_path) { // Means that is being loaded from a scene	
+		if (!App->is_game || App->debug_game)
+			fragment_resource = App->resources->getResourceUuid(fragment_path);
+		else
+		{
+			std::string d_path = fragment_path;
+			App->fs.getFileNameFromPath(d_path);
+			fragment_resource = App->resources->getShaderResourceUuid(d_path.c_str());
+		}
+	}
 
 	if(diffuse_resource != 0){
 		App->resources->assignResource(diffuse_resource);
 		mat->setTextureResource(DIFFUSE, diffuse_resource);
+	}
+
+	if (vertex_resource != 0 && fragment_resource != 0)
+	{
+		App->resources->assignResource(vertex_resource);
+		App->resources->assignResource(fragment_resource);
+
+		//first we look for an existent program
+		uint ShaderID = App->shaders->GetShaderProgramByResources(vertex_resource, fragment_resource);
+		if (ShaderID != 0)
+		{
+			mat->setShaderProgram(ShaderID);
+		}
+		else //if we can't find a program we create a new one
+		{
+			ShaderProgram* shader_program = new ShaderProgram();
+			shader_program->shaderUUIDS.push_back(vertex_resource);
+			shader_program->shaderUUIDS.push_back(fragment_resource);
+
+			if (App->shaders->CompileProgramFromResources(shader_program))
+			{
+				App->shaders->shader_programs.push_back(shader_program);
+			}
+			else
+			{
+				//if there is any compiling error we will use the default shader that will be always loaded
+				RELEASE(shader_program)
+			}
+		}
 	}
 }
 
@@ -92,7 +150,25 @@ ComponentMesh::~ComponentMesh() {
 	delete mat;
 }
 
-void ComponentMesh::Draw() const
+void ComponentMesh::Draw()
+{
+	if (mat)
+	{
+		if (mat->translucent)
+		{
+			App->renderer3D->translucentMeshes.push(this);
+			return;
+		}
+	}
+	App->renderer3D->opaqueMeshes.push_back(this);
+}
+
+void ComponentMesh::DrawSelected()
+{
+	App->renderer3D->selected_meshes_to_draw.push_back(this);
+}
+
+void ComponentMesh::Render() const
 {
 	if (Mesh* mesh_from_resource = getMeshFromResource())
 	{
@@ -134,7 +210,7 @@ void ComponentMesh::Draw() const
 	}
 }
 
-void ComponentMesh::DrawSelected() const
+void ComponentMesh::RenderSelected() const
 {
 	if (Mesh* mesh_from_resource = getMeshFromResource())
 	{
@@ -200,8 +276,10 @@ bool ComponentMesh::DrawInspector(int id)
 		mesh_active = isActive();
 
 		if (ImGui::Checkbox("Active## mesh_active", &mesh_active))
+		{
 			setActive(mesh_active);
-
+			App->scene->AskAutoSaveScene();
+		}
 		if (mesh_active)
 		{
 			ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(getMeshResource());
@@ -265,6 +343,8 @@ bool ComponentMesh::DrawInspector(int id)
 			{
 				if (Material* material = getMaterial())
 				{
+					ImGui::Checkbox("translucent", &material->translucent);
+
 					static int preview_size = 128;
 					ImGui::Text("Id: %d", material->getId());
 					ImGui::SameLine();
@@ -329,6 +409,7 @@ bool ComponentMesh::DrawInspector(int id)
 							if (vertex_shader)
 							{
 								vertex_name = vertex_shader->asset;
+								App->fs.getFileNameFromPath(vertex_name);
 							}
 							else
 							{
@@ -366,12 +447,13 @@ bool ComponentMesh::DrawInspector(int id)
 
 							ImGui::Text("Fragment:");
 							ImGui::SameLine();
-							ResourceShader* fragment_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[0]);
+							ResourceShader* fragment_shader = (ResourceShader*)App->resources->getResource(material->getShaderProgram()->shaderUUIDS[1]);
 
 							std::string fragment_name;
 							if (fragment_shader)
 							{
 								fragment_name = fragment_shader->asset;
+								App->fs.getFileNameFromPath(fragment_name);
 							}
 							else
 							{
@@ -640,6 +722,7 @@ void ComponentMesh::Save(JSON_Object* config) {
 	// Determine the type of the mesh
  	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "mesh");
+	json_object_set_boolean(config, "active", is_active);
 
 	if(mesh_resource_uuid != 0){
 		//json_object_set_number(config, "mesh_resource_uuid", mesh_resource_uuid);
@@ -660,6 +743,21 @@ void ComponentMesh::Save(JSON_Object* config) {
 			json_object_dotset_string(config, "material.diffuse",res_diff->asset.c_str());
 		else
 			json_object_dotset_string(config, "material.diffuse", "missing_reference");
+
+		if (mat->getShaderProgramID() != 0)
+		{
+			ShaderProgram* shader = mat->getShaderProgram();
+			if (shader)
+			{
+				ResourceShader* vertex = (ResourceShader*)App->resources->getResource(shader->shaderUUIDS[0]);
+				if(vertex)
+					json_object_dotset_string(config, "vertex_shader", vertex->asset.c_str());
+
+				ResourceShader* fragment = (ResourceShader*)App->resources->getResource(shader->shaderUUIDS[1]);
+				if(fragment)
+					json_object_dotset_string(config, "fragment_shader", fragment->asset.c_str());
+			}
+		}
 	}
 	if (components_bones.size() > 0) //If it has any bone
 	{

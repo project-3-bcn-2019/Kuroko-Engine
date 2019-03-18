@@ -10,6 +10,7 @@
 
 ComponentBone::ComponentBone(JSON_Object* deff, GameObject* parent) : Component(parent, BONE)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
 	if (App->is_game && !App->debug_game)
 	{
@@ -90,6 +91,7 @@ ComponentBone::~ComponentBone()
 void ComponentBone::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "bone");
+	json_object_set_boolean(config, "active", is_active);
 
 	if (bone_resource_uuid != 0)
 	{		
@@ -161,9 +163,12 @@ void ComponentBone::Save(JSON_Object * config)
 
 bool ComponentBone::Update(float dt)
 {
-	float3 size = { 0.05f, 0.05f, 0.05f };
-	float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
-	App->renderer3D->DirectDrawCube(size, pos);
+	if (!App->is_game)
+	{
+		float3 size = { 0.05f, 0.05f, 0.05f };
+		float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
+		App->renderer3D->DirectDrawCube(size, pos);
+	}
 
 	return true;
 }

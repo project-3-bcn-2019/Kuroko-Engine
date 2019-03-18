@@ -13,7 +13,10 @@
 
 Material::Material() : id(App->scene->last_mat_id++) 
 {
-	shader_program = App->shaders->GetDefaultShaderProgram()->programID;
+	if (!App->is_game)
+	{
+		shader_program = App->shaders->GetDefaultShaderProgram()->programID;
+	}
 }
 
 Material::~Material() {

@@ -72,6 +72,7 @@ Shader* ResourceShader::LoadShader()
 	if (App->fs.ExistisFile(binary.c_str()))
 	{
 		ret->name = asset;
+		App->fs.getFileNameFromPath(ret->name);
 		ret->script = App->fs.ImportFile(binary.c_str());
 
 		std::string extension = binary.c_str();

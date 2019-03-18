@@ -10,6 +10,7 @@
 #include "ModuleResourcesManager.h"
 #include "ResourceAnimationGraph.h"
 #include "ModuleTimeManager.h"
+#include "ModuleUI.h"
 #include "Include_Wwise.h"
 // May be better to manage in scene
 #include "GameObject.h"
@@ -108,18 +109,18 @@ void SetString(WrenVM* vm);
 void GetString(WrenVM* vm);
 void SetBool(WrenVM* vm);
 void GetBool(WrenVM* vm);
+void Animator_SetSpeed(WrenVM* vm);
 
 
 // Particles
 void CreateParticles(WrenVM* vm);
 
 // UI
-
-	// Button
+// Button
 void ButtonGetState(WrenVM* vm);
-	// Checkbox
+// Checkbox
 void CheckboxIsPressed(WrenVM* vm);
-	// Text
+// Text
 void UIText_SetText(WrenVM* vm);
 	// Progress Bar
 void SetProgress(WrenVM* vm);
@@ -171,7 +172,7 @@ bool ModuleScripting::Init(const JSON_Object* config)
 		object_linker_code = App->fs.GetFileString(OBJECT_LINKER_PATH);
 		audio_code = App->fs.GetFileString(AUDIO_PATH);
 		animation_code = App->fs.GetFileString(ANIMATION_PATH);
-		particles_code = App->fs.GetFileString(PARTICLES_PATH);
+		particles_code = App->fs.GetFileString(PARTICLES_PATH); 
 		UI_code = App->fs.GetFileString(UI_PATH);
 		physics_code = App->fs.GetFileString(PHYSICS_PATH);
 		return true;
@@ -745,7 +746,8 @@ WrenForeignMethodFn bindForeignMethod(WrenVM* vm, const char* module, const char
 			if (isStatic && strcmp(signature, "C_GetBool(_,_,_)") == 0)
 				return GetBool;
 
-
+			if (isStatic && strcmp(signature, "C_SetSpeed(_,_,_)") == 0)
+				return Animator_SetSpeed;
 		}
 	}
 
@@ -1121,13 +1123,13 @@ void GetScript(WrenVM* vm) { // Could be faster if instances had a pointer to th
 	}
 
 
-	ComponentScript* component =  (ComponentScript*)go->getScriptComponent(script_name);
+	ComponentScript* component = (ComponentScript*)go->getScriptComponent(script_name);
 
 	if (!component) {
 		app_log->AddLog("Game Object %s has no ComponentScript named %s", go->getName().c_str(), script_name.c_str());
 		return;
 	}
-	
+
 	wrenSetSlotHandle(vm, 0, component->instance_data->class_handle);
 }
 
@@ -1323,17 +1325,32 @@ void getAxes(WrenVM* vm) {
 }
 void getMouseRaycastX(WrenVM* vm)
 {
-	float3 hit = App->scene->MousePickingHit();
+	float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
+	ImVec2 window_pos = App->gui->game_window_pos;
+	x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
+	y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
+
+	float3 hit = App->scene->MousePickingHit(x,y);
 	wrenSetSlotDouble(vm, 0, hit.x);
 }
 void getMouseRaycastY(WrenVM* vm)
 {
-	float3 hit = App->scene->MousePickingHit();
+	float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
+	ImVec2 window_pos = App->gui->game_window_pos;
+	x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
+	y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
+
+	float3 hit = App->scene->MousePickingHit(x, y);
 	wrenSetSlotDouble(vm, 0, hit.y);
 }
 void getMouseRaycastZ(WrenVM* vm)
 {
-	float3 hit = App->scene->MousePickingHit();
+	float x = App->input->GetMouseX(); float y = App->input->GetMouseY();
+	ImVec2 window_pos = App->gui->game_window_pos;
+	x = (((x - window_pos.x) / ImGui::GetItemRectSize().x) * 2) - 1;
+	y = (((y - window_pos.y) / ImGui::GetItemRectSize().y) * -2) + 1;
+
+	float3 hit = App->scene->MousePickingHit(x, y);
 	wrenSetSlotDouble(vm, 0, hit.z);
 }
 
@@ -1778,6 +1795,30 @@ void GetBool(WrenVM* vm) {
 	bool read = *component->getBool(var_uuid);
 	wrenSetSlotBool(vm, 0, read);
 }
+
+
+void Animator_SetSpeed(WrenVM* vm) {
+
+	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
+	uint componentUUID = wrenGetSlotDouble(vm, 2);
+	float speed = wrenGetSlotDouble(vm, 3);
+
+	GameObject* go = App->scene->getGameObject(gameObjectUUID);
+
+	if (!go) {
+		app_log->AddLog("Script asking for none existing gameObject");
+		return;
+	}
+
+	ComponentAnimator* component = (ComponentAnimator*)go->getComponentByUUID(componentUUID);
+
+	if (!component) {
+		app_log->AddLog("Game Object %s has no ComponentAnimation with %i uuid", go->getName().c_str(), componentUUID);
+		return;
+	}
+
+	component->setSpeed(speed);
+}
 // Particles
 void CreateParticles(WrenVM* vm) {
 
@@ -1803,9 +1844,10 @@ void CreateParticles(WrenVM* vm) {
 		component->CreateParticle();
 }
 
+
 // UI
 
-	// Button
+// Button
 void ButtonGetState(WrenVM* vm) {
 	uint gameObjectUUID = wrenGetSlotDouble(vm, 1);
 	uint componentUUID = wrenGetSlotDouble(vm, 2);

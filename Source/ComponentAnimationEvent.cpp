@@ -10,6 +10,7 @@
 
 ComponentAnimationEvent::ComponentAnimationEvent(JSON_Object* deff, GameObject* parent) : Component(parent, ANIMATION_EVENT)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	JSON_Array* AnimArr = json_value_get_array(json_object_get_value(deff, "AnimArr"));
 	for (int i = 0; i < json_array_get_count(AnimArr); ++i)
 	{
@@ -304,6 +305,7 @@ bool ComponentAnimationEvent::DrawInspector(int id)
 void ComponentAnimationEvent::Save(JSON_Object* config)
 {
 	json_object_set_string(config, "type", "animation_event");
+	json_object_set_boolean(config, "active", is_active);
 
 	JSON_Value* AnimList = json_value_init_array();
 	JSON_Array* AnimArr = json_value_get_array(AnimList);

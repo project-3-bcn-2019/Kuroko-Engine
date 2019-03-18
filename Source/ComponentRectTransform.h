@@ -26,7 +26,8 @@ public:
 	~ComponentRectTransform();
 
 	bool Update(float dt) override;
-	void Draw() const override;
+	void Render() const;
+	void Draw();
 	bool DrawInspector(int id = 0) override;
 	const float2 getMid() const;
 	void Save(JSON_Object* config) override;
@@ -42,11 +43,12 @@ public:
 	inline const float2 getGlobalPos() { return rect.global; }
 	inline const float getWidth() { return rect.width; }
 	inline const float getHeight() { return rect.height; }
-	inline const float getDepth() { return rect.depth; }
+	inline const float getDepth() const { return rect.depth; };
 	inline const int GetVertexID() { return rect.vertexID; }
 
 	inline void setGlobalPos(float2 pos) { rect.global = pos; }
 	inline void setDepth(float _depth) { rect.depth = _depth; }
+
 
 	bool debug_draw = false;
 
@@ -56,6 +58,8 @@ private:
 	void UpdateGlobalMatrixRecursive(ComponentRectTransform * rect);
 	void UpdateAnchorPos();
 	RectTransform rect;
+
+	int depth = 0;
 };
 
 

@@ -68,6 +68,7 @@ public:
 	bool CompileProgramFromResources(ShaderProgram* program);
 	bool RecompileAllPrograms();
 	bool IsProgramValid(uint program);
+	uint GetShaderProgramByResources(uint vertex, uint fragment);
 
 	ShaderProgram* GetDefaultShaderProgram()const;
 	ShaderProgram* GetAnimationShaderProgram()const;

@@ -3,6 +3,7 @@
 #include "ModuleScene.h"
 #include "GameObject.h"
 #include "ModuleTimeManager.h"
+#include "ModuleRenderer3D.h"
 
 #include "glew-2.1.0\include\GL\glew.h"
 #include "ImGui/imgui.h"
@@ -75,7 +76,14 @@ bool ComponentRectTransform::Update(float dt)
 	return true;
 }
 
-void ComponentRectTransform::Draw() const
+
+void ComponentRectTransform::Draw()
+{
+	App->renderer3D->orderedUI.push(this);
+}
+
+
+void ComponentRectTransform::Render() const
 {
 	if (debug_draw && App->time->getGameState() != GameState::PLAYING) {
 
@@ -121,6 +129,7 @@ bool ComponentRectTransform::DrawInspector(int id)
 	
 		if (ImGui::CollapsingHeader("Rect Transform"))
 		{
+
 			static float2 position;
 			static float width;
 			static float height;

@@ -52,10 +52,12 @@ public:
 	uint getTextureResource(TextureType tex_type) const;
 	void setTextureResource(TextureType tex_type, uint textureResource); 
 	void setCheckeredTexture(TextureType tex_type = DIFFUSE); // TODO: Should get a special resource from resource manager
+	void setShaderProgram(uint shaderID) { shader_program = shaderID; };
 	uint getId() const { return id; };
 	uint getShaderProgramID() const;
 	ShaderProgram* getShaderProgram() const;
 
+	bool translucent = false;
 private:
 	
 	uint id = 0;
@@ -64,6 +66,7 @@ private:
 	uint normals_resource = 0;
 	uint lightmap_resource = 0;
 	uint shader_program = 0;
+
 	//ShaderProgram* shader_program = nullptr;
 
 };

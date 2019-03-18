@@ -31,11 +31,11 @@ construct new(){}
 
 
     //Rotation
-    angular_acceleration {_angular_acceleration}
-    angular_acceleration=(v){ _angular_acceleration = v}
+    //angular_acceleration {_angular_acceleration}
+    //angular_acceleration=(v){ _angular_acceleration = v}
 
-    max_angular_speed {_max_angular_speed}
-    max_angular_speed =(v){ _max_angular_speed = v}
+    //max_angular_speed {_max_angular_speed}
+    //max_angular_speed =(v){ _max_angular_speed = v}
     
 
     //Bool to check if you want the entity to always look forward
@@ -49,7 +49,6 @@ construct new(){}
         //Vector to keep track of the actual velocity
          _speed_vector = Vec3.zero()
          _angular_speed = Vec3.zero()
-         _angle = 0
 
         if (_component_collider == null){
             EngineComunicator.consoleOutput("Null collider")
@@ -142,59 +141,6 @@ construct new(){}
     
     }
 
-    RotateTo(target){
-        //Not tested
-
-        //target_degrees = Math.cos
-		//delta = Math.DeltaAngle(target_degrees, current_degrees);
-        
-        //var angle = Math.C_angleBetween(_speed_vector.x, _speed_vector.y, _speed_vector.z, target.x, target.y, target.z)
-
-		//_angular_speed = _angular_speed + Math.clamp(angle, -max_angular_speed, max_angular_speed)
-
-        _angular_speed.x = Math.lerp(_angular_speed.x, target.x, _angular_acceleration * Time.C_GetDeltaTime())
-        _angular_speed.y = Math.lerp(_angular_speed.y, target.y, _angular_acceleration * Time.C_GetDeltaTime())
-        _angular_speed.z = Math.lerp(_angular_speed.z, target.z, _angular_acceleration * Time.C_GetDeltaTime())
-
-    }
-
-
-    RotateTo(x,y,z){
-        
-        var angle_current = Math.atan2(_angular_speed.x, _angular_speed.z)
-
-        EngineComunicator.consoleOutput("Target X :%(x)")
-        EngineComunicator.consoleOutput("Target Y :%(y)")
-
-        var angle_target = Math.atan2(x, y)
-
-        var angle = Math.lerp(angle_current, angle_target, _angular_acceleration * Time.C_GetDeltaTime())
-        //_angular_speed.x = Math.lerp(_speed_vector.x, x, _angular_acceleration * Time.C_GetDeltaTime())
-        //_angular_speed.y = Math.lerp(_speed_vector.y, y, _angular_acceleration)
-        //_angular_speed.z = Math.lerp(_speed_vector.z, z, _angular_acceleration * Time.C_GetDeltaTime())
-
-        EngineComunicator.consoleOutput("Current :%(angle_current)")
-        EngineComunicator.consoleOutput("Target :%(angle_target)")
-        EngineComunicator.consoleOutput("Angle :%(angle)")
-
-        var up = Vec3.zero()
-        up.y = 1
-
-        _angular_speed = Math.AngleAxisToEuler(up, angle)
-
-        
-        //EngineComunicator.consoleOutput("X:%(_angular_speed.x)")
-        //EngineComunicator.consoleOutput("Y:%(_angular_speed.y)")
-        //EngineComunicator.consoleOutput("Z:%(_angular_speed.z)")
-
-    }
-
-
-    SetRotationVelocity(dir){
-
-        _angular_speed = Math.clamp(dir, -max_angular_speed, max_angular_speed)
-
-    }
 
     FaceMovement(){
         _angular_speed = _speed_vector

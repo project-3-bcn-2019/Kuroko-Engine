@@ -229,12 +229,22 @@ void PanelConfiguration::DrawEditorPreferencesLeaf() const {
 
 	static float camera_speed = 2.5f;
 	if (ImGui::InputFloat("Camera speed", &camera_speed))
-		App->camera->camera_speed = camera_speed;
+		App->camera->editor_cam_speed = camera_speed;
 
 
 	static float camera_rotation_speed = 0.25f;
 	if (ImGui::InputFloat("Camera rotation speed", &camera_rotation_speed))
-		App->camera->camera_rotation_speed = camera_rotation_speed;
+		App->camera->editor_cam_rot_speed = camera_rotation_speed;
+
+	static float near_plane_distance = INIT_N_PLANE;
+	static float far_plane_distance = INIT_F_PLANE;
+
+	if (ImGui::InputFloat("Camera near plane distance", &near_plane_distance))
+		App->camera->editor_camera->setPlaneDistance(near_plane_distance, far_plane_distance);
+	if (ImGui::InputFloat("Camera far plane distance", &far_plane_distance))
+		App->camera->editor_camera->setPlaneDistance(near_plane_distance, far_plane_distance);
+
+
 }
 
 void PanelConfiguration::DrawResourcesLeaf() const

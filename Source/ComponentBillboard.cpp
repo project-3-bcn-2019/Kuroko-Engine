@@ -13,6 +13,7 @@
 #include "ResourceTexture.h"
 #include "ModuleResourcesManager.h"
 #include "ModuleUI.h"
+#include "ModuleRenderer3D.h"
 #include "Material.h"
 
 std::string openFileWID(bool isfile = false);
@@ -27,6 +28,7 @@ ComponentBillboard::ComponentBillboard(GameObject* parent, Material* mat) : Comp
 
 ComponentBillboard::ComponentBillboard(JSON_Object* deff, GameObject* parent) : Component(parent, BILLBOARD)
 {
+	is_active = json_object_get_boolean(deff, "active");
 	transform = (ComponentTransform*)getParent()->getComponent(TRANSFORM);
 
 	mesh = new Mesh(Primitive_Plane);
@@ -49,12 +51,25 @@ bool ComponentBillboard::Update(float dt)
 	return true;
 }
 
-void ComponentBillboard::Draw() const
+void ComponentBillboard::Draw()
+{
+	if (billboard->getMaterial())
+	{
+		if (billboard->getMaterial()->translucent)
+		{
+			App->renderer3D->translucentMeshes.push(this);
+			return;
+		}
+	}
+	App->renderer3D->opaqueMeshes.push_back(this);
+}
+
+void ComponentBillboard::Render() const
 {
 	if (billboard->useColor)	mesh->tint_color = billboard->color;
 	else						mesh->tint_color = White;
 
-	billboard->Draw();
+	billboard->Render();
 }
 
 bool ComponentBillboard::DrawInspector(int id)
@@ -71,15 +86,18 @@ bool ComponentBillboard::DrawInspector(int id)
 				delete billboard->getMaterial();
 				billboard->setMaterial(nullptr);
 				ImGui::TreePop();
+				App->scene->AskAutoSaveScene();
 			}
+
+			ImGui::Checkbox("translucent", &material->translucent);
 
 			ImGui::Text("Preview size");
 			ImGui::SameLine();
-			if (ImGui::Button("64")) preview_size = 64;
+			if (ImGui::Button("64")) preview_size = 64;		App->scene->AskAutoSaveScene();
 			ImGui::SameLine();
-			if (ImGui::Button("128")) preview_size = 128;
+			if (ImGui::Button("128")) preview_size = 128;	App->scene->AskAutoSaveScene();
 			ImGui::SameLine();
-			if (ImGui::Button("256")) preview_size = 256;
+			if (ImGui::Button("256")) preview_size = 256;	App->scene->AskAutoSaveScene();
 
 			Texture* texture = nullptr;
 			if (ResourceTexture* tex_res = (ResourceTexture*)App->resources->getResource(material->getTextureResource(DIFFUSE)))
@@ -96,7 +114,7 @@ bool ComponentBillboard::DrawInspector(int id)
 			ImGui::Text("texture data: \n x: %d\n y: %d", w, h);
 
 			//if (ImGui::Button("Load checkered##Dif: Load checkered"))
-			//	material->setCheckeredTexture(DIFFUSE);
+			//	material->setCheckeredTexture(DIFFUSE);	App->scene->AskAutoSaveScene();
 			//ImGui::SameLine()
 		}
 		else
@@ -115,10 +133,12 @@ bool ComponentBillboard::DrawInspector(int id)
 					billboard->setMaterial(new Material());
 
 				billboard->getMaterial()->setTextureResource(DIFFUSE, new_resource);
+
+				App->scene->AskAutoSaveScene();
 			}
 		}
 
-		ImGui::Checkbox("Use Color", &billboard->useColor);
+		if (ImGui::Checkbox("Use Color", &billboard->useColor))	App->scene->AskAutoSaveScene();
 
 		if (billboard->useColor)
 		{
@@ -132,7 +152,7 @@ bool ComponentBillboard::DrawInspector(int id)
 				reference_color = billboard->color;
 
 			ImGui::SameLine();
-			if (ImGui::ColorButton((label + "button").c_str(), ImVec4(billboard->color.r, billboard->color.g, billboard->color.b, billboard->color.a)))
+			if (ImGui::ColorButton((label + " button").c_str(), ImVec4(billboard->color.r, billboard->color.g, billboard->color.b, billboard->color.a)))
 				draw_colorpicker = !draw_colorpicker;
 
 			if (draw_colorpicker)
@@ -166,5 +186,6 @@ void ComponentBillboard::Save(JSON_Object* config)
 	// Determine the type of the mesh
 	// Component has two strings, one for mesh name, and another for diffuse texture name
 	json_object_set_string(config, "type", "billboard");
+	json_object_set_boolean(config, "active", is_active);
 	billboard->Save(config);
 }

@@ -31,7 +31,6 @@ class PlayerController is ObjectLinker{
     MoveDirection {_move_direction}
     OldMoveDirection {_old_move_direction}
 
-    ComponentAnimation {_component_animation}
     ComponentAudioSource {_component_audio_source}
 
 
@@ -86,9 +85,8 @@ class PlayerController is ObjectLinker{
         _dash_button = InputComunicator.C_A
 
         //Components
-        _component_animation = getComponent(ComponentType.ANIMATION)
         _component_audio_source = getComponent(ComponentType.AUDIO_SOURCE)
-
+        _component_animator = getComponent(ComponentType.ANIMATOR)
         _component_audio_source.setSound("Footsteps") //This should not be here -Pol
 
         //Initialize all the states
@@ -142,12 +140,21 @@ class PlayerController is ObjectLinker{
         if(_move_direction.x < 0.2 && _move_direction.x > -0.2)   _move_direction.x = 0.0
     }
 
-    modPos(x,y,z) {
+    SetSpeed(x,y,z) {
 
         _move_script.SetSpeed(x,y,z)
         //super.modPos(x,y,z)
     } 
+ 
+    AccelerateTo(x,y,z) {
+        _move_script.AccelerateTo(x,y,z)
+        //super.modPos(x,y,z)
+    } 
 
+    SetDeceleration(num){
+        _move_script.deceleration = num
+
+    }
     rotate(x,y,z) {
          //_move_script.RotateTo(x,y,z)
     }
@@ -214,9 +221,7 @@ class IdleState is State {
     }
 
     BeginState() {
-        _player.ComponentAnimation.setAnimation("PunchingAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Pause()
+
         super.BeginState()
     }
 
@@ -249,9 +254,7 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("RunningAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
+
     }
 
     HandleInput() {
@@ -267,13 +270,15 @@ class MovingState is State {
     Update() {
         super.Update()
 
+        //Obsolete 
         var movement = Vec3.new(_player.MoveDirection.x*_player.MoveSpeed,0,_player.MoveDirection.y*_player.MoveSpeed)
 
-        _player.modPos(movement.x,movement.y,movement.z)
+        _player.AccelerateTo(movement.x,movement.y,movement.z)
 
-        var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+        //var angle = Math.C_angleBetween(_player.OldMoveDirection.x,_player.OldMoveDirection.y,_player.OldMoveDirection.z,_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
+       // _player.rotate(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         //_player.rotate(_player.MoveDirection.x, _player.MoveDirection.y, _player.MoveDirection.z)
+
         _player.OldMoveDirection.x = _player.MoveDirection.x
         _player.OldMoveDirection.y = _player.MoveDirection.y
         _player.OldMoveDirection.z = _player.MoveDirection.z
@@ -299,11 +304,11 @@ class DashState is State {
 
     BeginState() {
         super.BeginState()
-        _player.ComponentAnimation.setAnimation("DashingAnimation")
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
+
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
-        _dash_speed = 100
+        _dash_speed = 600
+        _player.SetDeceleration(0.05)
+
     }
 
     HandleInput() {
@@ -315,7 +320,7 @@ class DashState is State {
 
         var movement = Vec3.new(_dash_direction.x*_dash_speed,0,_dash_direction.y*_dash_speed)
 
-        _player.modPos(movement.x,movement.y,movement.z)
+        _player.SetSpeed(movement.x,movement.y,movement.z)
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
 
@@ -325,6 +330,11 @@ class DashState is State {
             EngineComunicator.consoleOutput("Current state: Dash")
         }
     }
+
+    EndState(){
+        _player.SetDeceleration(0.01)
+    }
+
 }
 
 class BasicAttackState is State {
@@ -359,9 +369,6 @@ class BasicAttackState is State {
         _next_state = _player.IdleState
         _on_contact_done = false
 
-        _player.ComponentAnimation.setAnimation(_animation_name)
-        _player.ComponentAnimation.Reset()
-        _player.ComponentAnimation.Play()
         _player.ComponentAudioSource.setSound(_sound_name)
         _player.ComponentAudioSource.Play()
     }
@@ -382,7 +389,15 @@ class BasicAttackState is State {
     //This is when the attak will instanciate the collider 
     OnContactFrames() {
         EngineComunicator.consoleOutput("Create collider")
-        _player.instantiate(_prefav_collider_name, Vec3.new(10,10,0), Vec3.new(0,0,0))
+
+        var forward = _player.getForward()
+
+        var multiplier = 5
+        var col_height = 10
+        var x_offset = forward.x * multiplier
+        var z_offset = forward.z * multiplier
+
+        _player.instantiate(_prefav_collider_name, Vec3.new(x_offset,col_height,z_offset), Vec3.new(0,0,0))
     }
     
     GoToNextState() {
@@ -399,7 +414,7 @@ class BasicAttackState is State {
 
         if (super.IsStateFinished()) this.GoToNextState()
 
-        EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
+        if (_player.ShowDebugLogs) EngineComunicator.consoleOutput("Current state: %(_type) %(_tier)")
     }
 }
 

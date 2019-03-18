@@ -30,6 +30,8 @@ struct FrameBuffer
 
 	uint size_x = 0;
 	uint size_y = 0;
+
+	void changeTexSize(int w, int h);
 };
 
 class Camera
@@ -79,6 +81,10 @@ public:
 	bool draw_in_UI = false;
 	bool draw_frustum = false;
 	bool draw_depth = false;
+
+	bool interpolating = false;
+	float interpolating_speed = 0.1f;
+	float3 desired_pos = float3::zero;
 
 private:
 

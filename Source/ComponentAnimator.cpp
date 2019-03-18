@@ -18,6 +18,7 @@ ComponentAnimator::ComponentAnimator(GameObject* gameobject) : Component(gameobj
 ComponentAnimator::ComponentAnimator(JSON_Object* deff, GameObject * parent): Component(parent, ANIMATOR)
 {
 	const char* parent3dobject = json_object_get_string(deff, "Parent3dObject");
+	is_active = json_object_get_boolean(deff, "active");
 	if (App->is_game && !App->debug_game)
 	{
 		graph_resource_uuid = App->resources->getResourceUuid(json_object_get_string(deff, "graph_name"), R_ANIMATIONGRAPH);
@@ -86,6 +87,7 @@ bool ComponentAnimator::Update(float dt)
 						currentNode = destinationNode->UID;
 						animation->setAnimationResource(destinationNode->animationUID);
 						animation->loop = destinationNode->loop;
+						animation->speed = destinationNode->speed;
 						animation->SetAnimTime(0.f);
 					}
 				}
@@ -370,6 +372,11 @@ bool* ComponentAnimator::getBool(uint uuid)
 	return nullptr;
 }
 
+void ComponentAnimator::setSpeed(float speed)
+{
+	animation->speed = speed;
+}
+
 void ComponentAnimator::removeValue(variableType type, uint uuid)
 {
 	switch (type)
@@ -392,6 +399,7 @@ void ComponentAnimator::removeValue(variableType type, uint uuid)
 void ComponentAnimator::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "animator");
+	json_object_set_boolean(config, "active", is_active);
 
 	if (graph_resource_uuid != 0)
 	{

@@ -1,14 +1,15 @@
 #ifndef _COMPONENTTEXTUI_
 #define _COMPONENTTEXTUI_
 #include "Component.h"
+#include "ComponentTransform.h"
 #include "MathGeoLib/Math/float2.h"
 #include "MathGeoLib/Math/float3.h"
+#include "ComponentRectTransform.h"
 #include <vector>
 
 
 #define MAX_CHARS 32
 
-class ComponentRectTransform;
 class Font;
 
 class ComponentTextUI :
@@ -35,7 +36,8 @@ public:
 	~ComponentTextUI();
 
 	bool Update(float dt)override;
-	void Draw() const override;
+	void Draw();
+	void Render() const;
 	bool DrawInspector(int id = 0) override;
 
 	void Save(JSON_Object* config) override;
@@ -49,6 +51,8 @@ public:
 	float3 GetCornerLabelPoint(int corner);
 	void AddCharPanel(char character, bool first);
 	void FillCharPlanes();
+
+	const float getDepth() const { return rectTransform->getDepth(); };
 
 	Label label;
 	bool drawCharPanel = false;
@@ -68,6 +72,8 @@ private:
 
 	std::vector<CharPlane*> charPlanes;
 	std::vector<float3> offsetPlanes;
+
+	int depth = 0;
 };
 
 

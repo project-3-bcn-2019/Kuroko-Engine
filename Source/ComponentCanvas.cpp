@@ -1,10 +1,12 @@
 #include "ComponentCanvas.h"
 #include "ComponentRectTransform.h"
 #include "Application.h"
+#include "ModuleScene.h"
 #include "ModuleWindow.h"
 #include "ModuleTimeManager.h"
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
+#include "ModuleRenderer3D.h"
 
 #include "ImGui/imgui.h"
 
@@ -20,6 +22,7 @@ ComponentCanvas::ComponentCanvas(JSON_Object * deff, GameObject * parent) : Comp
 	   
 	rectTransform = (ComponentRectTransform*)parent->getComponent(RECTTRANSFORM);
 
+	is_active = json_object_get_boolean(deff, "active");
 	draw_cross = json_object_get_boolean(deff, "debug");
 	
 	setResolution(float2(rectTransform->getWidth(), rectTransform->getHeight()));
@@ -35,7 +38,12 @@ bool ComponentCanvas::Update(float dt)
 	return true;
 }
 
-void ComponentCanvas::Draw() const
+void ComponentCanvas::Draw()
+{
+	App->renderer3D->orderedUI.push(this);
+}
+
+void ComponentCanvas::Render() const
 {
 	if (draw_cross && App->time->getGameState() != GameState::PLAYING) {
 		float2 midPoint = float2(rectTransform->getWidth()/2, rectTransform->getHeight() / 2);
@@ -57,7 +65,8 @@ bool ComponentCanvas::DrawInspector(int id)
 	if (ImGui::CollapsingHeader("Canvas"))
 	{
 		ImGui::Text("Resolution  %.0f x %.0f", getResolution().x, getResolution().y);
-		ImGui::Checkbox("Draw cross hair", &draw_cross);
+		if (ImGui::Checkbox("Draw cross hair", &draw_cross))
+			App->scene->AskAutoSaveScene();
 	}
 
 	return true;
@@ -66,6 +75,7 @@ bool ComponentCanvas::DrawInspector(int id)
 void ComponentCanvas::Save(JSON_Object * config)
 {
 	json_object_set_string(config, "type", "canvas");
+	json_object_set_boolean(config, "active", is_active);
 	json_object_set_boolean(config, "debug", draw_cross);
 
 }

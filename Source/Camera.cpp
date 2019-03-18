@@ -18,7 +18,7 @@
 Camera::Camera(float3 position, float3 reference, math::FrustumType f_type)
 {
 	frustum = new Frustum();
-	frustum->pos = position;
+	frustum->pos = desired_pos = position;
 	frustum->front = float3::unitZ;
 	frustum->up = float3::unitY;
 	frustum->type = f_type;
@@ -36,6 +36,7 @@ Camera::Camera(float3 position, float3 reference, math::FrustumType f_type)
 
 	LookAt(reference);
 	updateFrustum();
+	initFrameBuffer();
 
 	App->camera->game_cameras.push_back(this);
 }
@@ -69,8 +70,18 @@ void Camera::LookAt(const float3 &Spot)
 
 void Camera::Move(const float3 &Movement)
 {
-	frustum->pos += Movement;
-	Reference += Movement;
+	if (interpolating)
+	{
+		float3 prev_pos = frustum->pos;
+		desired_pos += Movement;
+		frustum->pos = math::Lerp(frustum->pos, desired_pos, interpolating_speed);
+		Reference += (frustum->pos - prev_pos);
+	}
+	else
+	{
+		frustum->pos += Movement;
+		Reference += Movement;
+	}
 
 	updateFrustum();
 }
@@ -93,7 +104,7 @@ void Camera::FitToSizeSelectedGeometry(float distance)
 		AABB* aabb = ((ComponentAABB*)selected_obj->getComponent(C_AABB))->getAABB();
 		float3 new_pos = aabb->Centroid() + aabb->HalfSize() + float3(distance, distance, distance);
 		new_pos = Quat::RotateY(((ComponentTransform*)selected_obj->getComponent(TRANSFORM))->global->getRotationEuler().y) * new_pos;
-		frustum->pos = new_pos;
+		frustum->pos = desired_pos = new_pos;
 		LookAt(selected_obj->getCentroid());
 
 	}
@@ -105,7 +116,7 @@ void Camera::FitToSizeSelectedGeometry(float distance)
 
 void Camera::Reset()
 {
-	frustum->pos = float3(1.0f, 1.0f, 5.0f);
+	frustum->pos = desired_pos = float3(1.0f, 1.0f, 5.0f);
 	Reference = float3(0.0f, 0.0f, 0.0f);
 
 	Z = (frustum->pos - Reference).Normalized();
@@ -147,14 +158,16 @@ std::string Camera::getViewportDirString()
 	case VP_DOWN:	ret = "Down"; break;
 	case VP_FRONT:	ret = "Front"; break;
 	case VP_BACK:	ret = "Back"; break;
-	default: break;
+	default: 
+		ret = "Scene"; break;
+		break;
 	}
 	return ret;
 }
 
 bool Camera::frustumCull(const OBB& obb)
 {
-	if (this == App->camera->background_camera && App->camera->override_editor_cam_culling)
+	if (App->camera->override_editor_cam_culling)
 		return App->camera->override_editor_cam_culling->frustumCull(obb);
 
 	for (int i = 0; i < 6; i++)
@@ -261,4 +274,17 @@ void Camera::Save(JSON_Object * deff){
 	json_object_set_boolean(deff, "draw_frustum", draw_frustum);
 	json_object_set_boolean(deff, "draw_depth", draw_depth);
 
+}
+
+void FrameBuffer::changeTexSize(int w, int h)
+{
+	size_x = w; size_y = h;
+
+	glBindTexture(GL_TEXTURE_2D, tex->gl_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindTexture(GL_TEXTURE_2D, depth_tex->gl_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
