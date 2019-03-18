@@ -39,6 +39,8 @@ public:
 	void UpdateTransformsFromPhysics();
 	void UpdatePhysicsFromTransforms();
 
+	float3 collider_size = float3(2, 2, 2);
+
 	float3 offset_scale = float3(1, 1, 1);
 	float3 offset_pos = float3(0, 0, 0);
 	float3 offset_rot = float3(0, 0, 0);

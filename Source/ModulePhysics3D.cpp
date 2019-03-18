@@ -298,19 +298,19 @@ PhysBody * ModulePhysics3D::AddBody(ComponentPhysics* parent, collision_shape sh
 }
 
 
-btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_shape shape)
+btGhostObject * ModulePhysics3D::AddTrigger(ComponentTrigger* parent, collision_shape shape, float3 size)
 {
 	btCollisionShape* colShape = nullptr;
 	switch (shape)
 	{
 	case COL_CUBE:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(size.x / 2, size.y / 2, size.z / 2));
 		break;
 	case COL_CYLINDER:
-		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		colShape = new btCylinderShape(btVector3(size.x / 2, size.y / 2, size.z / 2));
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(size.x / 2, size.y / 2, size.z / 2));
 		break;
 	}
 	shapes.push_back(colShape);
@@ -342,15 +342,15 @@ void ModulePhysics3D::ChangeShape(ComponentPhysics * to_change)
 	switch (to_change->shape)
 	{
 	case COL_CUBE:
-		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		colShape = new btCylinderShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		to_change->shape = COL_CYLINDER;
 		break;
 	case COL_CYLINDER:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		to_change->shape = COL_CUBE;
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		break;
 	}
 
@@ -369,15 +369,15 @@ void ModulePhysics3D::ChangeShape(ComponentTrigger * to_change)
 	switch (to_change->shape)
 	{
 	case COL_CUBE:
-		colShape = new btCylinderShape(btVector3(1, 1, 1));
+		colShape = new btCylinderShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		to_change->shape = COL_CYLINDER;
 		break;
 	case COL_CYLINDER:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		to_change->shape = COL_CUBE;
 		break;
 	default:
-		colShape = new btBoxShape(btVector3(1, 1, 1));
+		colShape = new btBoxShape(btVector3(to_change->collider_size.x / 2, to_change->collider_size.y / 2, to_change->collider_size.z / 2));
 		break;
 	}
 
@@ -394,6 +394,8 @@ void ModulePhysics3D::AdaptToOBB(ComponentPhysics * to_adapt)
 	to_adapt->offset_scale = float3(1, 1, 1);
 	to_adapt->offset_pos = float3(0, 0, 0);
 	to_adapt->offset_rot = float3(0, 0, 0);
+
+	to_adapt->collider_size = box->Size();
 
 	delete body->body->getCollisionShape();
 	shapes.erase(std::remove(begin(shapes), end(shapes), body->body->getCollisionShape()), end(shapes));
@@ -424,6 +426,8 @@ void ModulePhysics3D::AdaptToOBB(ComponentTrigger * to_adapt)
 	to_adapt->offset_scale = float3(1, 1, 1);
 	to_adapt->offset_pos = float3(0, 0, 0);
 	to_adapt->offset_rot = float3(0, 0, 0);
+
+	to_adapt->collider_size = box->Size();
 
 	delete body->getCollisionShape();
 	shapes.erase(std::remove(begin(shapes), end(shapes), body->getCollisionShape()), end(shapes));
