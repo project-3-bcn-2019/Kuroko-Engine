@@ -31,7 +31,6 @@ ComponentProgressBarUI::ComponentProgressBarUI(GameObject * parent) : Component(
 	initialWidth = intBarTransform->getWidth();
 
 	intBarTransform->setInspectorDraw(false);
-	barTransform->setInspectorDraw(false);
 	intBar->setInspectorDraw(false);
 	bar->setInspectorDraw(false);
 }
@@ -61,7 +60,6 @@ ComponentProgressBarUI::ComponentProgressBarUI(JSON_Object * deff, GameObject * 
 
 	
 	bar->setInspectorDraw(false);
-	barTransform->setInspectorDraw(false);
 }
 
 ComponentProgressBarUI::~ComponentProgressBarUI()
@@ -100,23 +98,7 @@ bool ComponentProgressBarUI::DrawInspector(int id)
 		ImGui::DragFloat("##d", (float*)&percent, 1, 0, 100); {setPercent(percent); }
 		ImGui::Separator();
 		ImGui::Text("BAR:");
-		ImGui::Text("Position:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat2("##ps", (float*)&position, 0.5f)) { setPos(position); }
-		ImGui::Text("Width:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat("##wi", (float*)&width, 0.5f)) { barTransform->setWidth(width); }
-		ImGui::Text("Height:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat("##hi", (float*)&height, 0.5f)) { barTransform->setHeight(height); }
-		ImGui::Text("Depth:");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-		if (ImGui::DragFloat("##d2", (float*)&depth, 0.1f)) { barTransform->setDepth(depth); }
-
+		
 		int w = 0; int h = 0;
 		if (getResourceTexture() != nullptr) {
 			getResourceTexture()->texture->getSize(w, h);
