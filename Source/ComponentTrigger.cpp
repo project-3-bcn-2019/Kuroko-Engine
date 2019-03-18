@@ -36,15 +36,17 @@ ComponentTrigger::ComponentTrigger(JSON_Object * deff, GameObject * parent) :Com
 	JSON_Object* r = json_object_get_object(deff, "rot");
 	JSON_Object* s = json_object_get_object(deff, "scale");
 	JSON_Object* data = json_object_get_object(deff, "data");
-
+	JSON_Object* size = json_object_get_object(deff, "size");
 
 	offset_pos = float3(json_object_get_number(p, "offset_pos_x"), json_object_get_number(p, "offset_pos_y"), json_object_get_number(p, "offset_pos_z"));
 	offset_rot = float3(json_object_get_number(r, "offset_rot_x"), json_object_get_number(r, "offset_rot_y"), json_object_get_number(r, "offset_rot_z"));
 	offset_scale = float3(json_object_get_number(s, "offset_scale_x"), json_object_get_number(s, "offset_scale_y"), json_object_get_number(s, "offset_scale_z"));
 
+	collider_size = float3(json_object_get_number(size, "size_x"), json_object_get_number(size, "size_y"), json_object_get_number(size, "size_z"));
+
 	shape = (collision_shape)(int)json_object_get_number(data, "shape");
 
-	body = App->physics->AddTrigger(this, shape);
+	body = App->physics->AddTrigger(this, shape,collider_size);
 	body->setUserPointer(this);
 }
 
@@ -52,15 +54,15 @@ bool ComponentTrigger::Update(float dt)
 {
 	UpdatePhysicsFromTransforms();
 
-	for (int i = 0; i < body->getNumOverlappingObjects(); i++)
-	{
-		// Dynamic cast to make sure its a rigid body
-		btRigidBody *pRigidBody = dynamic_cast<btRigidBody *>(body->getOverlappingObject(i));
-		if (pRigidBody)
-		{
-			printf("lul");
-		}
-	}
+	//for (int i = 0; i < body->getNumOverlappingObjects(); i++)
+	//{
+	//	// Dynamic cast to make sure its a rigid body
+	//	btRigidBody *pRigidBody = dynamic_cast<btRigidBody *>(body->getOverlappingObject(i));
+	//	if (pRigidBody)
+	//	{
+	//		printf("lul");
+	//	}
+	//}
 
 	colliding.clear();
 	std::list<Collision> col_list;
@@ -182,7 +184,12 @@ void ComponentTrigger::Save(JSON_Object* config)
 
 	json_object_set_value(config, "scale", scale);
 
+	JSON_Value* size = json_value_init_object();
+	json_object_set_number(json_object(size), "size_x", collider_size.x);
+	json_object_set_number(json_object(size), "size_y", collider_size.y);
+	json_object_set_number(json_object(size), "size_z", collider_size.z);
 
+	json_object_set_value(config, "size", size);
 
 }
 

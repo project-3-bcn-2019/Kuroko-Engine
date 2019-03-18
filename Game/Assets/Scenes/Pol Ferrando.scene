@@ -47,6 +47,13 @@
                     "script": "Assets\/Scripts\/PlayerController.wren",
                     "variables": [
                         {
+                            "name": "Damage",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
                             "name": "ShowDebugLogs",
                             "type": "number",
                             "value": 0,
@@ -114,6 +121,12 @@
                             "type_forced": false
                         },
                         {
+                            "name": "ComponentAnimatior",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
                             "name": "PunchButton",
                             "type": "number",
                             "public": false,
@@ -135,13 +148,6 @@
                             "name": "MoveSpeed",
                             "type": "number",
                             "value": 100,
-                            "public": true,
-                            "type_forced": false
-                        },
-                        {
-                            "name": "Damage",
-                            "type": "number",
-                            "value": 0,
                             "public": true,
                             "type_forced": false
                         },
@@ -203,7 +209,7 @@
                         {
                             "name": "acceleration",
                             "type": "number",
-                            "value": 0.019999999552965164,
+                            "value": 0.0099999997764825821,
                             "public": true,
                             "type_forced": false
                         },
@@ -227,6 +233,41 @@
                 {
                     "type": "animator",
                     "active": true,
+                    "graph_name": "alita_v2",
+                    "Parent3dObject": "",
+                    "ints": [],
+                    "floats": [],
+                    "strings": [],
+                    "bools": [
+                        {
+                            "uuid": 94876326,
+                            "value": false
+                        },
+                        {
+                            "uuid": 516409628,
+                            "value": false
+                        },
+                        {
+                            "uuid": 594067765,
+                            "value": false
+                        },
+                        {
+                            "uuid": 1638712610,
+                            "value": false
+                        },
+                        {
+                            "uuid": 2013290208,
+                            "value": false
+                        },
+                        {
+                            "uuid": 2067733325,
+                            "value": true
+                        },
+                        {
+                            "uuid": 3862868743,
+                            "value": false
+                        }
+                    ],
                     "uuid": 1655300872
                 },
                 {

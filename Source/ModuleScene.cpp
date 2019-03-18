@@ -80,7 +80,7 @@ bool ModuleScene::Start()
 	{
 		LoadScene((SCENES_FOLDER + std::to_string(main_scene) + SCENE_EXTENSION).c_str());
 	}
-	//LoadScene("Assets/Scenes/audio.scene");
+	LoadScene("Assets/Scenes/MainScene.scene");
 	AskAutoSaveScene();
 
 	return true;

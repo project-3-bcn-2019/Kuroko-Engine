@@ -32,6 +32,7 @@ class PlayerController is ObjectLinker{
     OldMoveDirection {_old_move_direction}
 
     ComponentAudioSource {_component_audio_source}
+    ComponentAnimatior {_component_animator}
 
 
     PunchButton {_punch_button}
@@ -93,10 +94,10 @@ class PlayerController is ObjectLinker{
         _idle_state = IdleState.new(this)
 
         //The arguments for a bsic attack are (player,type,tier,animation_name,sound_name,total_duration)
-        _punch1_state = BasicAttackState.new(this,"punch",1,"Malita_Punch_Tier_1","Punch","P1Col",700,500)
-        _punch2_state = BasicAttackState.new(this,"punch",2,"Malita_Punch_Tier_2","Punch","P1Col",1000,500)
-        _kick1_state = BasicAttackState.new(this,"kick",1,"Malita_Kick_Tier_1","Punch","P1Col",700,500)
-        _kick2_state = BasicAttackState.new(this,"kick",2,"Malita_Kick_Tier_2","Punch","P1Col",1000,500)
+        _punch1_state = BasicAttackState.new(this,"punch",1,"punch1","Punch","P1Col",2000,700)
+        _punch2_state = BasicAttackState.new(this,"punch",2,"punch2","Punch","P1Col",2000,700)
+        _kick1_state = BasicAttackState.new(this,"kick",1,"kick1","Punch","P1Col",1900,1000)
+        _kick2_state = BasicAttackState.new(this,"kick",2,"kick2","Punch","P1Col",1800,700)
 
         _moving_state = MovingState.new(this)
         _dash_state = DashState.new(this,500)
@@ -221,8 +222,12 @@ class IdleState is State {
     }
 
     BeginState() {
-
+        _player.ComponentAnimatior.setBool("idle",true)
         super.BeginState()
+    }
+
+    EndState() {
+        _player.ComponentAnimatior.setBool("idle",false)        
     }
 
     HandleInput() {
@@ -254,7 +259,11 @@ class MovingState is State {
 
     BeginState() {
         super.BeginState()
+        _player.ComponentAnimatior.setBool("moving",true)
+    }
 
+    EndState() {
+        _player.ComponentAnimatior.setBool("moving",false)        
     }
 
     HandleInput() {
@@ -265,6 +274,10 @@ class MovingState is State {
         // If X prassed switch to dash
         if (InputComunicator.getButton(-1,_player.PunchButton, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
         if (InputComunicator.getKey(InputComunicator.J, InputComunicator.KEY_DOWN)) _player.State = _player.Punch1
+
+        // If Y prassed switch to dash
+        if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
+        if (InputComunicator.getKey(InputComunicator.K, InputComunicator.KEY_DOWN)) _player.State = _player.Kick1
     }
     
     Update() {
@@ -308,6 +321,7 @@ class DashState is State {
         _dash_direction = Vec3.new(_player.MoveDirection.x,_player.MoveDirection.y,_player.MoveDirection.z)
         _dash_speed = 600
         _player.SetDeceleration(0.05)
+        _player.ComponentAnimatior.setBool("dash",true)
 
     }
 
@@ -324,6 +338,10 @@ class DashState is State {
 
         if (super.IsStateFinished()) _player.State = _player.IdleState
 
+        if (super.IsStateFinished()) {
+            if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _player.State = _player.MovingState
+        }
+
         if (_player.ShowDebugLogs){  
             EngineComunicator.consoleOutput("direction.x =%(_dash_direction.x)")
             EngineComunicator.consoleOutput("direction.y =%(_dash_direction.y)")
@@ -333,6 +351,7 @@ class DashState is State {
 
     EndState(){
         _player.SetDeceleration(0.01)
+        _player.ComponentAnimatior.setBool("dash",false)  
     }
 
 }
@@ -342,7 +361,7 @@ class BasicAttackState is State {
         super(player)
         _player = player
     }
-
+    //The animation name is the name of the variable that the graph uses
     //when the windup duration finishes the collider will be created, make sure its lower than the total_duration (Its obvious)
     construct new(player,type,tier,animation_name,sound_name,prefav_collider_name,total_duration,windup_duration) {
         _player = player
@@ -369,13 +388,18 @@ class BasicAttackState is State {
         _next_state = _player.IdleState
         _on_contact_done = false
 
+        _player.ComponentAnimatior.setBool(_animation_name,true)
+
         _player.ComponentAudioSource.setSound(_sound_name)
         _player.ComponentAudioSource.Play()
     }
 
+    EndState() {
+        _player.ComponentAnimatior.setBool(_animation_name,false)        
+    }
+
     HandleInput() {
         _margin_to_chain_attack = 200 //totally invented 
-
 
         if (super.CurrentTime > (super.TotalDuration - _margin_to_chain_attack)) {
             if (_tier == 1) {
@@ -383,7 +407,11 @@ class BasicAttackState is State {
                 if (InputComunicator.getButton(-1,_player.KickButton, InputComunicator.KEY_DOWN)) _next_state = _player.Kick2
             }
         }
-        
+
+        // If l-stick is not still switch to moving
+        if (_next_state == _player.IdleState) {
+            if(_player.MoveDirection.x != 0.0 || _player.MoveDirection.y != 0.0) _next_state = _player.MovingState
+        }        
     }
 
     //This is when the attak will instanciate the collider 
@@ -392,8 +420,8 @@ class BasicAttackState is State {
 
         var forward = _player.getForward()
 
-        var multiplier = 5
-        var col_height = 10
+        var multiplier = 15
+        var col_height = 15
         var x_offset = forward.x * multiplier
         var z_offset = forward.z * multiplier
 
