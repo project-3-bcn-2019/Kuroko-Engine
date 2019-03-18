@@ -163,9 +163,12 @@ void ComponentBone::Save(JSON_Object * config)
 
 bool ComponentBone::Update(float dt)
 {
-	float3 size = { 0.05f, 0.05f, 0.05f };
-	float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
-	App->renderer3D->DirectDrawCube(size, pos);
+	if (!App->is_game)
+	{
+		float3 size = { 0.05f, 0.05f, 0.05f };
+		float3 pos = ((ComponentTransform*)parent->getComponent(TRANSFORM))->global->getPosition();
+		App->renderer3D->DirectDrawCube(size, pos);
+	}
 
 	return true;
 }
