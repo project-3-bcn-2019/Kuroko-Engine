@@ -16,6 +16,7 @@
 #include "Camera.h"
 #include "Applog.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleRenderer3D.h"
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceBone.h"
@@ -149,7 +150,25 @@ ComponentMesh::~ComponentMesh() {
 	delete mat;
 }
 
-void ComponentMesh::Draw() const
+void ComponentMesh::Draw()
+{
+	if (mat)
+	{
+		if (mat->translucent)
+		{
+			App->renderer3D->translucentMeshes.push(this);
+			return;
+		}
+	}
+	App->renderer3D->opaqueMeshes.push_back(this);
+}
+
+void ComponentMesh::DrawSelected()
+{
+	App->renderer3D->selected_meshes_to_draw.push_back(this);
+}
+
+void ComponentMesh::Render() const
 {
 	if (Mesh* mesh_from_resource = getMeshFromResource())
 	{
@@ -191,7 +210,7 @@ void ComponentMesh::Draw() const
 	}
 }
 
-void ComponentMesh::DrawSelected() const
+void ComponentMesh::RenderSelected() const
 {
 	if (Mesh* mesh_from_resource = getMeshFromResource())
 	{
@@ -322,6 +341,8 @@ bool ComponentMesh::DrawInspector(int id)
 			{
 				if (Material* material = getMaterial())
 				{
+					ImGui::Checkbox("translucent", &material->translucent);
+
 					static int preview_size = 128;
 					ImGui::Text("Id: %d", material->getId());
 					ImGui::SameLine();

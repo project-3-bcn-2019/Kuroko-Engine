@@ -110,7 +110,7 @@ void Billboard::Save(JSON_Object* json)
 
 }
 
-void Billboard::Draw() const
+void Billboard::Render() const
 {
 	OBB obb;
 	obb.r = float3(1.0,1.0, 0.01f); 
@@ -217,7 +217,7 @@ void Billboard::UpdateFromParticle(const Particle& particle)
 	if (useColor)			mesh->tint_color = color;
 	else					mesh->tint_color = White;
 
-	Draw();
+	Render();
 }
 
 

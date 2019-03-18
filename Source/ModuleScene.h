@@ -53,8 +53,7 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
-	void DrawScene(float3 camera_pos); 
-	void DrawInGameUI();
+	void DrawScene(); 
 
 	void addGameObject(GameObject* gobj)	{ game_objects.push_back(gobj); };
 	GameObject* duplicateGameObject(GameObject* gobj);
@@ -146,7 +145,6 @@ private:
 	JSON_Value* local_scene_save = nullptr;		// To use when time starts and resumes
 	
 												//TESTING GLORTHO AABB:
-	AABB ui_render_box;
 
 public:
 
@@ -169,5 +167,6 @@ public:
 	int quadtree_checks			= 0;
 
 	uint main_scene = 0;
+	AABB ui_render_box;
 };
 #endif

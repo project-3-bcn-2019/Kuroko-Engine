@@ -49,7 +49,7 @@ void ModuleDebug::DrawShapes()
 uint ModuleDebug::addArrow(const float3& start_point, const float3& end_point, const Color& color)
 {
 	DebugShape* arrow = new DebugShape();
-	arrow->type = ARROW;
+	arrow->type = S_ARROW;
 	float3 aux = end_point - start_point;
 
 	arrow->num_vertices = 6;
@@ -98,7 +98,7 @@ uint ModuleDebug::addAxis(const float3& position, float length, const Quat& rota
 	}
 
 	DebugShape* axis = new DebugShape();
-	axis->type = AXIS;
+	axis->type = S_AXIS;
 
 	axis->num_vertices = 4;
 	axis->vertices = new float3[4];
@@ -126,7 +126,7 @@ uint ModuleDebug::addAxis(const float3& position, float length, const Quat& rota
 uint ModuleDebug::addRay(const float3& start_point, const float3& end_point, const Color& color)
 {
 	DebugShape* ray = new DebugShape();
-	ray->type = RAY;
+	ray->type = S_RAY;
 
 	ray->num_vertices = 2;
 	ray->vertices = new float3[2];
@@ -162,7 +162,7 @@ uint  ModuleDebug::addFrustum(const float3& pos, const Quat& rotation, FrustumTy
 	else							 { f.verticalFov = h_fov_or_ortho_width;			f.horizontalFov = v_fov_or_ortho_height; }
 	
 	DebugShape* frustum = new DebugShape();
-	frustum->type = FRUSTUM;
+	frustum->type = S_FRUSTUM;
 
 	frustum->num_vertices = 8;
 	frustum->vertices = new float3[8];

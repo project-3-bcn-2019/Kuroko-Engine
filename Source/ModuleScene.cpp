@@ -215,17 +215,8 @@ update_status ModuleScene::Update(float dt)
 	return UPDATE_CONTINUE;
 }
 
-void ModuleScene::DrawScene(float3 camera_pos)
+void ModuleScene::DrawScene()
 {
-	if (skybox)
-	{
-		skybox->updatePosition(camera_pos);
-		skybox->Draw();
-	}
-
-	if (!App->is_game)
-		App->debug->DrawShapes();
-
 	std::list<GameObject*> drawable_gameobjects;
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++) {
@@ -248,62 +239,6 @@ void ModuleScene::DrawScene(float3 camera_pos)
 		(*it)->Draw();
 
 	quadtree_ignored_obj = game_objects.size() - drawable_gameobjects.size();
-}
-
-
-void ModuleScene::DrawInGameUI()
-{
-	GameObject* canvas = getCanvasGameObject();
-	if (canvas != nullptr)
-	{
-		bool light = glIsEnabled(GL_LIGHTING);
-
-		glDisable(GL_LIGHTING);
-
-		ComponentRectTransform* rectTransform = (ComponentRectTransform*)canvas->getComponent(Component_type::RECTTRANSFORM);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		float left = rectTransform->getGlobalPos().x;
-		float right = rectTransform->getGlobalPos().x + rectTransform->getWidth();
-		float top = rectTransform->getGlobalPos().y + rectTransform->getHeight();
-		float bottom = rectTransform->getGlobalPos().y;
-
-		/*float left = rectTransform->GetGlobalPos().x;
-		float right = rectTransform->GetGlobalPos().x + rectTransform->GetWidth();
-		float top = rectTransform->GetGlobalPos().y + rectTransform->GetHeight();
-		float bottom = rectTransform->GetGlobalPos().y;*/
-		float zNear = -10.f;
-		float zFar = 10.f;
-		float3 min = { left, bottom, zNear };
-		float3 max = { right, top, zFar };
-
-		ui_render_box.minPoint = min;
-		ui_render_box.maxPoint = max;
-
-		glOrtho(left, right, bottom, top, zNear, zFar);
-		float3 corners[8];
-		ui_render_box.GetCornerPoints(corners);
-		App->renderer3D->DrawDirectAABB(ui_render_box);
-		/*glBegin(GL_TRIANGLES);
-		glVertex2f(-1, -1);
-		glVertex2f(1, -1);
-		glVertex2f(1, 1);
-		glEnd();*/
-
-		std::list<GameObject*> UIGameObjects = getUIGameObjects(); // first draw UI components
-		for (auto it : UIGameObjects)
-		{
-			it->Draw();
-		}
-
-		if (light) {
-			glEnable(GL_LIGHTING);
-		}
-	}
 }
 
 bool sortCloserRayhit(const RayHit& a, const RayHit& b) { return a.distance < b.distance; }

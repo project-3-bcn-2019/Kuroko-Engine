@@ -2480,11 +2480,6 @@ void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 {
 	if (draw_guizmo)
 	{
-		float4x4 projection4x4;
-		float4x4 view4x4;
-
-		glGetFloatv(GL_MODELVIEW_MATRIX, (float*)view4x4.v);
-		glGetFloatv(GL_PROJECTION_MATRIX, (float*)projection4x4.v);
 
 		ImGuizmo::SetRect(window_pos.x, window_pos.y, window_size.x, window_size.y);
 
@@ -2538,6 +2533,11 @@ void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 		
 		aux_transform.CalculateMatrix();
 		float4x4 mat = float4x4(aux_transform.getMatrix());
+
+		float4x4 projection4x4 = (App->camera->current_camera->getFrustum()->ProjectionMatrix());
+		float4x4 view4x4 = App->camera->current_camera->getFrustum()->ViewMatrix();
+		view4x4.Transpose();
+
 		mat.Transpose();
 		ImGuizmo::Manipulate((float*)view4x4.v, (float*)projection4x4.v, gizmo_operation, gizmo_mode, (float*)mat.v);
 		mat.Transpose();

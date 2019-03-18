@@ -29,7 +29,8 @@ public:
 	virtual ~Component() {};
 
 	virtual bool Update(float dt) { return true; };
-	virtual void Draw() const {};
+	virtual void Draw() {};
+	virtual void Render() const {};
 
 	virtual bool DrawInspector(int id = 0) { return true; };
 
@@ -43,6 +44,7 @@ public:
 	GameObject* getParent() const { return parent; }
 	void setParent(GameObject* new_parent) { parent = new_parent; } // Can recieve nullptr
 	uint getUUID() const { return uuid; }
+	virtual const float getDepth() const { return -1.0; };
 
 	virtual void Save(JSON_Object* config) {}
 

@@ -9,6 +9,7 @@
 #include "ResourceTexture.h"
 #include "Material.h"
 #include "ModuleResourcesManager.h"
+#include "ModuleRenderer3D.h"
 #include "ModuleUI.h"
 
 #include "ImGui/imgui.h"
@@ -93,7 +94,12 @@ bool ComponentImageUI::Update(float dt)
 	return true;
 }
 
-void ComponentImageUI::Draw() const
+void ComponentImageUI::Draw()
+{
+	App->renderer3D->orderedUI.push(this);
+}
+
+void ComponentImageUI::Render() const
 {
 	glPushMatrix();
 	float4x4 globalMat;
@@ -139,7 +145,6 @@ bool ComponentImageUI::DrawInspector(int id)
 {
 	if (ImGui::CollapsingHeader("UI Image"))
 	{
-
 		ImGui::Image(getResourceTexture() != nullptr ? (void*)getResourceTexture()->texture->getGLid() : (void*)App->gui->ui_textures[NO_TEXTURE]->getGLid(), ImVec2(128, 128));
 		ImGui::SameLine();
 

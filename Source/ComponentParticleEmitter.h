@@ -24,15 +24,6 @@ enum AreaType
 	AREA_NONE
 };
 
-struct ParticlePriority
-{
-	bool operator()(const Particle* particle1, const Particle* particle2)const
-	{
-
-		return  particle1->DistanceToCamera() < particle2->DistanceToCamera();
-	}
-};
-
 
 struct shape
 {
@@ -53,6 +44,7 @@ class ComponentParticleEmitter : public Component
 {
 	friend class ModuleUI;
 	friend class Billboard;
+	friend class ModuleRenderer3D;
 
 public:
 	ComponentParticleEmitter(GameObject* parent);
@@ -61,7 +53,7 @@ public:
 	~ComponentParticleEmitter();
 
 	bool Update(float dt);
-	void Draw() const;
+	void Draw();
 	bool DrawInspector(int id = 0) override;
 	void Save(JSON_Object* json);
 

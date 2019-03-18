@@ -5,6 +5,7 @@
 #include "ModuleTimeManager.h"
 #include "GameObject.h"
 #include "glew-2.1.0\include\GL\glew.h"
+#include "ModuleRenderer3D.h"
 
 #include "ImGui/imgui.h"
 
@@ -36,7 +37,12 @@ bool ComponentCanvas::Update(float dt)
 	return true;
 }
 
-void ComponentCanvas::Draw() const
+void ComponentCanvas::Draw()
+{
+	App->renderer3D->orderedUI.push(this);
+}
+
+void ComponentCanvas::Render() const
 {
 	if (draw_cross && App->time->getGameState() != GameState::PLAYING) {
 		float2 midPoint = float2(rectTransform->getWidth()/2, rectTransform->getHeight() / 2);

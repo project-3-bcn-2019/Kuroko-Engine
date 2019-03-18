@@ -57,6 +57,7 @@ public:
 	uint getShaderProgramID() const;
 	ShaderProgram* getShaderProgram() const;
 
+	bool translucent = false;
 private:
 	
 	uint id = 0;
@@ -65,6 +66,7 @@ private:
 	uint normals_resource = 0;
 	uint lightmap_resource = 0;
 	uint shader_program = 0;
+
 	//ShaderProgram* shader_program = nullptr;
 
 };
