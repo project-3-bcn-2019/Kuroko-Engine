@@ -4,6 +4,7 @@
 #include "ComponentTransform.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "ModuleScene.h"
 #include "ModuleCamera3D.h"
 
 #include "ImGui/imgui.h"
@@ -20,6 +21,12 @@ ComponentCamera::ComponentCamera(JSON_Object* deff, GameObject* parent) : Compon
 
 
 	is_active = json_object_get_boolean(deff, "active");
+
+	JSON_Array* offset_array = json_object_get_array(deff, "offset");
+	offset.x = json_array_get_number(offset_array, 0);
+	offset.y = json_array_get_number(offset_array, 1);
+	offset.z = json_array_get_number(offset_array, 2);
+
 	// Load camera
 	float3 pos(json_object_dotget_number(deff, "camera.pos_x"), json_object_dotget_number(deff, "camera.pos_y"), json_object_dotget_number(deff, "camera.pos_z"));
 	float3 reference(json_object_dotget_number(deff, "camera.ref_x"), json_object_dotget_number(deff, "camera.ref_y"), json_object_dotget_number(deff, "camera.ref_z"));
@@ -76,13 +83,18 @@ bool ComponentCamera::DrawInspector(int id)
 		camera_active = isActive();
 
 		if (ImGui::Checkbox("Active##active camera", &camera_active))
+		{
 			setActive(camera_active);
+			App->scene->AskAutoSaveScene();
+		}
+		if (ImGui::Checkbox("Draw camera view", &getCamera()->draw_in_UI))
+			App->scene->AskAutoSaveScene();
 
-		ImGui::Checkbox("Draw camera view", &getCamera()->draw_in_UI);
+		if (ImGui::Checkbox("Draw frustum", &getCamera()->draw_frustum))
+			App->scene->AskAutoSaveScene();
 
-		ImGui::Checkbox("Draw frustum", &getCamera()->draw_frustum);
-
-		ImGui::Checkbox("Draw depth", &getCamera()->draw_depth);
+		if (ImGui::Checkbox("Draw depth", &getCamera()->draw_depth))
+			App->scene->AskAutoSaveScene();
 
 		static bool overriding;
 		overriding = (getCamera() == App->camera->override_editor_cam_culling);
@@ -90,30 +102,53 @@ bool ComponentCamera::DrawInspector(int id)
 		{
 			if (!overriding)	App->camera->override_editor_cam_culling = nullptr;
 			else				App->camera->override_editor_cam_culling = getCamera();
+			App->scene->AskAutoSaveScene();
 		}
 
 		if (camera_active)
 		{
+			static bool changing_value_x = false;
+			static bool changing_value_y = false;
+			static bool changing_value_z = false;
 			static float3 _offset;
 			_offset = offset;
 			ImGui::Text("Offset:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			ImGui::DragFloat("##o x", &_offset.x, 0.01f, -1000.0f, 1000.0f, "%.02f");
+			if (ImGui::DragFloat("##o x", &_offset.x, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value_x = true;
+			else if (changing_value_x && !ImGui::IsItemActive())
+			{
+				App->scene->AskAutoSaveScene();
+				changing_value_x = false;
+			}
 
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			ImGui::DragFloat("##o y", &_offset.y, 0.01f, -1000.0f, 1000.0f, "%.02f");
+			if (ImGui::DragFloat("##o y", &_offset.y, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value_y = true;
+			else if (changing_value_y && !ImGui::IsItemActive())
+			{
+				App->scene->AskAutoSaveScene();
+				changing_value_y = false;
+			}
 
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			ImGui::DragFloat("##o z", &_offset.z, 0.01f, -1000.0f, 1000.0f, "%.02f");
+			if (ImGui::DragFloat("##o z", &_offset.z, 0.01f, -1000.0f, 1000.0f, "%.02f"))
+				changing_value_z = true;
+			else if (changing_value_z && !ImGui::IsItemActive())
+			{
+				App->scene->AskAutoSaveScene();
+				changing_value_z = false;
+			}
 
 			offset = _offset;
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 0.2f, 0.f, 1.f));
 		if (ImGui::Button("Remove##Remove camera")) {
+			App->scene->AskAutoSaveScene();
 			ImGui::PopStyleColor(); ImGui::PopStyleColor();
 			return false;
 		}
@@ -127,6 +162,11 @@ void ComponentCamera::Save(JSON_Object* config) {
 
 	json_object_set_string(config, "type", "camera");
 	json_object_set_boolean(config, "active", is_active);
+	JSON_Value* array_offset = json_value_init_array();
+	json_array_append_number(json_array(array_offset), offset.x);
+	json_array_append_number(json_array(array_offset), offset.y);
+	json_array_append_number(json_array(array_offset), offset.z);
+	json_object_set_value(config, "offset", array_offset);
 
 	JSON_Value* camera_value = json_value_init_object();
 	camera->Save(json_object(camera_value));

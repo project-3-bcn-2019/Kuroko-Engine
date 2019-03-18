@@ -276,8 +276,10 @@ bool ComponentMesh::DrawInspector(int id)
 		mesh_active = isActive();
 
 		if (ImGui::Checkbox("Active## mesh_active", &mesh_active))
+		{
 			setActive(mesh_active);
-
+			App->scene->AskAutoSaveScene();
+		}
 		if (mesh_active)
 		{
 			ResourceMesh* R_mesh = (ResourceMesh*)App->resources->getResource(getMeshResource());

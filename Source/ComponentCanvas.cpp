@@ -1,6 +1,7 @@
 #include "ComponentCanvas.h"
 #include "ComponentRectTransform.h"
 #include "Application.h"
+#include "ModuleScene.h"
 #include "ModuleWindow.h"
 #include "ModuleTimeManager.h"
 #include "GameObject.h"
@@ -64,7 +65,8 @@ bool ComponentCanvas::DrawInspector(int id)
 	if (ImGui::CollapsingHeader("Canvas"))
 	{
 		ImGui::Text("Resolution  %.0f x %.0f", getResolution().x, getResolution().y);
-		ImGui::Checkbox("Draw cross hair", &draw_cross);
+		if (ImGui::Checkbox("Draw cross hair", &draw_cross))
+			App->scene->AskAutoSaveScene();
 	}
 
 	return true;

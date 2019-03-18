@@ -247,8 +247,17 @@
                 {
                     "type": "animator",
                     "active": true,
-                    "graph_name": "missing reference",
-                    "Parent3dObject": "missing reference",
+                    "graph_name": "alita_v2",
+                    "Parent3dObject": "",
+                    "ints": [],
+                    "floats": [],
+                    "strings": [],
+                    "bools": [
+                        {
+                            "uuid": 2067733325,
+                            "value": false
+                        }
+                    ],
                     "uuid": 1655300872
                 }
             ]
