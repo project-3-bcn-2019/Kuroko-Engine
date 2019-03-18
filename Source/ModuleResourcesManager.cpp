@@ -52,7 +52,7 @@ bool ModuleResourcesManager::Start()
 
 	CompileAndGenerateScripts();
 	update_timer.Start();
-	//App->exporter->AssetsToLibraryJSON();
+	App->exporter->AssetsToLibraryJSON();
 
 	return true;
 }
@@ -361,53 +361,53 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 {
 	std::string name;
 	std::string path;
-	//std::string extension;
+	std::string extension;
 	switch (type)
 	{
 	case R_MESH:
 		name = "Meshes";
 		path = MESHES_FOLDER;
-		//extension = OWN_MESH_EXTENSION;
+		extension = OWN_MESH_EXTENSION;
 		break;
 	case R_TEXTURE:
 		name = "Textures";
 		path = TEXTURES_FOLDER;
-		//extension = DDS_EXTENSION;
+		extension = DDS_EXTENSION;
 		break;
 	case R_SCENE:
 		name = "Scenes";
 		path = SCENES_FOLDER;
-		//extension = SCENE_EXTENSION;
+		extension = SCENE_EXTENSION;
 		break;
 	case R_PREFAB:
 		name = "Prefabs";
 		path = PREFABS_FOLDER;
-		//extension = PREFAB_EXTENSION;
+		extension = PREFAB_EXTENSION;
 		break;
 	case R_SCRIPT:
 		name = "Scripts";
 		path = SCRIPTS_FOLDER;
-		//extension = JSON_EXTENSION;
+		extension = JSON_EXTENSION;
 		break;
 	case R_ANIMATION:
 		name = "Animations";
 		path = ANIMATIONS_FOLDER;
-		//extension = OWN_ANIMATION_EXTENSION;
+		extension = OWN_ANIMATION_EXTENSION;
 		break;
 	case R_BONE:
 		name = "Bones";
 		path = BONES_FOLDER;
-		//extension = OWN_BONE_EXTENSION;
+		extension = OWN_BONE_EXTENSION;
 		break;
 	case R_AUDIO:
 		name = "Audio";
 		path = AUDIO_FOLDER;
-		//extension = AUDIO_EXTENSION;
+		extension = AUDIO_EXTENSION;
 		break;
 	case R_ANIMATIONGRAPH:
 		name = "AnimationGraphs";
 		path = GRAPHS_FOLDER;
-		//extension = GRAPH_EXTENSION;
+		extension = GRAPH_EXTENSION;
 		break;
 	case R_SHADER:
 		name = "Shaders";
@@ -416,7 +416,7 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 	case R_UI:
 		name = "UI";
 		path = TEXTURES_FOLDER;
-		//extension = DDS_EXTENSION;
+		extension = DDS_EXTENSION;
 		type = R_TEXTURE; // As UI folder contains textures, we can add them as TEXTURES resources
 		break;
 	}
@@ -429,7 +429,9 @@ void ModuleResourcesManager::GenerateFromMapFile(JSON_Value* file, ResourceType 
 		deff.asset = json_object_get_string(meshMap, "name");
 		deff.uuid = json_object_get_number(meshMap, "uuid");
 		deff.type = type;
-		deff.binary = path + std::to_string(deff.uuid) + json_object_get_string(meshMap, "extension");
+		if (extension == "")
+			extension = json_object_get_string(meshMap, "extension");
+		deff.binary = path + std::to_string(deff.uuid) + extension;
 
 		newResource(deff);
 	}
