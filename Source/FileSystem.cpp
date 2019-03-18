@@ -23,6 +23,8 @@ void FileSystem::ExportBuffer(char * data, int size, const char * file_name, lib
 char * FileSystem::ImportFile(const char * file_name) {
 	std::ifstream file;
 	file.open(file_name, std::fstream::out | std::fstream::binary);
+	if (!file)
+		assert(!"Not able to open the file!");
 	// get length of file:
 	file.seekg(0, file.end);
 	int size = file.tellg();
