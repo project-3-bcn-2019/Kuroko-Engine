@@ -115,12 +115,6 @@
                             "type_forced": false
                         },
                         {
-                            "name": "ComponentAnimation",
-                            "type": "number",
-                            "public": false,
-                            "type_forced": false
-                        },
-                        {
                             "name": "ComponentAudioSource",
                             "type": "number",
                             "public": false,
@@ -202,42 +196,42 @@
                         {
                             "name": "deceleration",
                             "type": "number",
-                            "value": 0,
+                            "value": 0.0099999997764825821,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "acceleration",
                             "type": "number",
-                            "value": 0,
+                            "value": 0.0099999997764825821,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "max_speed",
                             "type": "number",
-                            "value": 0,
+                            "value": 0.10000000149011612,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "angular_acceleration",
                             "type": "number",
-                            "value": 0,
+                            "value": 0.0099999997764825821,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "max_angular_speed",
                             "type": "number",
-                            "value": 0,
+                            "value": 0.10000000149011612,
                             "public": true,
                             "type_forced": false
                         },
                         {
                             "name": "face_movement",
-                            "type": "number",
-                            "value": 0,
+                            "type": "bool",
+                            "value": true,
                             "public": true,
                             "type_forced": false
                         }
@@ -247,9 +241,32 @@
                 {
                     "type": "animator",
                     "active": true,
-                    "graph_name": "missing reference",
-                    "Parent3dObject": "missing reference",
                     "uuid": 1655300872
+                },
+                {
+                    "type": "physics",
+                    "active": true,
+                    "data": {
+                        "shape": 0,
+                        "is_environment": false,
+                        "mass": 1
+                    },
+                    "pos": {
+                        "offset_pos_x": 0,
+                        "offset_pos_y": 0,
+                        "offset_pos_z": 0
+                    },
+                    "rot": {
+                        "offset_rot_x": 0,
+                        "offset_rot_y": 0,
+                        "offset_rot_z": 0
+                    },
+                    "scale": {
+                        "offset_scale_x": 1,
+                        "offset_scale_y": 1,
+                        "offset_scale_z": 1
+                    },
+                    "uuid": 236805776
                 }
             ]
         },
