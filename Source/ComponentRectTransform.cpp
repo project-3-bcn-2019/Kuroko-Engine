@@ -12,8 +12,8 @@
 
 ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(parent, RECTTRANSFORM)
 {
-	setWidth(1.0f);
-	setHeight(1.0f);
+	setWidth(100.0f);
+	setHeight(100.0f);
 
 	debug_draw = true;
 	
@@ -25,6 +25,11 @@ ComponentRectTransform::ComponentRectTransform(GameObject* parent) : Component(p
 	};
 	rect.vertex = new float3[4];
 	memcpy(rect.vertex, vtx, sizeof(float3) * 4);
+	if (parent!=nullptr && parent->getParent() != nullptr && parent->getParent()->getComponent(CANVAS) == nullptr && parent->getParent()->getComponent(RECTTRANSFORM) != nullptr) {
+		ComponentRectTransform* parentRect = (ComponentRectTransform*)parent->getParent()->getComponent(RECTTRANSFORM);
+		rect.local = rect.global-parentRect->getGlobalPos();
+	}
+
 
 	GenBuffer();
 }
@@ -147,16 +152,16 @@ bool ComponentRectTransform::DrawInspector(int id)
 			ImGui::Text("Position:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-			if (ImGui::DragFloat2("##p", (float*)&position, 0.5f)) { setPos(position); }
+			if (ImGui::DragFloat2("##p", (float*)&position, 0.5f,0.0f,0.0f, "%.01f")) { setPos(position); }
 			//Width
 			ImGui::Text("Dimensions:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##h", &width, 0.5f, 0.0f, 0.0f, "%.02f")) { setWidth(width); }
+			if (ImGui::DragFloat("##h", &width, 0.5f, 0.0f, 0.0f, "%.01f")) { setWidth(width); }
 			//Height
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.15f);
-			if (ImGui::DragFloat("##w", &height, 0.5f, 0.0f, 0.0f, "%.02f")) {
+			if (ImGui::DragFloat("##w", &height, 0.5f, 0.0f, 0.0f, "%.01f")) {
 				setHeight(height);
 			}
 			//Depth
