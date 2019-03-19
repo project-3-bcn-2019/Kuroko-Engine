@@ -661,11 +661,10 @@ void ModuleScene::LoadPrefab(PrefabData data) {
 	GameObject* go = loadSerializedPrefab(prefab);
 
 	// Set transform
-	Transform trans;
-	trans.setPosition(data.pos);
-	trans.setRotationEuler(data.euler);
 	ComponentTransform* c_trans = (ComponentTransform*)go->getComponent(TRANSFORM);
-	*c_trans->local = trans;
+	c_trans->local->setPosition(data.pos);
+	c_trans->local->setRotationEuler(data.euler);
+
 
 	// Force uuid
 	//go->forceUUID(data.forced_uuid);
