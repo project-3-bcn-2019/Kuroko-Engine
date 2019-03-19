@@ -59,7 +59,7 @@ bool ModuleResourcesManager::Start()
 
 update_status ModuleResourcesManager::Update(float dt)
 {
-	if (!App->is_game)
+	if (!App->is_game || App->debug_game)
 	{
 		ManageUITextures();
 		if (update_timer.Read() > update_ratio) {
