@@ -61,7 +61,7 @@ public:
 	bool CleanUp();
 	void InitializeScriptEditor();
 
-	bool DrawComponent(Component& component, int id);
+	//bool DrawComponent(Component& component, int id);
 	void DrawCameraViewWindow(Camera& camera);
 	void DrawGizmoMenuTab();
 	/*void DrawSkyboxWindow();*/

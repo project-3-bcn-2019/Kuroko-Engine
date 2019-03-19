@@ -204,7 +204,7 @@ void PanelObjectInspector::DrawChildedInspector(GameObject* object)
 			std::list<Component*> components_to_erase;
 			int id = 0;
 			for (std::list<Component*>::iterator it = components.begin(); it != components.end(); it++) {
-				if (!App->gui->DrawComponent(*(*it), id))
+				if (!(*it)->DrawInspector(id))
 					components_to_erase.push_back(*it);
 				id++;
 			}
