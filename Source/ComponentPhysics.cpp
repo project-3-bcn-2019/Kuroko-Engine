@@ -59,6 +59,11 @@ ComponentPhysics::ComponentPhysics(JSON_Object * deff, GameObject * parent) :Com
 
 	collider_size = float3(json_object_get_number(size, "size_x"), json_object_get_number(size, "size_y"), json_object_get_number(size, "size_z"));
 
+	if (collider_size.x == 0 && collider_size.y == 0 && collider_size.z == 0)
+	{
+		collider_size = float3(2,2,2);
+	}
+
 	mass = json_object_get_number(data,"mass");
 	if (mass == 0)
 		mass = 1;
