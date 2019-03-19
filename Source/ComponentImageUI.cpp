@@ -11,6 +11,7 @@
 #include "ModuleResourcesManager.h"
 #include "ModuleRenderer3D.h"
 #include "ModuleUI.h"
+#include "ModuleCamera3D.h"
 
 #include "ImGui/imgui.h"
 
@@ -97,6 +98,9 @@ bool ComponentImageUI::Update(float dt)
 void ComponentImageUI::Draw()
 {
 	App->renderer3D->orderedUI.push(this);
+
+	if (App->camera->current_camera == App->camera->editor_camera && !App->is_game)
+		App->renderer3D->opaqueMeshes.push_back(this);
 }
 
 void ComponentImageUI::Render() const

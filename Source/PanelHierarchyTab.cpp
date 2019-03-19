@@ -217,10 +217,15 @@ bool PanelHierarchyTab::DrawHierarchyNode(GameObject& game_object, int& id)
 
 		if (ImGui::Button(("Delete##" + game_object.getName() + std::to_string(id) + "Delete gobj button").c_str()))
 		{
-			for(auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++)
-				App->scene->deleteGameObjectRecursive((*it));
+			if (App->scene->selected_obj.size() > 1)
+			{
+				for (auto it = App->scene->selected_obj.begin(); it != App->scene->selected_obj.end(); it++)
+					App->scene->deleteGameObjectRecursive((*it));
 
-			App->scene->selected_obj.clear();
+				App->scene->selected_obj.clear();
+			}
+			else
+				App->scene->deleteGameObjectRecursive(&game_object);
 		}
 
 		if (ImGui::Button(("Save to prefab##" + game_object.getName() + std::to_string(id) + "prefab save gobj button").c_str()))

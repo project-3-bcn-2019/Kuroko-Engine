@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "ModuleRenderer3D.h"
 #include "MathGeoLib/Math/float4x4.h"
+#include "ModuleCamera3D.h"
 #include <vector>
 
 #include "glew-2.1.0\include\GL\glew.h"
@@ -78,6 +79,9 @@ bool ComponentTextUI::Update(float dt)
 void ComponentTextUI::Draw()
 {
 	App->renderer3D->orderedUI.push(this);
+
+	if (App->camera->current_camera == App->camera->editor_camera && !App->is_game)
+		App->renderer3D->opaqueMeshes.push_back(this);
 }
 
 
