@@ -223,6 +223,13 @@ void ModuleRenderer3D::Render()
 	for (int i = 0; i < opaqueMeshes.size(); i++)
 		opaqueMeshes[i]->Render();
 
+	bool depth_test = glIsEnabled(GL_DEPTH_TEST);
+	bool lighting = glIsEnabled(GL_LIGHTING);
+	bool blending = glIsEnabled(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
 	while (translucentMeshes.size() != 0)
 	{
 		Component* first = translucentMeshes.top();
@@ -241,7 +248,10 @@ void ModuleRenderer3D::Render()
 		if (App->physics->physics_debug)
 			App->physics->world->debugDrawWorld();
 	}
-	
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
 	// rendering particles
 	while (orderedParticles.size() != 0)
 	{
@@ -257,8 +267,6 @@ void ModuleRenderer3D::Render()
 		if (GameObject* canvas = App->scene->getCanvasGameObject())
 		{
 
-			bool depth_test = glIsEnabled(GL_DEPTH_TEST);
-			bool lighting = glIsEnabled(GL_LIGHTING);
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_LIGHTING);
 
@@ -294,12 +302,17 @@ void ModuleRenderer3D::Render()
 				orderedUI.pop();
 			}
 
-			if (depth_test)
-				glEnable(GL_DEPTH_TEST);
-			if (lighting)
-				glEnable(GL_LIGHTING);
 		}
 	}
+
+	if (depth_test) glEnable(GL_DEPTH_TEST);
+	else			glDisable(GL_DEPTH_TEST);
+
+	if (lighting)   glEnable(GL_LIGHTING);
+	else			glDisable(GL_LIGHTING);
+
+	if (blending)   glEnable(GL_BLEND);
+	else			glDisable(GL_BLEND);
 
 	if (!App->is_game)
 	{

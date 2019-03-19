@@ -296,27 +296,7 @@ void ComponentParticleEmitter::Draw()
 	for (std::list<Particle*>::const_iterator item = particles.cbegin(); item != particles.cend(); item++)
 		App->renderer3D->orderedParticles.push(*item);
 }
-//
-//void ComponentParticleEmitter::Render() const
-//{
-//	std::priority_queue<Particle*, std::vector<Particle*>, ParticlePriority> orderedParticles;
-//
-//	for (std::list<Particle*>::const_iterator item = particles.cbegin(); item != particles.cend(); item++)
-//		orderedParticles.push(*item);
-//
-//	while (orderedParticles.size() != 0)
-//	{
-//		Particle* first = orderedParticles.top();
-//		particles.front().
-//		float distance = first->DistanceToCamera();
-//
-//		billboard->UpdateFromParticle(*first);
-//		billboard->Draw();
-//
-//		orderedParticles.pop();
-//	}
-//
-//}
+
 
 bool ComponentParticleEmitter::DrawInspector(int id)
 {

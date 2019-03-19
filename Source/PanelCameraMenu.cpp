@@ -75,6 +75,12 @@ void PanelCameraMenu::Draw()
 
 			ImGui::Checkbox("Draw depth", &(*it)->draw_depth);
 
+			ImGui::Checkbox("Interpolated movement", &(*it)->interpolating);
+
+			if ((*it)->interpolating)
+				ImGui::InputFloat("interpolation speed", &(*it)->interpolating_speed);
+
+
 			if (ImGui::CollapsingHeader("Frustum"))
 			{
 				if ((*it)->getFrustum()->type == math::FrustumType::PerspectiveFrustum)

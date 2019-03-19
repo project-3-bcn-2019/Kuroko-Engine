@@ -96,6 +96,15 @@ bool ComponentCamera::DrawInspector(int id)
 		if (ImGui::Checkbox("Draw depth", &getCamera()->draw_depth))
 			App->scene->AskAutoSaveScene();
 
+		if (ImGui::Checkbox("Interpolated movement", &getCamera()->interpolating))
+			App->scene->AskAutoSaveScene();
+
+		if (getCamera()->interpolating)
+		{
+			if(ImGui::InputFloat("interpolation speed", &getCamera()->interpolating_speed))
+				App->scene->AskAutoSaveScene();
+		}
+
 		static bool overriding;
 		overriding = (getCamera() == App->camera->override_editor_cam_culling);
 		if (ImGui::Checkbox("Override Frustum Culling", &overriding))
