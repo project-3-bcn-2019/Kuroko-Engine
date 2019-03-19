@@ -709,10 +709,12 @@ void ModuleUI::DrawBuildMenu()
 
 	static bool building = false;
 	static bool errorBuilding = false;
+	static bool includeReleaseFile = true;
+	ImGui::Checkbox("Include Release File", &includeReleaseFile);
 	if (building)
 	{
 		building = false;
-		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName);
+		errorBuilding = !App->exporter->CreateBuild(buildPath.c_str(), buildName, includeReleaseFile);
 		if (!errorBuilding)
 			open_tabs[BUILD_MENU] = false;
 	}
