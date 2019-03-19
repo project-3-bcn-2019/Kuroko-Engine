@@ -64,6 +64,16 @@ bool ComponentTrigger::Update(float dt)
 	//	}
 	//}
 
+	if (App->input->GetKey(SDL_SCANCODE_B) == KEY_DOWN)
+	{
+		DeactivateTrigger();
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_V) == KEY_DOWN)
+	{
+		ActivateTrigger();
+	}
+
 	colliding.clear();
 	std::list<Collision> col_list;
 	App->physics->GetCollisionsFromObject(col_list, getParent());
@@ -243,6 +253,24 @@ void ComponentTrigger::UpdatePhysicsFromTransforms()
 			body->setWorldTransform(t);
 
 		}
+	}
+}
+
+void ComponentTrigger::DeactivateTrigger()
+{
+	if (is_trigger_active)
+	{
+		App->physics->world->removeCollisionObject(body);
+		is_trigger_active = false;
+	}
+}
+
+void ComponentTrigger::ActivateTrigger()
+{
+	if (!is_trigger_active)
+	{
+		App->physics->world->addCollisionObject(body);
+		is_trigger_active = true;
 	}
 }
 

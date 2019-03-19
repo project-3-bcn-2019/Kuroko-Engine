@@ -39,6 +39,10 @@ public:
 	void UpdateTransformsFromPhysics();
 	void UpdatePhysicsFromTransforms();
 
+	void DeactivateTrigger();
+	void ActivateTrigger();
+	bool is_trigger_active = true;
+
 	float3 collider_size = float3(2, 2, 2);
 
 	float3 offset_scale = float3(1, 1, 1);
