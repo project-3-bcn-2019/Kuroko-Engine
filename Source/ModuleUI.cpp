@@ -393,9 +393,12 @@ update_status ModuleUI::PostUpdate(float dt) {
 }
 
 bool ModuleUI::CleanUp() 
-{	
-	for (int i = 0; i < LAST_UI_TEX; i++) { // Cleanup textures
-		delete ui_textures[i];
+{
+	if (!App->is_game)
+	{
+		for (int i = 0; i < LAST_UI_TEX; i++) { // Cleanup textures
+			delete ui_textures[i];
+		}
 	}
 
 	for (std::list<Panel*>::iterator iterator = panels.begin(); iterator != panels.end(); iterator++)
