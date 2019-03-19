@@ -157,22 +157,6 @@ update_status ModuleScene::PostUpdate(float dt)
 // Update
 update_status ModuleScene::Update(float dt)
 {
-	if (App->input->GetKey(SDL_SCANCODE_K) == KEY_DOWN)
-	{
-		GameObject* obj = new GameObject("TEST");
-
-		obj->addComponent(PHYSICS);
-
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_J) == KEY_DOWN)
-	{
-		GameObject* obj = new GameObject("TEST_TRIGGERS");
-
-		obj->addComponent(TRIGGER);
-
-	}
-
 
 	for (auto it = game_objects.begin(); it != game_objects.end(); it++)
 		(*it)->Update(App->time->getGameDeltaTime()/1000);

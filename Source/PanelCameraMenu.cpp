@@ -19,7 +19,11 @@ void PanelCameraMenu::Draw()
 
 	if (App->camera->override_editor_cam_culling)
 	{
-		ImGui::TextWrapped("Background camera frustum culling overriden by camera %s", App->camera->override_editor_cam_culling->getParent()->getParent()->getName().c_str());
+		if(App->camera->override_editor_cam_culling->getParent())
+			ImGui::TextWrapped("Editor camera frustum culling overriden by camera %s", App->camera->override_editor_cam_culling->getParent()->getParent()->getName().c_str());
+		else
+			ImGui::TextWrapped("Editor camera frustum culling overriden by camera %s", App->camera->override_editor_cam_culling->getViewportDirString().c_str());
+
 		if (ImGui::Button("Stop overriding"))
 			App->camera->override_editor_cam_culling = nullptr;
 	}

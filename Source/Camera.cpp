@@ -167,7 +167,7 @@ std::string Camera::getViewportDirString()
 
 bool Camera::frustumCull(const OBB& obb)
 {
-	if (App->camera->override_editor_cam_culling)
+	if (App->camera->override_editor_cam_culling && App->camera->override_editor_cam_culling != this)
 		return App->camera->override_editor_cam_culling->frustumCull(obb);
 
 	for (int i = 0; i < 6; i++)
