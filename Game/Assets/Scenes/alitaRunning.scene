@@ -1,0 +1,2899 @@
+{
+    "Game Objects": [
+        {
+            "name": "Alita",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 131725018,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -1.7641944885253906,
+                        "py": 0,
+                        "pz": -0.51469230651855469,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7641944885253906,
+                        "py": 0,
+                        "pz": -0.51469230651855469,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "animation",
+                    "loop": true,
+                    "speed": 1,
+                    "animation_name": "PunchingAnimation",
+                    "Parent3dObject": "Assets\/PunchingAnimation.fbx"
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/PlayerController.wren",
+                    "variables": [
+                        {
+                            "name": "ShowDebugLogs",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "MovingState",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "IdleState",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "DashState",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Punch1",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "MoveDirection",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ComponentAnimation",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Speed",
+                            "type": "number",
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ]
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/PlayerBoundaries.wren",
+                    "variables": [
+                        {
+                            "name": "x_positive",
+                            "type": "number",
+                            "value": 11,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "x_negative",
+                            "type": "number",
+                            "value": -42,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "z_positive",
+                            "type": "number",
+                            "value": 18,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "z_negative",
+                            "type": "number",
+                            "value": -10,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Group39255_$AssimpFbx$_RotationPivot",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2910323955,
+            "Parent": 131725018,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.058121770620346069,
+                        "py": 0,
+                        "pz": -0.067009180784225464,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7060726881027222,
+                        "py": 0,
+                        "pz": -0.58170151710510254,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "Group39255_$AssimpFbx$_RotationPivotInverse",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1684732914,
+            "Parent": 2910323955,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.058121770620346069,
+                        "py": -0,
+                        "pz": 0.067009180784225464,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7641944885253906,
+                        "py": 0,
+                        "pz": -0.51469230651855469,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "Group39255_$AssimpFbx$_ScalingPivot",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 380644983,
+            "Parent": 1684732914,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.058121770620346069,
+                        "py": 0,
+                        "pz": -0.067009180784225464,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7060726881027222,
+                        "py": 0,
+                        "pz": -0.58170151710510254,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "Group39255_$AssimpFbx$_ScalingPivotInverse",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 984242816,
+            "Parent": 380644983,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.058121770620346069,
+                        "py": -0,
+                        "pz": 0.067009180784225464,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7641944885253906,
+                        "py": 0,
+                        "pz": -0.51469230651855469,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "Group39255",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1211834685,
+            "Parent": 984242816,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.7641944885253906,
+                        "py": 0,
+                        "pz": -0.51469230651855469,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "mesh",
+                    "mesh_name": "Group39255",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "bones": [
+                        {
+                            "bone_name": "QuickRigCharacter1_Hips"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftUpLeg"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftLeg"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftFoot"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftToeBase"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightUpLeg"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightLeg"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightFoot"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightToeBase"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_Spine"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_Spine1"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_Spine2"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftShoulder"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftArm"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftForeArm"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_LeftHand"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightShoulder"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightArm"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightForeArm"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_RightHand"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_Neck"
+                        },
+                        {
+                            "bone_name": "QuickRigCharacter1_Head"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Reference",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1852908856,
+            "Parent": 131725018,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.10015654563903809,
+                        "py": 0.19302868843078613,
+                        "pz": 0.10567593574523926,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.6640379428863525,
+                        "py": 0.19302868843078613,
+                        "pz": -0.40901637077331543,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Hips_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3820104505,
+            "Parent": 1852908856,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.21053929626941681,
+                        "py": 0.37431058287620544,
+                        "pz": -0.45299807190895081,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.8745772838592529,
+                        "py": 0.56733930110931396,
+                        "pz": -0.86201441287994385,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Hips_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 180136390,
+            "Parent": 3820104505,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.52123731374740601,
+                        "qy": 0.47781968116760254,
+                        "qz": 0.52123737335205078,
+                        "qw": 0.47781962156295776
+                    },
+                    "global": {
+                        "px": -1.8745772838592529,
+                        "py": 0.56733930110931396,
+                        "pz": -0.86201441287994385,
+                        "sx": 0.99999994039535522,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": 0.52123731374740601,
+                        "qy": 0.47781974077224731,
+                        "qz": 0.52123737335205078,
+                        "qw": 0.47781968116760254
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Hips_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3025543463,
+            "Parent": 180136390,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": -0.39635992050170898,
+                        "qy": 0.034890588372945786,
+                        "qz": -0.00086136051686480641,
+                        "qw": 0.91743159294128418
+                    },
+                    "global": {
+                        "px": -1.8745772838592529,
+                        "py": 0.56733930110931396,
+                        "pz": -0.86201441287994385,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.27021321654319763,
+                        "qy": 0.24888975918292999,
+                        "qz": 0.68536299467086792,
+                        "qw": 0.62874191999435425
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Hips",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 147123031,
+            "Parent": 3025543463,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.8745772838592529,
+                        "py": 0.56733930110931396,
+                        "pz": -0.86201441287994385,
+                        "sx": 1.0000001192092896,
+                        "sy": 1.0000002384185791,
+                        "sz": 1,
+                        "qx": 0.27021321654319763,
+                        "qy": 0.24888981878757477,
+                        "qz": 0.6853630542755127,
+                        "qw": 0.62874186038970947
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Hips",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 971445201,
+            "Parent": 147123031,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.0018882452277466655,
+                        "py": -0.0075136995874345303,
+                        "pz": 0.83990168571472168,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.2950348854064941,
+                        "py": 0.56725174188613892,
+                        "pz": -0.25404608249664307,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.27021324634552002,
+                        "qy": 0.24888987839221954,
+                        "qz": 0.6853630542755127,
+                        "qw": 0.62874174118041992
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4288144856,
+            "Parent": 971445201,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0.99905705451965332,
+                        "qw": 0.043417703360319138
+                    },
+                    "global": {
+                        "px": -1.2950348854064941,
+                        "py": 0.56725174188613892,
+                        "pz": -0.25404608249664307,
+                        "sx": 1.0000005960464478,
+                        "sy": 1.0000005960464478,
+                        "sz": 1,
+                        "qx": -0.26038718223571777,
+                        "qy": 0.25915223360061646,
+                        "qz": -0.6579056978225708,
+                        "qw": 0.65741825103759766
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftUpLeg_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 609467439,
+            "Parent": 4288144856,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": -0.20749101042747498,
+                        "qy": -0.25729739665985107,
+                        "qz": -0.42275711894035339,
+                        "qw": 0.84381395578384399
+                    },
+                    "global": {
+                        "px": -1.2950348854064941,
+                        "py": 0.56725174188613892,
+                        "pz": -0.25404608249664307,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.63496255874633789,
+                        "qy": -0.075953170657157898,
+                        "qz": 0.71230953931808472,
+                        "qw": -0.28925558924674988
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftUpLeg",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1488489932,
+            "Parent": 609467439,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.2950348854064941,
+                        "py": 0.56725174188613892,
+                        "pz": -0.25404608249664307,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.63496255874633789,
+                        "qy": -0.075953170657157898,
+                        "qz": 0.71230953931808472,
+                        "qw": -0.28925558924674988
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftUpLeg",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftLeg",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4262918580,
+            "Parent": 1488489932,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 2.8589029312133789,
+                        "py": 8.1166160725842929e-07,
+                        "pz": 9.6681824288680218e-06,
+                        "sx": 0.99999988079071045,
+                        "sy": 0.99999988079071045,
+                        "sz": 1,
+                        "qx": 0.019534766674041748,
+                        "qy": 0.017564445734024048,
+                        "qz": 0.66837966442108154,
+                        "qw": 0.74335622787475586
+                    },
+                    "global": {
+                        "px": -1.3702362775802612,
+                        "py": -0.88659602403640747,
+                        "pz": 2.2064423561096191,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000001192092896,
+                        "sz": 1.0000002384185791,
+                        "qx": -0.40307599306106567,
+                        "qy": 0.47202214598655701,
+                        "qz": -0.34880372881889343,
+                        "qw": 0.70218294858932495
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftLeg",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3537627649,
+            "Parent": 4262918580,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 3.5936582088470459,
+                        "py": 1.2270807303593756e-07,
+                        "pz": -1.2850952089138445e-06,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -0.25238645076751709,
+                        "py": -4.0144081115722656,
+                        "pz": 0.8347315788269043,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000001192092896,
+                        "sz": 1.0000003576278687,
+                        "qx": -0.40307605266571045,
+                        "qy": 0.47202214598655701,
+                        "qz": -0.34880378842353821,
+                        "qw": 0.70218288898468018
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3456059231,
+            "Parent": 3537627649,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -6.901584725937937e-08,
+                        "qy": -1.9372055248823017e-07,
+                        "qz": -0.33560287952423096,
+                        "qw": 0.94200354814529419
+                    },
+                    "global": {
+                        "px": -0.25238645076751709,
+                        "py": -4.0144081115722656,
+                        "pz": 0.8347315788269043,
+                        "sx": 1.0000001192092896,
+                        "sy": 1.0000002384185791,
+                        "sz": 1.0000003576278687,
+                        "qx": -0.53811120986938477,
+                        "qy": 0.30937302112579346,
+                        "qz": -0.56422895193099976,
+                        "qw": 0.5443992018699646
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftFoot_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2533390634,
+            "Parent": 3456059231,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 0.99999994039535522,
+                        "qx": -0.018151361495256424,
+                        "qy": 0.048487398773431778,
+                        "qz": -0.22412939369678497,
+                        "qw": 0.97318321466445923
+                    },
+                    "global": {
+                        "px": -0.25238645076751709,
+                        "py": -4.0144081115722656,
+                        "pz": 0.8347315788269043,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000004768371582,
+                        "qx": 0.57554394006729126,
+                        "qy": -0.21710805594921112,
+                        "qz": 0.69159001111984253,
+                        "qw": -0.37857165932655334
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftFoot",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2950837559,
+            "Parent": 2533390634,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -0.25238645076751709,
+                        "py": -4.0144081115722656,
+                        "pz": 0.8347315788269043,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000004768371582,
+                        "qx": 0.57554394006729126,
+                        "qy": -0.2171081006526947,
+                        "qz": 0.69159001111984253,
+                        "qw": -0.37857165932655334
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftFoot",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftToeBase",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4052086407,
+            "Parent": 2950837559,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.90881997346878052,
+                        "py": -2.3049037167766073e-07,
+                        "pz": 4.7571251116096391e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -0.29861357808113098,
+                        "py": -4.7174196243286133,
+                        "pz": 1.4088326692581177,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000004768371582,
+                        "qx": 0.57554394006729126,
+                        "qy": -0.2171081006526947,
+                        "qz": 0.69159001111984253,
+                        "qw": -0.37857165932655334
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftToeBase",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 809689938,
+            "Parent": 147123031,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.0018882452277466655,
+                        "py": -0.0075136995874345303,
+                        "pz": -0.83990168571472168,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.4429507255554199,
+                        "py": 0.5649486780166626,
+                        "pz": -1.4804325103759766,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.27021324634552002,
+                        "qy": 0.24888987839221954,
+                        "qz": 0.6853630542755127,
+                        "qw": 0.62874174118041992
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 553683096,
+            "Parent": 809689938,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -1.3139409560380955e-09,
+                        "qy": -3.0230843606204871e-08,
+                        "qz": -0.043422594666481018,
+                        "qw": 0.99905681610107422
+                    },
+                    "global": {
+                        "px": -2.4429507255554199,
+                        "py": 0.5649486780166626,
+                        "pz": -1.4804325103759766,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.25915095210075378,
+                        "qy": 0.26038846373558044,
+                        "qz": 0.65741497278213501,
+                        "qw": 0.65790891647338867
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightUpLeg_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 151130978,
+            "Parent": 553683096,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.99999994039535522,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -0.10424239188432693,
+                        "qy": -0.19102638959884644,
+                        "qz": -0.38274377584457397,
+                        "qw": 0.8978583812713623
+                    },
+                    "global": {
+                        "px": -2.4429507255554199,
+                        "py": 0.5649486780166626,
+                        "pz": -1.4804325103759766,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.19002041220664978,
+                        "qy": 0.13877189159393311,
+                        "qz": 0.3160938024520874,
+                        "qw": 0.91908615827560425
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightUpLeg",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3774999211,
+            "Parent": 151130978,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.4429507255554199,
+                        "py": 0.5649486780166626,
+                        "pz": -1.4804325103759766,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.19002045691013336,
+                        "qy": 0.13877192139625549,
+                        "qz": 0.31609386205673218,
+                        "qw": 0.91908621788024902
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightUpLeg",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightLeg",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2797773999,
+            "Parent": 3774999211,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -2.8589038848876953,
+                        "py": -4.8172519200306851e-06,
+                        "pz": -6.3111106101132464e-06,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.1018964871764183,
+                        "qy": 0.097741253674030304,
+                        "qz": 0.68529683351516724,
+                        "qw": 0.71444523334503174
+                    },
+                    "global": {
+                        "px": -4.6204466819763184,
+                        "py": -1.2469526529312134,
+                        "pz": -1.0946078300476074,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000002384185791,
+                        "sz": 1,
+                        "qx": 0.2936154305934906,
+                        "qy": 0.090965993702411652,
+                        "qz": 0.8601110577583313,
+                        "qw": 0.4070923924446106
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightLeg",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1937537001,
+            "Parent": 2797773999,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -3.5936527252197266,
+                        "py": 2.6031332822640252e-07,
+                        "pz": 8.0977912375601591e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.8375208377838135,
+                        "py": -3.9555163383483887,
+                        "pz": -2.6435461044311523,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.29361540079116821,
+                        "qy": 0.090965978801250458,
+                        "qz": 0.8601110577583313,
+                        "qw": 0.40709233283996582
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1633597517,
+            "Parent": 1937537001,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -8.8920214693644084e-06,
+                        "qy": -2.495901208021678e-05,
+                        "qz": -0.33560287952423096,
+                        "qw": 0.94200354814529419
+                    },
+                    "global": {
+                        "px": -2.8375208377838135,
+                        "py": -3.9555163383483887,
+                        "pz": -2.6435461044311523,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.24607618153095245,
+                        "qy": 0.1842106431722641,
+                        "qz": 0.67359983921051025,
+                        "qw": 0.67214304208755493
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightFoot_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2532060103,
+            "Parent": 1633597517,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.99999994039535522,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.074772730469703674,
+                        "qy": 0.04935043677687645,
+                        "qz": -0.33856534957885742,
+                        "qw": 0.93666809797286987
+                    },
+                    "global": {
+                        "px": -2.8375208377838135,
+                        "py": -3.9555163383483887,
+                        "pz": -2.6435461044311523,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.18513984978199005,
+                        "qy": 0.33939450979232788,
+                        "qz": 0.40174520015716553,
+                        "qw": 0.83014184236526489
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightFoot",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 735128016,
+            "Parent": 2532060103,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.8375208377838135,
+                        "py": -3.9555163383483887,
+                        "pz": -2.6435461044311523,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.18513984978199005,
+                        "qy": 0.33939450979232788,
+                        "qz": 0.40174522995948792,
+                        "qw": 0.83014184236526489
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightFoot",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightToeBase_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2196550881,
+            "Parent": 735128016,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -0.90881991386413574,
+                        "py": 5.3628957630280638e-07,
+                        "pz": 2.7076040964857384e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.2436039447784424,
+                        "py": -4.6759214401245117,
+                        "pz": -2.2666277885437012,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.18513984978199005,
+                        "qy": 0.33939450979232788,
+                        "qz": 0.40174522995948792,
+                        "qw": 0.83014178276062012
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightToeBase_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 236327286,
+            "Parent": 2196550881,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 2.5422727048862725e-05,
+                        "qy": -4.2078911064891145e-05,
+                        "qz": 1.0697607244480878e-09,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.2436039447784424,
+                        "py": -4.6759214401245117,
+                        "pz": -2.2666277885437012,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.18517786264419556,
+                        "qy": 0.33936977386474609,
+                        "qz": 0.40172883868217468,
+                        "qw": 0.83015137910842896
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightToeBase",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4279000221,
+            "Parent": 236327286,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.2436039447784424,
+                        "py": -4.6759214401245117,
+                        "pz": -2.2666277885437012,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.18517786264419556,
+                        "qy": 0.33936980366706848,
+                        "qz": 0.40172883868217468,
+                        "qw": 0.83015137910842896
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightToeBase",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1719089572,
+            "Parent": 147123031,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.87647771835327148,
+                        "py": -1.2914576075218065e-07,
+                        "pz": -2.0816681711721685e-16,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.9300909042358398,
+                        "py": 1.4406087398529053,
+                        "pz": -0.81169295310974121,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.27021324634552002,
+                        "qy": 0.24888987839221954,
+                        "qz": 0.6853630542755127,
+                        "qw": 0.62874174118041992
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2521496169,
+            "Parent": 1719089572,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.99999994039535522,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": -0.061209872364997864,
+                        "qw": 0.99812495708465576
+                    },
+                    "global": {
+                        "px": -1.9300909042358398,
+                        "py": 1.4406087398529053,
+                        "pz": -0.81169295310974121,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000002384185791,
+                        "sz": 1,
+                        "qx": 0.25447207689285278,
+                        "qy": 0.26496294140815735,
+                        "qz": 0.64559274911880493,
+                        "qw": 0.66951382160186768
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1366453565,
+            "Parent": 2521496169,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.99999994039535522,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": -0.0039331801235675812,
+                        "qy": 0.001541547360830009,
+                        "qz": -0.0062286774627864361,
+                        "qw": 0.99997168779373169
+                    },
+                    "global": {
+                        "px": -1.9300909042358398,
+                        "py": 1.4406087398529053,
+                        "pz": -0.81169295310974121,
+                        "sx": 1.0000002384185791,
+                        "sy": 1.0000003576278687,
+                        "sz": 1,
+                        "qx": 0.2491859644651413,
+                        "qy": 0.26503336429595947,
+                        "qz": 0.64283877611160278,
+                        "qw": 0.67410838603973389
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2841147247,
+            "Parent": 1366453565,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.9300909042358398,
+                        "py": 1.4406087398529053,
+                        "pz": -0.81169295310974121,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1,
+                        "qx": 0.24918597936630249,
+                        "qy": 0.26503339409828186,
+                        "qz": 0.64283877611160278,
+                        "qw": 0.67410832643508911
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Spine",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine1",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3353209887,
+            "Parent": 2841147247,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.86883264780044556,
+                        "py": -3.6947852777302614e-08,
+                        "pz": 1.6195990326650644e-08,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -0.0035522989928722382,
+                        "qy": 0.0010211202315986156,
+                        "qz": 0.03622153028845787,
+                        "qw": 0.99933695793151855
+                    },
+                    "global": {
+                        "px": -1.9013922214508057,
+                        "py": 2.3083739280700684,
+                        "pz": -0.8437960147857666,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000001192092896,
+                        "qx": 0.25556966662406921,
+                        "qy": 0.25423657894134521,
+                        "qz": 0.66802573204040527,
+                        "qw": 0.65099126100540161
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Spine1",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3533178865,
+            "Parent": 3353209887,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.8688318133354187,
+                        "py": -6.478324365843946e-08,
+                        "pz": -1.5230085637085722e-08,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.920323371887207,
+                        "py": 3.1769523620605469,
+                        "pz": -0.83472317457199097,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000001192092896,
+                        "qx": 0.25556966662406921,
+                        "qy": 0.2542366087436676,
+                        "qz": 0.66802579164505005,
+                        "qw": 0.65099120140075684
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3398985695,
+            "Parent": 3533178865,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.99999994039535522,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": -0.063196517527103424,
+                        "qw": 0.9980010986328125
+                    },
+                    "global": {
+                        "px": -1.920323371887207,
+                        "py": 3.1769523620605469,
+                        "pz": -0.83472317457199097,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000001192092896,
+                        "qx": 0.23899197578430176,
+                        "qy": 0.26987957954406738,
+                        "qz": 0.62555015087127686,
+                        "qw": 0.69190675020217896
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine2_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1585905361,
+            "Parent": 3398985695,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -0.0016117584891617298,
+                        "qy": -0.0066839940845966339,
+                        "qz": 0.032969482243061066,
+                        "qw": 0.99943280220031738
+                    },
+                    "global": {
+                        "px": -1.920323371887207,
+                        "py": 3.1769523620605469,
+                        "pz": -0.83472317457199097,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000005960464478,
+                        "sz": 1,
+                        "qx": 0.25082018971443176,
+                        "qy": 0.25621411204338074,
+                        "qz": 0.64684468507766724,
+                        "qw": 0.67307919263839722
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Spine2",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4051178462,
+            "Parent": 1585905361,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.920323371887207,
+                        "py": 3.1769523620605469,
+                        "pz": -0.83472317457199097,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000005960464478,
+                        "sz": 1,
+                        "qx": 0.25082021951675415,
+                        "qy": 0.25621414184570313,
+                        "qz": 0.64684474468231201,
+                        "qw": 0.67307913303375244
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Spine2",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4069749888,
+            "Parent": 4051178462,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 1.7182533740997314,
+                        "py": -0.060291498899459839,
+                        "pz": 0.7105947732925415,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.345110297203064,
+                        "py": 4.8873286247253418,
+                        "pz": -0.38226184248924255,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000007152557373,
+                        "sz": 1,
+                        "qx": 0.25082021951675415,
+                        "qy": 0.25621417164802551,
+                        "qz": 0.64684474468231201,
+                        "qw": 0.67307907342910767
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 896818887,
+            "Parent": 4069749888,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 0.99999994039535522,
+                        "sz": 0.99999994039535522,
+                        "qx": -0.45787501335144043,
+                        "qy": -0.53884172439575195,
+                        "qz": -0.45787504315376282,
+                        "qw": 0.53884178400039673
+                    },
+                    "global": {
+                        "px": -1.345110297203064,
+                        "py": 4.8873286247253418,
+                        "pz": -0.38226184248924255,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.0581992007791996,
+                        "qy": -0.40595388412475586,
+                        "qz": 0.022522585466504097,
+                        "qw": 0.91176038980484009
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftShoulder_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1850666775,
+            "Parent": 896818887,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.345110297203064,
+                        "py": 4.8873286247253418,
+                        "pz": -0.38226184248924255,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.058199197053909302,
+                        "qy": -0.40595388412475586,
+                        "qz": 0.022522583603858948,
+                        "qw": 0.91176038980484009
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftShoulder",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4245878120,
+            "Parent": 1850666775,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.345110297203064,
+                        "py": 4.8873286247253418,
+                        "pz": -0.38226184248924255,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.058199197053909302,
+                        "qy": -0.40595388412475586,
+                        "qz": 0.022522579878568649,
+                        "qw": 0.91176038980484009
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftShoulder",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 622987090,
+            "Parent": 4245878120,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 1.0658930540084839,
+                        "py": -1.822472057710911e-07,
+                        "pz": 4.6232759132180945e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -0.63161426782608032,
+                        "py": 4.8807392120361328,
+                        "pz": 0.40957650542259216,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.058199197053909302,
+                        "qy": -0.40595388412475586,
+                        "qz": 0.022522579878568649,
+                        "qw": 0.91176038980484009
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 334225734,
+            "Parent": 622987090,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.70710676908493042,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710676908493042
+                    },
+                    "global": {
+                        "px": -0.63161426782608032,
+                        "py": 4.8807392120361328,
+                        "pz": 0.40957650542259216,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000003576278687,
+                        "qx": 0.68586504459381104,
+                        "qy": -0.27112686634063721,
+                        "qz": 0.30297860503196716,
+                        "qw": 0.60355895757675171
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftArm_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3543626794,
+            "Parent": 334225734,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.024309348315000534,
+                        "qy": -0.48929867148399353,
+                        "qz": 0.17231228947639465,
+                        "qw": 0.85457849502563477
+                    },
+                    "global": {
+                        "px": -0.63161426782608032,
+                        "py": 4.8807392120361328,
+                        "pz": 0.40957650542259216,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.70232611894607544,
+                        "qy": -0.63783752918243408,
+                        "qz": 0.033917676657438278,
+                        "qw": 0.31424668431282043
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftArm",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 260857757,
+            "Parent": 3543626794,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -0.63161426782608032,
+                        "py": 4.8807392120361328,
+                        "pz": 0.40957650542259216,
+                        "sx": 1.0000003576278687,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000003576278687,
+                        "qx": 0.70232605934143066,
+                        "qy": -0.63783752918243408,
+                        "qz": 0.033917680382728577,
+                        "qw": 0.31424668431282043
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftArm",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftForeArm",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2968876521,
+            "Parent": 260857757,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 2.5286784172058105,
+                        "py": -3.0511606041727646e-07,
+                        "pz": 1.6271958429570077e-06,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 0.99999988079071045,
+                        "qx": 0.0013577550416812301,
+                        "qy": 0.002588821342214942,
+                        "qz": 0.91937631368637085,
+                        "qw": 0.39336836338043213
+                    },
+                    "global": {
+                        "px": -0.16627243161201477,
+                        "py": 2.6690981388092041,
+                        "pz": 1.5437363386154175,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.30980095267295837,
+                        "qy": 0.89574748277664185,
+                        "qz": -0.30493733286857605,
+                        "qw": -0.093129254877567291
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftForeArm",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_LeftHand",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3067478304,
+            "Parent": 2968876521,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 1.5368529558181763,
+                        "py": -3.2407402983380962e-08,
+                        "pz": -2.5014750804075447e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -0.00018787049339152873,
+                        "qy": 1.3644463336959234e-10,
+                        "qz": -7.2626960445631994e-07,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.3814635276794434,
+                        "py": 3.609351634979248,
+                        "pz": 1.5097733736038208,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000003576278687,
+                        "qx": 0.30981782078742981,
+                        "qy": 0.8958050012588501,
+                        "qz": -0.30476894974708557,
+                        "qw": -0.09307127445936203
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_LeftHand",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2156124300,
+            "Parent": 4051178462,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 1.7182528972625732,
+                        "py": -0.060291152447462082,
+                        "pz": -0.7105945348739624,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.2964379787445068,
+                        "py": 4.8961138725280762,
+                        "pz": -1.4380447864532471,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000007152557373,
+                        "sz": 1,
+                        "qx": 0.25082021951675415,
+                        "qy": 0.25621417164802551,
+                        "qz": 0.64684474468231201,
+                        "qw": 0.67307907342910767
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3052884626,
+            "Parent": 2156124300,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 0.99999994039535522,
+                        "sz": 0.99999994039535522,
+                        "qx": 0.53884172439575195,
+                        "qy": -0.45787507295608521,
+                        "qz": 0.53884178400039673,
+                        "qw": 0.45787504315376282
+                    },
+                    "global": {
+                        "px": -2.2964379787445068,
+                        "py": 4.8961138725280762,
+                        "pz": -1.4380447864532471,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.91176038980484009,
+                        "qy": 0.022522475570440292,
+                        "qz": 0.40595394372940063,
+                        "qw": -0.058199193328619003
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightShoulder_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3131956408,
+            "Parent": 3052884626,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 1.2364810118015157e-06,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.2964379787445068,
+                        "py": 4.8961138725280762,
+                        "pz": -1.4380447864532471,
+                        "sx": 1,
+                        "sy": 1.0000004768371582,
+                        "sz": 1.0000005960464478,
+                        "qx": 0.91175991296768188,
+                        "qy": 0.022522401064634323,
+                        "qz": 0.40595504641532898,
+                        "qw": -0.058199219405651093
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightShoulder",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2637989002,
+            "Parent": 3131956408,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -2.2964379787445068,
+                        "py": 4.8961138725280762,
+                        "pz": -1.4380447864532471,
+                        "sx": 1,
+                        "sy": 1.0000005960464478,
+                        "sz": 1.0000007152557373,
+                        "qx": 0.91175991296768188,
+                        "qy": 0.022522401064634323,
+                        "qz": 0.40595501661300659,
+                        "qw": -0.058199215680360794
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightShoulder",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 960278456,
+            "Parent": 2637989002,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -1.0658934116363525,
+                        "py": -7.2955418772835401e-07,
+                        "pz": -2.6040092393486702e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.0099329948425293,
+                        "py": 4.9027042388916016,
+                        "pz": -2.2298846244812012,
+                        "sx": 1,
+                        "sy": 1.0000007152557373,
+                        "sz": 1.0000007152557373,
+                        "qx": 0.91175991296768188,
+                        "qy": 0.022522397339344025,
+                        "qz": 0.40595501661300659,
+                        "qw": -0.058199215680360794
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2936439027,
+            "Parent": 960278456,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.70710676908493042,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0.70710676908493042
+                    },
+                    "global": {
+                        "px": -3.0099329948425293,
+                        "py": 4.9027042388916016,
+                        "pz": -2.2298846244812012,
+                        "sx": 1,
+                        "sy": 1.0000005960464478,
+                        "sz": 1.0000008344650269,
+                        "qx": -0.60355859994888306,
+                        "qy": -0.30297929048538208,
+                        "qz": -0.271127849817276,
+                        "qw": 0.68586462736129761
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightArm_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3901605225,
+            "Parent": 2936439027,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 0.99999994039535522,
+                        "qx": 0.014581802301108837,
+                        "qy": -0.43969464302062988,
+                        "qz": 0.50033456087112427,
+                        "qw": 0.74573546648025513
+                    },
+                    "global": {
+                        "px": -3.0099329948425293,
+                        "py": 4.9027042388916016,
+                        "pz": -2.2298846244812012,
+                        "sx": 1.0000008344650269,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000003576278687,
+                        "qx": -0.71089845895767212,
+                        "qy": -0.22948561608791351,
+                        "qz": 0.41077148914337158,
+                        "qw": 0.52271074056625366
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightArm",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 4182821507,
+            "Parent": 3901605225,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.0099329948425293,
+                        "py": 4.9027042388916016,
+                        "pz": -2.2298846244812012,
+                        "sx": 1.0000008344650269,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000002384185791,
+                        "qx": -0.71089845895767212,
+                        "qy": -0.22948567569255829,
+                        "qz": 0.41077154874801636,
+                        "qw": 0.52271080017089844
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightArm",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightForeArm",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 887992169,
+            "Parent": 4182821507,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -2.5286765098571777,
+                        "py": -5.1270753829157911e-06,
+                        "pz": -2.5938611543097068e-06,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": -2.844198388629593e-05,
+                        "qy": 2.2046793674235232e-05,
+                        "qz": 0.91525751352310181,
+                        "qw": 0.40286931395530701
+                    },
+                    "global": {
+                        "px": -4.4189252853393555,
+                        "py": 2.991753101348877,
+                        "pz": -1.3596994876861572,
+                        "sx": 1.0000007152557373,
+                        "sy": 1.0000005960464478,
+                        "sz": 1.0000003576278687,
+                        "qx": -0.49646157026290894,
+                        "qy": 0.55820226669311523,
+                        "qz": 0.64388000965118408,
+                        "qw": -0.16539286077022552
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightForeArm",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_RightHand",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1403947850,
+            "Parent": 887992169,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -1.5368528366088867,
+                        "py": 4.5496085476770531e-07,
+                        "pz": 1.564821161537111e-07,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 5.2737526857526973e-05,
+                        "qy": 4.7594126556527172e-11,
+                        "qz": 9.0247169737267541e-07,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -3.7237412929534912,
+                        "py": 4.1708860397338867,
+                        "pz": -0.66092538833618164,
+                        "sx": 1.0000009536743164,
+                        "sy": 1.0000008344650269,
+                        "sz": 1.0000004768371582,
+                        "qx": -0.49646973609924316,
+                        "qy": 0.55823665857315063,
+                        "qz": 0.64385050535202026,
+                        "qw": -0.16536721587181091
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_RightHand",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Neck_$AssimpFbx$_Translation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1234789518,
+            "Parent": 4051178462,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 2.2885925769805908,
+                        "py": -8.4799879118691024e-08,
+                        "pz": 4.7298900796022281e-08,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.847334623336792,
+                        "py": 5.4639043807983398,
+                        "pz": -0.88145923614501953,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000007152557373,
+                        "sz": 1,
+                        "qx": 0.25082021951675415,
+                        "qy": 0.25621417164802551,
+                        "qz": 0.64684474468231201,
+                        "qw": 0.67307907342910767
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Neck_$AssimpFbx$_PreRotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 1947853375,
+            "Parent": 1234789518,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0.019193464890122414,
+                        "qw": 0.99981582164764404
+                    },
+                    "global": {
+                        "px": -1.847334623336792,
+                        "py": 5.4639043807983398,
+                        "pz": -0.88145923614501953,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000007152557373,
+                        "sz": 1,
+                        "qx": 0.25569164752960205,
+                        "qy": 0.25135287642478943,
+                        "qz": 0.65964436531066895,
+                        "qw": 0.66053986549377441
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Neck_$AssimpFbx$_Rotation",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 2661381962,
+            "Parent": 1947853375,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 0.99999994039535522,
+                        "sz": 1,
+                        "qx": 0.31385722756385803,
+                        "qy": 0.012078026309609413,
+                        "qz": -0.044860444962978363,
+                        "qw": 0.94833290576934814
+                    },
+                    "global": {
+                        "px": -1.847334623336792,
+                        "py": 5.4639043807983398,
+                        "pz": -0.88145923614501953,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.43055292963981628,
+                        "qy": 0.4648488461971283,
+                        "qz": 0.52012979984283447,
+                        "qw": 0.57271695137023926
+                    }
+                },
+                {
+                    "type": "AABB"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Neck",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 3346109191,
+            "Parent": 2661381962,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -1.847334623336792,
+                        "py": 5.4639043807983398,
+                        "pz": -0.88145923614501953,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000003576278687,
+                        "sz": 1.0000002384185791,
+                        "qx": 0.43055295944213867,
+                        "qy": 0.46484887599945068,
+                        "qz": 0.52012979984283447,
+                        "qw": 0.57271695137023926
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Neck",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        },
+        {
+            "name": "QuickRigCharacter1_Head",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 853112212,
+            "Parent": 3346109191,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 0.84851878881454468,
+                        "py": -2.0960845859008259e-07,
+                        "pz": -3.6914205026050695e-08,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0.31685101985931396,
+                        "qy": 0.017156163230538368,
+                        "qz": -0.022920656949281693,
+                        "qw": 0.9480431079864502
+                    },
+                    "global": {
+                        "px": -1.8246273994445801,
+                        "py": 6.3090791702270508,
+                        "pz": -0.95321601629257202,
+                        "sx": 1.0000004768371582,
+                        "sy": 1.0000002384185791,
+                        "sz": 1.0000003576278687,
+                        "qx": 0.57007062435150146,
+                        "qy": 0.62519460916519165,
+                        "qz": 0.34007725119590759,
+                        "qw": 0.41048586368560791
+                    }
+                },
+                {
+                    "type": "AABB"
+                },
+                {
+                    "type": "bone",
+                    "bone_name": "QuickRigCharacter1_Head",
+                    "Parent3dObject": "Assets\/RunningAnimation2013.fbx"
+                }
+            ]
+        }
+    ]
+}

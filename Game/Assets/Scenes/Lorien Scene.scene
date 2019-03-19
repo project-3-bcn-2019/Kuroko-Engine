@@ -1,0 +1,276 @@
+{
+    "Game Objects": [
+        {
+            "name": "Enemy",
+            "tag": "undefined",
+            "static": false,
+            "UUID": 796520396,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": 32.444404602050781,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.0099999997764825821,
+                        "sy": 0.0099999997764825821,
+                        "sz": 0.0099999997764825821,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0
+                    },
+                    "global": {
+                        "px": 32.444404602050781,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 0.0099999997764825821,
+                        "sy": 0.0099999997764825821,
+                        "sz": 0.0099999997764825821,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 0
+                    },
+                    "uuid": 3100623553
+                },
+                {
+                    "type": "AABB",
+                    "uuid": 4033775807
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/EnemyController.wren",
+                    "variables": [
+                        {
+                            "name": "ShowDebuLogs",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "IdleState",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ChaseState",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AttackState",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "HitState",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "DeadState",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ComponentAnimation",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "ComponentAudioSource",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "MoveScript",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "MoveSpeed",
+                            "type": "number",
+                            "value": 30,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Damage",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AttackSpeed",
+                            "type": "number",
+                            "value": 300,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AttackRange",
+                            "type": "number",
+                            "value": 5,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Health",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "HitStun",
+                            "type": "number",
+                            "value": 0,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Sight",
+                            "type": "number",
+                            "value": 50,
+                            "public": true,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AlitaSeen",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "AlitaInRange",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Damaged",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        },
+                        {
+                            "name": "Target",
+                            "type": "number",
+                            "public": false,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 690504501
+                },
+                {
+                    "type": "mesh",
+                    "mesh_name": "TankChassis",
+                    "Parent3dObject": "Assets\/Meshes\/Tank.fbx",
+                    "primitive_type": "NONE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "uuid": 1722399917
+                },
+                {
+                    "type": "script",
+                    "script": "Assets\/Scripts\/EntityMove.wren",
+                    "variables": [
+                        {
+                            "name": "deceleration",
+                            "type": "number",
+                            "value": 0.0099999997764825821,
+                            "public": true,
+                            "type_forced": false
+                        }
+                    ],
+                    "uuid": 3136885921
+                },
+                {
+                    "type": "physics",
+                    "data": {
+                        "shape": 0,
+                        "is_environment": false
+                    },
+                    "pos": {
+                        "offset_pos_x": 0,
+                        "offset_pos_y": 0,
+                        "offset_pos_z": 0
+                    },
+                    "rot": {
+                        "offset_rot_x": 0,
+                        "offset_rot_y": 0,
+                        "offset_rot_z": 0
+                    },
+                    "scale": {
+                        "offset_scale_x": 1,
+                        "offset_scale_y": 1,
+                        "offset_scale_z": 1
+                    },
+                    "uuid": 1324414752
+                }
+            ]
+        },
+        {
+            "name": "Alita tag",
+            "tag": "Alita",
+            "static": false,
+            "UUID": 1736216700,
+            "isUI": false,
+            "Components": [
+                {
+                    "type": "transform",
+                    "local": {
+                        "px": -26.929676055908203,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "global": {
+                        "px": -26.929676055908203,
+                        "py": 0,
+                        "pz": 0,
+                        "sx": 1,
+                        "sy": 1,
+                        "sz": 1,
+                        "qx": 0,
+                        "qy": 0,
+                        "qz": 0,
+                        "qw": 1
+                    },
+                    "uuid": 288601137
+                },
+                {
+                    "type": "AABB",
+                    "uuid": 724721747
+                },
+                {
+                    "type": "mesh",
+                    "primitive_type": "SPHERE",
+                    "material": {
+                        "diffuse": "missing_reference"
+                    },
+                    "uuid": 2856102269
+                }
+            ]
+        }
+    ]
+}
