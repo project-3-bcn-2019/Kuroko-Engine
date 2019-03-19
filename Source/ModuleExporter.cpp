@@ -23,11 +23,11 @@ bool ModuleExporter::CleanUp()
 	return true;
 }
 
-bool ModuleExporter::CreateBuild(const char* path, const char* name)
+bool ModuleExporter::CreateBuild(const char* path, const char* name, bool releaseFile)
 {
 	bool ret = App->fs.ExistisFile("../Release/Project-Atlas.exe");
 
-	if (ret)
+	if (ret || !releaseFile)
 	{
 		AssetsToLibraryJSON();
 		std::string fullPath = path;
@@ -43,7 +43,8 @@ bool ModuleExporter::CreateBuild(const char* path, const char* name)
 		excludedFiles.clear();
 		excludedFiles.push_back("memory.log");
 		App->fs.CopyFolder("..\\Game\\*", fullPath.c_str(), false, &excludedFiles); // Copy files in Game folder (not recursively)
-		App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name); // Copy release .exe
+		if (releaseFile)
+			App->fs.copyFileTo("../Release/Project-Atlas.exe", NO_LIB, ".exe", fullPath + name); // Copy release .exe
 		CreateDirectory((fullPath + "Library\\Scenes\\").c_str(), NULL);
 		std::list<resource_deff> build_scenes = App->gui->GetBuildScenes(); // Get selected scenes to copy them
 		for (auto it = build_scenes.begin(); it != build_scenes.end(); it++) {
