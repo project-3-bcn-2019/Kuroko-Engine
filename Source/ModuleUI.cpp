@@ -499,7 +499,7 @@ void ModuleUI::DrawCameraViewWindow(Camera& camera)
 			game_window_pos = window_pos;
 		if (&camera == App->camera->editor_camera)
 		{
-			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic() && !App->scene->selected_obj.front()->is_UI) // Not draw guizmo if it is static
+			if (!App->scene->selected_obj.empty() && !App->scene->selected_obj.front()->isStatic()) // Not draw guizmo if it is static
 			{
 				ImGuizmo::SetDrawlist();
 				App->gui->DrawGuizmo(window_pos, window_size);
@@ -817,9 +817,7 @@ void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 
 		ImGuizmo::SetRect(window_pos.x, window_pos.y, window_size.x, window_size.y);
 
-		ComponentTransform* transform = (ComponentTransform*)(*App->scene->selected_obj.begin())->getComponent(TRANSFORM);
-		Transform* trans = transform->global;
-
+		
 		float3 guizmoPos = float3::zero;
 		float3 guizmoScale = float3::zero;
 		Quat guizmoRot = Quat::identity;
@@ -935,16 +933,16 @@ void ModuleUI::DrawGuizmo(ImVec2 window_pos, ImVec2 window_size)
 					case ImGuizmo::OPERATION::ROTATE:
 						if (App->scene->selected_obj.size() > 1)
 						{
-							new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
-							new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
-							new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
+							new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
+							new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
+							new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
 							trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z) * trans->getRotation());
 						}
 						else
 						{
-							new_rot.x = transform->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
-							new_rot.y = transform->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
-							new_rot.z = transform->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
+							new_rot.x = selectedTrans->constraints[1][0] ? trans->getRotationEuler().x : mat.RotatePart().ToEulerXYZ().x;
+							new_rot.y = selectedTrans->constraints[1][1] ? trans->getRotationEuler().y : mat.RotatePart().ToEulerXYZ().y;
+							new_rot.z = selectedTrans->constraints[1][2] ? trans->getRotationEuler().z : mat.RotatePart().ToEulerXYZ().z;
 							trans->setRotation(Quat::FromEulerXYZ(new_rot.x, new_rot.y, new_rot.z));
 						}
 						break;
